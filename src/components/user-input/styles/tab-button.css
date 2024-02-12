@@ -1,0 +1,135 @@
+.nav-menu-tab-text {
+  position: relative;
+  font-size: 14px;
+  font-family: var(--font-sand);
+  color: inherit;
+  text-align: left;
+}
+
+.nav-menu-tab {
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  gap: 10px;
+  border: 1px solid transparent;
+  padding: 10px 15px;
+  background-color: transparent;
+  color: var(--color-darkblue);
+  border-radius: 100px;
+  box-sizing: border-box;
+  height: 40px;
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-menu-tab:hover {
+  color: var(--color-blue);
+}
+
+.active {
+  border: 1px dashed var(--color-blue);
+  color: var(--color-blue);
+}
+
+.dropdown-button-text {
+  flex: 1;
+  position: relative;
+  font-size: 14px;
+  font-family: var(--font-sand);
+  color: inherit;
+  text-align: left;
+}
+
+.dropdown-button-icon {
+  opacity: 0;
+  overflow: hidden;
+  color: inherit;
+  flex-direction: row;
+  justify-content: center;
+  transform: translateX(-10px);
+  transition: all 0.3s ease-in-out;
+}
+
+.dropdown-button:hover .dropdown-button-icon {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.dropdown,
+.dropdown-button,
+.dropdown-button-icon {
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-button {
+  cursor: pointer;
+  border: 1px solid transparent;
+  padding: 10px 15px;
+  background-color: transparent;
+  align-self: stretch;
+  box-sizing: border-box;
+  height: 40px;
+  color: var(--color-semidarkblue);
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+.dropdown-button:hover {
+  background-color: var(--color-blue-5);
+}
+
+.dropdown {
+  position: absolute;
+  top: 45px;
+  left: 0;
+  border-radius: 10px;
+  background-color: var(--color-white-second);
+  box-shadow: 0 10px 3px transparent, 0 7px 3px transparent,
+    0 4px 2px rgba(0, 0, 0, 0.02), 0 2px 2px rgba(0, 0, 0, 0.03),
+    0 0 1px rgba(0, 0, 0, 0.03);
+  width: 200px;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.dropdown.opened {
+  animation-name: instantReveal;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.dropdown.closed {
+  animation-name: instantHide;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes instantReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes instantHide {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+}

@@ -1,24 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import { NotificationsProvider } from "./components/feedback/context/notifications-context";
+import { LoadingProvider } from "./components/feedback/context/loading-context";
+import { PrivateRoute } from "./components/routing/private-route";
+import HomeReplace from "./pages/home-replace";
+import Dashboard from "./pages/dashboard/dashboard";
+import { LoadingScreen } from "./components/feedback/loading-screen";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <NotificationsProvider>
+      <LoadingProvider>
+        <Routes>
+          <Route path="/" element={<HomeReplace />} />
+          <Route
+            path="/dashboard/"
+            element={<PrivateRoute element={<Dashboard />} />}
+          />
+          <Route
+            path="/dashboard/:tab"
+            element={<PrivateRoute element={<Dashboard />} />}
+          />
+          <Route path="/loading" element={<LoadingScreen />} />
+        </Routes>
+      </LoadingProvider>
+    </NotificationsProvider>
   );
 }
 

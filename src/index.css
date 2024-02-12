@@ -1,13 +1,127 @@
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap");
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  line-height: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+:root {
+  --font-sand: "Quicksand", sans-serif;
+  --font-jakarta: "Plus Jakarta Sans", sans-serif;
+
+  --color-white: #fff;
+  --color-darkblue: #0f3948;
+  --color-semidarkblue: #045e83;
+  --color-blue: #3880eb;
+  --color-yellow: #f9d51b;
+  --color-green: #18c964;
+  --color-blue-30: rgba(56, 128, 235, 0.3);
+  --color-green-30: rgba(24, 201, 100, 0.3);
+  --color-red: #f31260;
+  --color-white-30: rgba(255, 255, 255, 0.3);
+  --color-darkblue-50: rgba(15, 57, 72, 0.5);
+  --color-blue-5: rgba(56, 128, 235, 0.05);
+  --color-white-second: #fdfdfd;
+  --color-foreground: #f5f5f7;
+
+  --font-head: 50px;
+  --font-title: 35px;
+  --font-subtitle: 25px;
+  --font-graph: 18px;
+  --font-accent: 16px;
+  --font-small: 14px;
+  --font-mini: 12px;
+
+  --padd-40-60: 40px 60px;
+  --padd-0-60: 0px 60px;
+  --padd-15: 15px;
+  --padd-20: 20px;
+  --padd-10: 10px;
+  --padd-15-20: 15px 20px;
+  --padd-10-15: 10px 15px;
+  --padd-30: 30px;
+  --padd-20-0: 20px 0px;
+  --padd-5-15-5-5: 5px 15px 5px 5px;
+  --padd-0-15: 0px 15px;
+  --padd-20-10: 20px 10px;
+  --padd-0-60: 0px 60px;
+  --padd-15-60: 15px 60px;
+  --padd-20-40: 20px 40px;
+}
+
+@media screen and (min-width: 701px) and (max-width: 1120px) {
+  :root {
+    --font-head: 42.8px;
+    --font-title: 30px;
+    --font-subtitle: 21.4px;
+    --font-graph: 15.4px;
+    --font-accent: 13.7px;
+    --font-small: 12px;
+    --font-mini: 10.2px;
+
+    --padd-40-60: 34.2px 51.4px;
+    --padd-0-60: 0px 51.4px;
+    --padd-15: 12.8px;
+    --padd-20: 17.1px;
+    --padd-10: 8.5px;
+    --padd-15-20: 12.8px 17.1px;
+    --padd-10-15: 8.5px 12.8px;
+    --padd-30: 25.7px;
+    --padd-20-0: 17.1px 0px;
+    --padd-5-15-5-5: 4.2px 12.8px 4.2px 4.2px;
+    --padd-0-15: 0px 12.8px;
+    --padd-20-10: 17.1px 8.5px;
+    --padd-0-60: 0px 51.4px;
+    --padd-15-60: 12.8px 51.4px;
+    --padd-20-40: 17.1px 34.2px;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  :root {
+    --font-head: 35.7px;
+    --font-title: 25px;
+    --font-subtitle: 17.8px;
+    --font-graph: 12.8px;
+    --font-accent: 11.4px;
+    --font-small: 10px;
+    --font-mini: 8.5px;
+
+    --padd-40-60: 28.5px 42.8px;
+    --padd-0-60: 0px 42.8px;
+    --padd-15: 10.7px;
+    --padd-20: 14.2px;
+    --padd-10: 7.1px;
+    --padd-15-20: 10.7px 14.2px;
+    --padd-10-15: 7.1px 10.7px;
+    --padd-30: 21.4px;
+    --padd-20-0: 14.2px 0px;
+    --padd-5-15-5-5: 3.5px 10.7px 3.5px 3.5px;
+    --padd-0-15: 0px 10.7px;
+    --padd-20-10: 14.2px 7.1px;
+    --padd-0-60: 0px 42.8px;
+    --padd-15-60: 10.7px 42.8px;
+    --padd-20-40: 14.2px 28.5px;
+  }
+}
+
+.dashboard {
+  padding-top: 30px;
 }

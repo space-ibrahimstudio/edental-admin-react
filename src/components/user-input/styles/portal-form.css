@@ -1,0 +1,182 @@
+.form-logo {
+  width: 96px;
+  position: relative;
+  height: auto;
+}
+
+.form-title {
+  margin: 0;
+  align-self: stretch;
+  position: relative;
+  font-size: var(--font-subtitle);
+  font-weight: 700;
+  font-family: var(--font-jakarta);
+  color: var(--color-semidarkblue);
+  text-align: center;
+}
+
+.form-heading {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-footer-button-text {
+  font-size: var(--font-graph);
+  font-weight: 700;
+  color: var(--color-white);
+  text-align: left;
+  margin: 0;
+  position: relative;
+  font-family: var(--font-sand);
+}
+
+.form-footer-button {
+  cursor: pointer;
+  border: 0;
+  padding: 15px;
+  background-color: var(--color-blue);
+  align-self: stretch;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.form-footer-button.off {
+  pointer-events: none;
+  background-color: var(--color-darkblue-50);
+}
+
+.form-footer-link {
+  cursor: pointer;
+  color: var(--color-blue);
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.form-footer-link:hover {
+  text-decoration: underline;
+}
+
+.form-footer-ctaother {
+  margin: 0;
+  align-self: stretch;
+  position: relative;
+  font-size: var(--font-small);
+  font-weight: 600;
+  font-family: var(--font-sand);
+  text-align: center;
+  color: var(--color-darkblue);
+}
+
+.form,
+.form-footer,
+.form-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-footer {
+  align-self: stretch;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.form,
+.form-modal {
+  justify-content: center;
+}
+
+.form {
+  margin: 0;
+  width: 352px;
+  border-radius: 20px;
+  background-color: var(--color-white-second);
+  overflow: hidden;
+  padding: 40px 25px;
+  box-sizing: border-box;
+  gap: 25px;
+  z-index: 0;
+  animation-name: slideFromBottom;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.form.move-down {
+  animation-name: slideToBottom;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.form-modal {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(1px);
+  height: 100%;
+  animation-name: fadeIn;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.form-modal.fade-out {
+  animation-name: fadeOut;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideToBottom {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}

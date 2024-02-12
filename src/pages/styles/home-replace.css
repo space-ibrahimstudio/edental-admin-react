@@ -1,0 +1,67 @@
+.logo-icon {
+  width: 150px;
+  position: relative;
+  height: auto;
+}
+
+.home-replace-body,
+.home-replace-title {
+  margin: 0;
+  align-self: stretch;
+  position: relative;
+  font-size: inherit;
+  font-weight: 700;
+  font-family: var(--font-jakarta);
+}
+
+.home-replace-title {
+  margin-top: -15px;
+  margin-bottom: -11px;
+}
+
+.home-replace-body {
+  font-size: var(--font-subtitle);
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--color-foreground);
+  margin-top: -7px;
+  margin-bottom: -6px;
+}
+
+.home-replace,
+.home-replace-content {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-replace-content {
+  align-self: stretch;
+  justify-content: flex-start;
+  padding: 17px 0;
+  gap: 25px;
+  z-index: 0;
+  text-align: center;
+  font-size: var(--font-head);
+  color: var(--color-white);
+  font-family: var(--font-sand);
+}
+
+.home-replace {
+  width: 100%;
+  position: relative;
+  height: 100vh;
+  justify-content: center;
+  padding: 40px 60px;
+  box-sizing: border-box;
+  background-image: linear-gradient(
+      0deg,
+      rgba(15, 57, 72, 0.3) 0%,
+      rgba(15, 57, 72, 0.3) 100%
+    ),
+    url(/public/img/img-02.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top;
+}
