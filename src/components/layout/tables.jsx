@@ -19,7 +19,7 @@ export const ColumnsTitle = ({ columnsText, hasIcon, children, maxWidth }) => {
 
 ColumnsTitle.propTypes = {
   columnsText: PropTypes.string,
-  hasIcon: PropTypes.string.isRequired,
+  hasIcon: PropTypes.string,
   children: PropTypes.node,
   maxWidth: PropTypes.string,
 };
@@ -43,7 +43,7 @@ export const ColumnsBody = ({ columnsText, hasIcon, children, maxWidth }) => {
 
 ColumnsBody.propTypes = {
   columnsText: PropTypes.string,
-  hasIcon: PropTypes.string.isRequired,
+  hasIcon: PropTypes.string,
   children: PropTypes.node,
   maxWidth: PropTypes.string,
 };

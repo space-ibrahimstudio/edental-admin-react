@@ -152,6 +152,10 @@
   box-sizing: border-box;
 }
 
+.user-list-row:hover {
+  background-color: var(--color-blue-5);
+}
+
 .user-list-row-date,
 .user-list-row-id {
   max-width: 200px;

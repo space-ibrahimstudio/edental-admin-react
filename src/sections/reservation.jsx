@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchUserBooking } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import { useLoading } from "../components/feedback/context/loading-context";
 import { ColumnsTitle, ColumnsBody } from "../components/layout/tables";
 import { ChevronDown } from "../components/layout/icons";
-import "../pages/styles/user-list.css";
+import "./styles/user-list.css";
 
 export function Reservation() {
   const [userData, setUserData] = useState([]);
 
   const { showNotifications } = useNotifications();
   const { setLoading } = useLoading();
+  const navigate = useNavigate();
+
+  const addNewClick = () => {
+    navigate("/submit-reservation");
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +54,7 @@ export function Reservation() {
               src="/svg/chevron-down-icon.svg"
             />
           </button>
-          <button className="user-list-add">
+          <button className="user-list-add" onClick={addNewClick}>
             <b className="user-list-add-text">Tambah Baru</b>
             <img className="search-icon" alt="" src="/svg/plus-icon.svg" />
           </button>
@@ -60,25 +66,25 @@ export function Reservation() {
             <ColumnsTitle hasIcon="yes" columnsText="User Name">
               <ChevronDown width="10px" height="100%" />
             </ColumnsTitle>
-            <ColumnsTitle hasIcon="yes" maxWidth="230px" columnsText="Email">
+            <ColumnsTitle hasIcon="yes" maxWidth="200px" columnsText="Email">
               <ChevronDown width="10px" height="100%" />
             </ColumnsTitle>
-            <ColumnsTitle hasIcon="yes" maxWidth="230px" columnsText="Date">
+            <ColumnsTitle hasIcon="yes" maxWidth="200px" columnsText="Date">
               <ChevronDown width="10px" height="100%" />
             </ColumnsTitle>
-            <ColumnsTitle hasIcon="yes" maxWidth="230px" columnsText="Phone">
+            <ColumnsTitle hasIcon="yes" maxWidth="200px" columnsText="Phone">
               <ChevronDown width="10px" height="100%" />
             </ColumnsTitle>
-            <ColumnsTitle maxWidth="150px" columnsText="Options" />
+            <ColumnsTitle maxWidth="120px" columnsText="Options" />
           </div>
         </div>
         {userData.map((user) => (
           <div className="user-list-row" key={user.idreservation}>
             <ColumnsBody columnsText={user.name} />
-            <ColumnsBody maxWidth="230px" columnsText={user.email} />
-            <ColumnsBody maxWidth="230px" columnsText={user.reservationdate} />
-            <ColumnsBody maxWidth="230px" columnsText={user.phone} />
-            <ColumnsBody maxWidth="150px">
+            <ColumnsBody maxWidth="200px" columnsText={user.email} />
+            <ColumnsBody maxWidth="200px" columnsText={user.reservationdate} />
+            <ColumnsBody maxWidth="200px" columnsText={user.phone} />
+            <ColumnsBody maxWidth="120px">
               <button className="user-list-row-more">
                 <img
                   className="more-icon"

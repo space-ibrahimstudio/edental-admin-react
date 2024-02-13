@@ -4,7 +4,7 @@ import { useNotifications } from "../components/feedback/context/notifications-c
 import { useLoading } from "../components/feedback/context/loading-context";
 import { ColumnsTitle, ColumnsBody } from "../components/layout/tables";
 import { ChevronDown } from "../components/layout/icons";
-import "../pages/styles/user-list.css";
+import "./styles/user-list.css";
 
 export function UserList() {
   const [userData, setUserData] = useState([]);
@@ -60,29 +60,29 @@ export function UserList() {
             <ColumnsTitle hasIcon="yes" columnsText="User Name">
               <ChevronDown width="10px" height="100%" />
             </ColumnsTitle>
-            <ColumnsTitle hasIcon="yes" maxWidth="230px" columnsText="Email">
+            <ColumnsTitle hasIcon="yes" maxWidth="200px" columnsText="Email">
               <ChevronDown width="10px" height="100%" />
             </ColumnsTitle>
             <ColumnsTitle
               hasIcon="yes"
-              maxWidth="230px"
+              maxWidth="200px"
               columnsText="Date Joined"
             >
               <ChevronDown width="10px" height="100%" />
             </ColumnsTitle>
-            <ColumnsTitle hasIcon="yes" maxWidth="230px" columnsText="Phone">
+            <ColumnsTitle hasIcon="yes" maxWidth="200px" columnsText="Phone">
               <ChevronDown width="10px" height="100%" />
             </ColumnsTitle>
-            <ColumnsTitle maxWidth="150px" columnsText="Options" />
+            <ColumnsTitle maxWidth="120px" columnsText="Options" />
           </div>
         </div>
         {userData.map((user) => (
           <div className="user-list-row" key={user.idauth}>
             <ColumnsBody columnsText={user.username} />
-            <ColumnsBody maxWidth="230px" columnsText={user.useremail} />
-            <ColumnsBody maxWidth="230px" columnsText={user.usercreate} />
-            <ColumnsBody maxWidth="230px" columnsText={user.userphone} />
-            <ColumnsBody maxWidth="150px">
+            <ColumnsBody maxWidth="200px" columnsText={user.useremail} />
+            <ColumnsBody maxWidth="200px" columnsText={user.usercreate} />
+            <ColumnsBody maxWidth="200px" columnsText={user.userphone} />
+            <ColumnsBody maxWidth="120px">
               <button className="user-list-row-more">
                 <img
                   className="more-icon"
