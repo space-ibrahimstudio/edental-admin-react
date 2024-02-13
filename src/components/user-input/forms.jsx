@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { handleLogin } from "../tools/handler";
+import { handleLogin, handleLoginLog } from "../tools/handler";
+import { getIPAddress } from "../tools/data";
 import { useNotifications } from "../feedback/context/notifications-context";
 import { FieldInput } from "./inputs";
 import "./styles/portal-form.css";
@@ -27,20 +28,32 @@ export function PortalForm({ type, onClose }) {
 
   const submitLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     if (!username || !password) {
       showNotifications(
         "danger",
         "Mohon masukkan Username dan Kata Sandi dengan benar"
       );
+      return;
     }
 
-    await handleLogin(username, password, showNotifications);
+    setLoading(true);
 
-    setIsClosing(true);
-    navigate("/dashboard");
-    setLoading(false);
+    try {
+      await handleLogin(username, password);
+
+      const ipAddress = await getIPAddress();
+      await handleLoginLog(ipAddress);
+
+      setIsClosing(true);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error occurred during login:", error);
+      showNotifications("danger", "Login gagal. Mohon coba lagi.");
+    } finally {
+      setLoading(false);
+      window.location.reload();
+    }
   };
 
   useEffect(() => {

@@ -14,7 +14,7 @@ export function Nav() {
   const { showNotifications } = useNotifications();
 
   const logoutClick = () => {
-    handleLogout(showNotifications);
+    handleLogout();
     navigate("/");
   };
 
@@ -28,10 +28,11 @@ export function Nav() {
   useEffect(() => {
     const fetchMenus = async () => {
       try {
-        const menus = await fetchTabMenus(showNotifications);
+        const menus = await fetchTabMenus();
         setTabMenus(menus);
       } catch (error) {
         console.error("Error fetching tab menus:", error);
+        showNotifications("danger", "Error fetching tab menus.");
       }
     };
 

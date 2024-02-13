@@ -2,7 +2,7 @@ import axios from "axios";
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
-export async function handleLogin(username, password, showNotifications) {
+export async function handleLogin(username, password) {
   try {
     const formData = new FormData();
     formData.append("data", JSON.stringify({ username, password }));
@@ -17,11 +17,11 @@ export async function handleLogin(username, password, showNotifications) {
       }
     );
 
-    console.log(response.data);
+    console.log("Login Response:", response.data);
 
     const responseData = response.data;
 
-    if (responseData.error === false) {
+    if (!responseData.error) {
       const userData = responseData.data[0];
       const { secret, level } = userData;
 
@@ -29,55 +29,42 @@ export async function handleLogin(username, password, showNotifications) {
       sessionStorage.setItem("username", username);
       sessionStorage.setItem("secret", secret);
       sessionStorage.setItem("level", level);
-
-      showNotifications(
-        "success",
-        `Kamu berhasil login. Selamat datang ${username}!`
-      );
-    } else if (response.data.status === false) {
-      showNotifications(
-        "danger",
-        "Invalid username or password. Please try again."
-      );
+    } else if (!response.data.status) {
+      console.log("Invalid username or password. Please try again.");
     } else {
-      showNotifications(
-        "danger",
-        "Terjadi kesalahan saat login. Mohon periksa koneksi internet kamu dan coba lagi"
+      console.log(
+        "An error occurred during login. Please check your internet connection and try again."
       );
     }
   } catch (error) {
     console.error("Error during login:", error);
-    showNotifications(
-      "danger",
-      "Terjadi kesalahan saat login. Mohon periksa koneksi internet kamu dan coba lagi"
-    );
   }
 }
 
-export const handleLogout = (showNotifications) => {
+export const handleLogout = () => {
   try {
     sessionStorage.removeItem("isLoggedIn");
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("secret");
     sessionStorage.removeItem("level");
+
     console.log("Successfully logged out.");
-    showNotifications("success", "Successfully logged out.");
   } catch (error) {
     console.error("Error during logout:", error);
-    showNotifications("danger", "Error during logout.");
   }
 };
 
 export async function checkLoginStatus() {
   try {
     const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
+
     if (isLoggedIn) {
       const userName = sessionStorage.getItem("username");
       const userSecret = sessionStorage.getItem("secret");
       const userLevel = sessionStorage.getItem("level");
 
       if (userName && userSecret && userLevel) {
-        console.log(`User is logged in. Welcome back ${userName}!`);
+        console.log(`User is logged in. Welcome back, ${userName}!`);
         return true;
       } else {
         console.log("User is not logged in or session expired.");
@@ -85,13 +72,15 @@ export async function checkLoginStatus() {
       }
     } else {
       console.log("User is not logged in.");
+      return false;
     }
   } catch (error) {
     console.error("Error checking login status:", error);
+    return false;
   }
 }
 
-export async function handleLoginLog() {
+export async function handleLoginLog(ipAddress) {
   try {
     const username = sessionStorage.getItem("username");
     const userLevel = sessionStorage.getItem("level");
@@ -100,10 +89,10 @@ export async function handleLoginLog() {
     formData.append(
       "data",
       JSON.stringify({
-        username: username,
+        username,
         level: userLevel,
         activity: "login",
-        ip: "8.8.8.8",
+        ip: ipAddress,
       })
     );
 
@@ -117,8 +106,56 @@ export async function handleLoginLog() {
       }
     );
 
-    console.log(response.data);
+    console.log("Login Log Response:", response.data);
   } catch (error) {
-    console.error("Error during login:", error);
+    console.error("Error during login log:", error);
+  }
+}
+
+export async function handleAddReserve(
+  name,
+  phone,
+  email,
+  service,
+  serviceType,
+  date,
+  time
+) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        idservice: "1",
+        idservicetype: "1",
+        idbranch: "2",
+        name: name,
+        phone: phone,
+        email: email,
+        service: service,
+        typeservice: serviceType,
+        reservationdate: date,
+        reservationtime: time,
+      })
+    );
+    formData.append("idedit", "");
+    formData.append("iddelete", "");
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/cudreservation`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("Reservation CUD Response:", response.data);
+  } catch (error) {
+    console.error("Error fetching reservation data:", error);
   }
 }

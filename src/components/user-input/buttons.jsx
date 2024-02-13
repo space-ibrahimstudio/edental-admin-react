@@ -23,12 +23,12 @@ export function DropDownButton({ buttonText, onClick }) {
   const titleCaseText = toTitleCase(buttonText);
 
   return (
-    <button className="dropdown-button" onClick={onClick}>
+    <div className="dropdown-button" onClick={onClick}>
       <b className="dropdown-button-text">{titleCaseText}</b>
       <div className="dropdown-button-icon">
         <ArrowLeft width="10px" height="100%" />
       </div>
-    </button>
+    </div>
   );
 }
 

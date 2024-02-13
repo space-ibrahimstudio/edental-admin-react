@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import { useLoading } from "./components/feedback/context/loading-context";
-import { useNotifications } from "./components/feedback/context/notifications-context";
 import { PrivateRoute } from "./components/routing/private-route";
 import HomeReplace from "./pages/home-replace";
 import Dashboard from "./pages/dashboard/dashboard";
@@ -11,16 +10,24 @@ import { formatPathname } from "./components/tools/controller";
 
 function App() {
   const [tabMenus, setTabMenus] = useState([]);
-
-  const { showNotifications } = useNotifications();
+  const { setLoading } = useLoading();
 
   useEffect(() => {
     const fetchMenus = async () => {
       try {
-        const menus = await fetchTabMenus(showNotifications);
-        setTabMenus(menus);
+        setLoading(true);
+
+        const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
+        if (isLoggedIn) {
+          const menus = await fetchTabMenus();
+          setTabMenus(menus);
+        } else {
+          console.log("User is not logged in.");
+        }
       } catch (error) {
         console.error("Error fetching tab menus:", error);
+      } finally {
+        setLoading(false);
       }
     };
 

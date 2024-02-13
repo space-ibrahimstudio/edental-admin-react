@@ -2,17 +2,10 @@ import axios from "axios";
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
-export async function fetchTabMenus(showNotifications) {
+export async function fetchTabMenus() {
   try {
     const userSecret = sessionStorage.getItem("secret");
     const userLevel = sessionStorage.getItem("level");
-
-    if (!userSecret || !userLevel) {
-      showNotifications(
-        "danger",
-        "User credentials not found in sessionStorage"
-      );
-    }
 
     const formData = new FormData();
     formData.append(
@@ -30,30 +23,22 @@ export async function fetchTabMenus(showNotifications) {
       }
     );
 
-    if (response.data.error === false) {
-      console.log(response.data);
+    if (!response.data.error) {
+      console.log("Tab Menus Data:", response.data);
 
       return response.data.data;
     } else {
-      showNotifications("danger", "Error fetching data.");
+      return null;
     }
   } catch (error) {
-    console.error("Error fetching data:", error);
-    showNotifications("danger", "Error fetching data.");
+    console.error("Error fetching tab menus:", error);
     throw error;
   }
 }
 
-export async function fetchUserData(showNotifications) {
+export async function fetchUserData() {
   try {
     const userSecret = sessionStorage.getItem("secret");
-
-    if (!userSecret) {
-      showNotifications(
-        "danger",
-        "User credentials not found in sessionStorage"
-      );
-    }
 
     const formData = new FormData();
     formData.append("data", JSON.stringify({ secret: userSecret }));
@@ -68,31 +53,27 @@ export async function fetchUserData(showNotifications) {
       }
     );
 
-    console.log(response.data);
+    console.log("User Data:", response.data);
 
     return response.data.data;
   } catch (error) {
     console.error("Error fetching user data:", error);
-    showNotifications("danger", "Error fetching data.");
     throw error;
   }
 }
 
-export async function fetchUserBooking(showNotifications) {
+export async function fetchUserBooking(limit, hal) {
   try {
     const userSecret = sessionStorage.getItem("secret");
-
-    if (!userSecret) {
-      showNotifications(
-        "danger",
-        "User credentials not found in sessionStorage"
-      );
-    }
 
     const formData = new FormData();
     formData.append(
       "data",
-      JSON.stringify({ secret: userSecret, limit: "10", hal: "0" })
+      JSON.stringify({
+        secret: userSecret,
+        limit: limit.toString(),
+        hal: hal.toString(),
+      })
     );
 
     const response = await axios.post(
@@ -105,31 +86,27 @@ export async function fetchUserBooking(showNotifications) {
       }
     );
 
-    console.log(response.data);
+    console.log("User Booking Data:", response.data);
 
     return response.data.data;
   } catch (error) {
-    console.error("Error fetching user data:", error);
-    showNotifications("danger", "Error fetching data.");
+    console.error("Error fetching user bookings:", error);
     throw error;
   }
 }
 
-export async function fetchCustData(showNotifications) {
+export async function fetchCustData(limit, hal) {
   try {
     const userSecret = sessionStorage.getItem("secret");
-
-    if (!userSecret) {
-      showNotifications(
-        "danger",
-        "User credentials not found in sessionStorage"
-      );
-    }
 
     const formData = new FormData();
     formData.append(
       "data",
-      JSON.stringify({ secret: userSecret, limit: "10", hal: "0" })
+      JSON.stringify({
+        secret: userSecret,
+        limit: limit.toString(),
+        hal: hal.toString(),
+      })
     );
 
     const response = await axios.post(
@@ -142,12 +119,49 @@ export async function fetchCustData(showNotifications) {
       }
     );
 
-    console.log(response.data);
+    console.log("Customer Data:", response.data);
 
     return response.data.data;
   } catch (error) {
-    console.error("Error fetching user data:", error);
-    showNotifications("danger", "Error fetching data.");
+    console.error("Error fetching customer data:", error);
+    throw error;
+  }
+}
+
+export const getIPAddress = async () => {
+  try {
+    const response = await axios.get("https://api.ipify.org?format=json");
+    const ipAddress = response.data.ip;
+
+    sessionStorage.setItem("ipAddress", ipAddress);
+
+    return ipAddress;
+  } catch (error) {
+    console.error("Error obtaining IP address:", error);
+    return "0.0.0.0";
+  }
+};
+
+export async function fetchOrderData() {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append("data", JSON.stringify({ secret: userSecret }));
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/vieworder`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("Order Data:", response.data);
+  } catch (error) {
+    console.error("Error fetching order data:", error);
     throw error;
   }
 }

@@ -22,10 +22,15 @@ export function Reservation() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await fetchUserBooking(showNotifications);
+
+        const limit = 100;
+        const hal = 0;
+        const data = await fetchUserBooking(limit, hal);
+
         setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
+        showNotifications("danger", "Error fetching user data.");
       } finally {
         setLoading(false);
       }

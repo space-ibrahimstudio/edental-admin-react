@@ -16,10 +16,15 @@ export function UserList() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await fetchCustData(showNotifications);
+
+        const limit = 100;
+        const hal = 0;
+        const data = await fetchCustData(limit, hal);
+
         setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
+        showNotifications("danger", "Error fetching user data.");
       } finally {
         setLoading(false);
       }
@@ -77,7 +82,7 @@ export function UserList() {
           </div>
         </div>
         {userData.map((user) => (
-          <div className="user-list-row" key={user.idauth}>
+          <div className="user-list-row" key={user.idauthuser}>
             <ColumnsBody columnsText={user.username} />
             <ColumnsBody maxWidth="200px" columnsText={user.useremail} />
             <ColumnsBody maxWidth="200px" columnsText={user.usercreate} />

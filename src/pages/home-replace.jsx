@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
-import { useNotifications } from "../components/feedback/context/notifications-context";
 import { useLoading } from "../components/feedback/context/loading-context";
 import { PortalForm } from "../components/user-input/forms";
 import { PrimButton } from "../components/user-input/buttons";
@@ -10,8 +9,6 @@ import "./styles/home-replace.css";
 const HomeReplace = () => {
   const [loginFormOpen, setLoginFormOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
-
-  const { showNotifications } = useNotifications();
   const { setLoading } = useLoading();
 
   const openLogin = () => {
@@ -23,21 +20,18 @@ const HomeReplace = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  }, []);
-
-  useEffect(() => {
     const sessionCheck = async () => {
       try {
+        setLoading(true);
+
         const session = await checkLoginStatus();
         if (session) {
           setLoggedIn(true);
         }
       } catch (error) {
-        console.error("Error fetching tab menus:", error);
+        console.error("Error checking login status:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -45,7 +39,7 @@ const HomeReplace = () => {
   }, []);
 
   const logoutClick = () => {
-    handleLogout(showNotifications);
+    handleLogout();
     window.location.reload();
   };
 
