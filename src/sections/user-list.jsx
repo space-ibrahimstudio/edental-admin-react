@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { fetchUserData, fetchUserBooking } from "../components/tools/data";
+import {
+  fetchUserData,
+  fetchUserBooking,
+  fetchCustData,
+} from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import "../pages/styles/user-list.css";
 
@@ -21,7 +25,7 @@ export function UserList({ title }) {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const data = await fetchUserData(showNotifications);
+        const data = await fetchCustData(showNotifications);
         setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -88,16 +92,7 @@ export function UserList({ title }) {
               />
             </Columns>
             <Columns maxWidth="200px">
-              <b className="user-list-title">Date Joined</b>
-              <img
-                className="chevron-down-icon"
-                loading="lazy"
-                alt=""
-                src="/svg/chevron-down-icon.svg"
-              />
-            </Columns>
-            <Columns maxWidth="150px">
-              <b className="user-list-title">User ID</b>
+              <b className="user-list-title">Email</b>
               <img
                 className="chevron-down-icon"
                 loading="lazy"
@@ -106,7 +101,16 @@ export function UserList({ title }) {
               />
             </Columns>
             <Columns maxWidth="200px">
-              <b className="user-list-title">Level</b>
+              <b className="user-list-title">Date Joined</b>
+              <img
+                className="chevron-down-icon"
+                loading="lazy"
+                alt=""
+                src="/svg/chevron-down-icon.svg"
+              />
+            </Columns>
+            <Columns maxWidth="200px">
+              <b className="user-list-title">No. Telp</b>
               <img
                 className="chevron-down-icon"
                 loading="lazy"
@@ -125,13 +129,13 @@ export function UserList({ title }) {
               <div className="user-list-row-name-text">{user.username}</div>
             </Columns>
             <Columns maxWidth="200px">
-              <div className="user-list-row-name-text">{user.datetimeuser}</div>
-            </Columns>
-            <Columns maxWidth="150px">
-              <div className="user-list-row-name-text">{user.idauth}</div>
+              <div className="user-list-row-name-text">{user.useremail}</div>
             </Columns>
             <Columns maxWidth="200px">
-              <div className="user-list-row-name-text">{user.level}</div>
+              <div className="user-list-row-name-text">{user.usercreate}</div>
+            </Columns>
+            <Columns maxWidth="200px">
+              <div className="user-list-row-name-text">{user.userphone}</div>
             </Columns>
             <Columns maxWidth="150px">
               <button className="user-list-row-more">

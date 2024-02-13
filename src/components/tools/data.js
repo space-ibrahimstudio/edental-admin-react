@@ -165,3 +165,37 @@ export async function fetchReserveCUD(showNotifications) {
     throw error;
   }
 }
+
+export async function fetchCustData(showNotifications) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    if (!userSecret) {
+      showNotifications(
+        "danger",
+        "User credentials not found in sessionStorage"
+      );
+    }
+
+    const formData = new FormData();
+    formData.append("data", JSON.stringify({ secret: userSecret }));
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/viewcustomer`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log(response.data);
+
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    showNotifications("danger", "Error fetching data.");
+    throw error;
+  }
+}
