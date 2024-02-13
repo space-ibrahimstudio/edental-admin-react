@@ -1,0 +1,7 @@
+.chevron-down {
+  transition: all 0.3s ease-in-out;
+}
+
+.flipped {
+  transform: scaleY(-1);
+}

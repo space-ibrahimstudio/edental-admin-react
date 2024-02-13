@@ -8,7 +8,7 @@ export async function handleLogin(username, password, showNotifications) {
     formData.append("data", JSON.stringify({ username, password }));
 
     const response = await axios.post(
-      "https://ankabuttech.com/edental_api/authapi/login",
+      `${baseUrl}/edental_api/authapi/login`,
       formData,
       {
         headers: {
@@ -88,5 +88,37 @@ export async function checkLoginStatus() {
     }
   } catch (error) {
     console.error("Error checking login status:", error);
+  }
+}
+
+export async function handleLoginLog() {
+  try {
+    const username = sessionStorage.getItem("username");
+    const userLevel = sessionStorage.getItem("level");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        username: username,
+        level: userLevel,
+        activity: "login",
+        ip: "8.8.8.8",
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/authapi/loginlog`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log(response.data);
+  } catch (error) {
+    console.error("Error during login:", error);
   }
 }

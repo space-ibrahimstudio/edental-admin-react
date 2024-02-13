@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchUserData } from "../components/tools/data";
+import { fetchUserData, fetchUserBooking } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import "../pages/styles/user-list.css";
 
@@ -31,6 +31,18 @@ export function UserList({ title }) {
     };
 
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchBooking = async () => {
+      try {
+        const data = await fetchUserBooking(showNotifications);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchBooking();
   }, []);
 
   return (

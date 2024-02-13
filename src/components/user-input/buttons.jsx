@@ -47,7 +47,7 @@ export function TabButton({ isActive, hasSubMenu, buttonText, children }) {
   const ref = useRef(null);
 
   const toggleDropdown = () => {
-    setDropdownOpen(true);
+    setDropdownOpen((prevOpen) => !prevOpen);
   };
 
   const TabClick = (tabName) => {
@@ -90,7 +90,9 @@ export function TabButton({ isActive, hasSubMenu, buttonText, children }) {
       onClick={handleClick}
     >
       <b className="nav-menu-tab-text">{titleCaseText}</b>
-      {hasSubMenu && <ChevronDown width="10px" height="100%" />}
+      {hasSubMenu && (
+        <ChevronDown width="10px" height="100%" flipped={dropdownOpen} />
+      )}
       {dropdownOpen && (
         <section
           ref={ref}
