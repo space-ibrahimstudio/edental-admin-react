@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { fetchCustData } from "../components/tools/data";
+import { fetchUserBooking } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import { useLoading } from "../components/feedback/context/loading-context";
 import { ColumnsTitle, ColumnsBody } from "../components/layout/tables";
 import { ChevronDown } from "../components/layout/icons";
 import "../pages/styles/user-list.css";
 
-export function UserList() {
+export function Reservation() {
   const [userData, setUserData] = useState([]);
 
   const { showNotifications } = useNotifications();
@@ -16,7 +16,7 @@ export function UserList() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await fetchCustData(showNotifications);
+        const data = await fetchUserBooking(showNotifications);
         setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -63,11 +63,7 @@ export function UserList() {
             <ColumnsTitle hasIcon="yes" maxWidth="230px" columnsText="Email">
               <ChevronDown width="10px" height="100%" />
             </ColumnsTitle>
-            <ColumnsTitle
-              hasIcon="yes"
-              maxWidth="230px"
-              columnsText="Date Joined"
-            >
+            <ColumnsTitle hasIcon="yes" maxWidth="230px" columnsText="Date">
               <ChevronDown width="10px" height="100%" />
             </ColumnsTitle>
             <ColumnsTitle hasIcon="yes" maxWidth="230px" columnsText="Phone">
@@ -77,11 +73,11 @@ export function UserList() {
           </div>
         </div>
         {userData.map((user) => (
-          <div className="user-list-row" key={user.idauth}>
-            <ColumnsBody columnsText={user.username} />
-            <ColumnsBody maxWidth="230px" columnsText={user.useremail} />
-            <ColumnsBody maxWidth="230px" columnsText={user.usercreate} />
-            <ColumnsBody maxWidth="230px" columnsText={user.userphone} />
+          <div className="user-list-row" key={user.idreservation}>
+            <ColumnsBody columnsText={user.name} />
+            <ColumnsBody maxWidth="230px" columnsText={user.email} />
+            <ColumnsBody maxWidth="230px" columnsText={user.reservationdate} />
+            <ColumnsBody maxWidth="230px" columnsText={user.phone} />
             <ColumnsBody maxWidth="150px">
               <button className="user-list-row-more">
                 <img

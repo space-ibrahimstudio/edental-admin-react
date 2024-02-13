@@ -178,7 +178,10 @@ export async function fetchCustData(showNotifications) {
     }
 
     const formData = new FormData();
-    formData.append("data", JSON.stringify({ secret: userSecret }));
+    formData.append(
+      "data",
+      JSON.stringify({ secret: userSecret, limit: "10", hal: "0" })
+    );
 
     const response = await axios.post(
       `${baseUrl}/edental_api/office/viewcustomer`,

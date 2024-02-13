@@ -3,3 +3,7 @@ export const toTitleCase = (str) => {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
 };
+
+export const formatPathname = (pathname) => {
+  return pathname.toLowerCase().replace(/\s+/g, "-");
+};

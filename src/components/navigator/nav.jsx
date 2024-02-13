@@ -4,6 +4,7 @@ import { fetchTabMenus } from "../tools/data";
 import { handleLogout } from "../tools/handler";
 import { TabButton, DropDownButton } from "../user-input/buttons";
 import { useNotifications } from "../feedback/context/notifications-context";
+import { formatPathname } from "../tools/controller";
 import "./styles/nav.css";
 
 export function Nav() {
@@ -15,6 +16,13 @@ export function Nav() {
   const logoutClick = () => {
     handleLogout(showNotifications);
     navigate("/");
+  };
+
+  const SubTabClick = (menuName, submenuName) => {
+    const formattedMenuName = formatPathname(menuName);
+    const formattedSubmenuName = formatPathname(submenuName);
+    const url = `/dashboard/${formattedMenuName}/${formattedSubmenuName}`;
+    navigate(url);
   };
 
   useEffect(() => {
@@ -53,6 +61,12 @@ export function Nav() {
                     <DropDownButton
                       key={submenu.idsubmenu}
                       buttonText={submenu.submenu_name}
+                      onClick={() =>
+                        SubTabClick(
+                          menu["Menu Utama"].menu_name,
+                          submenu.submenu_name
+                        )
+                      }
                     />
                   ))}
               </TabButton>

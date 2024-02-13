@@ -6,9 +6,9 @@ const OverviewTab = () => {
   return (
     <div className="dashboard">
       <Helmet>
-        <title>Dashboard - Master</title>
+        <title>Dashboard - Overview</title>
       </Helmet>
-      <UserList title="Overview" />
+      <UserList />
     </div>
   );
 };

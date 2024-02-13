@@ -256,7 +256,7 @@
 .user-list-head-wrap {
   width: 100%;
   margin: 0 !important;
-  position: absolute;
+  position: sticky;
   top: 0;
   left: 0;
   justify-content: center;
@@ -275,7 +275,7 @@
   overflow-y: auto;
   flex-shrink: 0;
   justify-content: flex-start;
-  padding: 83px 10px 10px;
+  padding: 10px 10px;
   position: relative;
   gap: 10px;
 }

@@ -5,6 +5,7 @@ import { Nav } from "../../components/navigator/nav";
 import MasterTab from "./tab-master";
 import CustomerTab from "./tab-customer";
 import OverviewTab from "./tab-overview";
+import OrderTab from "./tab-order";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("");
@@ -12,10 +13,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     const pathname = location.pathname;
-    const tabName = pathname
-      .substring(pathname.lastIndexOf("/") + 1)
-      .toUpperCase();
-    setActiveTab(tabName);
+    const paths = pathname.split("/");
+    const parentTabName = paths[2]?.toUpperCase();
+    setActiveTab(parentTabName);
   }, [location.pathname]);
 
   const renderTabContent = () => {
@@ -24,6 +24,12 @@ const Dashboard = () => {
         return <CustomerTab />;
       case "MASTER":
         return <MasterTab />;
+      case "REPORT":
+        return <MasterTab />;
+      case "STOCK":
+        return <MasterTab />;
+      case "ORDER":
+        return <OrderTab />;
       default:
         return <OverviewTab />;
     }

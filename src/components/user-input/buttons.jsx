@@ -71,10 +71,9 @@ export function TabButton({ isActive, hasSubMenu, buttonText, children }) {
 
   useEffect(() => {
     const pathname = location.pathname;
-    const tabName = pathname
-      .substring(pathname.lastIndexOf("/") + 1)
-      .toUpperCase();
-    setActiveTab(tabName);
+    const paths = pathname.split("/");
+    const parentTabName = paths[2]?.toUpperCase();
+    setActiveTab(parentTabName);
   }, [location.pathname]);
 
   useEffect(() => {
