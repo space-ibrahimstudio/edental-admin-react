@@ -48,6 +48,10 @@ export function PortalForm({ type, onClose }) {
 
       setIsClosing(true);
       navigate("/dashboard");
+      showNotifications(
+        "success",
+        `Kamu berhasil login. Selamat datang kembali, ${username}!`
+      );
     } catch (error) {
       console.error("Error occurred during login:", error);
       showNotifications("danger", "Login gagal. Mohon coba lagi.");

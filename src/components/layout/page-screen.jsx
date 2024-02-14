@@ -14,6 +14,7 @@ export function PageScreen({ pageId, children }) {
         alignItems: "center",
         justifyContent: "flex-start",
         minHeight: "100vh",
+        paddingTop: "40px",
       }}
     >
       {children}

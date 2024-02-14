@@ -160,6 +160,8 @@ export async function fetchOrderData() {
     );
 
     console.log("Order Data:", response.data);
+
+    return response.data.data;
   } catch (error) {
     console.error("Error fetching order data:", error);
     throw error;

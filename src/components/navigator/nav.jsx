@@ -21,6 +21,7 @@ export function Nav() {
   const logoutClick = () => {
     handleLogout();
     navigate("/");
+    showNotifications("success", "Kamu berhasil logout. Mohon login kembali.");
   };
 
   const SubTabClick = (menuName, submenuName) => {

@@ -1,6 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import { Reservation } from "../../sections/reservation";
+import { Order } from "../../sections/order";
 import { PageScreen } from "../../components/layout/page-screen";
 
 const OrderTab = () => {
@@ -10,6 +11,7 @@ const OrderTab = () => {
         <title>Dashboard - Order</title>
       </Helmet>
       <Reservation />
+      <Order />
     </PageScreen>
   );
 };

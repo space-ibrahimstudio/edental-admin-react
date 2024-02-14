@@ -12,6 +12,7 @@
   background-color: var(--color-blue);
   border: 1px solid var(--color-blue);
   overflow: hidden;
+  height: 52px;
   display: flex;
   flex-direction: row;
   align-items: center;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { useLoading } from "../components/feedback/context/loading-context";
+import { useNotifications } from "../components/feedback/context/notifications-context";
 import { PortalForm } from "../components/user-input/forms";
 import { PrimButton } from "../components/user-input/buttons";
 import { LogoPrimary } from "../components/layout/icons";
@@ -10,7 +11,9 @@ import "./styles/home-replace.css";
 const HomeReplace = () => {
   const [loginFormOpen, setLoginFormOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+
   const { setLoading } = useLoading();
+  const { showNotifications } = useNotifications();
 
   const openLogin = () => {
     setLoginFormOpen(true);
@@ -42,6 +45,7 @@ const HomeReplace = () => {
   const logoutClick = () => {
     handleLogout();
     window.location.reload();
+    showNotifications("success", "Kamu berhasil logout. Mohon login kembali.");
   };
 
   return (
