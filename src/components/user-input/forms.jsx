@@ -5,6 +5,7 @@ import { handleLogin, handleLoginLog } from "../tools/handler";
 import { getIPAddress } from "../tools/data";
 import { useNotifications } from "../feedback/context/notifications-context";
 import { FieldInput } from "./inputs";
+import { LogoPrimary } from "../layout/icons";
 import "./styles/portal-form.css";
 
 const modalRoot = document.getElementById("modal-root") || document.body;
@@ -96,7 +97,7 @@ export function PortalForm({ type, onClose }) {
           ref={ref}
         >
           <header className="form-heading">
-            <img className="form-logo" alt={type} src="/svg/edental-blue.svg" />
+            <LogoPrimary width="96px" height="100%" />
             <h4 className="form-title">Welcome Back!</h4>
           </header>
           <main className="form-heading">
@@ -143,7 +144,7 @@ export function PortalForm({ type, onClose }) {
       <div className={`form-modal ${isClosing ? "fade-out" : "fade-in"}`}>
         <form className="form" onSubmit={submitLogin} ref={ref}>
           <header className="form-heading">
-            <img className="form-logo" alt={type} src="/svg/edental-blue.svg" />
+            <LogoPrimary width="96px" height="100%" />
             <h4 className="form-title">Welcome!</h4>
           </header>
           <main className="form-heading">

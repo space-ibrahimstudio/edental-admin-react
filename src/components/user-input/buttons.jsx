@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { toTitleCase } from "../tools/controller";
-import { ChevronDown, ArrowLeft } from "../layout/icons";
+import { ChevronDown, ArrowIcon } from "../layout/icons";
 import "./styles/prim-button.css";
 import "./styles/tab-button.css";
+import "./styles/secondary-button.css";
 
 export function PrimButton({ buttonText, onClick }) {
   return (
@@ -19,6 +20,19 @@ PrimButton.propTypes = {
   buttonText: PropTypes.string.isRequired,
 };
 
+export function SecondaryButton({ buttonText, onClick }) {
+  return (
+    <button className="scnd-button" onClick={onClick}>
+      <b className="scnd-button-text">{buttonText}</b>
+    </button>
+  );
+}
+
+SecondaryButton.propTypes = {
+  onClick: PropTypes.func,
+  buttonText: PropTypes.string.isRequired,
+};
+
 export function DropDownButton({ buttonText, onClick }) {
   const titleCaseText = toTitleCase(buttonText);
 
@@ -26,7 +40,7 @@ export function DropDownButton({ buttonText, onClick }) {
     <div className="dropdown-button" onClick={onClick}>
       <b className="dropdown-button-text">{titleCaseText}</b>
       <div className="dropdown-button-icon">
-        <ArrowLeft width="10px" height="100%" />
+        <ArrowIcon width="10px" height="100%" />
       </div>
     </div>
   );
@@ -110,3 +124,20 @@ TabButton.propTypes = {
   buttonText: PropTypes.string.isRequired,
   children: PropTypes.node,
 };
+
+export function OptionButton({ handleChange }) {
+  return (
+    <select className="user-list-filter" onChange={handleChange}>
+      {/* <b className="user-list-filter-text">Baris : 5</b>
+      <ChevronDown
+        width="10px"
+        height="100%"
+        color="var(--color-semidarkblue)"
+      /> */}
+      <option value="5">Baris: 5</option>
+      <option value="10">Baris: 10</option>
+      <option value="20">Baris: 20</option>
+      <option value="20">Baris: 50</option>
+    </select>
+  );
+}

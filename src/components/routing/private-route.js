@@ -1,5 +1,4 @@
 import { Navigate } from "react-router-dom";
-import { useNotifications } from "../feedback/context/notifications-context";
 
 const isAuthenticated = () => {
   const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";

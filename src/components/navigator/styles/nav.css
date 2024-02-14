@@ -1,20 +1,9 @@
-.nav-menu {
-  gap: 5px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-}
-
-.bell-icon {
-  width: 21.4px;
-  position: relative;
-  height: 25px;
-}
-
 .nav-notif-counter-text {
+  font-family: var(--font-sand);
+  font-size: 10px;
   position: relative;
   font-weight: 600;
+  color: inherit;
 }
 
 .nav-notif,
@@ -25,7 +14,8 @@
 
 .nav-notif-counter {
   border-radius: 3px;
-  background-color: #eb3838;
+  color: var(--color-white);
+  background-color: var(--color-red);
   overflow: hidden;
   flex-direction: column;
   align-items: center;
@@ -38,12 +28,7 @@
   flex-direction: row;
   align-items: flex-start;
   padding: 5px;
-}
-
-.user-icon {
-  width: 37.6px;
-  position: relative;
-  height: 37.6px;
+  color: var(--color-blue);
 }
 
 .nav-user {
@@ -54,30 +39,19 @@
   padding: 5px;
 }
 
-.scnd-button-text {
-  position: relative;
-  font-size: 14px;
-  font-family: var(--font-sand);
-  color: var(--color-white);
-  text-align: left;
-}
-
-.scnd-button {
-  cursor: pointer;
-  border: 1px solid var(--color-semidarkblue);
-  padding: 10px 15px;
-  background-color: var(--color-semidarkblue);
-  border-radius: 100px;
-  box-sizing: border-box;
-  height: 40px;
+.nav-menu {
+  flex: 1;
+  display: flex;
   flex-direction: row;
-  justify-content: center;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 5px;
+  gap: 5px;
 }
 
 .nav,
 .nav-body,
-.nav-option,
-.scnd-button {
+.nav-option {
   display: flex;
   align-items: center;
 }
@@ -89,25 +63,23 @@
 }
 
 .nav-body {
-  height: 70px;
   align-self: stretch;
+  height: 70px;
+  color: var(--color-blue);
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 10px;
 }
 
 .nav {
-  margin: 0;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
+  margin: 0;
   background-color: var(--color-foreground);
   flex-direction: column;
   justify-content: flex-start;
-  padding: 0 60px;
-  text-align: left;
-  font-size: 10px;
-  color: #fcfdff;
-  font-family: var(--font-sand);
+  padding: 0 40px;
   z-index: 99;
 }

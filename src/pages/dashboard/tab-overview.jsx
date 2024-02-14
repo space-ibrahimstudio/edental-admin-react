@@ -1,15 +1,16 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import { UserList } from "../../sections/user-list";
+import { PageScreen } from "../../components/layout/page-screen";
 
 const OverviewTab = () => {
   return (
-    <div className="dashboard">
+    <PageScreen pageId="dashboard-overview">
       <Helmet>
         <title>Dashboard - Overview</title>
       </Helmet>
       <UserList />
-    </div>
+    </PageScreen>
   );
 };
 

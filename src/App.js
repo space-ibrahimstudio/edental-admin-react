@@ -4,9 +4,10 @@ import { useLoading } from "./components/feedback/context/loading-context";
 import { PrivateRoute } from "./components/routing/private-route";
 import HomeReplace from "./pages/home-replace";
 import Dashboard from "./pages/dashboard/dashboard";
+import New from "./pages/new";
 import SubmitReservation from "./pages/submit-reservation";
 import { fetchTabMenus } from "./components/tools/data";
-import { formatPathname } from "./components/tools/controller";
+import { toPathname } from "./components/tools/controller";
 
 function App() {
   const [tabMenus, setTabMenus] = useState([]);
@@ -45,24 +46,23 @@ function App() {
         tabMenus.map((menu) => (
           <React.Fragment key={menu["Menu Utama"].idmenu}>
             <Route
-              path={`/dashboard/${formatPathname(
-                menu["Menu Utama"].menu_name
-              )}`}
+              path={`/dashboard/${toPathname(menu["Menu Utama"].menu_name)}`}
               element={<PrivateRoute element={<Dashboard />} />}
             />
             {menu["Sub Menu"] &&
               menu["Sub Menu"].map((submenu) => (
                 <Route
                   key={submenu.idsubmenu}
-                  path={`/dashboard/${formatPathname(
+                  path={`/dashboard/${toPathname(
                     menu["Menu Utama"].menu_name
-                  )}/${formatPathname(submenu.submenu_name)}`}
+                  )}/${toPathname(submenu.submenu_name)}`}
                   element={<PrivateRoute element={<Dashboard />} />}
                 />
               ))}
           </React.Fragment>
         ))}
       <Route path="/submit-reservation" element={<SubmitReservation />} />
+      <Route path="/ehem" element={<New />} />
     </Routes>
   );
 }

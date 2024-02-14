@@ -1,0 +1,235 @@
+.tabel-section-title {
+  align-self: stretch;
+  position: relative;
+}
+
+.tabel-section-nav,
+.tabel-section-option {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.tabel-section-option {
+  justify-content: center;
+  gap: 15px;
+}
+
+.tabel-section-nav {
+  align-self: stretch;
+  justify-content: space-between;
+}
+
+.tabel-head-num-th-text {
+  position: relative;
+}
+
+.tabel-head-num-th {
+  width: 80px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 20px;
+  box-sizing: border-box;
+}
+
+.tabel-head-th-text {
+  flex: 1;
+  position: relative;
+}
+
+.tabel-head-th {
+  width: 250px;
+  flex-shrink: 0;
+  flex-direction: row;
+  align-items: center;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  gap: 10px;
+}
+
+.tabel-head-th,
+.tabel-head-thead,
+.tabel-head-tr {
+  overflow: hidden;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.tabel-head-tr {
+  background-color: #0f3948;
+  box-shadow: 0 37px 10px transparent, 0 24px 9px transparent,
+    0 13px 8px rgba(0, 0, 0, 0.02), 0 6px 6px rgba(0, 0, 0, 0.03),
+    0 1px 3px rgba(0, 0, 0, 0.03);
+  flex-direction: row;
+  align-items: center;
+}
+
+.tabel-head-thead {
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px var(--color-blue-30);
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tabel-body-num-td-text {
+  position: relative;
+  font-weight: 600;
+}
+
+.tabel-body-num-td {
+  width: 80px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 20px;
+  box-sizing: border-box;
+}
+
+.tabel-body-td-text {
+  align-self: stretch;
+  position: relative;
+  font-weight: 600;
+}
+
+.tabel-body-td,
+.tabel-body-tr {
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.tabel-body-td {
+  width: 250px;
+  white-space: normal;
+  flex-direction: column;
+  justify-content: center;
+  padding: 15px 20px;
+  box-sizing: border-box;
+}
+
+.tabel-body-tr {
+  flex-direction: row;
+  justify-content: flex-start;
+  border-top: 1px solid var(--color-blue-30);
+  background-color: transparent;
+  transition: all 0.3s ease-in-out;
+}
+
+.tabel-body-tr:hover,
+.tabel-body-tbody tr:nth-child(even):hover {
+  background-color: var(--color-blue-30);
+}
+
+.tabel-body-tbody {
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px var(--color-blue-30);
+  box-sizing: border-box;
+  color: #0f3948;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.tabel-body-vscroll {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 500px;
+}
+
+.tabel-body-vscroll::-webkit-scrollbar {
+  width: 7px;
+}
+
+.tabel-body-vscroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tabel-body-vscroll::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 5px;
+}
+
+.tabel-body-tbody tr:nth-child(even) {
+  background-color: var(--color-blue-5);
+}
+
+.tabel-body-tbody,
+.tabel-section-body,
+.tabel-section-table {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.tabel-section-table {
+  gap: 10px;
+}
+
+.line-divider {
+  content: "";
+  align-self: stretch;
+  width: 1px;
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+  background-color: var(--color-blue-30);
+}
+
+.tabel-section-body {
+  align-self: stretch;
+  border-radius: 20px;
+  background-color: #fdfdfd;
+  box-shadow: 0 30px 8px transparent, 0 19px 8px transparent,
+    0 11px 6px rgba(0, 0, 0, 0.02), 0 5px 5px rgba(0, 0, 0, 0.03),
+    0 1px 3px rgba(0, 0, 0, 0.03);
+  overflow-x: auto;
+  padding: 10px;
+  text-align: left;
+  font-size: 18px;
+  color: #fff;
+  font-family: Quicksand;
+}
+
+.tabel-section-body::-webkit-scrollbar {
+  height: 7px;
+}
+
+.tabel-section-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tabel-section-body::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 5px;
+}
+
+.tabel-section {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.tabel-section {
+  align-self: stretch;
+  padding: 30px 40px;
+  gap: 20px;
+  text-align: center;
+  font-size: 35px;
+  color: #045e83;
+  font-family: "Plus Jakarta Sans";
+}

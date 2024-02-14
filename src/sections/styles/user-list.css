@@ -29,36 +29,6 @@
   height: 17px;
 }
 
-.user-list-searchbar,
-.user-list-searchbar-field {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.user-list-searchbar-field {
-  border: 0;
-  outline: 0;
-  font-weight: 500;
-  font-family: var(--font-sand);
-  font-size: 18px;
-  background-color: transparent;
-  padding: 5px 0;
-  color: var(--color-semidarkblue);
-}
-
-.user-list-searchbar {
-  border-radius: 10px;
-  border: 1px solid var(--color-blue-30);
-  box-sizing: border-box;
-  height: 52px;
-  padding: 5px 15px;
-  gap: 10px;
-  max-width: 300px;
-}
-
 .user-list-filter-text {
   position: relative;
   font-size: 16px;
@@ -86,7 +56,20 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  font-size: 16px;
+  font-family: var(--font-sand);
+  color: var(--color-semidarkblue);
+  text-align: left;
+  font-weight: 600;
   gap: 10px;
+  appearance: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.user-list-filter:focus,
+.user-list-filter:hover {
+  border: 1px solid var(--color-blue);
+  outline: none;
 }
 
 .user-list-add-text {
@@ -301,6 +284,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  color: var(--color-darkblue);
   justify-content: center;
   box-sizing: border-box;
 }
@@ -309,7 +293,7 @@
   position: relative;
   font-size: 16px;
   font-family: var(--font-sand);
-  color: var(--color-darkblue);
+  color: inherit;
   text-align: left;
 }
 

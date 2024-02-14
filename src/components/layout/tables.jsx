@@ -47,3 +47,137 @@ ColumnsBody.propTypes = {
   children: PropTypes.node,
   maxWidth: PropTypes.string,
 };
+
+export const TableRow = ({ type, children }) => {
+  if (type === "heading") {
+    return <tr className="tabel-head-tr">{children}</tr>;
+  }
+  return <tr className="tabel-body-tr">{children}</tr>;
+};
+
+export const TableHeadValue = ({
+  position,
+  type,
+  value,
+  hasIcon,
+  children,
+}) => {
+  if (hasIcon === "yes") {
+    if (position === "end") {
+      if (type === "num") {
+        return (
+          <th className="tabel-head-num-th">
+            <b className="tabel-head-num-th-text">{value}</b>
+            {children}
+          </th>
+        );
+      }
+      return (
+        <th className="tabel-head-th">
+          <b className="tabel-head-th-text">{value}</b>
+          {children}
+        </th>
+      );
+    }
+    if (type === "num") {
+      return (
+        <>
+          <th className="tabel-head-num-th">
+            <b className="tabel-head-num-th-text">{value}</b>
+            {children}
+          </th>
+          <div className="line-divider" />
+        </>
+      );
+    }
+    return (
+      <>
+        <th className="tabel-head-th">
+          <b className="tabel-head-th-text">{value}</b>
+          {children}
+        </th>
+        <div className="line-divider" />
+      </>
+    );
+  }
+  if (position === "end") {
+    if (type === "num") {
+      return (
+        <th className="tabel-head-num-th">
+          <b className="tabel-head-num-th-text">{value}</b>
+        </th>
+      );
+    }
+    return (
+      <th className="tabel-head-th">
+        <b className="tabel-head-th-text">{value}</b>
+      </th>
+    );
+  }
+  if (type === "num") {
+    return (
+      <>
+        <th className="tabel-head-num-th">
+          <b className="tabel-head-num-th-text">{value}</b>
+        </th>
+        <div className="line-divider" />
+      </>
+    );
+  }
+  return (
+    <>
+      <th className="tabel-head-th">
+        <b className="tabel-head-th-text">{value}</b>
+      </th>
+      <div className="line-divider" />
+    </>
+  );
+};
+
+export const TableBodyValue = ({ position, type, value }) => {
+  if (position === "end") {
+    if (type === "num") {
+      return (
+        <td className="tabel-body-num-td">
+          <b className="tabel-body-num-td-text">{value}</b>
+        </td>
+      );
+    }
+    return (
+      <td className="tabel-body-td">
+        <b className="tabel-body-td-text">{value}</b>
+      </td>
+    );
+  }
+  if (type === "num") {
+    return (
+      <>
+        <td className="tabel-body-num-td">
+          <b className="tabel-body-num-td-text">{value}</b>
+        </td>
+        <div className="line-divider" />
+      </>
+    );
+  }
+  return (
+    <>
+      <td className="tabel-body-td">
+        <b className="tabel-body-td-text">{value}</b>
+      </td>
+      <div className="line-divider" />
+    </>
+  );
+};
+
+export const TableData = ({ headerData, children }) => {
+  return (
+    <div className="tabel-section-body">
+      <table className="tabel-section-table">
+        <thead className="tabel-head-thead">{headerData}</thead>
+        <div className="tabel-body-vscroll">
+          <tbody className="tabel-body-tbody">{children}</tbody>
+        </div>
+      </table>
+    </div>
+  );
+};

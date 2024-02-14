@@ -1,13 +1,14 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import { PageScreen } from "../../components/layout/page-screen";
 
 const MasterTab = () => {
   return (
-    <div className="dashboard">
+    <PageScreen pageId="dashboard-master">
       <Helmet>
         <title>Dashboard - Master</title>
       </Helmet>
-    </div>
+    </PageScreen>
   );
 };
 

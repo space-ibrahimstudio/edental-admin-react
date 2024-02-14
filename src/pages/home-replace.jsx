@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet";
 import { useLoading } from "../components/feedback/context/loading-context";
 import { PortalForm } from "../components/user-input/forms";
 import { PrimButton } from "../components/user-input/buttons";
+import { LogoPrimary } from "../components/layout/icons";
 import { checkLoginStatus, handleLogout } from "../components/tools/handler";
 import "./styles/home-replace.css";
 
@@ -69,7 +70,7 @@ const HomeReplace = () => {
         <meta name="robots" content="index, follow" />
       </Helmet>
       <section className="home-replace-content">
-        <img className="logo-icon" alt="" src="/svg/edental-white.svg" />
+        <LogoPrimary width="150px" height="100%" />
         <h1 className="home-replace-title">Welcome to Edental.id</h1>
         <h4 className="home-replace-body">This is the Homepage replacement.</h4>
         {loggedIn ? (

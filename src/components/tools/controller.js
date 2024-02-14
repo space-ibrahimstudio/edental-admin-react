@@ -4,6 +4,6 @@ export const toTitleCase = (str) => {
   });
 };
 
-export const formatPathname = (pathname) => {
+export const toPathname = (pathname) => {
   return pathname.toLowerCase().replace(/\s+/g, "-");
 };

@@ -2,9 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchTabMenus } from "../tools/data";
 import { handleLogout } from "../tools/handler";
-import { TabButton, DropDownButton } from "../user-input/buttons";
+import { LogoPrimary, UserAvatar, BellNotification } from "../layout/icons";
+import {
+  TabButton,
+  DropDownButton,
+  SecondaryButton,
+} from "../user-input/buttons";
 import { useNotifications } from "../feedback/context/notifications-context";
-import { formatPathname } from "../tools/controller";
+import { toPathname } from "../tools/controller";
 import "./styles/nav.css";
 
 export function Nav() {
@@ -19,8 +24,8 @@ export function Nav() {
   };
 
   const SubTabClick = (menuName, submenuName) => {
-    const formattedMenuName = formatPathname(menuName);
-    const formattedSubmenuName = formatPathname(submenuName);
+    const formattedMenuName = toPathname(menuName);
+    const formattedSubmenuName = toPathname(submenuName);
     const url = `/dashboard/${formattedMenuName}/${formattedSubmenuName}`;
     navigate(url);
   };
@@ -42,12 +47,7 @@ export function Nav() {
   return (
     <nav className="nav">
       <div className="nav-body">
-        <img
-          src="/svg/edental-blue.svg"
-          style={{ width: "140px", height: "auto" }}
-          alt=""
-          loading="lazy"
-        />
+        <LogoPrimary width="140px" height="100%" />
         <div className="nav-menu">
           {Array.isArray(tabMenus) &&
             tabMenus.map((menu) => (
@@ -75,27 +75,15 @@ export function Nav() {
         </div>
         <div className="nav-option">
           <div className="nav-notif">
-            <img
-              className="bell-icon"
-              loading="lazy"
-              alt=""
-              src="/svg/bell-icon.svg"
-            />
+            <BellNotification width="100%" height="25px" />
             <div className="nav-notif-counter">
               <div className="nav-notif-counter-text">3</div>
             </div>
           </div>
           <div className="nav-user">
-            <img
-              className="user-icon"
-              loading="lazy"
-              alt=""
-              src="/svg/user-icon.svg"
-            />
+            <UserAvatar width="37.6px" height="100%" />
           </div>
-          <button className="scnd-button" onClick={logoutClick}>
-            <b className="scnd-button-text">Keluar</b>
-          </button>
+          <SecondaryButton buttonText="Keluar" onClick={logoutClick} />
         </div>
       </div>
     </nav>
