@@ -9,43 +9,27 @@ import {
   TableHeadValue,
   TableBodyValue,
 } from "../components/layout/tables";
-import { ChevronIcon, ChevronDown, PlusIcon } from "../components/layout/icons";
+import { ChevronDown, PlusIcon } from "../components/layout/icons";
 import { OptionButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
+import { Pagination } from "../components/navigator/pagination";
 
 export const Reservation = () => {
   const [userData, setUserData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [isDataShown, setIsDataShown] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const rowsPerPage = 5;
+  const totalRows = 18;
 
   const { showNotifications } = useNotifications();
   const { setLoading } = useLoading();
   const navigate = useNavigate();
 
-  const addNewClick = () => {
-    navigate("/submit-reservation");
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const limit = 100;
-        const hal = 0;
-        const data = await fetchUserBooking(limit, hal);
-
-        setUserData(data);
-        setFilteredData(data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        showNotifications("danger", "Error fetching user data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const tableHeadData = (
     <TableRow type="heading">
@@ -67,6 +51,40 @@ export const Reservation = () => {
     </TableRow>
   );
 
+  const indexOfLastItem = currentPage * rowsPerPage;
+  const indexOfFirstItem = indexOfLastItem - rowsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const addNewClick = () => {
+    navigate("/submit-reservation");
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        const limit = rowsPerPage;
+        const hal = Math.ceil(totalRows / rowsPerPage);
+        const data = await fetchUserBooking(limit, hal);
+
+        setUserData(data);
+        setFilteredData(data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        showNotifications("danger", "Error fetching user data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    setIsDataShown(filteredData.length > 0);
+  }, [filteredData]);
+
   return (
     <section id="order-reservation" className="tabel-section">
       <b className="tabel-section-title">Data Reservasi</b>
@@ -87,40 +105,30 @@ export const Reservation = () => {
         </div>
       </div>
       <TableData headerData={tableHeadData}>
-        {filteredData.map((user) => (
-          <TableRow key={user.idreservation}>
-            <TableBodyValue type="num" value="1" />
-            <TableBodyValue value={user.name} />
-            <TableBodyValue value={user.email} />
-            <TableBodyValue value={user.phone} />
-            <TableBodyValue value={user.service} />
-            <TableBodyValue value={user.typeservice} />
-            <TableBodyValue value={user.reservationdate} />
-            <TableBodyValue value={user.reservationtime} />
-            <TableBodyValue value={user.idbranch} position="end" />
-          </TableRow>
-        ))}
+        {isDataShown ? (
+          currentItems.map((user, index) => (
+            <TableRow key={user.idreservation}>
+              <TableBodyValue type="num" value={indexOfFirstItem + index + 1} />
+              <TableBodyValue value={user.name} />
+              <TableBodyValue value={user.email} />
+              <TableBodyValue value={user.phone} />
+              <TableBodyValue value={user.service} />
+              <TableBodyValue value={user.typeservice} />
+              <TableBodyValue value={user.reservationdate} />
+              <TableBodyValue value={user.reservationtime} />
+              <TableBodyValue value={user.idbranch} position="end" />
+            </TableRow>
+          ))
+        ) : (
+          <p>No data available</p>
+        )}
       </TableData>
-      <div className="pagination">
-        <button className="pagination-arrow">
-          <ChevronIcon width="7px" height="100%" direction="left" />
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">1</b>
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">2</b>
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">3</b>
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">4</b>
-        </button>
-        <button className="pagination-arrow">
-          <ChevronIcon width="7px" height="100%" />
-        </button>
-      </div>
+      <Pagination
+        rowsPerPage={rowsPerPage}
+        totalRows={totalRows}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+      />
     </section>
   );
 };

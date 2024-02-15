@@ -8,16 +8,45 @@ import {
   TableHeadValue,
   TableBodyValue,
 } from "../components/layout/tables";
-import { ChevronIcon, ChevronDown, PlusIcon } from "../components/layout/icons";
+import { ChevronDown, PlusIcon } from "../components/layout/icons";
 import { OptionButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
+import { Pagination } from "../components/navigator/pagination";
 
 export const Order = () => {
   const [userData, setUserData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const rowsPerPage = 5;
+  const totalRows = 18;
 
   const { showNotifications } = useNotifications();
   const { setLoading } = useLoading();
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const tableHeadData = (
+    <TableRow type="heading">
+      <TableHeadValue type="num" value="NO" />
+      <TableHeadValue hasIcon="yes" value="Nama Pengguna">
+        <ChevronDown width="10px" height="100%" />
+      </TableHeadValue>
+      <TableHeadValue value="Telepon" />
+      <TableHeadValue value="Nomor Invoice" />
+      <TableHeadValue value="Tanggal Order" hasIcon="yes">
+        <ChevronDown width="10px" height="100%" />
+      </TableHeadValue>
+      <TableHeadValue value="Cabang" />
+      <TableHeadValue value="Harga" position="end" />
+    </TableRow>
+  );
+
+  const indexOfLastItem = currentPage * rowsPerPage;
+  const indexOfFirstItem = indexOfLastItem - rowsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,22 +68,6 @@ export const Order = () => {
     fetchData();
   }, []);
 
-  const tableHeadData = (
-    <TableRow type="heading">
-      <TableHeadValue type="num" value="NO" />
-      <TableHeadValue hasIcon="yes" value="Nama Pengguna">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
-      <TableHeadValue value="Telepon" />
-      <TableHeadValue value="Nomor Invoice" />
-      <TableHeadValue value="Tanggal Order" hasIcon="yes">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
-      <TableHeadValue value="Cabang" />
-      <TableHeadValue value="Harga" position="end" />
-    </TableRow>
-  );
-
   return (
     <section id="order-order" className="tabel-section">
       <b className="tabel-section-title">Data Order</b>
@@ -75,9 +88,9 @@ export const Order = () => {
         </div>
       </div>
       <TableData headerData={tableHeadData}>
-        {filteredData.map((user) => (
+        {currentItems.map((user, index) => (
           <TableRow key={user.idorder}>
-            <TableBodyValue type="num" value="1" />
+            <TableBodyValue type="num" value={indexOfFirstItem + index + 1} />
             <TableBodyValue value={user.ordername} />
             <TableBodyValue value={user.orderphone} />
             <TableBodyValue value={user.noinvoice} />
@@ -87,26 +100,12 @@ export const Order = () => {
           </TableRow>
         ))}
       </TableData>
-      <div className="pagination">
-        <button className="pagination-arrow">
-          <ChevronIcon width="7px" height="100%" direction="left" />
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">1</b>
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">2</b>
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">3</b>
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">4</b>
-        </button>
-        <button className="pagination-arrow">
-          <ChevronIcon width="7px" height="100%" />
-        </button>
-      </div>
+      <Pagination
+        rowsPerPage={rowsPerPage}
+        totalRows={totalRows}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+      />
     </section>
   );
 };

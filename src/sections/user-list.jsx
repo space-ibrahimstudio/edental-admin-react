@@ -8,25 +8,51 @@ import {
   TableHeadValue,
   TableBodyValue,
 } from "../components/layout/tables";
-import { ChevronIcon, ChevronDown, PlusIcon } from "../components/layout/icons";
+import { ChevronDown, PlusIcon } from "../components/layout/icons";
 import { OptionButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
+import { Pagination } from "../components/navigator/pagination";
 import "./styles/user-list.css";
 
 export const UserList = () => {
   const [userData, setUserData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const rowsPerPage = 5;
+  const totalRows = 18;
 
   const { showNotifications } = useNotifications();
   const { setLoading } = useLoading();
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const tableHeadData = (
+    <TableRow type="heading">
+      <TableHeadValue type="num" value="NO" />
+      <TableHeadValue hasIcon="yes" value="Nama Pengguna">
+        <ChevronDown width="10px" height="100%" />
+      </TableHeadValue>
+      <TableHeadValue value="User ID" />
+      <TableHeadValue value="Email" />
+      <TableHeadValue value="Telepon" />
+      <TableHeadValue value="Tanggal Bergabung" position="end" />
+    </TableRow>
+  );
+
+  const indexOfLastItem = currentPage * rowsPerPage;
+  const indexOfFirstItem = indexOfLastItem - rowsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        const limit = 100;
-        const hal = 0;
+        const limit = rowsPerPage;
+        const hal = Math.ceil(totalRows / rowsPerPage);
         const data = await fetchCustData(limit, hal);
 
         setUserData(data);
@@ -41,19 +67,6 @@ export const UserList = () => {
 
     fetchData();
   }, []);
-
-  const tableHeadData = (
-    <TableRow type="heading">
-      <TableHeadValue type="num" value="NO" />
-      <TableHeadValue hasIcon="yes" value="Nama Pengguna">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
-      <TableHeadValue value="User ID" />
-      <TableHeadValue value="Email" />
-      <TableHeadValue value="Telepon" />
-      <TableHeadValue value="Tanggal Bergabung" position="end" />
-    </TableRow>
-  );
 
   return (
     <section id="customer-data" className="tabel-section">
@@ -75,9 +88,9 @@ export const UserList = () => {
         </div>
       </div>
       <TableData headerData={tableHeadData}>
-        {filteredData.map((user) => (
+        {currentItems.map((user, index) => (
           <TableRow key={user.idauthuser}>
-            <TableBodyValue type="num" value="1" />
+            <TableBodyValue type="num" value={indexOfFirstItem + index + 1} />
             <TableBodyValue value={user.username} />
             <TableBodyValue value={user.idauthuser} />
             <TableBodyValue value={user.useremail} />
@@ -86,26 +99,12 @@ export const UserList = () => {
           </TableRow>
         ))}
       </TableData>
-      <div className="pagination">
-        <button className="pagination-arrow">
-          <ChevronIcon width="7px" height="100%" direction="left" />
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">1</b>
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">2</b>
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">3</b>
-        </button>
-        <button className="pagination-arrow">
-          <b className="pagination-num-text">4</b>
-        </button>
-        <button className="pagination-arrow">
-          <ChevronIcon width="7px" height="100%" />
-        </button>
-      </div>
+      <Pagination
+        rowsPerPage={rowsPerPage}
+        totalRows={totalRows}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+      />
     </section>
   );
 };
