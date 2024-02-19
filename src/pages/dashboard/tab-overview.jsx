@@ -1,15 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { UserList } from "../../sections/user-list";
+import { CustList } from "../../sections/cust-list";
 import { PageScreen } from "../../components/layout/page-screen";
 
 const OverviewTab = () => {
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      const element = document.getElementById(hash.substring(1));
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 800);
+      }
+    }
+  }, []);
+
   return (
-    <PageScreen pageId="dashboard-overview">
+    <PageScreen pageId="dashboard-overview" variant="section">
       <Helmet>
         <title>Dashboard - Overview</title>
       </Helmet>
-      <UserList />
+      <CustList sectionId="data-customer" />
     </PageScreen>
   );
 };

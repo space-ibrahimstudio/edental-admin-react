@@ -1,0 +1,41 @@
+.primButtonHollowText {
+  position: relative;
+  font-size: 16px;
+  font-family: Quicksand;
+  color: #045e83;
+  text-align: left;
+}
+
+.primButtonHollow {
+  cursor: pointer;
+  border: 1px dashed #045e83;
+  padding: 15px 20px;
+  background-color: transparent;
+  border-radius: 55px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.primButtonText {
+  position: relative;
+  font-size: 16px;
+  font-family: Quicksand;
+  color: #fff;
+  text-align: left;
+}
+
+.primButton {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid #3880eb;
+  padding: 15px 20px;
+  background-color: #3880eb;
+  border-radius: 55px;
+  overflow: hidden;
+  flex-direction: row;
+  justify-content: center;
+}

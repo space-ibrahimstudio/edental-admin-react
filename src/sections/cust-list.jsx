@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchOrderData } from "../components/tools/data";
+import { fetchCustData } from "../components/tools/data";
 import { handleAddReserve } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
@@ -15,8 +15,8 @@ import { Pagination } from "../components/navigator/pagination";
 import "./styles/user-list.css";
 import "../pages/styles/new.css";
 
-export const Order = ({ sectionId }) => {
-  const [orderData, setOrderData] = useState([]);
+export const CustList = ({ sectionId }) => {
+  const [userData, setUserData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -84,13 +84,10 @@ export const Order = ({ sectionId }) => {
       <TableHeadValue hasIcon="yes" value="Nama Pengguna">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
+      <TableHeadValue value="User ID" />
+      <TableHeadValue value="Email" />
       <TableHeadValue value="Telepon" />
-      <TableHeadValue value="Nomor Invoice" />
-      <TableHeadValue value="Tanggal Order" hasIcon="yes">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
-      <TableHeadValue value="Cabang" />
-      <TableHeadValue value="Harga" position="end" />
+      <TableHeadValue value="Tanggal Bergabung" position="end" />
     </TableRow>
   );
 
@@ -98,9 +95,9 @@ export const Order = ({ sectionId }) => {
     const fetchData = async () => {
       try {
         setLoadData(true);
-        const data = await fetchOrderData(currentPage, limit, setTotalPages);
+        const data = await fetchCustData(currentPage, limit, setTotalPages);
 
-        setOrderData(data);
+        setUserData(data);
         setFilteredData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -119,18 +116,18 @@ export const Order = ({ sectionId }) => {
 
   return (
     <section id={sectionId} className="tabel-section">
-      <b className="tabel-section-title">Data Order</b>
+      <b className="tabel-section-title">Data Customer</b>
       <div className="tabel-section-nav">
         <SearchInput
-          id="search-order"
+          id="search-datacustomer"
           placeholder="Search by name ..."
-          property="ordername"
-          userData={orderData}
+          property="username"
+          userData={userData}
           setUserData={setFilteredData}
         />
         <div className="tabel-section-option">
           <OptionButton
-            id="total-order"
+            id="total-datacustomer"
             value={limit}
             onChange={handleLimitChange}
           >
@@ -151,14 +148,13 @@ export const Order = ({ sectionId }) => {
         loading={loadData}
       >
         {filteredData.map((user, index) => (
-          <TableRow key={user.idtransaction}>
+          <TableRow key={user.idauthuser}>
             <TableBodyValue type="num" value={startIndex + index} />
-            <TableBodyValue value={user.ordername} />
-            <TableBodyValue value={user.orderphone} />
-            <TableBodyValue value={user.noinvoice} />
-            <TableBodyValue value={user.ordercreate} />
-            <TableBodyValue value={user.idbranch} />
-            <TableBodyValue value={user.price} position="end" />
+            <TableBodyValue value={user.username} />
+            <TableBodyValue value={user.idauthuser} />
+            <TableBodyValue value={user.useremail} />
+            <TableBodyValue value={user.userphone} />
+            <TableBodyValue value={user.usercreate} position="end" />
           </TableRow>
         ))}
       </TableData>

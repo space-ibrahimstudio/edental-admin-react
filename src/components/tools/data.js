@@ -36,12 +36,19 @@ export async function fetchTabMenus() {
   }
 }
 
-export async function fetchUserData() {
+export async function fetchUserData(currentPage, limit, setTotalPages) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
     const formData = new FormData();
-    formData.append("data", JSON.stringify({ secret: userSecret }));
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        limit: limit.toString(),
+        hal: currentPage - 1,
+      })
+    );
 
     const response = await axios.post(
       `${baseUrl}/edental_api/office/viewuser`,
@@ -53,6 +60,8 @@ export async function fetchUserData() {
       }
     );
 
+    const { TTLPage } = response.data;
+    setTotalPages(TTLPage);
     console.log("User Data:", response.data);
 
     return response.data.data;
@@ -62,7 +71,7 @@ export async function fetchUserData() {
   }
 }
 
-export async function fetchUserBooking(limit, hal) {
+export async function fetchUserBooking(currentPage, limit, setTotalPages) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -72,7 +81,7 @@ export async function fetchUserBooking(limit, hal) {
       JSON.stringify({
         secret: userSecret,
         limit: limit.toString(),
-        hal: hal.toString(),
+        hal: currentPage - 1,
       })
     );
 
@@ -86,6 +95,8 @@ export async function fetchUserBooking(limit, hal) {
       }
     );
 
+    const { TTLPage } = response.data;
+    setTotalPages(TTLPage);
     console.log("User Booking Data:", response.data);
 
     return response.data.data;
@@ -95,7 +106,7 @@ export async function fetchUserBooking(limit, hal) {
   }
 }
 
-export async function fetchCustData(limit, hal) {
+export async function fetchCustData(currentPage, limit, setTotalPages) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -105,7 +116,7 @@ export async function fetchCustData(limit, hal) {
       JSON.stringify({
         secret: userSecret,
         limit: limit.toString(),
-        hal: hal.toString(),
+        hal: currentPage - 1,
       })
     );
 
@@ -119,6 +130,8 @@ export async function fetchCustData(limit, hal) {
       }
     );
 
+    const { TTLPage } = response.data;
+    setTotalPages(TTLPage);
     console.log("Customer Data:", response.data);
 
     return response.data.data;
@@ -142,12 +155,19 @@ export const getIPAddress = async () => {
   }
 };
 
-export async function fetchOrderData() {
+export async function fetchOrderData(currentPage, limit, setTotalPages) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
     const formData = new FormData();
-    formData.append("data", JSON.stringify({ secret: userSecret }));
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        limit: limit.toString(),
+        hal: currentPage - 1,
+      })
+    );
 
     const response = await axios.post(
       `${baseUrl}/edental_api/office/vieworder`,
@@ -159,6 +179,8 @@ export async function fetchOrderData() {
       }
     );
 
+    const { TTLPage } = response.data;
+    setTotalPages(TTLPage);
     console.log("Order Data:", response.data);
 
     return response.data.data;

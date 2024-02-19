@@ -6,11 +6,21 @@ import { ChevronDown, ArrowIcon } from "../layout/icons";
 import "./styles/prim-button.css";
 import "./styles/tab-button.css";
 import "./styles/secondary-button.css";
+import styles from "./styles/prim-button.module.css";
 
-export function PrimButton({ buttonText, onClick }) {
+export function PrimButton({ variant, buttonText, onClick, children }) {
+  if (variant === "hollow") {
+    return (
+      <button className={styles.primButtonHollow} onClick={onClick}>
+        <b className={styles.primButtonHollowText}>{buttonText}</b>
+        {children}
+      </button>
+    );
+  }
   return (
-    <button className="prim-button" onClick={onClick}>
-      <b className="prim-button-text">{buttonText}</b>
+    <button className={styles.primButton} onClick={onClick}>
+      <b className={styles.primButtonText}>{buttonText}</b>
+      {children}
     </button>
   );
 }
@@ -18,6 +28,9 @@ export function PrimButton({ buttonText, onClick }) {
 PrimButton.propTypes = {
   onClick: PropTypes.func,
   buttonText: PropTypes.string.isRequired,
+  type: PropTypes.string,
+  children: PropTypes.node,
+  variant: PropTypes.string,
 };
 
 export function SecondaryButton({ buttonText, onClick }) {
@@ -125,19 +138,20 @@ TabButton.propTypes = {
   children: PropTypes.node,
 };
 
-export function OptionButton({ handleChange }) {
+export function OptionButton({ id, value, onChange, children }) {
   return (
-    <select className="user-list-filter" onChange={handleChange}>
-      {/* <b className="user-list-filter-text">Baris : 5</b>
-      <ChevronDown
-        width="10px"
-        height="100%"
-        color="var(--color-semidarkblue)"
-      /> */}
-      <option value="5">Baris: 5</option>
-      <option value="10">Baris: 10</option>
-      <option value="20">Baris: 20</option>
-      <option value="20">Baris: 50</option>
-    </select>
+    <>
+      <label htmlFor={id} style={{ display: "none" }}>
+        {id}
+      </label>
+      <select
+        id={id}
+        className="user-list-filter"
+        value={value}
+        onChange={onChange}
+      >
+        {children}
+      </select>
+    </>
   );
 }

@@ -7,7 +7,7 @@ import { Pagination } from "../components/navigator/pagination";
 import "./styles/user-list.css";
 import "../pages/styles/new.css";
 
-export const UserList = ({ sectionId }) => {
+export const SupplyPO = ({ sectionId }) => {
   const [isDataShown, setIsDataShown] = useState(false);
   const [limit, setLimit] = useState(5);
 
@@ -17,7 +17,7 @@ export const UserList = ({ sectionId }) => {
 
   return (
     <section id={sectionId} className="tabel-section">
-      <b className="tabel-section-title">Manajemen User</b>
+      <b className="tabel-section-title">PO Supply</b>
       <div className="tabel-section-nav">
         <SearchInput
           id="search-datacustomer"

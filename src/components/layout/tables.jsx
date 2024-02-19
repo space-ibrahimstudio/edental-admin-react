@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import "./styles/table-data.css";
 
 export const ColumnsTitle = ({ columnsText, hasIcon, children, maxWidth }) => {
   if (hasIcon === "yes") {
@@ -169,15 +170,39 @@ export const TableBodyValue = ({ position, type, value }) => {
   );
 };
 
-export const TableData = ({ headerData, children }) => {
+export const TableData = ({ headerData, dataShown, loading, children }) => {
   return (
-    <div className="tabel-section-body">
-      <table className="tabel-section-table">
-        <thead className="tabel-head-thead">{headerData}</thead>
-        <div className="tabel-body-vscroll">
-          <tbody className="tabel-body-tbody">{children}</tbody>
-        </div>
-      </table>
+    <div
+      className="tabel-section-body"
+      style={
+        dataShown && !loading
+          ? {
+              alignItems: "flex-start",
+              overflowX: "auto",
+              color: "#fff",
+              justifyContent: "flex-start",
+            }
+          : {
+              alignItems: "center",
+              overflow: "hidden",
+              color: "var(--color-darkblue",
+              justifyContent: "center",
+              height: "350px",
+            }
+      }
+    >
+      {loading ? (
+        <p className="tabel-nodata">Loading...</p>
+      ) : dataShown ? (
+        <table className="tabel-section-table">
+          <thead className="tabel-head-thead">{headerData}</thead>
+          <div className="tabel-body-vscroll">
+            <tbody className="tabel-body-tbody">{children}</tbody>
+          </div>
+        </table>
+      ) : (
+        <p className="tabel-nodata">No data to display.</p>
+      )}
     </div>
   );
 };

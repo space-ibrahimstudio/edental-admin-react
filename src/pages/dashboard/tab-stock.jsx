@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { Reservation } from "../../sections/reservation";
-import { Order } from "../../sections/order";
+import { SupplyPO } from "../../sections/supply-po";
+import { CentralPO } from "../../sections/central-po";
 import { PageScreen } from "../../components/layout/page-screen";
 
-const OrderTab = () => {
+const StockTab = () => {
   useEffect(() => {
     const hash = window.location.hash;
     if (hash) {
@@ -18,14 +18,14 @@ const OrderTab = () => {
   }, []);
 
   return (
-    <PageScreen pageId="dashboard-order" variant="section">
+    <PageScreen pageId="dashboard-stock" variant="section">
       <Helmet>
-        <title>Dashboard - Order</title>
+        <title>Dashboard - Stock</title>
       </Helmet>
-      <Reservation sectionId="reservation" />
-      <Order sectionId="order-customer" />
+      <SupplyPO sectionId="po-supply" />
+      <CentralPO sectionId="po-pusat" />
     </PageScreen>
   );
 };
 
-export default OrderTab;
+export default StockTab;

@@ -117,9 +117,9 @@ export async function handleAddReserve(
   phone,
   email,
   service,
-  serviceType,
-  date,
-  time
+  typeservice,
+  reservationdate,
+  reservationtime
 ) {
   try {
     const userSecret = sessionStorage.getItem("secret");
@@ -132,13 +132,13 @@ export async function handleAddReserve(
         idservice: "1",
         idservicetype: "1",
         idbranch: "2",
-        name: name,
-        phone: phone,
-        email: email,
-        service: service,
-        typeservice: serviceType,
-        reservationdate: date,
-        reservationtime: time,
+        name,
+        phone,
+        email,
+        service,
+        typeservice,
+        reservationdate,
+        reservationtime,
       })
     );
     formData.append("idedit", "");

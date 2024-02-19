@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { Reservation } from "../../sections/reservation";
-import { Order } from "../../sections/order";
+import { Accounting } from "../../sections/accounting";
 import { PageScreen } from "../../components/layout/page-screen";
 
-const OrderTab = () => {
+const ReportTab = () => {
   useEffect(() => {
     const hash = window.location.hash;
     if (hash) {
@@ -18,14 +17,13 @@ const OrderTab = () => {
   }, []);
 
   return (
-    <PageScreen pageId="dashboard-order" variant="section">
+    <PageScreen pageId="dashboard-report" variant="section">
       <Helmet>
-        <title>Dashboard - Order</title>
+        <title>Dashboard - Report</title>
       </Helmet>
-      <Reservation sectionId="reservation" />
-      <Order sectionId="order-customer" />
+      <Accounting sectionId="kas" />
     </PageScreen>
   );
 };
 
-export default OrderTab;
+export default ReportTab;

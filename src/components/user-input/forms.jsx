@@ -6,6 +6,8 @@ import { getIPAddress } from "../tools/data";
 import { useNotifications } from "../feedback/context/notifications-context";
 import { FieldInput } from "./inputs";
 import { LogoPrimary } from "../layout/icons";
+import { PrimButton } from "./buttons";
+import styles from "./styles/data-form.module.css";
 import "./styles/portal-form.css";
 
 const modalRoot = document.getElementById("modal-root") || document.body;
@@ -183,6 +185,64 @@ export function PortalForm({ type, onClose }) {
         </form>
       </div>
     );
+
+  return createPortal(modalElement, modalRoot);
+}
+
+export function SubmitForm({
+  formTitle,
+  formSubtitle,
+  onSubmit,
+  children,
+  onClose,
+}) {
+  const [isClosing, setIsClosing] = useState(false);
+  const ref = useRef(null);
+
+  const handleClickOutside = (e) => {
+    if (ref.current && !ref.current.contains(e.target)) {
+      setIsClosing(true);
+    }
+  };
+
+  useEffect(() => {
+    if (isClosing) {
+      const animationDuration = 500;
+      setTimeout(() => {
+        onClose();
+      }, animationDuration);
+    }
+  }, [isClosing, onClose]);
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const modalElement = (
+    <div className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
+      <form
+        className={`${styles.form} ${isClosing ? styles.close : ""}`}
+        ref={ref}
+      >
+        <header className={styles.formHead}>
+          <b className={styles.formTitle}>{formTitle}</b>
+          <div className={styles.formSubtitle}>{formSubtitle}</div>
+        </header>
+        <main className={styles.formBody}>{children}</main>
+        <footer className={styles.formFooter}>
+          <PrimButton
+            variant="hollow"
+            buttonText="Batalkan"
+            onClick={onClose}
+          />
+          <PrimButton buttonText="Simpan" onClick={onSubmit} />
+        </footer>
+      </form>
+    </div>
+  );
 
   return createPortal(modalElement, modalRoot);
 }

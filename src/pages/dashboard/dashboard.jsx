@@ -3,9 +3,11 @@ import { Helmet } from "react-helmet";
 import { useLocation } from "react-router-dom";
 import { Nav } from "../../components/navigator/nav";
 import { PageScreen } from "../../components/layout/page-screen";
-import MasterTab from "./tab-master";
-import CustomerTab from "./tab-customer";
 import OverviewTab from "./tab-overview";
+import CustomerTab from "./tab-customer";
+import MasterTab from "./tab-master";
+import ReportTab from "./tab-report";
+import StockTab from "./tab-stock";
 import OrderTab from "./tab-order";
 
 const Dashboard = () => {
@@ -26,9 +28,9 @@ const Dashboard = () => {
       case "MASTER":
         return <MasterTab />;
       case "REPORT":
-        return <MasterTab />;
+        return <ReportTab />;
       case "STOCK":
-        return <MasterTab />;
+        return <StockTab />;
       case "ORDER":
         return <OrderTab />;
       default:

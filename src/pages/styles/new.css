@@ -165,7 +165,6 @@
 }
 
 .tabel-body-tbody,
-.tabel-section-body,
 .tabel-section-table {
   display: flex;
   flex-direction: column;
@@ -189,13 +188,14 @@
 }
 
 .tabel-section-body {
+  display: flex;
+  flex-direction: column;
   align-self: stretch;
   border-radius: 20px;
   background-color: #fdfdfd;
   box-shadow: 0 30px 8px transparent, 0 19px 8px transparent,
     0 11px 6px rgba(0, 0, 0, 0.02), 0 5px 5px rgba(0, 0, 0, 0.03),
     0 1px 3px rgba(0, 0, 0, 0.03);
-  overflow-x: auto;
   padding: 10px;
   text-align: left;
   font-size: 18px;

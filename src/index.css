@@ -22,6 +22,10 @@ body {
   scroll-behavior: smooth;
 }
 
+:modal-root {
+  overflow-y: auto;
+}
+
 :root {
   --font-sand: "Quicksand", sans-serif;
   --font-jakarta: "Plus Jakarta Sans", sans-serif;

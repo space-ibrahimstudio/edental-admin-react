@@ -1,0 +1,77 @@
+.inputLabelText {
+  position: relative;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: Quicksand;
+  margin-left: 15px;
+  color: #0f3948;
+  text-align: left;
+}
+
+.inputLabelField,
+.inputLabelFieldInput {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.inputLabelFieldInput {
+  border: 0;
+  outline: 0;
+  font-weight: 600;
+  font-family: Quicksand;
+  font-size: 18px;
+  background-color: transparent;
+  flex: 1;
+  padding: 10px;
+  color: rgba(15, 57, 72, 0.5);
+}
+
+.inputLabelField {
+  align-self: stretch;
+  border-radius: 5px;
+  background-color: #fdfdfd;
+  border: 1.1px solid rgba(56, 128, 235, 0.3);
+  padding: 5px;
+}
+
+.inputLabel,
+.inputWrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.inputLabel {
+  flex: 1;
+  align-self: stretch;
+  flex-direction: column;
+  gap: 5px 0;
+  min-width: 250px;
+}
+
+.inputWrap {
+  gap: 10px;
+  align-self: stretch;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.inputLabelFieldSelect {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.inputLabelFieldSelect {
+  flex: 1;
+  background-color: transparent;
+  border: 0;
+  flex-direction: row;
+  padding: 10px;
+  font-family: Quicksand;
+  font-weight: 600;
+  font-size: 18px;
+  color: rgba(15, 57, 72, 0.5);
+}

@@ -1,161 +1,60 @@
-import React, { useState } from "react";
+import React from "react";
 import { ChevronIcon } from "../layout/icons";
 import "./styles/pagination.css";
 
-export function Pagination({
-  totalRows,
-  rowsPerPage,
-  currentPage,
-  onPageChange,
-}) {
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
+export function Pagination({ currentPage, totalPages, handlePagination }) {
+  const prevPage = () => {
+    if (currentPage > 1) {
+      handlePagination(currentPage - 1);
+    }
+  };
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      handlePagination(currentPage + 1);
+    }
+  };
 
   const renderPageNumbers = () => {
-    const pageNumbers = [];
+    const pagesToShow = [];
+    const maxPages = 4;
 
-    // if (totalPages <= 5) {
-    //   for (let i = 1; i <= totalPages; i++) {
-    //     pageNumbers.push(
-    //       <button
-    //         key={i}
-    //         className={`pagination-arrow ${i === currentTable ? "active" : ""}`}
-    //         onClick={() => paginate(i)}
-    //       >
-    //         <b className="pagination-num-text">{i}</b>
-    //       </button>
-    //     );
-    //   }
-    // } else {
-    //   if (currentTable <= 3) {
-    //     for (let i = 1; i <= 4; i++) {
-    //       pageNumbers.push(
-    //         <button
-    //           key={i}
-    //           className={`pagination-arrow ${
-    //             i === currentTable ? "active" : ""
-    //           }`}
-    //           onClick={() => paginate(i)}
-    //         >
-    //           <b className="pagination-num-text">{i}</b>
-    //         </button>
-    //       );
-    //     }
-    //     pageNumbers.push(
-    //       <button
-    //         key="ellipsis1"
-    //         className="pagination-arrow"
-    //         style={{ cursor: "default" }}
-    //       >
-    //         <b className="pagination-num-text">...</b>
-    //       </button>
-    //     );
-    //     pageNumbers.push(
-    //       <button
-    //         key={totalPages}
-    //         className="pagination-arrow"
-    //         onClick={() => paginate(totalPages)}
-    //       >
-    //         <b className="pagination-num-text">{totalPages}</b>
-    //       </button>
-    //     );
-    //   } else if (currentTable > totalPages - 3) {
-    //     pageNumbers.push(
-    //       <button
-    //         key={1}
-    //         className="pagination-arrow"
-    //         onClick={() => paginate(1)}
-    //       >
-    //         <b className="pagination-num-text">1</b>
-    //       </button>
-    //     );
-    //     pageNumbers.push(
-    //       <button
-    //         key="ellipsis2"
-    //         className="pagination-arrow"
-    //         style={{ cursor: "default" }}
-    //       >
-    //         <b className="pagination-num-text">...</b>
-    //       </button>
-    //     );
-    //     for (let i = totalPages - 3; i <= totalPages; i++) {
-    //       pageNumbers.push(
-    //         <button
-    //           key={i}
-    //           className={`pagination-arrow ${
-    //             i === currentTable ? "active" : ""
-    //           }`}
-    //           onClick={() => paginate(i)}
-    //         >
-    //           <b className="pagination-num-text">{i}</b>
-    //         </button>
-    //       );
-    //     }
-    //   } else {
-    //     pageNumbers.push(
-    //       <button
-    //         key={1}
-    //         className="pagination-arrow"
-    //         onClick={() => paginate(1)}
-    //       >
-    //         <b className="pagination-num-text">1</b>
-    //       </button>
-    //     );
-    //     pageNumbers.push(
-    //       <button
-    //         key="ellipsis3"
-    //         className="pagination-arrow"
-    //         style={{ cursor: "default" }}
-    //       >
-    //         <b className="pagination-num-text">...</b>
-    //       </button>
-    //     );
-    //     for (let i = currentTable - 1; i <= currentTable + 1; i++) {
-    //       pageNumbers.push(
-    //         <button
-    //           key={i}
-    //           className={`pagination-arrow ${
-    //             i === currentTable ? "active" : ""
-    //           }`}
-    //           onClick={() => paginate(i)}
-    //         >
-    //           <b className="pagination-num-text">{i}</b>
-    //         </button>
-    //       );
-    //     }
-    //     pageNumbers.push(
-    //       <button
-    //         key="ellipsis4"
-    //         className="pagination-arrow"
-    //         style={{ cursor: "default" }}
-    //       >
-    //         <b className="pagination-num-text">...</b>
-    //       </button>
-    //     );
-    //     pageNumbers.push(
-    //       <button
-    //         key={totalPages}
-    //         className="pagination-arrow"
-    //         onClick={() => paginate(totalPages)}
-    //       >
-    //         <b className="pagination-num-text">{totalPages}</b>
-    //       </button>
-    //     );
-    //   }
-    // }
+    if (totalPages <= maxPages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pagesToShow.push(i);
+      }
+    } else {
+      const leftBound = Math.max(2, currentPage - 2);
+      const rightBound = Math.min(currentPage + 2, totalPages - 1);
 
-    for (let i = 1; i <= totalPages; i++) {
-      pageNumbers.push(
-        <button
-          key={i}
-          className={`pagination-arrow ${i === currentPage ? "active" : ""}`}
-          onClick={() => onPageChange(i)}
-        >
-          <b className="pagination-num-text">{i}</b>
-        </button>
-      );
+      pagesToShow.push(1);
+      if (leftBound > 2) {
+        pagesToShow.push("ellipsis");
+      }
+      for (let i = leftBound; i <= rightBound; i++) {
+        pagesToShow.push(i);
+      }
+      if (rightBound < totalPages - 1) {
+        pagesToShow.push("ellipsis");
+      }
+      pagesToShow.push(totalPages);
     }
 
-    return pageNumbers;
+    return pagesToShow.map((pageNumber, index) => (
+      <button
+        key={index}
+        className={`pagination-arrow ${
+          pageNumber === "ellipsis" ? "ellipsis" : ""
+        } ${currentPage === pageNumber ? "active" : ""}`}
+        onClick={() => handlePagination(pageNumber)}
+      >
+        {pageNumber === "ellipsis" ? (
+          <b className="pagination-num-text">...</b>
+        ) : (
+          <b className="pagination-num-text">{pageNumber}</b>
+        )}
+      </button>
+    ));
   };
 
   return (
@@ -163,7 +62,7 @@ export function Pagination({
       <button
         className="pagination-arrow"
         style={{ display: currentPage === 1 ? "none" : "flex" }}
-        onClick={() => onPageChange(currentPage - 1)}
+        onClick={prevPage}
       >
         <ChevronIcon width="7px" height="100%" direction="left" />
       </button>
@@ -171,7 +70,7 @@ export function Pagination({
       <button
         className="pagination-arrow"
         style={{ display: currentPage === totalPages ? "none" : "flex" }}
-        onClick={() => onPageChange(currentPage + 1)}
+        onClick={nextPage}
       >
         <ChevronIcon width="7px" height="100%" />
       </button>

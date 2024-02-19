@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { EyeOpen, EyeSlash, SearchIcon } from "../layout/icons";
 import "./styles/field-input.css";
 import "./styles/search-input.css";
+import styles from "./styles/user-input.module.css";
 
 export function FieldInput({
   id,
@@ -130,6 +131,39 @@ export function SearchInput({
         value={searchTerm}
         onChange={handleSearch}
       />
+    </div>
+  );
+}
+
+export function InputWrapper({ children }) {
+  return <div className={styles.inputWrap}>{children}</div>;
+}
+
+export function UserInput({
+  id,
+  labelText,
+  error,
+  placeholder,
+  type,
+  name,
+  value,
+  onChange,
+}) {
+  return (
+    <div className={styles.inputLabel}>
+      <h6 className={styles.inputLabelText}>{labelText}</h6>
+      <label htmlFor={id} className={styles.inputLabelField}>
+        <input
+          id={id}
+          className={styles.inputLabelFieldInput}
+          placeholder={placeholder}
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+        />
+      </label>
+      {error && <h6 className={styles.inputLabelText}>{error}</h6>}
     </div>
   );
 }

@@ -8,18 +8,11 @@
   font-family: var(--font-jakarta);
 }
 
-.home-replace-title {
-  margin-top: -15px;
-  margin-bottom: -11px;
-}
-
 .home-replace-body {
   font-size: var(--font-subtitle);
   font-weight: 600;
   font-family: inherit;
   color: var(--color-foreground);
-  margin-top: -7px;
-  margin-bottom: -6px;
 }
 
 .home-replace,
@@ -33,7 +26,7 @@
 .home-replace-content {
   align-self: stretch;
   justify-content: flex-start;
-  padding: 17px 0;
+  padding: var(--padd-20-0);
   gap: 25px;
   z-index: 0;
   text-align: center;
@@ -47,7 +40,7 @@
   position: relative;
   height: 100vh;
   justify-content: center;
-  padding: 40px 60px;
+  padding: var(--padd-40-60);
   box-sizing: border-box;
   background-image: linear-gradient(
       0deg,

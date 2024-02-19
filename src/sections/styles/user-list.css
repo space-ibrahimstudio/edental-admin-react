@@ -29,14 +29,6 @@
   height: 17px;
 }
 
-.user-list-filter-text {
-  position: relative;
-  font-size: 16px;
-  font-family: var(--font-sand);
-  color: var(--color-semidarkblue);
-  text-align: left;
-}
-
 .chevron-down-icon {
   width: 12px;
   position: relative;
@@ -60,9 +52,8 @@
   font-family: var(--font-sand);
   color: var(--color-semidarkblue);
   text-align: left;
-  font-weight: 600;
+  font-weight: 800;
   gap: 10px;
-  appearance: none;
   transition: all 0.3s ease-in-out;
 }
 
