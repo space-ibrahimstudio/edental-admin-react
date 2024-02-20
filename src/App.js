@@ -6,7 +6,7 @@ import HomeReplace from "./pages/home-replace";
 import Dashboard from "./pages/dashboard/dashboard";
 import WarningScreen from "./components/feedback/warning-screen";
 import { fetchTabMenus } from "./components/tools/data";
-import { toPathname } from "./components/tools/controller";
+import { toPathname, OhYeah } from "./components/tools/controller";
 
 function App() {
   const [tabMenus, setTabMenus] = useState([]);
@@ -51,7 +51,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <OhYeah>
       {windowWidth < minWidthForWarning ? (
         <WarningScreen />
       ) : (
@@ -71,7 +71,7 @@ function App() {
             ))}
         </Routes>
       )}
-    </>
+    </OhYeah>
   );
 }
 

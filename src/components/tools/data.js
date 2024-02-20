@@ -141,6 +141,37 @@ export async function fetchCustData(currentPage, limit, setTotalPages) {
   }
 }
 
+export async function checkExistingData() {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        limit: "10000",
+        hal: "1",
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/viewcustomer`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching customer data:", error);
+    throw error;
+  }
+}
+
 export const getIPAddress = async () => {
   try {
     const response = await axios.get("https://api.ipify.org?format=json");

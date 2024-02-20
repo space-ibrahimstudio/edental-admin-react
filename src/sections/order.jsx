@@ -13,8 +13,7 @@ import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import { SearchInput } from "../components/user-input/inputs";
 import { PrimButton } from "../components/user-input/buttons";
 import { Pagination } from "../components/navigator/pagination";
-import "./styles/user-list.css";
-import "../pages/styles/new.css";
+import styles from "./styles/tabel-section.module.css";
 
 export const Order = ({ sectionId }) => {
   const [orderData, setOrderData] = useState([]);
@@ -118,24 +117,24 @@ export const Order = ({ sectionId }) => {
   }, [filteredData]);
 
   return (
-    <section id={sectionId} className="tabel-section">
-      <b className="tabel-section-title">Data Order</b>
-      <div className="tabel-section-nav">
+    <section id={sectionId} className={styles.tabelSection}>
+      <b className={styles.tabelSectionTitle}>Data Order</b>
+      <div className={styles.tabelSectionNav}>
         <InputWrapper maxWidth="1000px">
           <SearchInput
-            id="search-reservation"
+            id="search-order"
             placeholder="Search by name ..."
             property="transactionname"
             userData={orderData}
             setUserData={setFilteredData}
           />
         </InputWrapper>
-        <div className="tabel-section-option">
+        <div className={styles.tabelSectionOption}>
           <InputWrapper>
             <UserInput
               variant="select"
               subVariant="nolabel"
-              id="total-reservation"
+              id="total-order"
               value={limit}
               onChange={handleLimitChange}
             >

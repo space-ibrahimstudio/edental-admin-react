@@ -5,8 +5,7 @@ import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import { PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
 import { Pagination } from "../components/navigator/pagination";
-import "./styles/user-list.css";
-import "../pages/styles/new.css";
+import styles from "./styles/tabel-section.module.css";
 
 export const Accounting = ({ sectionId }) => {
   const [isDataShown, setIsDataShown] = useState(false);
@@ -17,22 +16,22 @@ export const Accounting = ({ sectionId }) => {
   };
 
   return (
-    <section id={sectionId} className="tabel-section">
-      <b className="tabel-section-title">Kas</b>
-      <div className="tabel-section-nav">
+    <section id={sectionId} className={styles.tabelSection}>
+      <b className={styles.tabelSectionTitle}>Kas</b>
+      <div className={styles.tabelSectionNav}>
         <InputWrapper maxWidth="1000px">
           <SearchInput
-            id="search-reservation"
+            id="search-accounting"
             placeholder="Search by products ..."
             property="username"
           />
         </InputWrapper>
-        <div className="tabel-section-option">
+        <div className={styles.tabelSectionOption}>
           <InputWrapper>
             <UserInput
               variant="select"
               subVariant="nolabel"
-              id="total-datacustomer"
+              id="total-accounting"
               value={limit}
               onChange={handleLimitChange}
             >

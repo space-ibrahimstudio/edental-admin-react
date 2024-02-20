@@ -39,8 +39,7 @@ export function FloatNotification({ type, message, onClose }) {
         </main>
       </section>
     );
-  }
-  if (type === "warning") {
+  } else if (type === "warning") {
     return (
       <section className={`notif-float ${isClosing ? "out" : "in"}`} ref={ref}>
         <main
@@ -51,8 +50,7 @@ export function FloatNotification({ type, message, onClose }) {
         </main>
       </section>
     );
-  }
-  if (type === "success") {
+  } else if (type === "success") {
     return (
       <section className={`notif-float ${isClosing ? "out" : "in"}`} ref={ref}>
         <main
@@ -63,5 +61,7 @@ export function FloatNotification({ type, message, onClose }) {
         </main>
       </section>
     );
+  } else {
+    return null;
   }
 }

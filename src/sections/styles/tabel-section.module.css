@@ -1,0 +1,36 @@
+.tabelSectionTitle {
+  align-self: stretch;
+  position: relative;
+}
+
+.tabelSectionNav,
+.tabelSectionOption {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.tabelSectionOption {
+  justify-content: center;
+  gap: 15px;
+}
+
+.tabelSectionNav {
+  align-self: stretch;
+  justify-content: space-between;
+}
+
+.tabelSection {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  padding: 30px 40px;
+  gap: 20px;
+  text-align: center;
+  font-size: 35px;
+  color: #045e83;
+  font-family: "Plus Jakarta Sans";
+}

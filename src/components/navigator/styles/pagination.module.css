@@ -1,4 +1,4 @@
-.pagination-arrow {
+.paginationArrow {
   cursor: pointer;
   border: 0;
   padding: 5px 20px;
@@ -15,16 +15,21 @@
   transition: all 0.3s ease-in-out;
 }
 
-.pagination-arrow:hover {
+.paginationArrow:hover {
   background-color: var(--color-blue-5);
 }
 
-.pagination-arrow.active {
+.paginationArrow.active {
   color: var(--color-white);
   background-color: var(--color-blue);
 }
 
-.pagination-num-text {
+.paginationArrow.ellipsis:hover {
+  cursor: default;
+  background-color: transparent;
+}
+
+.paginationNumText {
   position: relative;
   font-size: 16px;
   font-family: var(--font-sand);

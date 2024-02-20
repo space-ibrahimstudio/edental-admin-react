@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { FloatNotification } from "../float-notification";
 
 const NotificationsContext = createContext();
@@ -10,12 +10,24 @@ export function useNotifications() {
 export function NotificationsProvider({ children }) {
   const [notifications, setNotifications] = useState(null);
 
+  useEffect(() => {
+    const savedNotifications = JSON.parse(
+      sessionStorage.getItem("notifications")
+    );
+    if (savedNotifications) {
+      setNotifications(savedNotifications);
+    }
+  }, []);
+
   const showNotifications = (type, message, onClose) => {
-    setNotifications({ type, message, onClose });
+    const newNotification = { type, message, onClose };
+    setNotifications(newNotification);
+    sessionStorage.setItem("notifications", JSON.stringify(newNotification));
   };
 
   const hideNotifications = () => {
     setNotifications(null);
+    sessionStorage.removeItem("notifications");
   };
 
   return (

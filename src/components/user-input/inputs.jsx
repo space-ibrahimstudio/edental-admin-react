@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { EyeOpen, EyeSlash, SearchIcon } from "../layout/icons";
 import "./styles/field-input.css";
-import "./styles/search-input.css";
 import styles from "./styles/user-input.module.css";
 
 export function FieldInput({
@@ -129,24 +128,6 @@ export function SearchInput({
         />
       </label>
     </div>
-    // <div className="user-list-searchbar">
-    //   <SearchIcon
-    //     height="100%"
-    //     width="17px"
-    //     color="var(--color-semidarkblue)"
-    //   />
-    //   <label htmlFor={id} style={{ display: "none" }}>
-    //     {placeholder}
-    //   </label>
-    //   <input
-    //     id={id}
-    //     className="user-list-searchbar-field"
-    //     placeholder={placeholder}
-    //     type="text"
-    //     value={searchTerm}
-    //     onChange={handleSearch}
-    //   />
-    // </div>
   );
 }
 

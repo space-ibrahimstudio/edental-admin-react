@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { OhYeah } from "../tools/controller";
 import "./styles/table-data.css";
+import "../../pages/styles/new.css";
 
 export const ColumnsTitle = ({ columnsText, hasIcon, children, maxWidth }) => {
   if (hasIcon === "yes") {
@@ -10,12 +12,13 @@ export const ColumnsTitle = ({ columnsText, hasIcon, children, maxWidth }) => {
         {children}
       </div>
     );
+  } else {
+    return (
+      <div className="user-list-head-name" style={{ maxWidth: maxWidth }}>
+        <b className="user-list-title">{columnsText}</b>
+      </div>
+    );
   }
-  return (
-    <div className="user-list-head-name" style={{ maxWidth: maxWidth }}>
-      <b className="user-list-title">{columnsText}</b>
-    </div>
-  );
 };
 
 ColumnsTitle.propTypes = {
@@ -33,13 +36,14 @@ export const ColumnsBody = ({ columnsText, hasIcon, children, maxWidth }) => {
         {children}
       </div>
     );
+  } else {
+    return (
+      <div className="user-list-head-name" style={{ maxWidth: maxWidth }}>
+        <div className="user-list-row-name-text">{columnsText}</div>
+        {children}
+      </div>
+    );
   }
-  return (
-    <div className="user-list-head-name" style={{ maxWidth: maxWidth }}>
-      <div className="user-list-row-name-text">{columnsText}</div>
-      {children}
-    </div>
-  );
 };
 
 ColumnsBody.propTypes = {
@@ -74,53 +78,52 @@ export const TableHeadValue = ({ position, type, value, children }) => {
           {children}
         </th>
       );
-    }
-    if (type === "atn") {
+    } else if (type === "atn") {
       return (
         <th className="tabel-head-atn-th">
           <b className="tabel-head-num-th-text">{value}</b>
           {children}
         </th>
       );
+    } else {
+      return (
+        <th className="tabel-head-th">
+          <b className="tabel-head-th-text">{value}</b>
+          {children}
+        </th>
+      );
     }
+  } else if (type === "num") {
     return (
-      <th className="tabel-head-th">
-        <b className="tabel-head-th-text">{value}</b>
-        {children}
-      </th>
-    );
-  }
-  if (type === "num") {
-    return (
-      <>
+      <OhYeah>
         <th className="tabel-head-num-th">
           <b className="tabel-head-num-th-text">{value}</b>
           {children}
         </th>
         <div className="line-divider" />
-      </>
+      </OhYeah>
     );
-  }
-  if (type === "atn") {
+  } else if (type === "atn") {
     return (
-      <>
+      <OhYeah>
         <th className="tabel-head-atn-th">
           <b className="tabel-head-num-th-text">{value}</b>
           {children}
         </th>
         <div className="line-divider" />
-      </>
+      </OhYeah>
+    );
+  } else {
+    return (
+      <OhYeah>
+        <th className="tabel-head-th">
+          <b className="tabel-head-th-text">{value}</b>
+          {children}
+        </th>
+        <div className="line-divider" />
+      </OhYeah>
     );
   }
-  return (
-    <>
-      <th className="tabel-head-th">
-        <b className="tabel-head-th-text">{value}</b>
-        {children}
-      </th>
-      <div className="line-divider" />
-    </>
-  );
 };
 
 export const TableBodyValue = ({ position, type, value, children }) => {
@@ -131,42 +134,41 @@ export const TableBodyValue = ({ position, type, value, children }) => {
           <b className="tabel-body-num-td-text">{value}</b>
         </td>
       );
-    }
-    if (type === "atn") {
+    } else if (type === "atn") {
       return <td className="tabel-body-atn-td">{children}</td>;
+    } else {
+      return (
+        <td className="tabel-body-td">
+          <b className="tabel-body-td-text">{value}</b>
+        </td>
+      );
     }
+  } else if (type === "num") {
     return (
-      <td className="tabel-body-td">
-        <b className="tabel-body-td-text">{value}</b>
-      </td>
-    );
-  }
-  if (type === "num") {
-    return (
-      <>
+      <OhYeah>
         <td className="tabel-body-num-td">
           <b className="tabel-body-num-td-text">{value}</b>
         </td>
         <div className="line-divider" />
-      </>
+      </OhYeah>
     );
-  }
-  if (type === "atn") {
+  } else if (type === "atn") {
     return (
-      <>
+      <OhYeah>
         <td className="tabel-body-atn-td">{children}</td>
         <div className="line-divider" />
-      </>
+      </OhYeah>
+    );
+  } else {
+    return (
+      <OhYeah>
+        <td className="tabel-body-td">
+          <b className="tabel-body-td-text">{value}</b>
+        </td>
+        <div className="line-divider" />
+      </OhYeah>
     );
   }
-  return (
-    <>
-      <td className="tabel-body-td">
-        <b className="tabel-body-td-text">{value}</b>
-      </td>
-      <div className="line-divider" />
-    </>
-  );
 };
 
 export const TableData = ({ headerData, dataShown, loading, children }) => {

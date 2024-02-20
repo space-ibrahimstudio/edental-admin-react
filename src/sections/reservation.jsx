@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { fetchUserBooking, fetchCustData } from "../components/tools/data";
-import {
-  handleAddReserve,
-  checkExistingData,
-} from "../components/tools/handler";
+import { fetchUserBooking, checkExistingData } from "../components/tools/data";
+import { handleAddReserve } from "../components/tools/handler";
 import { getCurrentDate } from "../components/tools/controller";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
@@ -23,8 +20,7 @@ import {
 import { SecondaryButton, PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
 import { Pagination } from "../components/navigator/pagination";
-import "./styles/user-list.css";
-import "../pages/styles/new.css";
+import styles from "./styles/tabel-section.module.css";
 
 export const Reservation = ({ sectionId }) => {
   const [reserveData, setReserveData] = useState([]);
@@ -396,9 +392,9 @@ export const Reservation = ({ sectionId }) => {
   }, [formData.reservationdate]);
 
   return (
-    <section id={sectionId} className="tabel-section">
-      <b className="tabel-section-title">Data Reservasi</b>
-      <div className="tabel-section-nav">
+    <section id={sectionId} className={styles.tabelSection}>
+      <b className={styles.tabelSectionTitle}>Data Reservasi</b>
+      <div className={styles.tabelSectionNav}>
         <InputWrapper maxWidth="1000px">
           <SearchInput
             id="search-reservation"
@@ -408,7 +404,7 @@ export const Reservation = ({ sectionId }) => {
             setUserData={setFilteredData}
           />
         </InputWrapper>
-        <div className="tabel-section-option">
+        <div className={styles.tabelSectionOption}>
           <InputWrapper>
             <UserInput
               variant="select"
@@ -430,10 +426,6 @@ export const Reservation = ({ sectionId }) => {
           >
             <PlusIcon width="17px" height="100%" />
           </PrimButton>
-          {/* <button className="user-list-add" onClick={openForm}>
-            <b className="user-list-add-text">Tambah Baru</b>
-            <PlusIcon width="17px" height="100%" color="var(--color-white)" />
-          </button> */}
         </div>
       </div>
       <TableData
@@ -614,7 +606,7 @@ export const Reservation = ({ sectionId }) => {
         >
           <InputWrapper>
             <UserInput
-              id="user-name"
+              id="edit-user-name"
               labelText="Nama Pelanggan"
               placeholder="John Doe"
               type="text"
@@ -626,7 +618,7 @@ export const Reservation = ({ sectionId }) => {
           </InputWrapper>
           <InputWrapper>
             <UserInput
-              id="user-phone"
+              id="edit-user-phone"
               labelText="Nomor Telepon"
               placeholder="0882xxx"
               type="text"
@@ -636,7 +628,7 @@ export const Reservation = ({ sectionId }) => {
               error={errors.phone}
             />
             <UserInput
-              id="user-email"
+              id="edit-user-email"
               labelText="Email"
               placeholder="customer@gmail.com"
               type="email"
@@ -648,7 +640,7 @@ export const Reservation = ({ sectionId }) => {
           </InputWrapper>
           <InputWrapper>
             <UserInput
-              id="service"
+              id="edit-service"
               labelText="Nama Layanan"
               placeholder="Pilih layanan"
               type="text"
@@ -658,7 +650,7 @@ export const Reservation = ({ sectionId }) => {
               error={errors.service}
             />
             <UserInput
-              id="service-type"
+              id="edit-service-type"
               labelText="Tipe Layanan"
               placeholder="Pilih tipe layanan"
               type="text"
@@ -669,7 +661,7 @@ export const Reservation = ({ sectionId }) => {
             />
             {!phoneExist && (
               <UserInput
-                id="service-price"
+                id="edit-service-price"
                 labelText="Harga"
                 placeholder="Masukkan harga"
                 type="text"
@@ -682,7 +674,7 @@ export const Reservation = ({ sectionId }) => {
           </InputWrapper>
           <InputWrapper>
             <UserInput
-              id="date"
+              id="edit-date"
               labelText="Tanggal Reservasi"
               placeholder="Atur tanggal"
               type="date"
@@ -693,7 +685,7 @@ export const Reservation = ({ sectionId }) => {
             />
             <UserInput
               variant="select"
-              id="time"
+              id="edit-time"
               labelText="Jam Reservasi"
               name="reservationtime"
               value={existingData.reservationtime}
@@ -701,22 +693,11 @@ export const Reservation = ({ sectionId }) => {
               error={errors.reservationtime}
             >
               <option value="">Pilih jadwal tersedia</option>
-              <option value="10:00am">10.00 am</option>
-              <option value="10:30am">10.30 am</option>
-              <option value="11:00am">11.00 am</option>
-              <option value="11:30am">11.30 am</option>
-              <option value="12:00pm">12.00 pm</option>
-              <option value="12:30pm">12.30 pm</option>
-              <option value="01:00pm">01.00 pm</option>
-              <option value="03:00pm">03.00 pm</option>
-              <option value="03:30pm">03.30 pm</option>
-              <option value="04:00pm">04.00 pm</option>
-              <option value="04:30pm">04.30 pm</option>
-              <option value="05:00pm">05.00 pm</option>
-              <option value="05:30pm">05.30 pm</option>
-              <option value="06:00pm">06.00 pm</option>
-              <option value="06:30pm">06.30 pm</option>
-              <option value="07:00pm">07.00 pm</option>
+              {hours.map((hour, index) => (
+                <option key={index} value={hour}>
+                  {hour}
+                </option>
+              ))}
             </UserInput>
           </InputWrapper>
         </SubmitForm>

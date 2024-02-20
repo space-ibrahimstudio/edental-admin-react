@@ -13,8 +13,7 @@ import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import { PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
 import { Pagination } from "../components/navigator/pagination";
-import "./styles/user-list.css";
-import "../pages/styles/new.css";
+import styles from "./styles/tabel-section.module.css";
 
 export const CustList = ({ sectionId }) => {
   const [userData, setUserData] = useState([]);
@@ -115,19 +114,19 @@ export const CustList = ({ sectionId }) => {
   }, [filteredData]);
 
   return (
-    <section id={sectionId} className="tabel-section">
-      <b className="tabel-section-title">Data Customer</b>
-      <div className="tabel-section-nav">
+    <section id={sectionId} className={styles.tabelSection}>
+      <b className={styles.tabelSectionTitle}>Data Customer</b>
+      <div className={styles.tabelSectionNav}>
         <InputWrapper maxWidth="1000px">
           <SearchInput
-            id="search-reservation"
+            id="search-datacustomer"
             placeholder="Search by name ..."
             property="username"
             userData={userData}
             setUserData={setFilteredData}
           />
         </InputWrapper>
-        <div className="tabel-section-option">
+        <div className={styles.tabelSectionOption}>
           <InputWrapper>
             <UserInput
               variant="select"

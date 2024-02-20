@@ -44,7 +44,6 @@ const HomeReplace = () => {
 
   const logoutClick = () => {
     handleLogout();
-    window.location.reload();
     showNotifications("success", "Kamu berhasil logout. Mohon login kembali.");
   };
 

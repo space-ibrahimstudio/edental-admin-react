@@ -19,3 +19,7 @@ export function getCurrentDate() {
 
   return `${year}-${month}-${day}`;
 }
+
+export function OhYeah({ children }) {
+  return <>{children}</>;
+}

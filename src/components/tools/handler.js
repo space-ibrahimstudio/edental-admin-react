@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getIPAddress } from "./data";
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -48,8 +49,10 @@ export const handleLogout = () => {
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("secret");
     sessionStorage.removeItem("level");
+    sessionStorage.removeItem("ipAddress");
 
     console.log("Successfully logged out.");
+    window.location.href = "/";
   } catch (error) {
     console.error("Error during logout:", error);
   }
@@ -84,14 +87,14 @@ export async function checkLoginStatus() {
 export async function handleLoginLog(ipAddress) {
   try {
     const username = sessionStorage.getItem("username");
-    const userLevel = sessionStorage.getItem("level");
+    const level = sessionStorage.getItem("level");
 
     const formData = new FormData();
     formData.append(
       "data",
       JSON.stringify({
         username,
-        level: userLevel,
+        level,
         activity: "login",
         ip: ipAddress,
       })
@@ -170,33 +173,36 @@ export async function handleAddReserve(
   }
 }
 
-export async function checkExistingData() {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
+export async function isAuthenticated(showNotifications) {
+  const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
 
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-        limit: "10000",
-        hal: "1",
-      })
+  if (!isLoggedIn) {
+    console.log("User is not logged in.");
+    return false;
+  }
+
+  const userName = sessionStorage.getItem("username");
+  const userSecret = sessionStorage.getItem("secrets");
+  const userLevel = sessionStorage.getItem("level");
+  const userIP = sessionStorage.getItem("ipAddress");
+
+  const currentIPAddress = await getIPAddress();
+
+  if (
+    currentIPAddress === userIP &&
+    userName === sessionStorage.getItem("username") &&
+    userSecret === sessionStorage.getItem("secrets") &&
+    userLevel === sessionStorage.getItem("level")
+  ) {
+    console.log("User data and IP Address validation successful.");
+    return true;
+  } else {
+    console.log("User data or IP Address mismatch. Logging out ...");
+    handleLogout();
+    showNotifications(
+      "danger",
+      "User data or IP Address mismatch. Logging out ..."
     );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewcustomer`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching customer data:", error);
-    throw error;
+    return false;
   }
 }

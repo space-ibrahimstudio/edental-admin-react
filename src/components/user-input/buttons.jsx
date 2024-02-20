@@ -3,11 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { toTitleCase } from "../tools/controller";
 import { ChevronDown, ArrowIcon } from "../layout/icons";
-import "./styles/prim-button.css";
-import "./styles/tab-button.css";
-import "./styles/secondary-button.css";
 import prim from "./styles/prim-button.module.css";
 import scnd from "./styles/scnd-button.module.css";
+import tab from "./styles/tab-button.module.css";
 
 export function PrimButton({
   variant,
@@ -24,28 +22,29 @@ export function PrimButton({
           <b className={prim.primButtonHollowText}>{buttonText}</b>
         </button>
       );
+    } else {
+      return (
+        <button className={prim.primButton} onClick={onClick}>
+          {children}
+          <b className={prim.primButtonText}>{buttonText}</b>
+        </button>
+      );
     }
-    return (
-      <button className={prim.primButton} onClick={onClick}>
-        {children}
-        <b className={prim.primButtonText}>{buttonText}</b>
-      </button>
-    );
-  }
-  if (variant === "hollow") {
+  } else if (variant === "hollow") {
     return (
       <button className={prim.primButtonHollow} onClick={onClick}>
         <b className={prim.primButtonHollowText}>{buttonText}</b>
         {children}
       </button>
     );
+  } else {
+    return (
+      <button className={prim.primButton} onClick={onClick}>
+        <b className={prim.primButtonText}>{buttonText}</b>
+        {children}
+      </button>
+    );
   }
-  return (
-    <button className={prim.primButton} onClick={onClick}>
-      <b className={prim.primButtonText}>{buttonText}</b>
-      {children}
-    </button>
-  );
 }
 
 PrimButton.propTypes = {
@@ -152,9 +151,9 @@ export function DropDownButton({ buttonText, onClick }) {
   const titleCaseText = toTitleCase(buttonText);
 
   return (
-    <div className="dropdown-button" onClick={onClick}>
-      <b className="dropdown-button-text">{titleCaseText}</b>
-      <div className="dropdown-button-icon">
+    <div className={tab.dropdownButton} onClick={onClick}>
+      <b className={tab.dropdownButtonText}>{titleCaseText}</b>
+      <div className={tab.dropdownButtonIcon}>
         <ArrowIcon width="10px" height="100%" />
       </div>
     </div>
@@ -214,17 +213,21 @@ export function TabButton({ isActive, hasSubMenu, buttonText, children }) {
 
   return (
     <button
-      className={`nav-menu-tab ${activeTab === isActive ? "active" : ""}`}
+      className={`${tab.navMenuTab} ${
+        activeTab === isActive ? tab.active : ""
+      }`}
       onClick={handleClick}
     >
-      <b className="nav-menu-tab-text">{titleCaseText}</b>
+      <b className={tab.navMenuTabText}>{titleCaseText}</b>
       {hasSubMenu && (
         <ChevronDown width="10px" height="100%" flipped={dropdownOpen} />
       )}
       {dropdownOpen && (
         <section
           ref={ref}
-          className={`dropdown ${dropdownOpen ? "opened" : "closed"}`}
+          className={`${tab.dropdown} ${
+            dropdownOpen ? tab.opened : tab.closed
+          }`}
         >
           {children}
         </section>
@@ -239,21 +242,3 @@ TabButton.propTypes = {
   buttonText: PropTypes.string.isRequired,
   children: PropTypes.node,
 };
-
-export function OptionButton({ id, value, onChange, children }) {
-  return (
-    <>
-      <label htmlFor={id} style={{ display: "none" }}>
-        {id}
-      </label>
-      <select
-        id={id}
-        className="user-list-filter"
-        value={value}
-        onChange={onChange}
-      >
-        {children}
-      </select>
-    </>
-  );
-}

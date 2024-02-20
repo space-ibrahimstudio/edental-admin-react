@@ -1,25 +1,25 @@
+import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-
-const isAuthenticated = () => {
-  const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
-
-  if (!isLoggedIn) {
-    console.log("User is not logged in.");
-    return false;
-  }
-
-  const userName = sessionStorage.getItem("username");
-  const userSecret = sessionStorage.getItem("secret");
-  const userLevel = sessionStorage.getItem("level");
-  if (userName && userSecret && userLevel) {
-    console.log(`User is logged in. Welcome back ${userName}!`);
-    return true;
-  } else {
-    console.log("User is not logged in or session expired.");
-    return false;
-  }
-};
+import { isAuthenticated } from "../tools/handler";
+import { useNotifications } from "../feedback/context/notifications-context";
+import { LoadingScreen } from "../feedback/loading-screen";
 
 export const PrivateRoute = ({ element }) => {
-  return isAuthenticated() ? element : <Navigate to="/" />;
+  const [authenticated, setAuthenticated] = useState(null);
+  const { showNotifications } = useNotifications();
+
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      const result = await isAuthenticated(showNotifications);
+      setAuthenticated(result);
+    };
+
+    checkAuthentication();
+  }, []);
+
+  if (authenticated === null) {
+    return <LoadingScreen />;
+  }
+
+  return authenticated ? element : <Navigate to="/" />;
 };
