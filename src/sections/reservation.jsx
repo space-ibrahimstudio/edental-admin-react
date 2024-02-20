@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { fetchUserBooking } from "../components/tools/data";
-import { handleAddReserve } from "../components/tools/handler";
+import { fetchUserBooking, fetchCustData } from "../components/tools/data";
+import {
+  handleAddReserve,
+  checkExistingData,
+} from "../components/tools/handler";
 import { getCurrentDate } from "../components/tools/controller";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
@@ -25,6 +28,8 @@ import "../pages/styles/new.css";
 
 export const Reservation = ({ sectionId }) => {
   const [reserveData, setReserveData] = useState([]);
+  const [data, setData] = useState([]);
+  const [phoneExist, setPhoneExist] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   const [isDataShown, setIsDataShown] = useState(true);
@@ -32,6 +37,7 @@ export const Reservation = ({ sectionId }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [hours, setHours] = useState([]);
   const [loadData, setLoadData] = useState(false);
   const [limit, setLimit] = useState(5);
   const [formData, setFormData] = useState({
@@ -40,6 +46,7 @@ export const Reservation = ({ sectionId }) => {
     email: "",
     service: "",
     typeservice: "",
+    price: "",
     reservationdate: "",
     reservationtime: "",
   });
@@ -50,6 +57,7 @@ export const Reservation = ({ sectionId }) => {
     email: "",
     service: "",
     typeservice: "",
+    price: "",
     reservationdate: "",
     reservationtime: "",
   });
@@ -60,9 +68,32 @@ export const Reservation = ({ sectionId }) => {
     email: "",
     service: "",
     typeservice: "",
+    price: "",
     reservationdate: "",
     reservationtime: "",
   });
+
+  const fetchAvailableHours = async () => {
+    const availableHours = [
+      "10:00",
+      "10:30",
+      "11:00",
+      "11:30",
+      "12:00",
+      "12:30",
+      "13:00",
+      "15:00",
+      "15:30",
+      "16:00",
+      "16:30",
+      "17:00",
+      "17:30",
+      "18:00",
+      "18:30",
+      "19:00",
+    ];
+    setHours(availableHours);
+  };
 
   const rowsPerPage = limit;
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
@@ -80,6 +111,7 @@ export const Reservation = ({ sectionId }) => {
       email: "",
       service: "",
       typeservice: "",
+      price: "",
       reservationdate: "",
       reservationtime: "",
     });
@@ -100,6 +132,26 @@ export const Reservation = ({ sectionId }) => {
       ...formData,
       [name]: value,
     });
+
+    if (name === "phone") {
+      let phoneExists = false;
+
+      data.forEach((item) => {
+        if (item.userphone === value) {
+          phoneExists = true;
+        }
+      });
+
+      if (phoneExists) {
+        // setErrors({
+        //   ...errors,
+        //   [name]: 'Phone number already exists. Please input a different number.',
+        // });
+        setPhoneExist(true);
+      } else {
+        setPhoneExist(false);
+      }
+    }
   };
 
   const handleInputEditChange = (e) => {
@@ -113,6 +165,22 @@ export const Reservation = ({ sectionId }) => {
       ...existingData,
       [name]: value,
     });
+
+    if (name === "phone") {
+      let phoneExists = false;
+
+      data.forEach((item) => {
+        if (item.userphone === value) {
+          phoneExists = true;
+        }
+      });
+
+      if (phoneExists) {
+        setPhoneExist(true);
+      } else {
+        setPhoneExist(false);
+      }
+    }
   };
 
   const handleLimitChange = (event) => {
@@ -158,6 +226,7 @@ export const Reservation = ({ sectionId }) => {
         formData.email,
         formData.service,
         formData.typeservice,
+        formData.price,
         formData.reservationdate,
         formData.reservationtime
       );
@@ -175,6 +244,7 @@ export const Reservation = ({ sectionId }) => {
     email,
     service,
     typeservice,
+    price,
     reservationdate,
     reservationtime
   ) => {
@@ -185,6 +255,7 @@ export const Reservation = ({ sectionId }) => {
       email,
       service,
       typeservice,
+      price,
       reservationdate,
       reservationtime,
     });
@@ -197,7 +268,7 @@ export const Reservation = ({ sectionId }) => {
     );
     if (confirmDelete) {
       try {
-        await handleAddReserve("", "", "", "", "", "", "", "delete", id);
+        await handleAddReserve("", "", "", "", "", "", "", "", "delete", id);
         setReserveData(
           reserveData.filter((reserve) => reserve.idreservation !== id)
         );
@@ -245,12 +316,12 @@ export const Reservation = ({ sectionId }) => {
         existingData.email,
         existingData.service,
         existingData.typeservice,
+        existingData.price,
         existingData.reservationdate,
         existingData.reservationtime,
         "edit",
         selectedData
       );
-      // Fetch user bookings again after edit
       const data = await fetchUserBooking(currentPage, limit, setTotalPages);
       setReserveData(data);
       setFilteredData(data);
@@ -270,6 +341,7 @@ export const Reservation = ({ sectionId }) => {
       <TableHeadValue value="Telepon" />
       <TableHeadValue value="Layanan" />
       <TableHeadValue value="Tipe Layanan" />
+      <TableHeadValue value="Harga" />
       <TableHeadValue value="Tanggal Reservasi">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
@@ -301,8 +373,27 @@ export const Reservation = ({ sectionId }) => {
   }, [currentPage, limit]);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await checkExistingData();
+
+        setData(data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        showNotifications("danger", "Error fetching user data.");
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
     setIsDataShown(filteredData.length > 0);
   }, [filteredData]);
+
+  useEffect(() => {
+    fetchAvailableHours(formData.reservationdate);
+  }, [formData.reservationdate]);
 
   return (
     <section id={sectionId} className="tabel-section">
@@ -358,6 +449,7 @@ export const Reservation = ({ sectionId }) => {
             <TableBodyValue value={user.phone} />
             <TableBodyValue value={user.service} />
             <TableBodyValue value={user.typeservice} />
+            <TableBodyValue value={user.price} />
             <TableBodyValue value={user.reservationdate} />
             <TableBodyValue value={user.reservationtime} />
             <TableBodyValue value={user.idbranch} />
@@ -373,6 +465,7 @@ export const Reservation = ({ sectionId }) => {
                     user.email,
                     user.service,
                     user.typeservice,
+                    user.price,
                     user.reservationdate,
                     user.reservationtime
                   )
@@ -466,6 +559,18 @@ export const Reservation = ({ sectionId }) => {
               onChange={handleInputChange}
               error={errors.typeservice}
             />
+            {!phoneExist && (
+              <UserInput
+                id="service-price"
+                labelText="Harga"
+                placeholder="Masukkan harga"
+                type="text"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                error={errors.price}
+              />
+            )}
           </InputWrapper>
           <InputWrapper>
             <UserInput
@@ -489,22 +594,11 @@ export const Reservation = ({ sectionId }) => {
               error={errors.reservationtime}
             >
               <option value="">Pilih jadwal tersedia</option>
-              <option value="10:00am">10.00 am</option>
-              <option value="10:30am">10.30 am</option>
-              <option value="11:00am">11.00 am</option>
-              <option value="11:30am">11.30 am</option>
-              <option value="12:00pm">12.00 pm</option>
-              <option value="12:30pm">12.30 pm</option>
-              <option value="01:00pm">01.00 pm</option>
-              <option value="03:00pm">03.00 pm</option>
-              <option value="03:30pm">03.30 pm</option>
-              <option value="04:00pm">04.00 pm</option>
-              <option value="04:30pm">04.30 pm</option>
-              <option value="05:00pm">05.00 pm</option>
-              <option value="05:30pm">05.30 pm</option>
-              <option value="06:00pm">06.00 pm</option>
-              <option value="06:30pm">06.30 pm</option>
-              <option value="07:00pm">07.00 pm</option>
+              {hours.map((hour, index) => (
+                <option key={index} value={hour}>
+                  {hour}
+                </option>
+              ))}
             </UserInput>
           </InputWrapper>
         </SubmitForm>
@@ -573,6 +667,18 @@ export const Reservation = ({ sectionId }) => {
               onChange={handleInputEditChange}
               error={errors.typeservice}
             />
+            {!phoneExist && (
+              <UserInput
+                id="service-price"
+                labelText="Harga"
+                placeholder="Masukkan harga"
+                type="text"
+                name="price"
+                value={existingData.price}
+                onChange={handleInputEditChange}
+                error={errors.price}
+              />
+            )}
           </InputWrapper>
           <InputWrapper>
             <UserInput

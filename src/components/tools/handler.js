@@ -119,6 +119,7 @@ export async function handleAddReserve(
   email,
   service,
   typeservice,
+  price,
   reservationdate,
   reservationtime,
   operation,
@@ -141,6 +142,7 @@ export async function handleAddReserve(
         email,
         service,
         typeservice,
+        price,
         reservationdate,
         reservationtime,
       })
@@ -165,5 +167,36 @@ export async function handleAddReserve(
     console.log("Reservation CUD Response:", response.data);
   } catch (error) {
     console.error("Error fetching reservation data:", error);
+  }
+}
+
+export async function checkExistingData() {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        limit: "10000",
+        hal: "1",
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/viewcustomer`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching customer data:", error);
+    throw error;
   }
 }
