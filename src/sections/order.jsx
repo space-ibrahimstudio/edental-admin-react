@@ -9,8 +9,9 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { ChevronDown, PlusIcon } from "../components/layout/icons";
-import { OptionButton } from "../components/user-input/buttons";
+import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import { SearchInput } from "../components/user-input/inputs";
+import { PrimButton } from "../components/user-input/buttons";
 import { Pagination } from "../components/navigator/pagination";
 import "./styles/user-list.css";
 import "../pages/styles/new.css";
@@ -36,8 +37,10 @@ export const Order = ({ sectionId }) => {
 
   const rowsPerPage = limit;
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
-
   const { showNotifications } = useNotifications();
+
+  const openForm = () => setIsFormOpen(true);
+  const closeForm = () => setIsFormOpen(false);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -74,9 +77,6 @@ export const Order = ({ sectionId }) => {
       window.location.reload();
     }
   };
-
-  const openForm = () => setIsFormOpen(true);
-  const closeForm = () => setIsFormOpen(false);
 
   const tableHeadData = (
     <TableRow type="heading">
@@ -121,28 +121,33 @@ export const Order = ({ sectionId }) => {
     <section id={sectionId} className="tabel-section">
       <b className="tabel-section-title">Data Order</b>
       <div className="tabel-section-nav">
-        <SearchInput
-          id="search-order"
-          placeholder="Search by name ..."
-          property="ordername"
-          userData={orderData}
-          setUserData={setFilteredData}
-        />
+        <InputWrapper maxWidth="1000px">
+          <SearchInput
+            id="search-reservation"
+            placeholder="Search by name ..."
+            property="transactionname"
+            userData={orderData}
+            setUserData={setFilteredData}
+          />
+        </InputWrapper>
         <div className="tabel-section-option">
-          <OptionButton
-            id="total-order"
-            value={limit}
-            onChange={handleLimitChange}
-          >
-            <option value={5}>Baris: 5</option>
-            <option value={10}>Baris: 10</option>
-            <option value={20}>Baris: 20</option>
-            <option value={50}>Baris: 50</option>
-          </OptionButton>
-          <button className="user-list-add">
-            <b className="user-list-add-text">Tambah Baru</b>
-            <PlusIcon width="17px" height="100%" color="var(--color-white)" />
-          </button>
+          <InputWrapper>
+            <UserInput
+              variant="select"
+              subVariant="nolabel"
+              id="total-reservation"
+              value={limit}
+              onChange={handleLimitChange}
+            >
+              <option value={5}>Baris per Halaman: 5</option>
+              <option value={10}>Baris per Halaman: 10</option>
+              <option value={20}>Baris per Halaman: 20</option>
+              <option value={50}>Baris per Halaman: 50</option>
+            </UserInput>
+          </InputWrapper>
+          <PrimButton buttonText="Tambah Baru" iconPosition="start">
+            <PlusIcon width="17px" height="100%" />
+          </PrimButton>
         </div>
       </div>
       <TableData
@@ -153,10 +158,10 @@ export const Order = ({ sectionId }) => {
         {filteredData.map((user, index) => (
           <TableRow key={user.idtransaction}>
             <TableBodyValue type="num" value={startIndex + index} />
-            <TableBodyValue value={user.ordername} />
-            <TableBodyValue value={user.orderphone} />
+            <TableBodyValue value={user.transactionname} />
+            <TableBodyValue value={user.transactionphone} />
             <TableBodyValue value={user.noinvoice} />
-            <TableBodyValue value={user.ordercreate} />
+            <TableBodyValue value={user.transactioncreate} />
             <TableBodyValue value={user.idbranch} />
             <TableBodyValue value={user.price} position="end" />
           </TableRow>

@@ -114,56 +114,167 @@ export function SearchInput({
   };
 
   return (
-    <div className="user-list-searchbar">
-      <SearchIcon
-        height="100%"
-        width="17px"
-        color="var(--color-semidarkblue)"
-      />
-      <label htmlFor={id} style={{ display: "none" }}>
-        {placeholder}
+    <div className={styles.inputLabel}>
+      <label htmlFor={id} className={styles.inputLabelField}>
+        <div className={styles.closeWrapper}>
+          <SearchIcon width="17px" height="100%" />
+        </div>
+        <input
+          id={id}
+          className={styles.inputLabelFieldInput}
+          placeholder={placeholder}
+          type="text"
+          value={searchTerm}
+          onChange={handleSearch}
+        />
       </label>
-      <input
-        id={id}
-        className="user-list-searchbar-field"
-        placeholder={placeholder}
-        type="text"
-        value={searchTerm}
-        onChange={handleSearch}
-      />
+    </div>
+    // <div className="user-list-searchbar">
+    //   <SearchIcon
+    //     height="100%"
+    //     width="17px"
+    //     color="var(--color-semidarkblue)"
+    //   />
+    //   <label htmlFor={id} style={{ display: "none" }}>
+    //     {placeholder}
+    //   </label>
+    //   <input
+    //     id={id}
+    //     className="user-list-searchbar-field"
+    //     placeholder={placeholder}
+    //     type="text"
+    //     value={searchTerm}
+    //     onChange={handleSearch}
+    //   />
+    // </div>
+  );
+}
+
+export function InputWrapper({ maxWidth, children }) {
+  return (
+    <div className={styles.inputWrap} style={{ maxWidth: maxWidth }}>
+      {children}
     </div>
   );
 }
 
-export function InputWrapper({ children }) {
-  return <div className={styles.inputWrap}>{children}</div>;
-}
-
 export function UserInput({
+  variant,
+  subVariant,
+  children,
   id,
   labelText,
   error,
+  min,
   placeholder,
   type,
   name,
   value,
   onChange,
 }) {
-  return (
-    <div className={styles.inputLabel}>
-      <h6 className={styles.inputLabelText}>{labelText}</h6>
-      <label htmlFor={id} className={styles.inputLabelField}>
-        <input
-          id={id}
-          className={styles.inputLabelFieldInput}
-          placeholder={placeholder}
-          type={type}
-          name={name}
-          value={value}
-          onChange={onChange}
-        />
-      </label>
-      {error && <h6 className={styles.inputLabelText}>{error}</h6>}
-    </div>
-  );
+  if (variant === "select") {
+    if (subVariant === "nolabel") {
+      return (
+        <div className={styles.inputLabel}>
+          <label htmlFor={id} className={styles.inputLabelField}>
+            <select
+              id={id}
+              className={styles.inputLabelFieldInput}
+              name={name}
+              value={value}
+              onChange={onChange}
+            >
+              {children}
+            </select>
+          </label>
+          {error && (
+            <h6
+              className={styles.inputLabelText}
+              style={{ color: "var(--color-red)" }}
+            >
+              {error}
+            </h6>
+          )}
+        </div>
+      );
+    } else {
+      return (
+        <div className={styles.inputLabel}>
+          <h6 className={styles.inputLabelText}>{labelText}</h6>
+          <label htmlFor={id} className={styles.inputLabelField}>
+            <select
+              id={id}
+              className={styles.inputLabelFieldInput}
+              name={name}
+              value={value}
+              onChange={onChange}
+            >
+              {children}
+            </select>
+          </label>
+          {error && (
+            <h6
+              className={styles.inputLabelText}
+              style={{ color: "var(--color-red)" }}
+            >
+              {error}
+            </h6>
+          )}
+        </div>
+      );
+    }
+  } else {
+    if (subVariant === "nolabel") {
+      return (
+        <div className={styles.inputLabel}>
+          <label htmlFor={id} className={styles.inputLabelField}>
+            <input
+              id={id}
+              className={styles.inputLabelFieldInput}
+              placeholder={placeholder}
+              type={type}
+              name={name}
+              value={value}
+              onChange={onChange}
+              min={min}
+            />
+          </label>
+          {error && (
+            <h6
+              className={styles.inputLabelText}
+              style={{ color: "var(--color-red)" }}
+            >
+              {error}
+            </h6>
+          )}
+        </div>
+      );
+    } else {
+      return (
+        <div className={styles.inputLabel}>
+          <h6 className={styles.inputLabelText}>{labelText}</h6>
+          <label htmlFor={id} className={styles.inputLabelField}>
+            <input
+              id={id}
+              className={styles.inputLabelFieldInput}
+              placeholder={placeholder}
+              type={type}
+              name={name}
+              value={value}
+              onChange={onChange}
+              min={min}
+            />
+          </label>
+          {error && (
+            <h6
+              className={styles.inputLabelText}
+              style={{ color: "var(--color-red)" }}
+            >
+              {error}
+            </h6>
+          )}
+        </div>
+      );
+    }
+  }
 }

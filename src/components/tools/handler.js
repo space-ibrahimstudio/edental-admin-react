@@ -23,12 +23,13 @@ export async function handleLogin(username, password) {
 
     if (!responseData.error) {
       const userData = responseData.data[0];
-      const { secret, level } = userData;
+      const { secret, level, idoutlets } = userData;
 
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("username", username);
       sessionStorage.setItem("secret", secret);
       sessionStorage.setItem("level", level);
+      sessionStorage.setItem("outlet", idoutlets);
     } else if (!response.data.status) {
       console.log("Invalid username or password. Please try again.");
     } else {
@@ -119,10 +120,13 @@ export async function handleAddReserve(
   service,
   typeservice,
   reservationdate,
-  reservationtime
+  reservationtime,
+  operation,
+  id
 ) {
   try {
     const userSecret = sessionStorage.getItem("secret");
+    const idBranch = sessionStorage.getItem("outlet");
 
     const formData = new FormData();
     formData.append(
@@ -131,7 +135,7 @@ export async function handleAddReserve(
         secret: userSecret,
         idservice: "1",
         idservicetype: "1",
-        idbranch: "2",
+        idbranch: idBranch,
         name,
         phone,
         email,
@@ -141,8 +145,12 @@ export async function handleAddReserve(
         reservationtime,
       })
     );
-    formData.append("idedit", "");
-    formData.append("iddelete", "");
+
+    if (operation === "edit") {
+      formData.append("idedit", id);
+    } else if (operation === "delete") {
+      formData.append("iddelete", id);
+    }
 
     const response = await axios.post(
       `${baseUrl}/edental_api/office/cudreservation`,

@@ -424,3 +424,87 @@ export const EditIcon = ({ width, height, color }) => {
     </svg>
   );
 };
+
+export const CheckIcon = ({ width, height, color }) => {
+  const fill = color || "currentColor";
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 28 22"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M9.02175 15.8949L2.71017 9.58333L0 12.2935L9.02175 21.3152L27.6268 2.71017L24.9167 0L9.02175 15.8949Z"
+        fill={fill}
+      />
+    </svg>
+  );
+};
+
+export const CloseIcon = ({ width, height, color }) => {
+  const fill = color || "currentColor";
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 22 22"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M18.9731 0L10.8407 8.1305L2.71017 0L0 2.71017L8.1305 10.8407L0 18.9712L2.71017 21.6813L10.8407 13.5508L18.9731 21.6813L21.6833 18.9712L13.5527 10.8407L21.6833 2.71017L18.9731 0Z"
+        fill={fill}
+      />
+    </svg>
+  );
+};
+
+export const TrashIcon = ({ width, height, color }) => {
+  const fill = color || "currentColor";
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 36 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M16.0833 16.1665H12.25V31.4998H16.0833V16.1665Z" fill={fill} />
+      <path d="M23.75 16.1665H19.9167V31.4998H23.75V16.1665Z" fill={fill} />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M5.70609 38.0441C4.9872 37.3252 4.58333 36.3502 4.58333 35.3335V12.3335H0.75V8.50016H8.41667V4.66683C8.41667 3.65017 8.82053 2.67514 9.53942 1.95625C10.2583 1.23736 11.2333 0.833496 12.25 0.833496H23.75C24.7667 0.833496 25.7417 1.23736 26.4606 1.95625C27.1795 2.67514 27.5833 3.65017 27.5833 4.66683V8.50016H35.25V12.3335H31.4167V35.3335C31.4167 36.3502 31.0128 37.3252 30.2939 38.0441C29.575 38.763 28.6 39.1668 27.5833 39.1668H8.41667C7.4 39.1668 6.42498 38.763 5.70609 38.0441ZM23.75 4.66683H12.25V8.50016H23.75V4.66683ZM27.5833 12.3335H8.41667V35.3335H27.5833V12.3335Z"
+        fill={fill}
+      />
+    </svg>
+  );
+};
+
+export const ExitIcon = ({ width, height, color }) => {
+  const fill = color || "currentColor";
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 39 35"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M21.0833 0H3.83334C1.71925 0 0 1.71925 0 3.83333V30.6667C0 32.7808 1.71925 34.5 3.83334 34.5H21.0833C23.1974 34.5 24.9167 32.7808 24.9167 30.6667V23H21.0833V30.6667H3.83334V3.83333H21.0833V11.5H24.9167V3.83333C24.9167 1.71925 23.1974 0 21.0833 0Z"
+        fill={fill}
+      />
+      <path
+        d="M11.5 15.3335V19.1668H28.75V24.9168L38.3334 17.2502L28.75 9.5835V15.3335H11.5Z"
+        fill={fill}
+      />
+    </svg>
+  );
+};

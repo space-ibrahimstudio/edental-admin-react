@@ -5,7 +5,7 @@ import { handleLogin, handleLoginLog } from "../tools/handler";
 import { getIPAddress } from "../tools/data";
 import { useNotifications } from "../feedback/context/notifications-context";
 import { FieldInput } from "./inputs";
-import { LogoPrimary } from "../layout/icons";
+import { LogoPrimary, CheckIcon, CloseIcon } from "../layout/icons";
 import { PrimButton } from "./buttons";
 import styles from "./styles/data-form.module.css";
 import "./styles/portal-form.css";
@@ -193,11 +193,15 @@ export function SubmitForm({
   formTitle,
   formSubtitle,
   onSubmit,
+  saveText,
+  cancelText,
   children,
   onClose,
 }) {
   const [isClosing, setIsClosing] = useState(false);
   const ref = useRef(null);
+
+  const handleClose = () => setIsClosing(true);
 
   const handleClickOutside = (e) => {
     if (ref.current && !ref.current.contains(e.target)) {
@@ -221,26 +225,52 @@ export function SubmitForm({
     };
   }, []);
 
+  useEffect(() => {
+    let modalCount = 0;
+    const popupModals = document.querySelectorAll(`.${styles.formScreen}`);
+    popupModals.forEach((modal) => {
+      if (!modal.classList.contains(`.${styles.close}`)) {
+        modalCount++;
+      }
+    });
+    document.documentElement.style.overflow =
+      modalCount > 0 ? "hidden" : "auto";
+    return () => {
+      document.documentElement.style.overflow = "auto";
+    };
+  }, [isClosing]);
+
   const modalElement = (
-    <div className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
-      <form
-        className={`${styles.form} ${isClosing ? styles.close : ""}`}
-        ref={ref}
-      >
-        <header className={styles.formHead}>
-          <b className={styles.formTitle}>{formTitle}</b>
-          <div className={styles.formSubtitle}>{formSubtitle}</div>
-        </header>
-        <main className={styles.formBody}>{children}</main>
-        <footer className={styles.formFooter}>
-          <PrimButton
-            variant="hollow"
-            buttonText="Batalkan"
-            onClick={onClose}
-          />
-          <PrimButton buttonText="Simpan" onClick={onSubmit} />
-        </footer>
-      </form>
+    <div className={styles.formScroll}>
+      <div className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
+        <div
+          className={`${styles.form} ${isClosing ? styles.close : ""}`}
+          ref={ref}
+        >
+          <header className={styles.formHead}>
+            <b className={styles.formTitle}>{formTitle}</b>
+            <div className={styles.formSubtitle}>{formSubtitle}</div>
+          </header>
+          <main className={styles.formBody}>{children}</main>
+          <footer className={styles.formFooter}>
+            <PrimButton
+              variant="hollow"
+              buttonText={cancelText}
+              onClick={handleClose}
+              iconPosition="start"
+            >
+              <CloseIcon width="12px" height="100%" />
+            </PrimButton>
+            <PrimButton
+              buttonText={saveText}
+              onClick={onSubmit}
+              iconPosition="start"
+            >
+              <CheckIcon width="12px" height="100%" />
+            </PrimButton>
+          </footer>
+        </div>
+      </div>
     </div>
   );
 

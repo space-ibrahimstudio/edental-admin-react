@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchUserBooking } from "../components/tools/data";
 import { handleAddReserve } from "../components/tools/handler";
+import { getCurrentDate } from "../components/tools/controller";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
   TableData,
@@ -10,8 +11,13 @@ import {
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
 import { InputWrapper, UserInput } from "../components/user-input/inputs";
-import { ChevronDown, PlusIcon } from "../components/layout/icons";
-import { OptionButton } from "../components/user-input/buttons";
+import {
+  ChevronDown,
+  PlusIcon,
+  EditIcon,
+  TrashIcon,
+} from "../components/layout/icons";
+import { SecondaryButton, PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
 import { Pagination } from "../components/navigator/pagination";
 import "./styles/user-list.css";
@@ -19,10 +25,12 @@ import "../pages/styles/new.css";
 
 export const Reservation = ({ sectionId }) => {
   const [reserveData, setReserveData] = useState([]);
+  const [selectedData, setSelectedData] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [loadData, setLoadData] = useState(false);
   const [limit, setLimit] = useState(5);
@@ -36,10 +44,46 @@ export const Reservation = ({ sectionId }) => {
     reservationtime: "",
   });
 
+  const [errors, setErrors] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    service: "",
+    typeservice: "",
+    reservationdate: "",
+    reservationtime: "",
+  });
+
+  const [existingData, setExistingData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    service: "",
+    typeservice: "",
+    reservationdate: "",
+    reservationtime: "",
+  });
+
   const rowsPerPage = limit;
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
-
   const { showNotifications } = useNotifications();
+
+  const openForm = () => setIsFormOpen(true);
+  const closeForm = () => setIsFormOpen(false);
+
+  const closeEdit = () => {
+    setIsEditOpen(false);
+    setSelectedData(null);
+    setExistingData({
+      name: "",
+      phone: "",
+      email: "",
+      service: "",
+      typeservice: "",
+      reservationdate: "",
+      reservationtime: "",
+    });
+  };
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -47,10 +91,28 @@ export const Reservation = ({ sectionId }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
+    setErrors({
+      ...errors,
+      [name]: "",
+    });
+
+    setFormData({
+      ...formData,
       [name]: value,
-    }));
+    });
+  };
+
+  const handleInputEditChange = (e) => {
+    const { name, value } = e.target;
+    setErrors({
+      ...errors,
+      [name]: "",
+    });
+
+    setExistingData({
+      ...existingData,
+      [name]: value,
+    });
   };
 
   const handleLimitChange = (event) => {
@@ -59,6 +121,36 @@ export const Reservation = ({ sectionId }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    let newErrors = {};
+
+    if (formData.name === "") {
+      newErrors.name = "Name is required";
+    }
+    if (formData.phone === "") {
+      newErrors.phone = "Phone is required";
+    }
+    if (formData.email === "") {
+      newErrors.email = "Email is required";
+    }
+    if (formData.service === "") {
+      newErrors.service = "This field is required";
+    }
+    if (formData.typeservice === "") {
+      newErrors.typeservice = "This field is required";
+    }
+    if (formData.reservationdate === "") {
+      newErrors.reservationdate = "This option is required";
+    }
+    if (formData.reservationtime === "") {
+      newErrors.reservationtime = "This option is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       await handleAddReserve(
         formData.name,
@@ -70,33 +162,122 @@ export const Reservation = ({ sectionId }) => {
         formData.reservationtime
       );
       setIsFormOpen(false);
+      window.location.reload();
     } catch (error) {
       console.error("Error occurred during submit reservation:", error);
-    } finally {
-      window.location.reload();
     }
   };
 
-  const openForm = () => setIsFormOpen(true);
-  const closeForm = () => setIsFormOpen(false);
+  const handleEdit = (
+    id,
+    name,
+    phone,
+    email,
+    service,
+    typeservice,
+    reservationdate,
+    reservationtime
+  ) => {
+    setSelectedData(id);
+    setExistingData({
+      name,
+      phone,
+      email,
+      service,
+      typeservice,
+      reservationdate,
+      reservationtime,
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this Reservation Data?"
+    );
+    if (confirmDelete) {
+      try {
+        await handleAddReserve("", "", "", "", "", "", "", "delete", id);
+        setReserveData(
+          reserveData.filter((reserve) => reserve.idreservation !== id)
+        );
+        window.location.reload();
+      } catch (error) {
+        console.error("Error deleting booking:", error);
+      }
+    }
+  };
+
+  const handleSubmitEdit = async () => {
+    let newErrors = {};
+
+    if (existingData.name === "") {
+      newErrors.name = "Name is required";
+    }
+    if (existingData.phone === "") {
+      newErrors.phone = "Phone is required";
+    }
+    if (existingData.email === "") {
+      newErrors.email = "Email is required";
+    }
+    if (existingData.service === "") {
+      newErrors.service = "This field is required";
+    }
+    if (existingData.typeservice === "") {
+      newErrors.typeservice = "This field is required";
+    }
+    if (existingData.reservationdate === "") {
+      newErrors.reservationdate = "This option is required";
+    }
+    if (existingData.reservationtime === "") {
+      newErrors.reservationtime = "This option is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+      await handleAddReserve(
+        existingData.name,
+        existingData.phone,
+        existingData.email,
+        existingData.service,
+        existingData.typeservice,
+        existingData.reservationdate,
+        existingData.reservationtime,
+        "edit",
+        selectedData
+      );
+      // Fetch user bookings again after edit
+      const data = await fetchUserBooking(currentPage, limit, setTotalPages);
+      setReserveData(data);
+      setFilteredData(data);
+      closeEdit();
+    } catch (error) {
+      console.error("Error editing booking:", error);
+    }
+  };
 
   const tableHeadData = (
     <TableRow type="heading">
-      <TableHeadValue type="num" value="NO" />
-      <TableHeadValue hasIcon="yes" value="Nama Pengguna">
+      <TableHeadValue value="NO" type="num" />
+      <TableHeadValue value="Nama Pengguna">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
       <TableHeadValue value="Email" />
       <TableHeadValue value="Telepon" />
       <TableHeadValue value="Layanan" />
       <TableHeadValue value="Tipe Layanan" />
-      <TableHeadValue hasIcon="yes" value="Tanggal Reservasi">
+      <TableHeadValue value="Tanggal Reservasi">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue hasIcon="yes" value="Jam Reservasi">
+      <TableHeadValue value="Jam Reservasi">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue value="Cabang" position="end" />
+      <TableHeadValue value="Cabang" />
+      <TableHeadValue value="Action" type="atn" position="end" />
     </TableRow>
   );
 
@@ -127,28 +308,41 @@ export const Reservation = ({ sectionId }) => {
     <section id={sectionId} className="tabel-section">
       <b className="tabel-section-title">Data Reservasi</b>
       <div className="tabel-section-nav">
-        <SearchInput
-          id="search-reservation"
-          placeholder="Search by name ..."
-          property="name"
-          userData={reserveData}
-          setUserData={setFilteredData}
-        />
+        <InputWrapper maxWidth="1000px">
+          <SearchInput
+            id="search-reservation"
+            placeholder="Search by name ..."
+            property="name"
+            userData={reserveData}
+            setUserData={setFilteredData}
+          />
+        </InputWrapper>
         <div className="tabel-section-option">
-          <OptionButton
-            id="total-reservation"
-            value={limit}
-            onChange={handleLimitChange}
+          <InputWrapper>
+            <UserInput
+              variant="select"
+              subVariant="nolabel"
+              id="total-reservation"
+              value={limit}
+              onChange={handleLimitChange}
+            >
+              <option value={5}>Baris per Halaman: 5</option>
+              <option value={10}>Baris per Halaman: 10</option>
+              <option value={20}>Baris per Halaman: 20</option>
+              <option value={50}>Baris per Halaman: 50</option>
+            </UserInput>
+          </InputWrapper>
+          <PrimButton
+            buttonText="Tambah Baru"
+            onClick={openForm}
+            iconPosition="start"
           >
-            <option value={5}>Baris: 5</option>
-            <option value={10}>Baris: 10</option>
-            <option value={20}>Baris: 20</option>
-            <option value={50}>Baris: 50</option>
-          </OptionButton>
-          <button className="user-list-add" onClick={openForm}>
+            <PlusIcon width="17px" height="100%" />
+          </PrimButton>
+          {/* <button className="user-list-add" onClick={openForm}>
             <b className="user-list-add-text">Tambah Baru</b>
             <PlusIcon width="17px" height="100%" color="var(--color-white)" />
-          </button>
+          </button> */}
         </div>
       </div>
       <TableData
@@ -166,7 +360,38 @@ export const Reservation = ({ sectionId }) => {
             <TableBodyValue value={user.typeservice} />
             <TableBodyValue value={user.reservationdate} />
             <TableBodyValue value={user.reservationtime} />
-            <TableBodyValue value={user.idbranch} position="end" />
+            <TableBodyValue value={user.idbranch} />
+            <TableBodyValue type="atn" position="end">
+              <SecondaryButton
+                buttonText="Edit"
+                iconPosition="start"
+                onClick={() =>
+                  handleEdit(
+                    user.idreservation,
+                    user.name,
+                    user.phone,
+                    user.email,
+                    user.service,
+                    user.typeservice,
+                    user.reservationdate,
+                    user.reservationtime
+                  )
+                }
+              >
+                <EditIcon width="12px" height="100%" />
+              </SecondaryButton>
+              <SecondaryButton
+                variant="icon"
+                subVariant="hollow"
+                onClick={() => handleDelete(user.idreservation)}
+              >
+                <TrashIcon
+                  width="20px"
+                  height="100%"
+                  color="var(--color-red)"
+                />
+              </SecondaryButton>
+            </TableBodyValue>
           </TableRow>
         ))}
       </TableData>
@@ -183,6 +408,8 @@ export const Reservation = ({ sectionId }) => {
           formSubtitle="Percayakan perawatan gigi anda dan keluarga kepada Edental"
           onClose={closeForm}
           onSubmit={handleSubmit}
+          saveText="Simpan"
+          cancelText="Batal"
         >
           <InputWrapper>
             <UserInput
@@ -193,6 +420,7 @@ export const Reservation = ({ sectionId }) => {
               name="name"
               value={formData.name}
               onChange={handleInputChange}
+              error={errors.name}
             />
           </InputWrapper>
           <InputWrapper>
@@ -204,6 +432,7 @@ export const Reservation = ({ sectionId }) => {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
+              error={errors.phone}
             />
             <UserInput
               id="user-email"
@@ -213,6 +442,7 @@ export const Reservation = ({ sectionId }) => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
+              error={errors.email}
             />
           </InputWrapper>
           <InputWrapper>
@@ -224,6 +454,7 @@ export const Reservation = ({ sectionId }) => {
               name="service"
               value={formData.service}
               onChange={handleInputChange}
+              error={errors.service}
             />
             <UserInput
               id="service-type"
@@ -233,6 +464,7 @@ export const Reservation = ({ sectionId }) => {
               name="typeservice"
               value={formData.typeservice}
               onChange={handleInputChange}
+              error={errors.typeservice}
             />
           </InputWrapper>
           <InputWrapper>
@@ -244,16 +476,142 @@ export const Reservation = ({ sectionId }) => {
               name="reservationdate"
               value={formData.reservationdate}
               onChange={handleInputChange}
+              error={errors.reservationdate}
+              min={getCurrentDate()}
             />
             <UserInput
+              variant="select"
               id="time"
               labelText="Jam Reservasi"
-              placeholder="Pilih jadwal tersedia"
-              type="text"
               name="reservationtime"
               value={formData.reservationtime}
               onChange={handleInputChange}
+              error={errors.reservationtime}
+            >
+              <option value="">Pilih jadwal tersedia</option>
+              <option value="10:00am">10.00 am</option>
+              <option value="10:30am">10.30 am</option>
+              <option value="11:00am">11.00 am</option>
+              <option value="11:30am">11.30 am</option>
+              <option value="12:00pm">12.00 pm</option>
+              <option value="12:30pm">12.30 pm</option>
+              <option value="01:00pm">01.00 pm</option>
+              <option value="03:00pm">03.00 pm</option>
+              <option value="03:30pm">03.30 pm</option>
+              <option value="04:00pm">04.00 pm</option>
+              <option value="04:30pm">04.30 pm</option>
+              <option value="05:00pm">05.00 pm</option>
+              <option value="05:30pm">05.30 pm</option>
+              <option value="06:00pm">06.00 pm</option>
+              <option value="06:30pm">06.30 pm</option>
+              <option value="07:00pm">07.00 pm</option>
+            </UserInput>
+          </InputWrapper>
+        </SubmitForm>
+      )}
+      {isEditOpen && (
+        <SubmitForm
+          formTitle="Edit Reservasi"
+          formSubtitle="Percayakan perawatan gigi anda dan keluarga kepada Edental"
+          onClose={closeEdit}
+          onSubmit={handleSubmitEdit}
+          saveText="Simpan Perubahan"
+          cancelText="Batal"
+        >
+          <InputWrapper>
+            <UserInput
+              id="user-name"
+              labelText="Nama Pelanggan"
+              placeholder="John Doe"
+              type="text"
+              name="name"
+              value={existingData.name}
+              onChange={handleInputEditChange}
+              error={errors.name}
             />
+          </InputWrapper>
+          <InputWrapper>
+            <UserInput
+              id="user-phone"
+              labelText="Nomor Telepon"
+              placeholder="0882xxx"
+              type="text"
+              name="phone"
+              value={existingData.phone}
+              onChange={handleInputEditChange}
+              error={errors.phone}
+            />
+            <UserInput
+              id="user-email"
+              labelText="Email"
+              placeholder="customer@gmail.com"
+              type="email"
+              name="email"
+              value={existingData.email}
+              onChange={handleInputEditChange}
+              error={errors.email}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <UserInput
+              id="service"
+              labelText="Nama Layanan"
+              placeholder="Pilih layanan"
+              type="text"
+              name="service"
+              value={existingData.service}
+              onChange={handleInputEditChange}
+              error={errors.service}
+            />
+            <UserInput
+              id="service-type"
+              labelText="Tipe Layanan"
+              placeholder="Pilih tipe layanan"
+              type="text"
+              name="typeservice"
+              value={existingData.typeservice}
+              onChange={handleInputEditChange}
+              error={errors.typeservice}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <UserInput
+              id="date"
+              labelText="Tanggal Reservasi"
+              placeholder="Atur tanggal"
+              type="date"
+              name="reservationdate"
+              value={existingData.reservationdate}
+              onChange={handleInputEditChange}
+              error={errors.reservationdate}
+            />
+            <UserInput
+              variant="select"
+              id="time"
+              labelText="Jam Reservasi"
+              name="reservationtime"
+              value={existingData.reservationtime}
+              onChange={handleInputEditChange}
+              error={errors.reservationtime}
+            >
+              <option value="">Pilih jadwal tersedia</option>
+              <option value="10:00am">10.00 am</option>
+              <option value="10:30am">10.30 am</option>
+              <option value="11:00am">11.00 am</option>
+              <option value="11:30am">11.30 am</option>
+              <option value="12:00pm">12.00 pm</option>
+              <option value="12:30pm">12.30 pm</option>
+              <option value="01:00pm">01.00 pm</option>
+              <option value="03:00pm">03.00 pm</option>
+              <option value="03:30pm">03.30 pm</option>
+              <option value="04:00pm">04.00 pm</option>
+              <option value="04:30pm">04.30 pm</option>
+              <option value="05:00pm">05.00 pm</option>
+              <option value="05:30pm">05.30 pm</option>
+              <option value="06:00pm">06.00 pm</option>
+              <option value="06:30pm">06.30 pm</option>
+              <option value="07:00pm">07.00 pm</option>
+            </UserInput>
           </InputWrapper>
         </SubmitForm>
       )}

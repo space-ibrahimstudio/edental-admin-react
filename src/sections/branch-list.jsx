@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { TableData } from "../components/layout/tables";
 import { PlusIcon } from "../components/layout/icons";
-import { OptionButton } from "../components/user-input/buttons";
+import { InputWrapper, UserInput } from "../components/user-input/inputs";
+import { PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
 import { Pagination } from "../components/navigator/pagination";
 import "./styles/user-list.css";
@@ -19,26 +20,31 @@ export const BranchList = ({ sectionId }) => {
     <section id={sectionId} className="tabel-section">
       <b className="tabel-section-title">Cabang Edental</b>
       <div className="tabel-section-nav">
-        <SearchInput
-          id="search-datacustomer"
-          placeholder="Search by name ..."
-          property="username"
-        />
+        <InputWrapper maxWidth="1000px">
+          <SearchInput
+            id="search-reservation"
+            placeholder="Search by products ..."
+            property="username"
+          />
+        </InputWrapper>
         <div className="tabel-section-option">
-          <OptionButton
-            id="total-datacustomer"
-            value={limit}
-            onChange={handleLimitChange}
-          >
-            <option value={5}>Baris: 5</option>
-            <option value={10}>Baris: 10</option>
-            <option value={20}>Baris: 20</option>
-            <option value={50}>Baris: 50</option>
-          </OptionButton>
-          <button className="user-list-add">
-            <b className="user-list-add-text">Tambah Baru</b>
-            <PlusIcon width="17px" height="100%" color="var(--color-white)" />
-          </button>
+          <InputWrapper>
+            <UserInput
+              variant="select"
+              subVariant="nolabel"
+              id="total-datacustomer"
+              value={limit}
+              onChange={handleLimitChange}
+            >
+              <option value={5}>Baris per Halaman: 5</option>
+              <option value={10}>Baris per Halaman: 10</option>
+              <option value={20}>Baris per Halaman: 20</option>
+              <option value={50}>Baris per Halaman: 50</option>
+            </UserInput>
+          </InputWrapper>
+          <PrimButton buttonText="Tambah Baru" iconPosition="start">
+            <PlusIcon width="17px" height="100%" />
+          </PrimButton>
         </div>
       </div>
       <TableData dataShown={isDataShown}></TableData>

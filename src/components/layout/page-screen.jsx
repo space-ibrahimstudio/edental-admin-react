@@ -20,25 +20,26 @@ export function PageScreen({ variant, pageId, children }) {
         {children}
       </div>
     );
+  } else {
+    return (
+      <div
+        id={pageId}
+        style={{
+          width: "100%",
+          backgroundColor: "var(--color-foreground)",
+          display: "flex",
+          overflow: "hidden",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          minHeight: "100vh",
+          marginTop: "70px",
+        }}
+      >
+        {children}
+      </div>
+    );
   }
-  return (
-    <div
-      id={pageId}
-      style={{
-        width: "100%",
-        backgroundColor: "var(--color-foreground)",
-        display: "flex",
-        overflow: "hidden",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        minHeight: "100vh",
-        marginTop: "70px",
-      }}
-    >
-      {children}
-    </div>
-  );
 }
 
 PageScreen.propTypes = {

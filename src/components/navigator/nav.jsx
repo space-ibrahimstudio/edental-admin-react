@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchTabMenus } from "../tools/data";
 import { handleLogout } from "../tools/handler";
-import { LogoPrimary, UserAvatar, BellNotification } from "../layout/icons";
+import {
+  LogoPrimary,
+  UserAvatar,
+  BellNotification,
+  ExitIcon,
+} from "../layout/icons";
 import {
   TabButton,
   DropDownButton,
@@ -84,7 +89,9 @@ export function Nav() {
           <div className="nav-user">
             <UserAvatar width="37.6px" height="100%" />
           </div>
-          <SecondaryButton buttonText="Keluar" onClick={logoutClick} />
+          <SecondaryButton buttonText="Log out" onClick={logoutClick}>
+            <ExitIcon width="14px" height="100%" />
+          </SecondaryButton>
         </div>
       </div>
     </nav>

@@ -6,20 +6,43 @@ import { ChevronDown, ArrowIcon } from "../layout/icons";
 import "./styles/prim-button.css";
 import "./styles/tab-button.css";
 import "./styles/secondary-button.css";
-import styles from "./styles/prim-button.module.css";
+import prim from "./styles/prim-button.module.css";
+import scnd from "./styles/scnd-button.module.css";
 
-export function PrimButton({ variant, buttonText, onClick, children }) {
+export function PrimButton({
+  variant,
+  buttonText,
+  onClick,
+  iconPosition,
+  children,
+}) {
+  if (iconPosition === "start") {
+    if (variant === "hollow") {
+      return (
+        <button className={prim.primButtonHollow} onClick={onClick}>
+          {children}
+          <b className={prim.primButtonHollowText}>{buttonText}</b>
+        </button>
+      );
+    }
+    return (
+      <button className={prim.primButton} onClick={onClick}>
+        {children}
+        <b className={prim.primButtonText}>{buttonText}</b>
+      </button>
+    );
+  }
   if (variant === "hollow") {
     return (
-      <button className={styles.primButtonHollow} onClick={onClick}>
-        <b className={styles.primButtonHollowText}>{buttonText}</b>
+      <button className={prim.primButtonHollow} onClick={onClick}>
+        <b className={prim.primButtonHollowText}>{buttonText}</b>
         {children}
       </button>
     );
   }
   return (
-    <button className={styles.primButton} onClick={onClick}>
-      <b className={styles.primButtonText}>{buttonText}</b>
+    <button className={prim.primButton} onClick={onClick}>
+      <b className={prim.primButtonText}>{buttonText}</b>
       {children}
     </button>
   );
@@ -27,23 +50,102 @@ export function PrimButton({ variant, buttonText, onClick, children }) {
 
 PrimButton.propTypes = {
   onClick: PropTypes.func,
-  buttonText: PropTypes.string.isRequired,
-  type: PropTypes.string,
+  buttonText: PropTypes.string,
+  iconPosition: PropTypes.string,
   children: PropTypes.node,
   variant: PropTypes.string,
 };
 
-export function SecondaryButton({ buttonText, onClick }) {
-  return (
-    <button className="scnd-button" onClick={onClick}>
-      <b className="scnd-button-text">{buttonText}</b>
-    </button>
-  );
+export function SecondaryButton({
+  buttonText,
+  onClick,
+  variant,
+  subVariant,
+  iconPosition,
+  children,
+}) {
+  if (variant === "icon") {
+    if (subVariant === "hollow") {
+      return (
+        <button className={scnd.scndButtonHollow} onClick={onClick}>
+          {children}
+        </button>
+        // <button className="scnd-button" onClick={onClick}>
+        //   <b className="scnd-button-text">{buttonText}</b>
+        //   {children}
+        // </button>
+      );
+    } else if (subVariant === "hollow-line") {
+      return (
+        <button className={scnd.scndButtonHollowLine} onClick={onClick}>
+          {children}
+        </button>
+      );
+    } else {
+      return (
+        <button className={scnd.scndButton} onClick={onClick}>
+          {children}
+        </button>
+      );
+    }
+  } else {
+    if (iconPosition === "start") {
+      if (subVariant === "hollow") {
+        return (
+          <button className={scnd.scndButtonHollow} onClick={onClick}>
+            {children}
+            <b className={scnd.scndButtonText}>{buttonText}</b>
+          </button>
+        );
+      } else if (subVariant === "hollow-line") {
+        return (
+          <button className={scnd.scndButtonHollowLine} onClick={onClick}>
+            {children}
+            <b className={scnd.scndButtonText}>{buttonText}</b>
+          </button>
+        );
+      } else {
+        return (
+          <button className={scnd.scndButton} onClick={onClick}>
+            {children}
+            <b className={scnd.scndButtonText}>{buttonText}</b>
+          </button>
+        );
+      }
+    } else {
+      if (subVariant === "hollow") {
+        return (
+          <button className={scnd.scndButtonHollow} onClick={onClick}>
+            <b className={scnd.scndButtonText}>{buttonText}</b>
+            {children}
+          </button>
+        );
+      } else if (subVariant === "hollow-line") {
+        return (
+          <button className={scnd.scndButtonHollowLine} onClick={onClick}>
+            <b className={scnd.scndButtonText}>{buttonText}</b>
+            {children}
+          </button>
+        );
+      } else {
+        return (
+          <button className={scnd.scndButton} onClick={onClick}>
+            <b className={scnd.scndButtonText}>{buttonText}</b>
+            {children}
+          </button>
+        );
+      }
+    }
+  }
 }
 
 SecondaryButton.propTypes = {
   onClick: PropTypes.func,
-  buttonText: PropTypes.string.isRequired,
+  buttonText: PropTypes.string,
+  variant: PropTypes.string,
+  subVariant: PropTypes.string,
+  iconPosition: PropTypes.string,
+  children: PropTypes.node,
 };
 
 export function DropDownButton({ buttonText, onClick }) {

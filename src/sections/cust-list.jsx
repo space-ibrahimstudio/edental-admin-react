@@ -9,7 +9,8 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { ChevronDown, PlusIcon } from "../components/layout/icons";
-import { OptionButton } from "../components/user-input/buttons";
+import { InputWrapper, UserInput } from "../components/user-input/inputs";
+import { PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
 import { Pagination } from "../components/navigator/pagination";
 import "./styles/user-list.css";
@@ -36,8 +37,10 @@ export const CustList = ({ sectionId }) => {
 
   const rowsPerPage = limit;
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
-
   const { showNotifications } = useNotifications();
+
+  const openForm = () => setIsFormOpen(true);
+  const closeForm = () => setIsFormOpen(false);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -74,9 +77,6 @@ export const CustList = ({ sectionId }) => {
       window.location.reload();
     }
   };
-
-  const openForm = () => setIsFormOpen(true);
-  const closeForm = () => setIsFormOpen(false);
 
   const tableHeadData = (
     <TableRow type="heading">
@@ -118,28 +118,33 @@ export const CustList = ({ sectionId }) => {
     <section id={sectionId} className="tabel-section">
       <b className="tabel-section-title">Data Customer</b>
       <div className="tabel-section-nav">
-        <SearchInput
-          id="search-datacustomer"
-          placeholder="Search by name ..."
-          property="username"
-          userData={userData}
-          setUserData={setFilteredData}
-        />
+        <InputWrapper maxWidth="1000px">
+          <SearchInput
+            id="search-reservation"
+            placeholder="Search by name ..."
+            property="username"
+            userData={userData}
+            setUserData={setFilteredData}
+          />
+        </InputWrapper>
         <div className="tabel-section-option">
-          <OptionButton
-            id="total-datacustomer"
-            value={limit}
-            onChange={handleLimitChange}
-          >
-            <option value={5}>Baris: 5</option>
-            <option value={10}>Baris: 10</option>
-            <option value={20}>Baris: 20</option>
-            <option value={50}>Baris: 50</option>
-          </OptionButton>
-          <button className="user-list-add">
-            <b className="user-list-add-text">Tambah Baru</b>
-            <PlusIcon width="17px" height="100%" color="var(--color-white)" />
-          </button>
+          <InputWrapper>
+            <UserInput
+              variant="select"
+              subVariant="nolabel"
+              id="total-datacustomer"
+              value={limit}
+              onChange={handleLimitChange}
+            >
+              <option value={5}>Baris per Halaman: 5</option>
+              <option value={10}>Baris per Halaman: 10</option>
+              <option value={20}>Baris per Halaman: 20</option>
+              <option value={50}>Baris per Halaman: 50</option>
+            </UserInput>
+          </InputWrapper>
+          <PrimButton buttonText="Tambah Baru" iconPosition="start">
+            <PlusIcon width="17px" height="100%" />
+          </PrimButton>
         </div>
       </div>
       <TableData

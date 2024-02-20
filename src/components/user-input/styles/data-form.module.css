@@ -34,7 +34,7 @@
   flex-direction: column;
   padding: 1px;
   gap: 10px 0;
-  max-height: 300px;
+  /* max-height: 300px; */
   box-sizing: border-box;
 }
 
@@ -68,19 +68,22 @@
 }
 
 .form,
-.formScreen {
-  width: 100%;
-  overflow: hidden;
+.formScreen,
+.formScroll {
+  display: flex;
   flex-direction: column;
-  padding: 40px;
-  box-sizing: border-box;
+  align-items: center;
 }
 
 .form {
   margin: 0;
+  width: 100%;
   border-radius: 20px;
   background-color: #f5f5f7;
+  overflow: hidden;
   justify-content: flex-start;
+  padding: 40px;
+  box-sizing: border-box;
   gap: 20px 0;
   max-width: 725px;
   animation-name: slideFromBottom;
@@ -97,13 +100,14 @@
 }
 
 .formScreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
+  align-self: stretch;
   background-color: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  flex-shrink: 0;
   justify-content: center;
-  height: 100vh;
+  padding: 40px;
+  box-sizing: border-box;
+  /* height: 100vh; */
   animation-name: fadeIn;
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
@@ -115,6 +119,17 @@
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
   animation-fill-mode: forwards;
+}
+
+.formScroll {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  height: 100vh;
+  overflow-y: auto;
+  justify-content: flex-start;
 }
 
 @keyframes fadeIn {
