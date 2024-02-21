@@ -19,7 +19,7 @@ export const CentralPO = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>PO Pusat</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper maxWidth="1000px">
+        <InputWrapper>
           <SearchInput
             id="search-centralpo"
             placeholder="Search by products ..."

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { fetchUserBooking, checkExistingData } from "../components/tools/data";
-import { handleAddReserve } from "../components/tools/handler";
+import {
+  fetchReserveList,
+  fetchAllCustList,
+  fetchHoursList,
+  fetchAllServiceList,
+  fetchAllSubServiceList,
+} from "../components/tools/data";
+import { handleCUDReserve } from "../components/tools/handler";
 import { getCurrentDate } from "../components/tools/controller";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
@@ -23,19 +29,26 @@ import { Pagination } from "../components/navigator/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const Reservation = ({ sectionId }) => {
+  const { showNotifications } = useNotifications();
+  // data state
   const [reserveData, setReserveData] = useState([]);
-  const [data, setData] = useState([]);
-  const [phoneExist, setPhoneExist] = useState(false);
+  const [allData, setAllData] = useState([]);
   const [selectedData, setSelectedData] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
+  const [serviceData, setServiceData] = useState([]);
+  const [subServiceData, setSubServiceData] = useState([]);
+  // conditional context
+  const [custExist, setCustExist] = useState(false);
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
+  const [loadData, setLoadData] = useState(false);
+  // perform action state
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  // input state
   const [hours, setHours] = useState([]);
-  const [loadData, setLoadData] = useState(false);
-  const [limit, setLimit] = useState(5);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -46,7 +59,16 @@ export const Reservation = ({ sectionId }) => {
     reservationdate: "",
     reservationtime: "",
   });
-
+  const [currentData, setCurrentData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    service: "",
+    typeservice: "",
+    price: "",
+    reservationdate: "",
+    reservationtime: "",
+  });
   const [errors, setErrors] = useState({
     name: "",
     phone: "",
@@ -57,135 +79,7 @@ export const Reservation = ({ sectionId }) => {
     reservationdate: "",
     reservationtime: "",
   });
-
-  const [existingData, setExistingData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    service: "",
-    typeservice: "",
-    price: "",
-    reservationdate: "",
-    reservationtime: "",
-  });
-
-  const fetchAvailableHours = async () => {
-    const availableHours = [
-      "10:00",
-      "10:30",
-      "11:00",
-      "11:30",
-      "12:00",
-      "12:30",
-      "13:00",
-      "15:00",
-      "15:30",
-      "16:00",
-      "16:30",
-      "17:00",
-      "17:30",
-      "18:00",
-      "18:30",
-      "19:00",
-    ];
-    setHours(availableHours);
-  };
-
-  const rowsPerPage = limit;
-  const startIndex = (currentPage - 1) * rowsPerPage + 1;
-  const { showNotifications } = useNotifications();
-
-  const openForm = () => setIsFormOpen(true);
-  const closeForm = () => setIsFormOpen(false);
-
-  const closeEdit = () => {
-    setIsEditOpen(false);
-    setSelectedData(null);
-    setExistingData({
-      name: "",
-      phone: "",
-      email: "",
-      service: "",
-      typeservice: "",
-      price: "",
-      reservationdate: "",
-      reservationtime: "",
-    });
-  };
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setErrors({
-      ...errors,
-      [name]: "",
-    });
-
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-
-    if (name === "phone") {
-      let phoneExists = false;
-
-      data.forEach((item) => {
-        if (item.userphone === value) {
-          phoneExists = true;
-        }
-      });
-
-      if (phoneExists) {
-        // setErrors({
-        //   ...errors,
-        //   [name]: 'Phone number already exists. Please input a different number.',
-        // });
-        setPhoneExist(true);
-      } else {
-        setPhoneExist(false);
-      }
-    }
-  };
-
-  const handleInputEditChange = (e) => {
-    const { name, value } = e.target;
-    setErrors({
-      ...errors,
-      [name]: "",
-    });
-
-    setExistingData({
-      ...existingData,
-      [name]: value,
-    });
-
-    if (name === "phone") {
-      let phoneExists = false;
-
-      data.forEach((item) => {
-        if (item.userphone === value) {
-          phoneExists = true;
-        }
-      });
-
-      if (phoneExists) {
-        setPhoneExist(true);
-      } else {
-        setPhoneExist(false);
-      }
-    }
-  };
-
-  const handleLimitChange = (event) => {
-    setLimit(parseInt(event.target.value, 10));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const validateInput = () => {
     let newErrors = {};
 
     if (formData.name === "") {
@@ -203,6 +97,11 @@ export const Reservation = ({ sectionId }) => {
     if (formData.typeservice === "") {
       newErrors.typeservice = "This field is required";
     }
+    if (!custExist) {
+      if (formData.price === "") {
+        newErrors.price = "This field is required";
+      }
+    }
     if (formData.reservationdate === "") {
       newErrors.reservationdate = "This option is required";
     }
@@ -210,13 +109,87 @@ export const Reservation = ({ sectionId }) => {
       newErrors.reservationtime = "This option is required";
     }
 
+    return newErrors;
+  };
+  const cleanInput = () => {
+    setFormData({
+      name: "",
+      phone: "",
+      email: "",
+      service: "",
+      typeservice: "",
+      price: "",
+      reservationdate: "",
+      reservationtime: "",
+    });
+    setErrors({
+      name: "",
+      phone: "",
+      email: "",
+      service: "",
+      typeservice: "",
+      price: "",
+      reservationdate: "",
+      reservationtime: "",
+    });
+  };
+  // start data paging
+  const rowsPerPage = limit;
+  const startIndex = (currentPage - 1) * rowsPerPage + 1;
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  const handleLimitChange = (event) => {
+    setLimit(parseInt(event.target.value, 10));
+  };
+  // end data paging
+  // start add data function
+  const openForm = () => setIsFormOpen(true);
+  const closeForm = () => {
+    cleanInput();
+    setIsFormOpen(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setErrors({
+      ...errors,
+      [name]: "",
+    });
+
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+
+    if (name === "phone") {
+      let phoneExists = false;
+
+      allData.forEach((item) => {
+        if (item.userphone === value) {
+          phoneExists = true;
+        }
+      });
+
+      if (phoneExists) {
+        setCustExist(true);
+      } else {
+        setCustExist(false);
+      }
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const newErrors = validateInput();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
     try {
-      await handleAddReserve(
+      await handleCUDReserve(
         formData.name,
         formData.phone,
         formData.email,
@@ -226,14 +199,19 @@ export const Reservation = ({ sectionId }) => {
         formData.reservationdate,
         formData.reservationtime
       );
-      setIsFormOpen(false);
-      window.location.reload();
+
+      const data = await fetchReserveList(currentPage, limit, setTotalPages);
+      setReserveData(data);
+      setFilteredData(data);
+
+      closeForm();
     } catch (error) {
       console.error("Error occurred during submit reservation:", error);
     }
   };
-
-  const handleEdit = (
+  // end add data function
+  // start edit/delete data function
+  const openEdit = (
     id,
     name,
     phone,
@@ -245,7 +223,7 @@ export const Reservation = ({ sectionId }) => {
     reservationtime
   ) => {
     setSelectedData(id);
-    setExistingData({
+    setCurrentData({
       name,
       phone,
       email,
@@ -258,75 +236,92 @@ export const Reservation = ({ sectionId }) => {
     setIsEditOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this Reservation Data?"
-    );
-    if (confirmDelete) {
-      try {
-        await handleAddReserve("", "", "", "", "", "", "", "", "delete", id);
-        setReserveData(
-          reserveData.filter((reserve) => reserve.idreservation !== id)
-        );
-        window.location.reload();
-      } catch (error) {
-        console.error("Error deleting booking:", error);
+  const closeEdit = () => {
+    cleanInput();
+    setIsEditOpen(false);
+    setSelectedData(null);
+  };
+
+  const handleInputEditChange = (e) => {
+    const { name, value } = e.target;
+    setErrors({
+      ...errors,
+      [name]: "",
+    });
+
+    setCurrentData({
+      ...currentData,
+      [name]: value,
+    });
+
+    if (name === "phone") {
+      let phoneExists = false;
+
+      allData.forEach((item) => {
+        if (item.userphone === value) {
+          phoneExists = true;
+        }
+      });
+
+      if (phoneExists) {
+        setCustExist(true);
+      } else {
+        setCustExist(false);
       }
     }
   };
 
   const handleSubmitEdit = async () => {
-    let newErrors = {};
-
-    if (existingData.name === "") {
-      newErrors.name = "Name is required";
-    }
-    if (existingData.phone === "") {
-      newErrors.phone = "Phone is required";
-    }
-    if (existingData.email === "") {
-      newErrors.email = "Email is required";
-    }
-    if (existingData.service === "") {
-      newErrors.service = "This field is required";
-    }
-    if (existingData.typeservice === "") {
-      newErrors.typeservice = "This field is required";
-    }
-    if (existingData.reservationdate === "") {
-      newErrors.reservationdate = "This option is required";
-    }
-    if (existingData.reservationtime === "") {
-      newErrors.reservationtime = "This option is required";
-    }
-
+    const newErrors = validateInput();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
     try {
-      await handleAddReserve(
-        existingData.name,
-        existingData.phone,
-        existingData.email,
-        existingData.service,
-        existingData.typeservice,
-        existingData.price,
-        existingData.reservationdate,
-        existingData.reservationtime,
+      await handleCUDReserve(
+        currentData.name,
+        currentData.phone,
+        currentData.email,
+        currentData.service,
+        currentData.typeservice,
+        currentData.price,
+        currentData.reservationdate,
+        currentData.reservationtime,
         "edit",
         selectedData
       );
-      const data = await fetchUserBooking(currentPage, limit, setTotalPages);
+
+      const data = await fetchReserveList(currentPage, limit, setTotalPages);
       setReserveData(data);
       setFilteredData(data);
+
       closeEdit();
     } catch (error) {
       console.error("Error editing booking:", error);
     }
   };
 
+  const handleSubmitDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this Reservation Data?"
+    );
+    if (confirmDelete) {
+      try {
+        await handleCUDReserve("", "", "", "", "", "", "", "delete", id);
+        setReserveData(
+          reserveData.filter((reserve) => reserve.idreservation !== id)
+        );
+
+        const data = await fetchReserveList(currentPage, limit, setTotalPages);
+        setReserveData(data);
+        setFilteredData(data);
+      } catch (error) {
+        console.error("Error deleting booking:", error);
+      }
+    }
+  };
+  // end edit/delete data function
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
@@ -353,7 +348,7 @@ export const Reservation = ({ sectionId }) => {
     const fetchData = async () => {
       try {
         setLoadData(true);
-        const data = await fetchUserBooking(currentPage, limit, setTotalPages);
+        const data = await fetchReserveList(currentPage, limit, setTotalPages);
 
         setReserveData(data);
         setFilteredData(data);
@@ -371,11 +366,9 @@ export const Reservation = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await checkExistingData();
-
-        setData(data);
+        const data = await fetchAllCustList();
+        setAllData(data);
       } catch (error) {
-        console.error("Error fetching user data:", error);
         showNotifications("danger", "Error fetching user data.");
       }
     };
@@ -388,14 +381,49 @@ export const Reservation = ({ sectionId }) => {
   }, [filteredData]);
 
   useEffect(() => {
-    fetchAvailableHours(formData.reservationdate);
-  }, [formData.reservationdate]);
+    const fetchHours = async () => {
+      try {
+        const data = await fetchHoursList();
+        setHours(data);
+      } catch (error) {
+        showNotifications("danger", "Error fetching hours data.");
+      }
+    };
+
+    fetchHours();
+  }, []);
+
+  useEffect(() => {
+    const fetchService = async () => {
+      try {
+        const data = await fetchAllServiceList();
+        setServiceData(data);
+      } catch (error) {
+        showNotifications("danger", "Error fetching sub service data.");
+      }
+    };
+
+    fetchService();
+  }, []);
+
+  useEffect(() => {
+    const fetchSubService = async () => {
+      try {
+        const data = await fetchAllSubServiceList();
+        setSubServiceData(data);
+      } catch (error) {
+        showNotifications("danger", "Error fetching sub service data.");
+      }
+    };
+
+    fetchSubService();
+  }, []);
 
   return (
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Data Reservasi</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper maxWidth="1000px">
+        <InputWrapper>
           <SearchInput
             id="search-reservation"
             placeholder="Search by name ..."
@@ -450,7 +478,7 @@ export const Reservation = ({ sectionId }) => {
                 buttonText="Edit"
                 iconPosition="start"
                 onClick={() =>
-                  handleEdit(
+                  openEdit(
                     user.idreservation,
                     user.name,
                     user.phone,
@@ -468,7 +496,7 @@ export const Reservation = ({ sectionId }) => {
               <SecondaryButton
                 variant="icon"
                 subVariant="hollow"
-                onClick={() => handleDelete(user.idreservation)}
+                onClick={() => handleSubmitDelete(user.idreservation)}
               >
                 <TrashIcon
                   width="20px"
@@ -490,24 +518,11 @@ export const Reservation = ({ sectionId }) => {
       {isFormOpen && (
         <SubmitForm
           formTitle="Tambah Reservasi"
-          formSubtitle="Percayakan perawatan gigi anda dan keluarga kepada Edental"
           onClose={closeForm}
           onSubmit={handleSubmit}
           saveText="Simpan"
           cancelText="Batal"
         >
-          <InputWrapper>
-            <UserInput
-              id="user-name"
-              labelText="Nama Pelanggan"
-              placeholder="John Doe"
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              error={errors.name}
-            />
-          </InputWrapper>
           <InputWrapper>
             <UserInput
               id="user-phone"
@@ -518,6 +533,18 @@ export const Reservation = ({ sectionId }) => {
               value={formData.phone}
               onChange={handleInputChange}
               error={errors.phone}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <UserInput
+              id="user-name"
+              labelText="Nama Pelanggan"
+              placeholder="John Doe"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              error={errors.name}
             />
             <UserInput
               id="user-email"
@@ -532,26 +559,43 @@ export const Reservation = ({ sectionId }) => {
           </InputWrapper>
           <InputWrapper>
             <UserInput
+              variant="select"
               id="service"
               labelText="Nama Layanan"
-              placeholder="Pilih layanan"
-              type="text"
               name="service"
               value={formData.service}
               onChange={handleInputChange}
               error={errors.service}
-            />
+            >
+              <option value="">Pilih layanan</option>
+              {Array.isArray(serviceData) &&
+                serviceData.map((service) => (
+                  <option key={service.idservice} value={service.servicename}>
+                    {service.servicename}
+                  </option>
+                ))}
+            </UserInput>
             <UserInput
+              variant="select"
               id="service-type"
               labelText="Tipe Layanan"
-              placeholder="Pilih tipe layanan"
-              type="text"
               name="typeservice"
               value={formData.typeservice}
               onChange={handleInputChange}
               error={errors.typeservice}
-            />
-            {!phoneExist && (
+            >
+              <option value="">Pilih tipe layanan</option>
+              {Array.isArray(subServiceData) &&
+                subServiceData.map((subservice) => (
+                  <option
+                    key={subservice.idservicetype}
+                    value={subservice.servicetypename}
+                  >
+                    {subservice.servicetypename}
+                  </option>
+                ))}
+            </UserInput>
+            {custExist ? null : (
               <UserInput
                 id="service-price"
                 labelText="Harga"
@@ -598,7 +642,6 @@ export const Reservation = ({ sectionId }) => {
       {isEditOpen && (
         <SubmitForm
           formTitle="Edit Reservasi"
-          formSubtitle="Percayakan perawatan gigi anda dan keluarga kepada Edental"
           onClose={closeEdit}
           onSubmit={handleSubmitEdit}
           saveText="Simpan Perubahan"
@@ -606,26 +649,26 @@ export const Reservation = ({ sectionId }) => {
         >
           <InputWrapper>
             <UserInput
-              id="edit-user-name"
-              labelText="Nama Pelanggan"
-              placeholder="John Doe"
-              type="text"
-              name="name"
-              value={existingData.name}
-              onChange={handleInputEditChange}
-              error={errors.name}
-            />
-          </InputWrapper>
-          <InputWrapper>
-            <UserInput
               id="edit-user-phone"
               labelText="Nomor Telepon"
               placeholder="0882xxx"
               type="text"
               name="phone"
-              value={existingData.phone}
+              value={currentData.phone}
               onChange={handleInputEditChange}
               error={errors.phone}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <UserInput
+              id="edit-user-name"
+              labelText="Nama Pelanggan"
+              placeholder="John Doe"
+              type="text"
+              name="name"
+              value={currentData.name}
+              onChange={handleInputEditChange}
+              error={errors.name}
             />
             <UserInput
               id="edit-user-email"
@@ -633,41 +676,58 @@ export const Reservation = ({ sectionId }) => {
               placeholder="customer@gmail.com"
               type="email"
               name="email"
-              value={existingData.email}
+              value={currentData.email}
               onChange={handleInputEditChange}
               error={errors.email}
             />
           </InputWrapper>
           <InputWrapper>
             <UserInput
+              variant="select"
               id="edit-service"
               labelText="Nama Layanan"
-              placeholder="Pilih layanan"
-              type="text"
               name="service"
-              value={existingData.service}
-              onChange={handleInputEditChange}
+              value={currentData.service}
+              onChange={handleInputChange}
               error={errors.service}
-            />
+            >
+              <option value="">Pilih layanan</option>
+              {Array.isArray(serviceData) &&
+                serviceData.map((service) => (
+                  <option key={service.idservice} value={service.servicename}>
+                    {service.servicename}
+                  </option>
+                ))}
+            </UserInput>
             <UserInput
+              variant="select"
               id="edit-service-type"
               labelText="Tipe Layanan"
-              placeholder="Pilih tipe layanan"
-              type="text"
               name="typeservice"
-              value={existingData.typeservice}
-              onChange={handleInputEditChange}
+              value={currentData.typeservice}
+              onChange={handleInputChange}
               error={errors.typeservice}
-            />
-            {!phoneExist && (
+            >
+              <option value="">Pilih tipe layanan</option>
+              {Array.isArray(subServiceData) &&
+                subServiceData.map((subservice) => (
+                  <option
+                    key={subservice.idservicetype}
+                    value={subservice.servicetypename}
+                  >
+                    {subservice.servicetypename}
+                  </option>
+                ))}
+            </UserInput>
+            {custExist ? null : (
               <UserInput
                 id="edit-service-price"
                 labelText="Harga"
                 placeholder="Masukkan harga"
                 type="text"
                 name="price"
-                value={existingData.price}
-                onChange={handleInputEditChange}
+                value={currentData.price}
+                onChange={handleInputChange}
                 error={errors.price}
               />
             )}
@@ -679,7 +739,7 @@ export const Reservation = ({ sectionId }) => {
               placeholder="Atur tanggal"
               type="date"
               name="reservationdate"
-              value={existingData.reservationdate}
+              value={currentData.reservationdate}
               onChange={handleInputEditChange}
               error={errors.reservationdate}
             />
@@ -688,7 +748,7 @@ export const Reservation = ({ sectionId }) => {
               id="edit-time"
               labelText="Jam Reservasi"
               name="reservationtime"
-              value={existingData.reservationtime}
+              value={currentData.reservationtime}
               onChange={handleInputEditChange}
               error={errors.reservationtime}
             >

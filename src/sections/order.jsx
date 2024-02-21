@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { fetchOrderData } from "../components/tools/data";
-import { handleAddReserve } from "../components/tools/handler";
+import { fetchOrderList } from "../components/tools/data";
+import { handleCUDReserve } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
   TableData,
@@ -60,7 +60,7 @@ export const Order = ({ sectionId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await handleAddReserve(
+      await handleCUDReserve(
         formData.name,
         formData.phone,
         formData.email,
@@ -97,7 +97,7 @@ export const Order = ({ sectionId }) => {
     const fetchData = async () => {
       try {
         setLoadData(true);
-        const data = await fetchOrderData(currentPage, limit, setTotalPages);
+        const data = await fetchOrderList(currentPage, limit, setTotalPages);
 
         setOrderData(data);
         setFilteredData(data);
@@ -120,7 +120,7 @@ export const Order = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Data Order</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper maxWidth="1000px">
+        <InputWrapper>
           <SearchInput
             id="search-order"
             placeholder="Search by name ..."

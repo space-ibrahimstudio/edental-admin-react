@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { fetchCustData } from "../components/tools/data";
-import { handleAddReserve } from "../components/tools/handler";
+import { fetchCustList } from "../components/tools/data";
+import { handleCUDReserve } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
   TableData,
@@ -60,7 +60,7 @@ export const CustList = ({ sectionId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await handleAddReserve(
+      await handleCUDReserve(
         formData.name,
         formData.phone,
         formData.email,
@@ -83,7 +83,7 @@ export const CustList = ({ sectionId }) => {
       <TableHeadValue hasIcon="yes" value="Nama Pengguna">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue value="User ID" />
+      <TableHeadValue value="Alamat" />
       <TableHeadValue value="Email" />
       <TableHeadValue value="Telepon" />
       <TableHeadValue value="Tanggal Bergabung" position="end" />
@@ -94,7 +94,7 @@ export const CustList = ({ sectionId }) => {
     const fetchData = async () => {
       try {
         setLoadData(true);
-        const data = await fetchCustData(currentPage, limit, setTotalPages);
+        const data = await fetchCustList(currentPage, limit, setTotalPages);
 
         setUserData(data);
         setFilteredData(data);
@@ -117,7 +117,7 @@ export const CustList = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Data Customer</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper maxWidth="1000px">
+        <InputWrapper>
           <SearchInput
             id="search-datacustomer"
             placeholder="Search by name ..."
@@ -155,7 +155,7 @@ export const CustList = ({ sectionId }) => {
           <TableRow key={user.idauthuser}>
             <TableBodyValue type="num" value={startIndex + index} />
             <TableBodyValue value={user.username} />
-            <TableBodyValue value={user.idauthuser} />
+            <TableBodyValue value={user.address} />
             <TableBodyValue value={user.useremail} />
             <TableBodyValue value={user.userphone} />
             <TableBodyValue value={user.usercreate} position="end" />

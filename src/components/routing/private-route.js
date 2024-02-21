@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import { isAuthenticated } from "../tools/handler";
+import { handleAuth } from "../tools/handler";
 import { useNotifications } from "../feedback/context/notifications-context";
 import { LoadingScreen } from "../feedback/loading-screen";
 
@@ -10,7 +10,7 @@ export const PrivateRoute = ({ element }) => {
 
   useEffect(() => {
     const checkAuthentication = async () => {
-      const result = await isAuthenticated(showNotifications);
+      const result = await handleAuth(showNotifications);
       setAuthenticated(result);
     };
 

@@ -23,6 +23,11 @@ const HomeReplace = () => {
     setLoginFormOpen(false);
   };
 
+  const logoutClick = () => {
+    handleLogout();
+    showNotifications("success", "Kamu berhasil logout. Mohon login kembali.");
+  };
+
   useEffect(() => {
     const sessionCheck = async () => {
       try {
@@ -41,11 +46,6 @@ const HomeReplace = () => {
 
     sessionCheck();
   }, []);
-
-  const logoutClick = () => {
-    handleLogout();
-    showNotifications("success", "Kamu berhasil logout. Mohon login kembali.");
-  };
 
   return (
     <div className="home-replace">

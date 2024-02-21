@@ -19,7 +19,7 @@ export const UserList = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Manajemen User</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper maxWidth="1000px">
+        <InputWrapper>
           <SearchInput
             id="search-usermanajemen"
             placeholder="Search by products ..."

@@ -19,7 +19,7 @@ export const BranchList = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Cabang Edental</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper maxWidth="1000px">
+        <InputWrapper>
           <SearchInput
             id="search-branch"
             placeholder="Search by products ..."

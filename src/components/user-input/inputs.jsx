@@ -153,6 +153,11 @@ export function UserInput({
   value,
   onChange,
 }) {
+  const [passwordSeen, setPasswordSeen] = useState(false);
+  const togglePasswordSeen = () => {
+    setPasswordSeen(!passwordSeen);
+  };
+
   if (variant === "select") {
     if (subVariant === "nolabel") {
       return (
@@ -205,57 +210,126 @@ export function UserInput({
       );
     }
   } else {
-    if (subVariant === "nolabel") {
-      return (
-        <div className={styles.inputLabel}>
-          <label htmlFor={id} className={styles.inputLabelField}>
-            <input
-              id={id}
-              className={styles.inputLabelFieldInput}
-              placeholder={placeholder}
-              type={type}
-              name={name}
-              value={value}
-              onChange={onChange}
-              min={min}
-            />
-          </label>
-          {error && (
-            <h6
-              className={styles.inputLabelText}
-              style={{ color: "var(--color-red)" }}
-            >
-              {error}
-            </h6>
-          )}
-        </div>
-      );
+    if (type === "password") {
+      if (subVariant === "nolabel") {
+        return (
+          <div className={styles.inputLabel}>
+            <label htmlFor={id} className={styles.inputLabelField}>
+              <input
+                id={id}
+                className={styles.inputLabelFieldInput}
+                placeholder={placeholder}
+                type={passwordSeen ? "text" : "password"}
+                name={name}
+                value={value}
+                onChange={onChange}
+                min={min}
+              />
+              <div className={styles.closeWrapper} onClick={togglePasswordSeen}>
+                {passwordSeen ? (
+                  <EyeSlash width="19px" height="100%" color="#3880EB" />
+                ) : (
+                  <EyeOpen width="19px" height="100%" color="#3880EB" />
+                )}
+              </div>
+            </label>
+            {error && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-red)" }}
+              >
+                {error}
+              </h6>
+            )}
+          </div>
+        );
+      } else {
+        return (
+          <div className={styles.inputLabel}>
+            <h6 className={styles.inputLabelText}>{labelText}</h6>
+            <label htmlFor={id} className={styles.inputLabelField}>
+              <input
+                id={id}
+                className={styles.inputLabelFieldInput}
+                placeholder={placeholder}
+                type={passwordSeen ? "text" : "password"}
+                name={name}
+                value={value}
+                onChange={onChange}
+                min={min}
+              />
+              <div className={styles.closeWrapper} onClick={togglePasswordSeen}>
+                {passwordSeen ? (
+                  <EyeSlash width="19px" height="100%" color="#3880EB" />
+                ) : (
+                  <EyeOpen width="19px" height="100%" color="#3880EB" />
+                )}
+              </div>
+            </label>
+            {error && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-red)" }}
+              >
+                {error}
+              </h6>
+            )}
+          </div>
+        );
+      }
     } else {
-      return (
-        <div className={styles.inputLabel}>
-          <h6 className={styles.inputLabelText}>{labelText}</h6>
-          <label htmlFor={id} className={styles.inputLabelField}>
-            <input
-              id={id}
-              className={styles.inputLabelFieldInput}
-              placeholder={placeholder}
-              type={type}
-              name={name}
-              value={value}
-              onChange={onChange}
-              min={min}
-            />
-          </label>
-          {error && (
-            <h6
-              className={styles.inputLabelText}
-              style={{ color: "var(--color-red)" }}
-            >
-              {error}
-            </h6>
-          )}
-        </div>
-      );
+      if (subVariant === "nolabel") {
+        return (
+          <div className={styles.inputLabel}>
+            <label htmlFor={id} className={styles.inputLabelField}>
+              <input
+                id={id}
+                className={styles.inputLabelFieldInput}
+                placeholder={placeholder}
+                type={type}
+                name={name}
+                value={value}
+                onChange={onChange}
+                min={min}
+              />
+            </label>
+            {error && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-red)" }}
+              >
+                {error}
+              </h6>
+            )}
+          </div>
+        );
+      } else {
+        return (
+          <div className={styles.inputLabel}>
+            <h6 className={styles.inputLabelText}>{labelText}</h6>
+            <label htmlFor={id} className={styles.inputLabelField}>
+              <input
+                id={id}
+                className={styles.inputLabelFieldInput}
+                placeholder={placeholder}
+                type={type}
+                name={name}
+                value={value}
+                onChange={onChange}
+                min={min}
+              />
+            </label>
+            {error && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-red)" }}
+              >
+                {error}
+              </h6>
+            )}
+          </div>
+        );
+      }
     }
   }
 }

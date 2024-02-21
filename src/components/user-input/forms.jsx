@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { handleLogin, handleLoginLog } from "../tools/handler";
-import { getIPAddress } from "../tools/data";
+import { fetchIPAddress } from "../tools/data";
 import { useNotifications } from "../feedback/context/notifications-context";
 import { FieldInput } from "./inputs";
 import { LogoPrimary, CheckIcon, CloseIcon } from "../layout/icons";
@@ -45,7 +45,7 @@ export function PortalForm({ type, onClose }) {
     try {
       await handleLogin(username, password);
 
-      const ipAddress = await getIPAddress();
+      const ipAddress = await fetchIPAddress();
       await handleLoginLog(ipAddress);
 
       setIsClosing(true);
@@ -248,8 +248,11 @@ export function SubmitForm({
           ref={ref}
         >
           <header className={styles.formHead}>
+            <LogoPrimary width="96px" height="100%" color="var(--color-blue)" />
             <b className={styles.formTitle}>{formTitle}</b>
-            <div className={styles.formSubtitle}>{formSubtitle}</div>
+            {formSubtitle && (
+              <div className={styles.formSubtitle}>{formSubtitle}</div>
+            )}
           </header>
           <main className={styles.formBody}>{children}</main>
           <footer className={styles.formFooter}>

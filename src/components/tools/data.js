@@ -24,7 +24,7 @@ export async function fetchTabMenus() {
     );
 
     if (!response.data.error) {
-      console.log("Tab Menus Data:", response.data);
+      console.log("Tab menus data:", response.data);
 
       return response.data.data;
     } else {
@@ -36,7 +36,7 @@ export async function fetchTabMenus() {
   }
 }
 
-export async function fetchUserData(currentPage, limit, setTotalPages) {
+export async function fetchUserData() {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -45,8 +45,6 @@ export async function fetchUserData(currentPage, limit, setTotalPages) {
       "data",
       JSON.stringify({
         secret: userSecret,
-        limit: limit.toString(),
-        hal: currentPage - 1,
       })
     );
 
@@ -60,10 +58,7 @@ export async function fetchUserData(currentPage, limit, setTotalPages) {
       }
     );
 
-    const { TTLPage } = response.data;
-    setTotalPages(TTLPage);
-    console.log("User Data:", response.data);
-
+    console.log("User data:", response.data);
     return response.data.data;
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -71,7 +66,30 @@ export async function fetchUserData(currentPage, limit, setTotalPages) {
   }
 }
 
-export async function fetchUserBooking(currentPage, limit, setTotalPages) {
+export async function fetchHoursList() {
+  const availableHours = [
+    "10:00",
+    "10:30",
+    "11:00",
+    "11:30",
+    "12:00",
+    "12:30",
+    "13:00",
+    "15:00",
+    "15:30",
+    "16:00",
+    "16:30",
+    "17:00",
+    "17:30",
+    "18:00",
+    "18:30",
+    "19:00",
+  ];
+
+  return availableHours;
+}
+
+export async function fetchReserveList(currentPage, limit, setTotalPages) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -97,16 +115,16 @@ export async function fetchUserBooking(currentPage, limit, setTotalPages) {
 
     const { TTLPage } = response.data;
     setTotalPages(TTLPage);
-    console.log("User Booking Data:", response.data);
+    console.log("Reservation list:", response.data);
 
     return response.data.data;
   } catch (error) {
-    console.error("Error fetching user bookings:", error);
+    console.error("Error fetching reservation list:", error);
     throw error;
   }
 }
 
-export async function fetchCustData(currentPage, limit, setTotalPages) {
+export async function fetchCustList(currentPage, limit, setTotalPages) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -132,16 +150,16 @@ export async function fetchCustData(currentPage, limit, setTotalPages) {
 
     const { TTLPage } = response.data;
     setTotalPages(TTLPage);
-    console.log("Customer Data:", response.data);
+    console.log("Customer list:", response.data);
 
     return response.data.data;
   } catch (error) {
-    console.error("Error fetching customer data:", error);
+    console.error("Error fetching customer list:", error);
     throw error;
   }
 }
 
-export async function checkExistingData() {
+export async function fetchAllCustList() {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -150,13 +168,11 @@ export async function checkExistingData() {
       "data",
       JSON.stringify({
         secret: userSecret,
-        limit: "10000",
-        hal: "1",
       })
     );
 
     const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewcustomer`,
+      `${baseUrl}/edental_api/office/searchcustomer`,
       formData,
       {
         headers: {
@@ -165,28 +181,29 @@ export async function checkExistingData() {
       }
     );
 
+    console.log("All customer list:", response.data);
     return response.data.data;
   } catch (error) {
-    console.error("Error fetching customer data:", error);
+    console.error("Error fetching all customer list:", error);
     throw error;
   }
 }
 
-export const getIPAddress = async () => {
+export async function fetchIPAddress() {
   try {
     const response = await axios.get("https://api.ipify.org?format=json");
     const ipAddress = response.data.ip;
 
     sessionStorage.setItem("ipAddress", ipAddress);
-
+    console.log("User IP address:", ipAddress);
     return ipAddress;
   } catch (error) {
     console.error("Error obtaining IP address:", error);
     return "0.0.0.0";
   }
-};
+}
 
-export async function fetchOrderData(currentPage, limit, setTotalPages) {
+export async function fetchOrderList(currentPage, limit, setTotalPages) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -212,11 +229,107 @@ export async function fetchOrderData(currentPage, limit, setTotalPages) {
 
     const { TTLPage } = response.data;
     setTotalPages(TTLPage);
-    console.log("Order Data:", response.data);
+    console.log("Order list:", response.data);
 
     return response.data.data;
   } catch (error) {
-    console.error("Error fetching order data:", error);
+    console.error("Error fetching order list:", error);
+    throw error;
+  }
+}
+
+export async function fetchServiceList(currentPage, limit, setTotalPages) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        limit: limit.toString(),
+        hal: currentPage - 1,
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/viewservice`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    const { TTLPage } = response.data;
+    setTotalPages(TTLPage);
+    console.log("Service list:", response.data);
+
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching service list:", error);
+    throw error;
+  }
+}
+
+export async function fetchAllServiceList() {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/searchservice`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("All service list:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching all service list:", error);
+    throw error;
+  }
+}
+
+export async function fetchAllSubServiceList() {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        idservice: "7",
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/viewservicetype`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("All sub service list:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching all sub service list:", error);
     throw error;
   }
 }
