@@ -115,7 +115,7 @@ export function SearchInput({
   return (
     <div className={styles.inputLabel}>
       <label htmlFor={id} className={styles.inputLabelField}>
-        <div className={styles.closeWrapper}>
+        <div className={styles.closeWrapper} style={{ padding: "0 0 0 10px" }}>
           <SearchIcon width="17px" height="100%" />
         </div>
         <input
@@ -151,6 +151,7 @@ export function UserInput({
   type,
   name,
   value,
+  isRequired,
   onChange,
 }) {
   const [passwordSeen, setPasswordSeen] = useState(false);
@@ -169,6 +170,7 @@ export function UserInput({
               name={name}
               value={value}
               onChange={onChange}
+              required={isRequired}
             >
               {children}
             </select>
@@ -194,6 +196,7 @@ export function UserInput({
               name={name}
               value={value}
               onChange={onChange}
+              required={isRequired}
             >
               {children}
             </select>
@@ -224,8 +227,13 @@ export function UserInput({
                 value={value}
                 onChange={onChange}
                 min={min}
+                required={isRequired}
               />
-              <div className={styles.closeWrapper} onClick={togglePasswordSeen}>
+              <div
+                className={styles.closeWrapper}
+                style={{ padding: "0 10px 0 0" }}
+                onClick={togglePasswordSeen}
+              >
                 {passwordSeen ? (
                   <EyeSlash width="19px" height="100%" color="#3880EB" />
                 ) : (
@@ -257,8 +265,13 @@ export function UserInput({
                 value={value}
                 onChange={onChange}
                 min={min}
+                required={isRequired}
               />
-              <div className={styles.closeWrapper} onClick={togglePasswordSeen}>
+              <div
+                className={styles.closeWrapper}
+                style={{ padding: "0 10px 0 0" }}
+                onClick={togglePasswordSeen}
+              >
                 {passwordSeen ? (
                   <EyeSlash width="19px" height="100%" color="#3880EB" />
                 ) : (
@@ -291,6 +304,7 @@ export function UserInput({
                 value={value}
                 onChange={onChange}
                 min={min}
+                required={isRequired}
               />
             </label>
             {error && (
@@ -317,6 +331,7 @@ export function UserInput({
                 value={value}
                 onChange={onChange}
                 min={min}
+                required={isRequired}
               />
             </label>
             {error && (

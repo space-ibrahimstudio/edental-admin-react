@@ -32,7 +32,6 @@ export const Services = ({ sectionId }) => {
   const [selectedData, setSelectedData] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   // conditional context
-  const [serviceExist, setServiceExist] = useState(false);
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -42,7 +41,7 @@ export const Services = ({ sectionId }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   // input state
-  const [formData, setFormData] = useState({
+  const [inputData, setInputData] = useState({
     service: "",
     subService: "",
     subServicePrice: "",
@@ -57,23 +56,8 @@ export const Services = ({ sectionId }) => {
     subService: "",
     subServicePrice: "",
   });
-  const validateInput = () => {
-    let newErrors = {};
-
-    if (formData.service === "") {
-      newErrors.service = "This field is required";
-    }
-    if (formData.subService === "") {
-      newErrors.subService = "This field is required";
-    }
-    if (formData.subServicePrice === "") {
-      newErrors.subServicePrice = "This field is required";
-    }
-
-    return newErrors;
-  };
   const cleanInput = () => {
-    setFormData({
+    setInputData({
       service: "",
       layanan: "",
       price: "",
@@ -109,8 +93,8 @@ export const Services = ({ sectionId }) => {
       [name]: "",
     });
 
-    setFormData({
-      ...formData,
+    setInputData({
+      ...inputData,
       [name]: value,
     });
 
@@ -124,12 +108,9 @@ export const Services = ({ sectionId }) => {
       });
 
       if (serviceExists) {
-        setServiceExist(true);
         setErrors({
           service: "Service sudah ada",
         });
-      } else {
-        setServiceExist(false);
       }
     }
   };
@@ -137,18 +118,39 @@ export const Services = ({ sectionId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newErrors = validateInput();
-    if (Object.keys(newErrors).length > 0) {
+    let hasError = false;
+    const newErrors = { ...errors };
+
+    for (const key in inputData) {
+      if (inputData[key].trim() === "") {
+        newErrors[key] = "This field is required.";
+        hasError = true;
+      } else {
+        newErrors[key] = "";
+      }
+    }
+
+    if (inputData.service.trim() !== "") {
+      let serviceExists = false;
+      allData.forEach((item) => {
+        if (item.servicename === inputData.service) {
+          serviceExists = true;
+        }
+      });
+
+      if (serviceExists) {
+        newErrors.service = "Service sudah ada";
+        hasError = true;
+      }
+    }
+
+    if (hasError) {
       setErrors(newErrors);
       return;
     }
 
     try {
-      await handleCUDService(
-        formData.service,
-        formData.subService,
-        formData.subServicePrice
-      );
+      await handleCUDService(inputData.service, inputData);
 
       const data = await fetchServiceList(currentPage, limit, setTotalPages);
       setServiceData(data);
@@ -164,9 +166,9 @@ export const Services = ({ sectionId }) => {
   const openEdit = (id, service, subService, subServicePrice) => {
     setSelectedData(id);
     setCurrentData({
-      service: "",
-      subService: "",
-      subServicePrice: "",
+      service,
+      subService,
+      subServicePrice,
     });
     setIsEditOpen(true);
   };
@@ -199,19 +201,41 @@ export const Services = ({ sectionId }) => {
       });
 
       if (serviceExists) {
-        setServiceExist(true);
         setErrors({
           service: "Service sudah ada",
         });
-      } else {
-        setServiceExist(false);
       }
     }
   };
 
   const handleSubmitEdit = async () => {
-    const newErrors = validateInput();
-    if (Object.keys(newErrors).length > 0) {
+    let hasError = false;
+    const newErrors = { ...errors };
+
+    for (const key in currentData) {
+      if (currentData[key].trim() === "") {
+        newErrors[key] = "This field is required.";
+        hasError = true;
+      } else {
+        newErrors[key] = "";
+      }
+    }
+
+    if (currentData.service.trim() !== "") {
+      let serviceExists = false;
+      allData.forEach((item) => {
+        if (item.servicename === currentData.service) {
+          serviceExists = true;
+        }
+      });
+
+      if (serviceExists) {
+        newErrors.service = "Service sudah ada";
+        hasError = true;
+      }
+    }
+
+    if (hasError) {
       setErrors(newErrors);
       return;
     }
@@ -240,14 +264,15 @@ export const Services = ({ sectionId }) => {
     );
     if (confirmDelete) {
       try {
-        await handleCUDService("", "", "", "delete", id);
-        setServiceData(
-          serviceData.filter((service) => service.idreservation !== id)
-        );
+        await handleCUDService("", "", "delete", id);
 
         const data = await fetchServiceList(currentPage, limit, setTotalPages);
         setServiceData(data);
         setFilteredData(data);
+
+        setServiceData(
+          serviceData.filter((service) => service.idservice !== id)
+        );
       } catch (error) {
         console.error("Error deleting booking:", error);
       }
@@ -401,7 +426,7 @@ export const Services = ({ sectionId }) => {
               placeholder="Masukkan nama layanan"
               type="text"
               name="service"
-              value={formData.service}
+              value={inputData.service}
               onChange={handleInputChange}
               error={errors.service}
             />
@@ -413,7 +438,7 @@ export const Services = ({ sectionId }) => {
               placeholder="e.g Scaling gigi"
               type="text"
               name="subService"
-              value={formData.subService}
+              value={inputData.subService}
               onChange={handleInputChange}
               error={errors.subService}
             />
@@ -423,7 +448,7 @@ export const Services = ({ sectionId }) => {
               placeholder="Masukkan Harga"
               type="text"
               name="subServicePrice"
-              value={formData.subServicePrice}
+              value={inputData.subServicePrice}
               onChange={handleInputChange}
               error={errors.subServicePrice}
             />

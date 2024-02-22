@@ -49,7 +49,7 @@ export const Reservation = ({ sectionId }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   // input state
   const [hours, setHours] = useState([]);
-  const [formData, setFormData] = useState({
+  const [inputData, setInputData] = useState({
     name: "",
     phone: "",
     email: "",
@@ -79,40 +79,8 @@ export const Reservation = ({ sectionId }) => {
     reservationdate: "",
     reservationtime: "",
   });
-  const validateInput = () => {
-    let newErrors = {};
-
-    if (formData.name === "") {
-      newErrors.name = "Name is required";
-    }
-    if (formData.phone === "") {
-      newErrors.phone = "Phone is required";
-    }
-    if (formData.email === "") {
-      newErrors.email = "Email is required";
-    }
-    if (formData.service === "") {
-      newErrors.service = "This field is required";
-    }
-    if (formData.typeservice === "") {
-      newErrors.typeservice = "This field is required";
-    }
-    if (!custExist) {
-      if (formData.price === "") {
-        newErrors.price = "This field is required";
-      }
-    }
-    if (formData.reservationdate === "") {
-      newErrors.reservationdate = "This option is required";
-    }
-    if (formData.reservationtime === "") {
-      newErrors.reservationtime = "This option is required";
-    }
-
-    return newErrors;
-  };
   const cleanInput = () => {
-    setFormData({
+    setInputData({
       name: "",
       phone: "",
       email: "",
@@ -157,8 +125,8 @@ export const Reservation = ({ sectionId }) => {
       [name]: "",
     });
 
-    setFormData({
-      ...formData,
+    setInputData({
+      ...inputData,
       [name]: value,
     });
 
@@ -182,22 +150,33 @@ export const Reservation = ({ sectionId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newErrors = validateInput();
-    if (Object.keys(newErrors).length > 0) {
+    let hasError = false;
+    const newErrors = { ...errors };
+
+    for (const key in inputData) {
+      if (inputData[key].trim() === "") {
+        newErrors[key] = "This field is required.";
+        hasError = true;
+      } else {
+        newErrors[key] = "";
+      }
+    }
+
+    if (hasError) {
       setErrors(newErrors);
       return;
     }
 
     try {
       await handleCUDReserve(
-        formData.name,
-        formData.phone,
-        formData.email,
-        formData.service,
-        formData.typeservice,
-        formData.price,
-        formData.reservationdate,
-        formData.reservationtime
+        inputData.name,
+        inputData.phone,
+        inputData.email,
+        inputData.service,
+        inputData.typeservice,
+        inputData.price,
+        inputData.reservationdate,
+        inputData.reservationtime
       );
 
       const data = await fetchReserveList(currentPage, limit, setTotalPages);
@@ -272,8 +251,19 @@ export const Reservation = ({ sectionId }) => {
   };
 
   const handleSubmitEdit = async () => {
-    const newErrors = validateInput();
-    if (Object.keys(newErrors).length > 0) {
+    let hasError = false;
+    const newErrors = { ...errors };
+
+    for (const key in currentData) {
+      if (currentData[key].trim() === "") {
+        newErrors[key] = "This field is required.";
+        hasError = true;
+      } else {
+        newErrors[key] = "";
+      }
+    }
+
+    if (hasError) {
       setErrors(newErrors);
       return;
     }
@@ -308,14 +298,15 @@ export const Reservation = ({ sectionId }) => {
     );
     if (confirmDelete) {
       try {
-        await handleCUDReserve("", "", "", "", "", "", "", "delete", id);
-        setReserveData(
-          reserveData.filter((reserve) => reserve.idreservation !== id)
-        );
+        await handleCUDReserve("", "", "", "", "", "", "", "", "delete", id);
 
         const data = await fetchReserveList(currentPage, limit, setTotalPages);
         setReserveData(data);
         setFilteredData(data);
+
+        setReserveData(
+          reserveData.filter((reserve) => reserve.idreservation !== id)
+        );
       } catch (error) {
         console.error("Error deleting booking:", error);
       }
@@ -530,7 +521,7 @@ export const Reservation = ({ sectionId }) => {
               placeholder="0882xxx"
               type="text"
               name="phone"
-              value={formData.phone}
+              value={inputData.phone}
               onChange={handleInputChange}
               error={errors.phone}
             />
@@ -542,7 +533,7 @@ export const Reservation = ({ sectionId }) => {
               placeholder="John Doe"
               type="text"
               name="name"
-              value={formData.name}
+              value={inputData.name}
               onChange={handleInputChange}
               error={errors.name}
             />
@@ -552,7 +543,7 @@ export const Reservation = ({ sectionId }) => {
               placeholder="customer@gmail.com"
               type="email"
               name="email"
-              value={formData.email}
+              value={inputData.email}
               onChange={handleInputChange}
               error={errors.email}
             />
@@ -563,7 +554,7 @@ export const Reservation = ({ sectionId }) => {
               id="service"
               labelText="Nama Layanan"
               name="service"
-              value={formData.service}
+              value={inputData.service}
               onChange={handleInputChange}
               error={errors.service}
             >
@@ -580,7 +571,7 @@ export const Reservation = ({ sectionId }) => {
               id="service-type"
               labelText="Tipe Layanan"
               name="typeservice"
-              value={formData.typeservice}
+              value={inputData.typeservice}
               onChange={handleInputChange}
               error={errors.typeservice}
             >
@@ -602,7 +593,7 @@ export const Reservation = ({ sectionId }) => {
                 placeholder="Masukkan harga"
                 type="text"
                 name="price"
-                value={formData.price}
+                value={inputData.price}
                 onChange={handleInputChange}
                 error={errors.price}
               />
@@ -615,7 +606,7 @@ export const Reservation = ({ sectionId }) => {
               placeholder="Atur tanggal"
               type="date"
               name="reservationdate"
-              value={formData.reservationdate}
+              value={inputData.reservationdate}
               onChange={handleInputChange}
               error={errors.reservationdate}
               min={getCurrentDate()}
@@ -625,7 +616,7 @@ export const Reservation = ({ sectionId }) => {
               id="time"
               labelText="Jam Reservasi"
               name="reservationtime"
-              value={formData.reservationtime}
+              value={inputData.reservationtime}
               onChange={handleInputChange}
               error={errors.reservationtime}
             >
