@@ -28,6 +28,10 @@ export function Nav() {
     showNotifications("success", "Kamu berhasil logout. Mohon login kembali.");
   };
 
+  const logoClick = () => {
+    navigate("/dashboard");
+  };
+
   const SubTabClick = (menuName, submenuName) => {
     const formattedMenuName = toPathname(menuName);
     const formattedSubmenuName = toPathname(submenuName);
@@ -52,7 +56,9 @@ export function Nav() {
   return (
     <nav className="nav">
       <div className="nav-body">
-        <LogoPrimary width="140px" height="100%" />
+        <div style={{ cursor: "pointer" }} onClick={logoClick}>
+          <LogoPrimary width="140px" height="100%" />
+        </div>
         <div className="nav-menu">
           {Array.isArray(tabMenus) &&
             tabMenus.map((menu) => (
