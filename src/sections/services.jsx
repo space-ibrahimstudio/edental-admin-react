@@ -43,30 +43,28 @@ export const Services = ({ sectionId }) => {
   // input state
   const [inputData, setInputData] = useState({
     service: "",
+    subService: [{ servicetype: "", price: "" }],
   });
   const [currentData, setCurrentData] = useState({
     service: "",
-    subService: "",
-    subServicePrice: "",
+    subService: [{ servicetype: "", price: "" }],
   });
-  const [inputRows, setInputRows] = useState([
-    { id: 1, subService: "", subServicePrice: "" },
-  ]);
   const [errors, setErrors] = useState({
     service: "",
-    subService: "",
-    subServicePrice: "",
+    subService: [{ servicetype: "", price: "" }],
   });
   const cleanInput = () => {
     setInputData({
       service: "",
-      layanan: "",
-      price: "",
+      subService: [{ servicetype: "", price: "" }],
+    });
+    setCurrentData({
+      service: "",
+      subService: [{ servicetype: "", price: "" }],
     });
     setErrors({
       service: "",
-      layanan: "",
-      price: "",
+      subService: [{ servicetype: "", price: "" }],
     });
   };
   // start data paging
@@ -89,14 +87,16 @@ export const Services = ({ sectionId }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setErrors({
-      ...errors,
-      [name]: "",
+
+    setInputData((prevState) => {
+      return {
+        ...prevState,
+        [name]: value,
+      };
     });
 
-    setInputData({
-      ...inputData,
-      [name]: value,
+    setErrors((prevErrors) => {
+      return { ...prevErrors, [name]: "" };
     });
 
     if (name === "service") {
@@ -109,49 +109,52 @@ export const Services = ({ sectionId }) => {
       });
 
       if (serviceExists) {
-        setErrors({
-          service: "Service sudah ada",
+        setErrors((prevErrors) => {
+          return { ...prevErrors, service: "Service sudah ada" };
         });
       }
     }
   };
 
+  const handleRowChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedSubService = [...inputData.subService];
+    updatedSubService[index][name] = value;
+    setInputData((prevState) => ({
+      ...prevState,
+      subService: updatedSubService,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      subService: {
+        ...prevErrors.subService,
+        [index]: "",
+      },
+    }));
+  };
+
+  const handleAddRow = () => {
+    setInputData((prevState) => ({
+      ...prevState,
+      subService: [...prevState.subService, { servicetype: "", price: "" }],
+    }));
+  };
+
+  const handleRemoveRow = (index) => {
+    const updatedSubService = [...inputData.subService];
+    updatedSubService.splice(index, 1);
+    setInputData((prevState) => ({
+      ...prevState,
+      subService: updatedSubService,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let hasError = false;
-    const newErrors = { ...errors };
-
-    for (const key in inputData) {
-      if (inputData[key].trim() === "") {
-        newErrors[key] = "This field is required.";
-        hasError = true;
-      } else {
-        newErrors[key] = "";
-      }
-    }
-
-    if (inputData.service.trim() !== "") {
-      let serviceExists = false;
-      allData.forEach((item) => {
-        if (item.servicename === inputData.service) {
-          serviceExists = true;
-        }
-      });
-
-      if (serviceExists) {
-        newErrors.service = "Service sudah ada";
-        hasError = true;
-      }
-    }
-
-    if (hasError) {
-      setErrors(newErrors);
-      return;
-    }
-
     try {
-      await handleCUDService(inputData.service, inputRows);
+      await handleCUDService(inputData);
 
       const data = await fetchServiceList(currentPage, limit, setTotalPages);
       setServiceData(data);
@@ -162,36 +165,13 @@ export const Services = ({ sectionId }) => {
       console.error("Error occurred during submit reservation:", error);
     }
   };
-
-  const addRow = () => {
-    const newRow = {
-      id: inputRows.length + 1,
-      subService: "",
-      subServicePrice: "",
-    };
-    setInputRows([...inputRows, newRow]);
-  };
-
-  const removeRow = (idToRemove) => {
-    const updatedRows = inputRows.filter((row) => row.id !== idToRemove);
-    setInputRows(updatedRows);
-  };
-
-  const handleRowChange = (id, e) => {
-    const { name, value } = e.target;
-    const updatedRows = inputRows.map((row) =>
-      row.id === id ? { ...row, [name]: value } : row
-    );
-    setInputRows(updatedRows);
-  };
   // end add data function
   // start edit/delete data function
-  const openEdit = (id, service, subService, subServicePrice) => {
+  const openEdit = (id, service, servicetype, price) => {
     setSelectedData(id);
     setCurrentData({
       service,
-      subService,
-      subServicePrice,
+      subService: [{ servicetype, price }],
     });
     setIsEditOpen(true);
   };
@@ -204,14 +184,13 @@ export const Services = ({ sectionId }) => {
 
   const handleInputEditChange = (e) => {
     const { name, value } = e.target;
-    setErrors({
-      ...errors,
-      [name]: "",
+
+    setCurrentData((prevState) => {
+      return { ...prevState, [name]: value };
     });
 
-    setCurrentData({
-      ...currentData,
-      [name]: value,
+    setErrors((prevErrors) => {
+      return { ...prevErrors, [name]: "" };
     });
 
     if (name === "service") {
@@ -224,53 +203,50 @@ export const Services = ({ sectionId }) => {
       });
 
       if (serviceExists) {
-        setErrors({
-          service: "Service sudah ada",
+        setErrors((prevErrors) => {
+          return { ...prevErrors, service: "Service sudah ada" };
         });
       }
     }
   };
 
+  const handleRowEditChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedSubService = [...currentData.subService];
+    updatedSubService[index][name] = value;
+    setCurrentData((prevState) => ({
+      ...prevState,
+      subService: updatedSubService,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      subService: {
+        ...prevErrors.subService,
+        [index]: "",
+      },
+    }));
+  };
+
+  const handleAddEditRow = () => {
+    setCurrentData((prevState) => ({
+      ...prevState,
+      subService: [...prevState.subService, { servicetype: "", price: "" }],
+    }));
+  };
+
+  const handleRemoveEditRow = (index) => {
+    const updatedSubService = [...currentData.subService];
+    updatedSubService.splice(index, 1);
+    setCurrentData((prevState) => ({
+      ...prevState,
+      subService: updatedSubService,
+    }));
+  };
+
   const handleSubmitEdit = async () => {
-    let hasError = false;
-    const newErrors = { ...errors };
-
-    for (const key in currentData) {
-      if (currentData[key].trim() === "") {
-        newErrors[key] = "This field is required.";
-        hasError = true;
-      } else {
-        newErrors[key] = "";
-      }
-    }
-
-    if (currentData.service.trim() !== "") {
-      let serviceExists = false;
-      allData.forEach((item) => {
-        if (item.servicename === currentData.service) {
-          serviceExists = true;
-        }
-      });
-
-      if (serviceExists) {
-        newErrors.service = "Service sudah ada";
-        hasError = true;
-      }
-    }
-
-    if (hasError) {
-      setErrors(newErrors);
-      return;
-    }
-
     try {
-      await handleCUDService(
-        currentData.service,
-        currentData.subService,
-        currentData.subServicePrice,
-        "edit",
-        selectedData
-      );
+      await handleCUDService(currentData, "edit", selectedData);
       const data = await fetchServiceList(currentPage, limit, setTotalPages);
       setServiceData(data);
       setFilteredData(data);
@@ -287,7 +263,7 @@ export const Services = ({ sectionId }) => {
     );
     if (confirmDelete) {
       try {
-        await handleCUDService("", "", "delete", id);
+        await handleCUDService(inputData, "delete", id);
 
         const data = await fetchServiceList(currentPage, limit, setTotalPages);
         setServiceData(data);
@@ -427,13 +403,13 @@ export const Services = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown ? (
+      {isDataShown && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           handlePagination={handlePageChange}
         />
-      ) : null}
+      )}
       {isFormOpen && (
         <SubmitForm
           formTitle="Tambah Layanan"
@@ -454,51 +430,49 @@ export const Services = ({ sectionId }) => {
               error={errors.service}
             />
           </InputWrapper>
-          {inputRows.map((row, index) => (
-            <InputWrapper key={row.id}>
+          {inputData.subService.map((subService, index) => (
+            <InputWrapper key={index}>
               <UserInput
-                id={`service-type-name-${row.id}`}
                 labelText="Jenis Layanan"
                 placeholder="e.g Scaling gigi"
                 type="text"
-                name="subService"
-                value={row.subService}
-                onChange={(e) => handleRowChange(row.id, e)}
-                error={errors.subService}
+                name="servicetype"
+                value={subService.servicetype}
+                onChange={(e) => handleRowChange(index, e)}
+                error={errors.servicetype}
               />
               <UserInput
-                id={`service-type-price-${row.id}`}
                 labelText="Atur Harga"
                 placeholder="Masukkan Harga"
                 type="text"
-                name="subServicePrice"
-                value={row.subServicePrice}
-                onChange={(e) => handleRowChange(row.id, e)}
-                error={errors.subServicePrice}
+                name="price"
+                value={subService.price}
+                onChange={(e) => handleRowChange(index, e)}
+                error={errors.price}
               />
+              {index <= 0 && (
+                <SecondaryButton
+                  variant="icon"
+                  subVariant="hollow"
+                  onClick={handleAddRow}
+                >
+                  <PlusIcon
+                    width="20px"
+                    height="100%"
+                    color="var(--color-blue)"
+                  />
+                </SecondaryButton>
+              )}
               {index > 0 && (
                 <SecondaryButton
                   variant="icon"
                   subVariant="hollow"
-                  onClick={() => removeRow(row.id)}
+                  onClick={() => handleRemoveRow(index)}
                 >
                   <TrashIcon
                     width="20px"
                     height="100%"
                     color="var(--color-red)"
-                  />
-                </SecondaryButton>
-              )}
-              {index === inputRows.length - 1 && (
-                <SecondaryButton
-                  variant="icon"
-                  subVariant="hollow"
-                  onClick={addRow}
-                >
-                  <PlusIcon
-                    width="20px"
-                    height="100%"
-                    color="var(--color-semidarkblue)"
                   />
                 </SecondaryButton>
               )}
@@ -526,28 +500,52 @@ export const Services = ({ sectionId }) => {
               error={errors.service}
             />
           </InputWrapper>
-          <InputWrapper>
-            <UserInput
-              id="edit-service-type-name"
-              labelText="Jenis Layanan"
-              placeholder="e.g Scaling gigi"
-              type="text"
-              name="subService"
-              value={currentData.subService}
-              onChange={handleInputEditChange}
-              error={errors.subService}
-            />
-            <UserInput
-              id="edit-service-type-price"
-              labelText="Atur Harga"
-              placeholder="Masukkan Harga"
-              type="text"
-              name="subServicePrice"
-              value={currentData.subServicePrice}
-              onChange={handleInputEditChange}
-              error={errors.subServicePrice}
-            />
-          </InputWrapper>
+          {currentData.subService.map((subService, index) => (
+            <InputWrapper key={index}>
+              <UserInput
+                labelText="Jenis Layanan"
+                placeholder="e.g Scaling gigi"
+                type="text"
+                name="servicetype"
+                value={subService.servicetype}
+                onChange={(e) => handleRowEditChange(index, e)}
+              />
+              <UserInput
+                labelText="Atur Harga"
+                placeholder="Masukkan Harga"
+                type="text"
+                name="price"
+                value={subService.price}
+                onChange={(e) => handleRowEditChange(index, e)}
+              />
+              {index <= 0 && (
+                <SecondaryButton
+                  variant="icon"
+                  subVariant="hollow"
+                  onClick={handleAddEditRow}
+                >
+                  <PlusIcon
+                    width="20px"
+                    height="100%"
+                    color="var(--color-blue)"
+                  />
+                </SecondaryButton>
+              )}
+              {index > 0 && (
+                <SecondaryButton
+                  variant="icon"
+                  subVariant="hollow"
+                  onClick={() => handleRemoveEditRow(index)}
+                >
+                  <TrashIcon
+                    width="20px"
+                    height="100%"
+                    color="var(--color-red)"
+                  />
+                </SecondaryButton>
+              )}
+            </InputWrapper>
+          ))}
         </SubmitForm>
       )}
     </section>
