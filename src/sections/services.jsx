@@ -43,14 +43,15 @@ export const Services = ({ sectionId }) => {
   // input state
   const [inputData, setInputData] = useState({
     service: "",
-    subService: "",
-    subServicePrice: "",
   });
   const [currentData, setCurrentData] = useState({
     service: "",
     subService: "",
     subServicePrice: "",
   });
+  const [inputRows, setInputRows] = useState([
+    { id: 1, subService: "", subServicePrice: "" },
+  ]);
   const [errors, setErrors] = useState({
     service: "",
     subService: "",
@@ -150,7 +151,7 @@ export const Services = ({ sectionId }) => {
     }
 
     try {
-      await handleCUDService(inputData.service, inputData);
+      await handleCUDService(inputData.service, inputRows);
 
       const data = await fetchServiceList(currentPage, limit, setTotalPages);
       setServiceData(data);
@@ -160,6 +161,28 @@ export const Services = ({ sectionId }) => {
     } catch (error) {
       console.error("Error occurred during submit reservation:", error);
     }
+  };
+
+  const addRow = () => {
+    const newRow = {
+      id: inputRows.length + 1,
+      subService: "",
+      subServicePrice: "",
+    };
+    setInputRows([...inputRows, newRow]);
+  };
+
+  const removeRow = (idToRemove) => {
+    const updatedRows = inputRows.filter((row) => row.id !== idToRemove);
+    setInputRows(updatedRows);
+  };
+
+  const handleRowChange = (id, e) => {
+    const { name, value } = e.target;
+    const updatedRows = inputRows.map((row) =>
+      row.id === id ? { ...row, [name]: value } : row
+    );
+    setInputRows(updatedRows);
   };
   // end add data function
   // start edit/delete data function
@@ -431,28 +454,56 @@ export const Services = ({ sectionId }) => {
               error={errors.service}
             />
           </InputWrapper>
-          <InputWrapper>
-            <UserInput
-              id="service-type-name"
-              labelText="Jenis Layanan"
-              placeholder="e.g Scaling gigi"
-              type="text"
-              name="subService"
-              value={inputData.subService}
-              onChange={handleInputChange}
-              error={errors.subService}
-            />
-            <UserInput
-              id="service-type-price"
-              labelText="Atur Harga"
-              placeholder="Masukkan Harga"
-              type="text"
-              name="subServicePrice"
-              value={inputData.subServicePrice}
-              onChange={handleInputChange}
-              error={errors.subServicePrice}
-            />
-          </InputWrapper>
+          {inputRows.map((row, index) => (
+            <InputWrapper key={row.id}>
+              <UserInput
+                id={`service-type-name-${row.id}`}
+                labelText="Jenis Layanan"
+                placeholder="e.g Scaling gigi"
+                type="text"
+                name="subService"
+                value={row.subService}
+                onChange={(e) => handleRowChange(row.id, e)}
+                error={errors.subService}
+              />
+              <UserInput
+                id={`service-type-price-${row.id}`}
+                labelText="Atur Harga"
+                placeholder="Masukkan Harga"
+                type="text"
+                name="subServicePrice"
+                value={row.subServicePrice}
+                onChange={(e) => handleRowChange(row.id, e)}
+                error={errors.subServicePrice}
+              />
+              {index > 0 && (
+                <SecondaryButton
+                  variant="icon"
+                  subVariant="hollow"
+                  onClick={() => removeRow(row.id)}
+                >
+                  <TrashIcon
+                    width="20px"
+                    height="100%"
+                    color="var(--color-red)"
+                  />
+                </SecondaryButton>
+              )}
+              {index === inputRows.length - 1 && (
+                <SecondaryButton
+                  variant="icon"
+                  subVariant="hollow"
+                  onClick={addRow}
+                >
+                  <PlusIcon
+                    width="20px"
+                    height="100%"
+                    color="var(--color-semidarkblue)"
+                  />
+                </SecondaryButton>
+              )}
+            </InputWrapper>
+          ))}
         </SubmitForm>
       )}
       {isEditOpen && (

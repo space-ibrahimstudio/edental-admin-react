@@ -207,18 +207,25 @@ export async function handleCUDReserve(
   }
 }
 
-export async function handleCUDService(service, inputData, operation, id) {
+export async function handleCUDService(inputData, operation, id) {
   try {
-    const { subService: servicetype, subServicePrice: price } = inputData;
+    const { service: serviceName, ...rest } = inputData;
     const userSecret = sessionStorage.getItem("secret");
+
+    const layanan = Object.values(rest).map(
+      ({ subService, subServicePrice }) => ({
+        servicetype: subService,
+        price: subServicePrice,
+      })
+    );
 
     const formData = new FormData();
     formData.append(
       "data",
       JSON.stringify({
         secret: userSecret,
-        service,
-        layanan: [{ servicetype, price }],
+        service: serviceName,
+        layanan,
       })
     );
 
