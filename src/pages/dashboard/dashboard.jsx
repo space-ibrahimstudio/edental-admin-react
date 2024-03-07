@@ -5,9 +5,13 @@ import { Nav } from "../../components/navigator/nav";
 import { PageScreen } from "../../components/layout/page-screen";
 import OverviewTab from "./tab-overview";
 import CustomerTab from "./tab-customer";
-import MasterTab from "./tab-master";
-import ReportTab from "./tab-report";
-import StockTab from "./tab-stock";
+import UserTab from "./tab-user";
+import ServiceTab from "./tab-service";
+import BranchTab from "./tab-branch";
+import KasTab from "./tab-kas";
+import POSupplyTab from "./tab-posupply";
+import CentralPOTab from "./tab-popusat";
+import ReservationTab from "./tab-reservation";
 import OrderTab from "./tab-order";
 
 const Dashboard = () => {
@@ -17,21 +21,29 @@ const Dashboard = () => {
   useEffect(() => {
     const pathname = location.pathname;
     const paths = pathname.split("/");
-    const parentTabName = paths[2]?.toUpperCase();
+    const parentTabName = paths[3];
     setActiveTab(parentTabName);
   }, [location.pathname]);
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "CUSTOMER":
+      case "data-customer":
         return <CustomerTab />;
-      case "MASTER":
-        return <MasterTab />;
-      case "REPORT":
-        return <ReportTab />;
-      case "STOCK":
-        return <StockTab />;
-      case "ORDER":
+      case "manajemen-user":
+        return <UserTab />;
+      case "layanan":
+        return <ServiceTab />;
+      case "cabang-edental":
+        return <BranchTab />;
+      case "kas":
+        return <KasTab />;
+      case "po-supply":
+        return <POSupplyTab />;
+      case "po-pusat":
+        return <CentralPOTab />;
+      case "reservation":
+        return <ReservationTab />;
+      case "order-customer":
         return <OrderTab />;
       default:
         return <OverviewTab />;

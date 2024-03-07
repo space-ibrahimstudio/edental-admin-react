@@ -47,7 +47,7 @@ export const Services = ({ sectionId }) => {
   });
   const [currentData, setCurrentData] = useState({
     service: "",
-    subService: [{ servicetype: "", price: "" }],
+    subService: [{ id: "", servicetype: "", price: "" }],
   });
   const [errors, setErrors] = useState({
     service: "",
@@ -167,11 +167,23 @@ export const Services = ({ sectionId }) => {
   };
   // end add data function
   // start edit/delete data function
-  const openEdit = (id, service, servicetype, price) => {
+  const openEdit = (
+    id,
+    service,
+    idservicetype,
+    servicetypename,
+    serviceprice
+  ) => {
     setSelectedData(id);
     setCurrentData({
       service,
-      subService: [{ servicetype, price }],
+      subService: [
+        {
+          id: idservicetype,
+          servicetype: servicetypename,
+          price: serviceprice,
+        },
+      ],
     });
     setIsEditOpen(true);
   };
@@ -374,17 +386,25 @@ export const Services = ({ sectionId }) => {
         loading={loadData}
       >
         {filteredData.map((user, index) => (
-          <TableRow key={user.idservice}>
+          <TableRow key={user["Nama Layanan"].idservice}>
             <TableBodyValue type="num" value={startIndex + index} />
-            <TableBodyValue value={user.servicename} />
-            <TableBodyValue value={user.servicecreate} />
-            <TableBodyValue value={user.serviceupdate} />
-            <TableBodyValue value={user.servicestatus} />
+            <TableBodyValue value={user["Nama Layanan"].servicename} />
+            <TableBodyValue value={user["Nama Layanan"].servicecreate} />
+            <TableBodyValue value={user["Nama Layanan"].serviceupdate} />
+            <TableBodyValue value={user["Nama Layanan"].servicestatus} />
             <TableBodyValue type="atn" position="end">
               <SecondaryButton
                 buttonText="Edit"
                 iconPosition="start"
-                onClick={() => openEdit(user.idservice, user.servicename)}
+                onClick={() =>
+                  openEdit(
+                    user["Nama Layanan"].idservice,
+                    user["Nama Layanan"].servicename,
+                    user["Jenis Layanan"][0].idservicetype,
+                    user["Jenis Layanan"][0].servicetypename,
+                    user["Jenis Layanan"][0].serviceprice
+                  )
+                }
               >
                 <EditIcon width="12px" height="100%" />
               </SecondaryButton>
@@ -501,7 +521,7 @@ export const Services = ({ sectionId }) => {
             />
           </InputWrapper>
           {currentData.subService.map((subService, index) => (
-            <InputWrapper key={index}>
+            <InputWrapper key={subService.id}>
               <UserInput
                 labelText="Jenis Layanan"
                 placeholder="e.g Scaling gigi"

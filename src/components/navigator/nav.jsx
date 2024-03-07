@@ -35,7 +35,7 @@ export function Nav() {
   const SubTabClick = (menuName, submenuName) => {
     const formattedMenuName = toPathname(menuName);
     const formattedSubmenuName = toPathname(submenuName);
-    const url = `/dashboard/${formattedMenuName}#${formattedSubmenuName}`;
+    const url = `/dashboard/${formattedMenuName}/${formattedSubmenuName}`;
     navigate(url);
   };
 

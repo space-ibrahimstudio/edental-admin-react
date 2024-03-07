@@ -1,28 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Helmet } from "react-helmet";
-import { Reservation } from "../../sections/reservation";
 import { Order } from "../../sections/order";
 import { PageScreen } from "../../components/layout/page-screen";
 
 const OrderTab = () => {
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (hash) {
-      const element = document.getElementById(hash.substring(1));
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 800);
-      }
-    }
-  }, []);
-
   return (
     <PageScreen pageId="dashboard-order" variant="section">
       <Helmet>
         <title>Dashboard - Order</title>
       </Helmet>
-      <Reservation sectionId="reservation" />
       <Order sectionId="order-customer" />
     </PageScreen>
   );

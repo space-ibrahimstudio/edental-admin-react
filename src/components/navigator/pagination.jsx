@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronIcon } from "../layout/icons";
+import { ChevronIcon } from "@ibrahimstudio/icons";
 import pgnt from "./styles/pagination.module.css";
 
 export function Pagination({ currentPage, totalPages, handlePagination }) {

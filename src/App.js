@@ -58,16 +58,29 @@ function App() {
         <Routes>
           <Route path="/" element={<HomeReplace />} />
           <Route
-            path="/dashboard/"
+            path="/dashboard"
             element={<PrivateRoute element={<Dashboard />} />}
           />
           {Array.isArray(tabMenus) &&
             tabMenus.map((menu) => (
-              <Route
-                key={menu["Menu Utama"].idmenu}
-                path={`/dashboard/${toPathname(menu["Menu Utama"].menu_name)}`}
-                element={<PrivateRoute element={<Dashboard />} />}
-              />
+              <React.Fragment key={menu["Menu Utama"].idmenu}>
+                <Route
+                  path={`/dashboard/${toPathname(
+                    menu["Menu Utama"].menu_name
+                  )}`}
+                  element={<PrivateRoute element={<Dashboard />} />}
+                />
+                {menu["Sub Menu"] &&
+                  menu["Sub Menu"].map((submenu) => (
+                    <Route
+                      key={submenu.idsubmenu}
+                      path={`/dashboard/${toPathname(
+                        menu["Menu Utama"].menu_name
+                      )}/${toPathname(submenu.submenu_name)}`}
+                      element={<PrivateRoute element={<Dashboard />} />}
+                    />
+                  ))}
+              </React.Fragment>
             ))}
         </Routes>
       )}
