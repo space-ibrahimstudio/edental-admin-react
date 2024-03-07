@@ -16,7 +16,7 @@ import { Pagination } from "../components/navigator/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const CustList = ({ sectionId }) => {
-  const [userData, setUserData] = useState([]);
+  const [custData, setCustData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,7 +96,7 @@ export const CustList = ({ sectionId }) => {
         setLoadData(true);
         const data = await fetchCustList(currentPage, limit, setTotalPages);
 
-        setUserData(data);
+        setCustData(data);
         setFilteredData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -122,7 +122,7 @@ export const CustList = ({ sectionId }) => {
             id="search-datacustomer"
             placeholder="Search by name ..."
             property="username"
-            userData={userData}
+            userData={custData}
             setUserData={setFilteredData}
           />
         </InputWrapper>
