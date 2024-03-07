@@ -152,7 +152,7 @@ export const CustList = ({ sectionId }) => {
         loading={loadData}
       >
         {filteredData.map((user, index) => (
-          <TableRow key={user.idauthuser}>
+          <TableRow key={user.idauthuser} isEven={index % 2 === 0}>
             <TableBodyValue type="num" value={startIndex + index} />
             <TableBodyValue value={user.username} />
             <TableBodyValue value={user.address} />

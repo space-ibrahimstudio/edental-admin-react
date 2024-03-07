@@ -75,7 +75,7 @@ export const TableRow = ({ type, onClick, isEven, expanded, children }) => {
           <div
             style={{
               display: "flex",
-              flexDirection: "row",
+              flexDirection: "column",
               width: "100%",
               justifyContent: "center",
               alignItems: "center",

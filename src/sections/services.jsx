@@ -388,7 +388,29 @@ export const Services = ({ sectionId }) => {
         loading={loadData}
       >
         {filteredData.map((user, index) => (
-          <TableRow key={user["Nama Layanan"].idservice}>
+          <TableRow
+            type="expand"
+            key={user["Nama Layanan"].idservice}
+            isEven={index % 2 === 0}
+            expanded={
+              <>
+                {user["Jenis Layanan"].map((transaction, index) => (
+                  <InputWrapper width="100%" key={index}>
+                    <UserInput
+                      subVariant="readonly"
+                      labelText="Nama Jenis Layanan"
+                      value={transaction.servicetypename}
+                    />
+                    <UserInput
+                      subVariant="readonly"
+                      labelText="Harga"
+                      value={transaction.serviceprice}
+                    />
+                  </InputWrapper>
+                ))}
+              </>
+            }
+          >
             <TableBodyValue type="num" value={startIndex + index} />
             <TableBodyValue type="atn">
               <SecondaryButton

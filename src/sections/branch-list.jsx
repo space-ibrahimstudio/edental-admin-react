@@ -149,7 +149,7 @@ export const BranchList = ({ sectionId }) => {
         loading={loadData}
       >
         {filteredData.map((user, index) => (
-          <TableRow key={user.idoutlet}>
+          <TableRow key={user.idoutlet} isEven={index % 2 === 0}>
             <TableBodyValue type="num" value={startIndex + index} />
             <TableBodyValue value={user.outlet_name} />
             <TableBodyValue value={user.outlet_address} />

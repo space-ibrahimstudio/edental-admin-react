@@ -437,7 +437,7 @@ export const Reservation = ({ sectionId }) => {
         loading={loadData}
       >
         {filteredData.map((user, index) => (
-          <TableRow key={user.idreservation}>
+          <TableRow key={user.idreservation} isEven={index % 2 === 0}>
             <TableBodyValue type="num" value={startIndex + index} />
             <TableBodyValue type="atn">
               <SecondaryButton
