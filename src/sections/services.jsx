@@ -43,7 +43,7 @@ export const Services = ({ sectionId }) => {
   // input state
   const [inputData, setInputData] = useState({
     service: "",
-    subService: [{ servicetype: "", price: "" }],
+    subService: [{ id: "", servicetype: "", price: "" }],
   });
   const [currentData, setCurrentData] = useState({
     service: "",
@@ -51,20 +51,20 @@ export const Services = ({ sectionId }) => {
   });
   const [errors, setErrors] = useState({
     service: "",
-    subService: [{ servicetype: "", price: "" }],
+    subService: [{ id: "", servicetype: "", price: "" }],
   });
   const cleanInput = () => {
     setInputData({
       service: "",
-      subService: [{ servicetype: "", price: "" }],
+      subService: [{ id: "", servicetype: "", price: "" }],
     });
     setCurrentData({
       service: "",
-      subService: [{ servicetype: "", price: "" }],
+      subService: [{ id: "", servicetype: "", price: "" }],
     });
     setErrors({
       service: "",
-      subService: [{ servicetype: "", price: "" }],
+      subService: [{ id: "", servicetype: "", price: "" }],
     });
   };
   // start data paging
@@ -120,6 +120,7 @@ export const Services = ({ sectionId }) => {
     const { name, value } = e.target;
     const updatedSubService = [...inputData.subService];
     updatedSubService[index][name] = value;
+
     setInputData((prevState) => ({
       ...prevState,
       subService: updatedSubService,
@@ -137,7 +138,10 @@ export const Services = ({ sectionId }) => {
   const handleAddRow = () => {
     setInputData((prevState) => ({
       ...prevState,
-      subService: [...prevState.subService, { servicetype: "", price: "" }],
+      subService: [
+        ...prevState.subService,
+        { id: "", servicetype: "", price: "" },
+      ],
     }));
   };
 
@@ -155,7 +159,6 @@ export const Services = ({ sectionId }) => {
 
     try {
       await handleCUDService(inputData);
-
       const data = await fetchServiceList(currentPage, limit, setTotalPages);
       setServiceData(data);
       setFilteredData(data);
@@ -167,23 +170,17 @@ export const Services = ({ sectionId }) => {
   };
   // end add data function
   // start edit/delete data function
-  const openEdit = (
-    id,
-    service,
-    idservicetype,
-    servicetypename,
-    serviceprice
-  ) => {
+  const openEdit = (id, service, jenisLayanan) => {
     setSelectedData(id);
     setCurrentData({
       service,
-      subService: [
-        {
+      subService: jenisLayanan.map(
+        ({ idservicetype, servicetypename, serviceprice }) => ({
           id: idservicetype,
           servicetype: servicetypename,
           price: serviceprice,
-        },
-      ],
+        })
+      ),
     });
     setIsEditOpen(true);
   };
@@ -226,6 +223,7 @@ export const Services = ({ sectionId }) => {
     const { name, value } = e.target;
     const updatedSubService = [...currentData.subService];
     updatedSubService[index][name] = value;
+
     setCurrentData((prevState) => ({
       ...prevState,
       subService: updatedSubService,
@@ -243,13 +241,17 @@ export const Services = ({ sectionId }) => {
   const handleAddEditRow = () => {
     setCurrentData((prevState) => ({
       ...prevState,
-      subService: [...prevState.subService, { servicetype: "", price: "" }],
+      subService: [
+        ...prevState.subService,
+        { id: "", servicetype: "", price: "" },
+      ],
     }));
   };
 
   const handleRemoveEditRow = (index) => {
     const updatedSubService = [...currentData.subService];
     updatedSubService.splice(index, 1);
+
     setCurrentData((prevState) => ({
       ...prevState,
       subService: updatedSubService,
@@ -293,6 +295,7 @@ export const Services = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
+      <TableHeadValue value="Action" type="atn" />
       <TableHeadValue value="Nama Layanan">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
@@ -302,8 +305,7 @@ export const Services = ({ sectionId }) => {
       <TableHeadValue value="Terakhir Diupdate">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue value="Status" />
-      <TableHeadValue value="Action" type="atn" position="end" />
+      <TableHeadValue value="Status" position="end" />
     </TableRow>
   );
 
@@ -388,11 +390,7 @@ export const Services = ({ sectionId }) => {
         {filteredData.map((user, index) => (
           <TableRow key={user["Nama Layanan"].idservice}>
             <TableBodyValue type="num" value={startIndex + index} />
-            <TableBodyValue value={user["Nama Layanan"].servicename} />
-            <TableBodyValue value={user["Nama Layanan"].servicecreate} />
-            <TableBodyValue value={user["Nama Layanan"].serviceupdate} />
-            <TableBodyValue value={user["Nama Layanan"].servicestatus} />
-            <TableBodyValue type="atn" position="end">
+            <TableBodyValue type="atn">
               <SecondaryButton
                 buttonText="Edit"
                 iconPosition="start"
@@ -400,9 +398,7 @@ export const Services = ({ sectionId }) => {
                   openEdit(
                     user["Nama Layanan"].idservice,
                     user["Nama Layanan"].servicename,
-                    user["Jenis Layanan"][0].idservicetype,
-                    user["Jenis Layanan"][0].servicetypename,
-                    user["Jenis Layanan"][0].serviceprice
+                    user["Jenis Layanan"]
                   )
                 }
               >
@@ -420,6 +416,13 @@ export const Services = ({ sectionId }) => {
                 />
               </SecondaryButton>
             </TableBodyValue>
+            <TableBodyValue value={user["Nama Layanan"].servicename} />
+            <TableBodyValue value={user["Nama Layanan"].servicecreate} />
+            <TableBodyValue value={user["Nama Layanan"].serviceupdate} />
+            <TableBodyValue
+              value={user["Nama Layanan"].servicestatus}
+              position="end"
+            />
           </TableRow>
         ))}
       </TableData>

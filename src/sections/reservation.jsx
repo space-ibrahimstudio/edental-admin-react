@@ -4,7 +4,6 @@ import {
   fetchAllCustList,
   fetchHoursList,
   fetchAllServiceList,
-  fetchAllSubServiceList,
 } from "../components/tools/data";
 import { handleCUDReserve } from "../components/tools/handler";
 import { getCurrentDate } from "../components/tools/controller";
@@ -55,7 +54,6 @@ export const Reservation = ({ sectionId }) => {
     email: "",
     service: "",
     typeservice: "",
-    price: "",
     reservationdate: "",
     reservationtime: "",
   });
@@ -65,7 +63,6 @@ export const Reservation = ({ sectionId }) => {
     email: "",
     service: "",
     typeservice: "",
-    price: "",
     reservationdate: "",
     reservationtime: "",
   });
@@ -75,7 +72,6 @@ export const Reservation = ({ sectionId }) => {
     email: "",
     service: "",
     typeservice: "",
-    price: "",
     reservationdate: "",
     reservationtime: "",
   });
@@ -86,7 +82,6 @@ export const Reservation = ({ sectionId }) => {
       email: "",
       service: "",
       typeservice: "",
-      price: "",
       reservationdate: "",
       reservationtime: "",
     });
@@ -96,7 +91,6 @@ export const Reservation = ({ sectionId }) => {
       email: "",
       service: "",
       typeservice: "",
-      price: "",
       reservationdate: "",
       reservationtime: "",
     });
@@ -125,10 +119,10 @@ export const Reservation = ({ sectionId }) => {
       [name]: "",
     });
 
-    setInputData({
-      ...inputData,
+    setInputData((prevState) => ({
+      ...prevState,
       [name]: value,
-    });
+    }));
 
     if (name === "phone") {
       let phoneExists = false;
@@ -144,6 +138,14 @@ export const Reservation = ({ sectionId }) => {
       } else {
         setCustExist(false);
       }
+    }
+
+    const selectedService = serviceData.find(
+      (service) => service["Nama Layanan"].servicename === value
+    );
+
+    if (selectedService) {
+      setSubServiceData(selectedService["Jenis Layanan"]);
     }
   };
 
@@ -174,7 +176,6 @@ export const Reservation = ({ sectionId }) => {
         inputData.email,
         inputData.service,
         inputData.typeservice,
-        inputData.price,
         inputData.reservationdate,
         inputData.reservationtime
       );
@@ -197,7 +198,6 @@ export const Reservation = ({ sectionId }) => {
     email,
     service,
     typeservice,
-    price,
     reservationdate,
     reservationtime
   ) => {
@@ -208,7 +208,6 @@ export const Reservation = ({ sectionId }) => {
       email,
       service,
       typeservice,
-      price,
       reservationdate,
       reservationtime,
     });
@@ -275,7 +274,6 @@ export const Reservation = ({ sectionId }) => {
         currentData.email,
         currentData.service,
         currentData.typeservice,
-        currentData.price,
         currentData.reservationdate,
         currentData.reservationtime,
         "edit",
@@ -298,7 +296,7 @@ export const Reservation = ({ sectionId }) => {
     );
     if (confirmDelete) {
       try {
-        await handleCUDReserve("", "", "", "", "", "", "", "", "delete", id);
+        await handleCUDReserve("", "", "", "", "", "", "", "delete", id);
 
         const data = await fetchReserveList(currentPage, limit, setTotalPages);
         setReserveData(data);
@@ -316,6 +314,7 @@ export const Reservation = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
+      <TableHeadValue value="Action" type="atn" />
       <TableHeadValue value="Nama Pengguna">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
@@ -330,8 +329,7 @@ export const Reservation = ({ sectionId }) => {
       <TableHeadValue value="Jam Reservasi">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue value="Cabang" />
-      <TableHeadValue value="Action" type="atn" position="end" />
+      <TableHeadValue value="Cabang" position="end" />
     </TableRow>
   );
 
@@ -397,19 +395,6 @@ export const Reservation = ({ sectionId }) => {
     fetchService();
   }, []);
 
-  useEffect(() => {
-    const fetchSubService = async () => {
-      try {
-        const data = await fetchAllSubServiceList();
-        setSubServiceData(data);
-      } catch (error) {
-        showNotifications("danger", "Error fetching sub service data.");
-      }
-    };
-
-    fetchSubService();
-  }, []);
-
   return (
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Data Reservasi</b>
@@ -455,16 +440,7 @@ export const Reservation = ({ sectionId }) => {
         {filteredData.map((user, index) => (
           <TableRow key={user.idreservation}>
             <TableBodyValue type="num" value={startIndex + index} />
-            <TableBodyValue value={user.name} />
-            <TableBodyValue value={user.email} />
-            <TableBodyValue value={user.phone} />
-            <TableBodyValue value={user.service} />
-            <TableBodyValue value={user.typeservice} />
-            <TableBodyValue value={user.price} />
-            <TableBodyValue value={user.reservationdate} />
-            <TableBodyValue value={user.reservationtime} />
-            <TableBodyValue value={user.idbranch} />
-            <TableBodyValue type="atn" position="end">
+            <TableBodyValue type="atn">
               <SecondaryButton
                 buttonText="Edit"
                 iconPosition="start"
@@ -476,7 +452,6 @@ export const Reservation = ({ sectionId }) => {
                     user.email,
                     user.service,
                     user.typeservice,
-                    user.price,
                     user.reservationdate,
                     user.reservationtime
                   )
@@ -496,6 +471,15 @@ export const Reservation = ({ sectionId }) => {
                 />
               </SecondaryButton>
             </TableBodyValue>
+            <TableBodyValue value={user.name} />
+            <TableBodyValue value={user.email} />
+            <TableBodyValue value={user.phone} />
+            <TableBodyValue value={user.service} />
+            <TableBodyValue value={user.typeservice} />
+            <TableBodyValue value={user.price} />
+            <TableBodyValue value={user.reservationdate} />
+            <TableBodyValue value={user.reservationtime} />
+            <TableBodyValue value={user.idbranch} position="end" />
           </TableRow>
         ))}
       </TableData>
@@ -561,8 +545,11 @@ export const Reservation = ({ sectionId }) => {
               <option value="">Pilih layanan</option>
               {Array.isArray(serviceData) &&
                 serviceData.map((service) => (
-                  <option key={service.idservice} value={service.servicename}>
-                    {service.servicename}
+                  <option
+                    key={service["Nama Layanan"].idservice}
+                    value={service["Nama Layanan"].servicename}
+                  >
+                    {service["Nama Layanan"].servicename}
                   </option>
                 ))}
             </UserInput>
@@ -575,29 +562,23 @@ export const Reservation = ({ sectionId }) => {
               onChange={handleInputChange}
               error={errors.typeservice}
             >
-              <option value="">Pilih tipe layanan</option>
-              {Array.isArray(subServiceData) &&
-                subServiceData.map((subservice) => (
-                  <option
-                    key={subservice.idservicetype}
-                    value={subservice.servicetypename}
-                  >
-                    {subservice.servicetypename}
-                  </option>
-                ))}
+              {inputData.service ? (
+                <>
+                  <option value="">Pilih tipe layanan</option>
+                  {Array.isArray(subServiceData) &&
+                    subServiceData.map((subservice) => (
+                      <option
+                        key={subservice.idservicetype}
+                        value={subservice.servicetypename}
+                      >
+                        {subservice.servicetypename}
+                      </option>
+                    ))}
+                </>
+              ) : (
+                <option value="">Mohon pilih layanan dahulu</option>
+              )}
             </UserInput>
-            {custExist ? null : (
-              <UserInput
-                id="service-price"
-                labelText="Harga"
-                placeholder="Masukkan harga"
-                type="text"
-                name="price"
-                value={inputData.price}
-                onChange={handleInputChange}
-                error={errors.price}
-              />
-            )}
           </InputWrapper>
           <InputWrapper>
             <UserInput
@@ -710,18 +691,6 @@ export const Reservation = ({ sectionId }) => {
                   </option>
                 ))}
             </UserInput>
-            {custExist ? null : (
-              <UserInput
-                id="edit-service-price"
-                labelText="Harga"
-                placeholder="Masukkan harga"
-                type="text"
-                name="price"
-                value={currentData.price}
-                onChange={handleInputChange}
-                error={errors.price}
-              />
-            )}
           </InputWrapper>
           <InputWrapper>
             <UserInput

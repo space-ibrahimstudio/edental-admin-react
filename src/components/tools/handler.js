@@ -156,7 +156,6 @@ export async function handleCUDReserve(
   email,
   service,
   typeservice,
-  price,
   reservationdate,
   reservationtime,
   operation,
@@ -179,7 +178,6 @@ export async function handleCUDReserve(
         email,
         service,
         typeservice,
-        price,
         reservationdate,
         reservationtime,
       })
