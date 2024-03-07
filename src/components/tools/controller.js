@@ -1,3 +1,5 @@
+import React from "react";
+
 export const toTitleCase = (str) => {
   return str.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -21,5 +23,5 @@ export function getCurrentDate() {
 }
 
 export function OhYeah({ children }) {
-  return <>{children}</>;
+  return <React.Fragment>{children}</React.Fragment>;
 }

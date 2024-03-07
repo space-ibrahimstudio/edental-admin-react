@@ -11,7 +11,7 @@ import {
 import { ChevronDown, PlusIcon } from "../components/layout/icons";
 import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import { SearchInput } from "../components/user-input/inputs";
-import { PrimButton } from "../components/user-input/buttons";
+import { PrimButton, SecondaryButton } from "../components/user-input/buttons";
 import { Pagination } from "../components/navigator/pagination";
 import styles from "./styles/tabel-section.module.css";
 
@@ -22,6 +22,7 @@ export const Order = ({ sectionId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [loadData, setLoadData] = useState(false);
   const [limit, setLimit] = useState(5);
   const [formData, setFormData] = useState({
@@ -40,6 +41,9 @@ export const Order = ({ sectionId }) => {
 
   const openForm = () => setIsFormOpen(true);
   const closeForm = () => setIsFormOpen(false);
+
+  const openDetail = () => setDetailOpen(true);
+  const closeDetail = () => setDetailOpen(false);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -88,8 +92,7 @@ export const Order = ({ sectionId }) => {
       <TableHeadValue value="Tanggal Order" hasIcon="yes">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue value="Cabang" />
-      <TableHeadValue value="Harga" position="end" />
+      <TableHeadValue value="Cabang" position="end" />
     </TableRow>
   );
 
@@ -155,14 +158,43 @@ export const Order = ({ sectionId }) => {
         loading={loadData}
       >
         {filteredData.map((user, index) => (
-          <TableRow key={user.idtransaction}>
+          <TableRow
+            type="expand"
+            key={user["Transaction"].idtransaction}
+            isEven={index % 2 === 0}
+            expanded={
+              <>
+                {user["Detail Transaction"].map((transaction, index) => (
+                  <InputWrapper width="100%" key={index}>
+                    <UserInput
+                      subVariant="readonly"
+                      labelText="Nama Layanan"
+                      value={transaction.service}
+                    />
+                    <UserInput
+                      subVariant="readonly"
+                      labelText="Jenis Layanan"
+                      value={transaction.servicetype}
+                    />
+                    <UserInput
+                      subVariant="readonly"
+                      labelText="Harga"
+                      value={transaction.price}
+                    />
+                  </InputWrapper>
+                ))}
+              </>
+            }
+          >
             <TableBodyValue type="num" value={startIndex + index} />
-            <TableBodyValue value={user.transactionname} />
-            <TableBodyValue value={user.transactionphone} />
-            <TableBodyValue value={user.noinvoice} />
-            <TableBodyValue value={user.transactioncreate} />
-            <TableBodyValue value={user.idbranch} />
-            <TableBodyValue value={user.price} position="end" />
+            <TableBodyValue value={user["Transaction"].transactionname} />
+            <TableBodyValue value={user["Transaction"].transactionphone} />
+            <TableBodyValue value={user["Transaction"].noinvoice} />
+            <TableBodyValue value={user["Transaction"].transactioncreate} />
+            <TableBodyValue
+              value={user["Transaction"].idbranch}
+              position="end"
+            />
           </TableRow>
         ))}
       </TableData>

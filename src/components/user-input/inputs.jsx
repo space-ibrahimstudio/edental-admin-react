@@ -131,9 +131,9 @@ export function SearchInput({
   );
 }
 
-export function InputWrapper({ maxWidth, children }) {
+export function InputWrapper({ width, children }) {
   return (
-    <div className={styles.inputWrap} style={{ maxWidth: maxWidth }}>
+    <div className={styles.inputWrap} style={{ width: width }}>
       {children}
     </div>
   );
@@ -315,6 +315,21 @@ export function UserInput({
                 {error}
               </h6>
             )}
+          </div>
+        );
+      } else if (subVariant === "readonly") {
+        return (
+          <div className={styles.inputLabel}>
+            <h6 className={styles.inputLabelText}>{labelText}</h6>
+            <label className={styles.inputLabelField}>
+              <input
+                className={styles.inputLabelFieldInput}
+                style={{ cursor: "default" }}
+                type="text"
+                value={value}
+                readOnly
+              />
+            </label>
           </div>
         );
       } else {

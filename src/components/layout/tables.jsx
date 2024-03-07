@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { OhYeah } from "../tools/controller";
 import "./styles/table-data.css";
@@ -53,16 +53,47 @@ ColumnsBody.propTypes = {
   maxWidth: PropTypes.string,
 };
 
-export const TableRow = ({ type, onClick, children }) => {
+export const TableRow = ({ type, onClick, isEven, expanded, children }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   if (type === "heading") {
     return <tr className="tabel-head-tr">{children}</tr>;
+  } else if (type === "expand") {
+    return (
+      <React.Fragment>
+        <tr
+          className={`tabel-body-tr ${isEven ? "even" : ""}`}
+          onClick={toggleExpand}
+        >
+          {children}
+        </tr>
+        {isExpanded && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+              borderTop: "1px solid var(--color-blue-30)",
+              borderLeft: "1px solid var(--color-blue-30)",
+              borderRight: "1px solid var(--color-blue-30)",
+              padding: "15px",
+              backgroundColor: "var(--color-foreground)",
+            }}
+          >
+            {expanded}
+          </div>
+        )}
+      </React.Fragment>
+    );
   } else {
     return (
-      <tr
-        className="tabel-body-tr"
-        style={{ cursor: "pointer" }}
-        onClick={onClick}
-      >
+      <tr className={`tabel-body-tr ${isEven ? "even" : ""}`} onClick={onClick}>
         {children}
       </tr>
     );
