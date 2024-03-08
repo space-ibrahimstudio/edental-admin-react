@@ -87,6 +87,7 @@ export const Order = ({ sectionId }) => {
       <TableHeadValue hasIcon="yes" value="Nama Pengguna">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
+      <TableHeadValue value="Kode" />
       <TableHeadValue value="Telepon" />
       <TableHeadValue value="Nomor Invoice" />
       <TableHeadValue value="Tanggal Order" hasIcon="yes">
@@ -188,6 +189,7 @@ export const Order = ({ sectionId }) => {
           >
             <TableBodyValue type="num" value={startIndex + index} />
             <TableBodyValue value={user["Transaction"].transactionname} />
+            <TableBodyValue value={user["Transaction"].rscode} />
             <TableBodyValue value={user["Transaction"].transactionphone} />
             <TableBodyValue value={user["Transaction"].noinvoice} />
             <TableBodyValue value={user["Transaction"].transactioncreate} />

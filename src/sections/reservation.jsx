@@ -318,6 +318,7 @@ export const Reservation = ({ sectionId }) => {
       <TableHeadValue value="Nama Pengguna">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
+      <TableHeadValue value="Kode" />
       <TableHeadValue value="Email" />
       <TableHeadValue value="Telepon" />
       <TableHeadValue value="Layanan" />
@@ -471,6 +472,7 @@ export const Reservation = ({ sectionId }) => {
               </SecondaryButton>
             </TableBodyValue>
             <TableBodyValue value={user.name} />
+            <TableBodyValue value={user.rscode} />
             <TableBodyValue value={user.email} />
             <TableBodyValue value={user.phone} />
             <TableBodyValue value={user.service} />
