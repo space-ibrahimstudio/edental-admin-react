@@ -169,24 +169,30 @@ export const Reservation = ({ sectionId }) => {
       return;
     }
 
-    try {
-      await handleCUDReserve(
-        inputData.name,
-        inputData.phone,
-        inputData.email,
-        inputData.service,
-        inputData.typeservice,
-        inputData.reservationdate,
-        inputData.reservationtime
-      );
+    const confirmSubmit = window.confirm(
+      "Are you sure you want to submit this Reservation Data?"
+    );
 
-      const data = await fetchReserveList(currentPage, limit, setTotalPages);
-      setReserveData(data);
-      setFilteredData(data);
+    if (confirmSubmit) {
+      try {
+        await handleCUDReserve(
+          inputData.name,
+          inputData.phone,
+          inputData.email,
+          inputData.service,
+          inputData.typeservice,
+          inputData.reservationdate,
+          inputData.reservationtime
+        );
 
-      closeForm();
-    } catch (error) {
-      console.error("Error occurred during submit reservation:", error);
+        const data = await fetchReserveList(currentPage, limit, setTotalPages);
+        setReserveData(data);
+        setFilteredData(data);
+
+        closeForm();
+      } catch (error) {
+        console.error("Error occurred during submit reservation:", error);
+      }
     }
   };
   // end add data function
@@ -267,26 +273,32 @@ export const Reservation = ({ sectionId }) => {
       return;
     }
 
-    try {
-      await handleCUDReserve(
-        currentData.name,
-        currentData.phone,
-        currentData.email,
-        currentData.service,
-        currentData.typeservice,
-        currentData.reservationdate,
-        currentData.reservationtime,
-        "edit",
-        selectedData
-      );
+    const confirmEdit = window.confirm(
+      "Are you sure you want to submit this Reservation Data?"
+    );
 
-      const data = await fetchReserveList(currentPage, limit, setTotalPages);
-      setReserveData(data);
-      setFilteredData(data);
+    if (confirmEdit) {
+      try {
+        await handleCUDReserve(
+          currentData.name,
+          currentData.phone,
+          currentData.email,
+          currentData.service,
+          currentData.typeservice,
+          currentData.reservationdate,
+          currentData.reservationtime,
+          "edit",
+          selectedData
+        );
 
-      closeEdit();
-    } catch (error) {
-      console.error("Error editing booking:", error);
+        const data = await fetchReserveList(currentPage, limit, setTotalPages);
+        setReserveData(data);
+        setFilteredData(data);
+
+        closeEdit();
+      } catch (error) {
+        console.error("Error editing booking:", error);
+      }
     }
   };
 
