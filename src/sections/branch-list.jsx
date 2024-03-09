@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { fetchOutletList } from "../components/tools/data";
-import { handleCUDReserve } from "../components/tools/handler";
+import { handleCUDBranch } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
   TableData,
@@ -8,6 +8,7 @@ import {
   TableBodyValue,
   TableRow,
 } from "../components/layout/tables";
+import { SubmitForm } from "../components/user-input/forms";
 import { PlusIcon, ChevronDown } from "../components/layout/icons";
 import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import { PrimButton } from "../components/user-input/buttons";
@@ -16,65 +17,132 @@ import { Pagination } from "../components/navigator/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const BranchList = ({ sectionId }) => {
+  const { showNotifications } = useNotifications();
   const [branchData, setBranchData] = useState([]);
+  const [selectedData, setSelectedData] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [loadData, setLoadData] = useState(false);
   const [limit, setLimit] = useState(5);
-  const [formData, setFormData] = useState({
+  const [inputData, setInputData] = useState({
+    region: "",
     name: "",
+    address: "",
     phone: "",
-    email: "",
-    service: "",
-    typeservice: "",
-    reservationdate: "",
-    reservationtime: "",
   });
-
+  const [currentData, setCurrentData] = useState({
+    region: "",
+    name: "",
+    address: "",
+    phone: "",
+  });
+  const [errors, setErrors] = useState({
+    region: "",
+    name: "",
+    address: "",
+    phone: "",
+  });
+  const cleanInput = () => {
+    setInputData({
+      region: "",
+      name: "",
+      address: "",
+      phone: "",
+    });
+    setErrors({
+      region: "",
+      name: "",
+      address: "",
+      phone: "",
+    });
+  };
   const rowsPerPage = limit;
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
-  const { showNotifications } = useNotifications();
-
-  const openForm = () => setIsFormOpen(true);
-  const closeForm = () => setIsFormOpen(false);
-
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+  };
+  const handleLimitChange = (event) => {
+    setLimit(parseInt(event.target.value, 10));
+  };
+
+  const openForm = () => setIsFormOpen(true);
+  const closeForm = () => {
+    cleanInput();
+    setIsFormOpen(false);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
+    setErrors({
+      ...errors,
+      [name]: "",
+    });
+
+    setInputData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const handleLimitChange = (event) => {
-    setLimit(parseInt(event.target.value, 10));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await handleCUDReserve(
-        formData.name,
-        formData.phone,
-        formData.email,
-        formData.service,
-        formData.typeservice,
-        formData.reservationdate,
-        formData.reservationtime
-      );
-      setIsFormOpen(false);
-    } catch (error) {
-      console.error("Error occurred during submit reservation:", error);
-    } finally {
-      window.location.reload();
+
+    const confirmSubmit = window.confirm(
+      "Are you sure you want to submit this Outlet Data?"
+    );
+
+    if (confirmSubmit) {
+      try {
+        await handleCUDBranch(
+          inputData.region,
+          inputData.name,
+          inputData.address,
+          inputData.phone
+        );
+
+        const data = await fetchOutletList(currentPage, limit, setTotalPages);
+        setBranchData(data);
+        setFilteredData(data);
+
+        closeForm();
+      } catch (error) {
+        console.error("Error occurred during submit reservation:", error);
+      }
     }
+  };
+
+  const openEdit = (id, region, name, address, phone) => {
+    setSelectedData(id);
+    setCurrentData({
+      region,
+      name,
+      address,
+      phone,
+    });
+    setIsEditOpen(true);
+  };
+
+  const closeEdit = () => {
+    cleanInput();
+    setIsEditOpen(false);
+    setSelectedData(null);
+  };
+
+  const handleInputEditChange = (e) => {
+    const { name, value } = e.target;
+    setErrors({
+      ...errors,
+      [name]: "",
+    });
+
+    setCurrentData({
+      ...currentData,
+      [name]: value,
+    });
   };
 
   const tableHeadData = (
@@ -138,7 +206,11 @@ export const BranchList = ({ sectionId }) => {
               <option value={50}>Baris per Halaman: 50</option>
             </UserInput>
           </InputWrapper>
-          <PrimButton buttonText="Tambah Baru" iconPosition="start">
+          <PrimButton
+            buttonText="Tambah Baru"
+            iconPosition="start"
+            onClick={openForm}
+          >
             <PlusIcon width="17px" height="100%" />
           </PrimButton>
         </div>
@@ -165,6 +237,60 @@ export const BranchList = ({ sectionId }) => {
           handlePagination={handlePageChange}
         />
       ) : null}
+      {isFormOpen && (
+        <SubmitForm
+          formTitle="Tambah Cabang"
+          onClose={closeForm}
+          onSubmit={handleSubmit}
+          saveText="Simpan"
+          cancelText="Batal"
+        >
+          <InputWrapper>
+            <UserInput
+              id="outlet-name"
+              labelText="Nama Cabang"
+              placeholder="Edental Jakarta"
+              type="text"
+              name="name"
+              value={inputData.name}
+              onChange={handleInputChange}
+              error={errors.name}
+            />
+            <UserInput
+              id="outlet-region"
+              labelText="Provinsi"
+              placeholder="Jakarta"
+              type="text"
+              name="region"
+              value={inputData.region}
+              onChange={handleInputChange}
+              error={errors.region}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <UserInput
+              id="outlet-address"
+              labelText="Alamat Cabang"
+              placeholder="123 Main Street"
+              type="text"
+              name="address"
+              value={inputData.address}
+              onChange={handleInputChange}
+              error={errors.address}
+            />
+            <UserInput
+              id="oultet-phone"
+              labelText="Nomor Kontak Cabang"
+              placeholder="0882xxx"
+              type="text"
+              name="phone"
+              value={inputData.phone}
+              onChange={handleInputChange}
+              error={errors.phone}
+            />
+          </InputWrapper>
+        </SubmitForm>
+      )}
     </section>
   );
 };

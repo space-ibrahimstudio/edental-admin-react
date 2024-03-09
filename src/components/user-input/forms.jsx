@@ -59,7 +59,7 @@ export function PortalForm({ type, onClose }) {
       showNotifications("danger", "Login gagal. Mohon coba lagi.");
     } finally {
       setLoading(false);
-      window.location.reload();
+      // window.location.reload();
     }
   };
 

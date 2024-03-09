@@ -240,3 +240,47 @@ export async function handleCUDService(inputData, operation, id) {
     console.error("Error during service CUD:", error);
   }
 }
+
+export async function handleCUDBranch(
+  region,
+  name,
+  address,
+  phone,
+  operation,
+  id
+) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        region,
+        name,
+        address,
+        phone,
+      })
+    );
+
+    if (operation === "edit") {
+      formData.append("idedit", id);
+    } else if (operation === "delete") {
+      formData.append("iddelete", id);
+    }
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/cudoutlet`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("Branch CUD response:", response.data);
+  } catch (error) {
+    console.error("Error during branch CUD:", error);
+  }
+}

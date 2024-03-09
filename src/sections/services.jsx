@@ -157,6 +157,19 @@ export const Services = ({ sectionId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    let hasError = false;
+    const newErrors = { ...errors };
+
+    if (inputData.service === "") {
+      newErrors = "This field is required.";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       await handleCUDService(inputData);
       const data = await fetchServiceList(currentPage, limit, setTotalPages);
@@ -295,7 +308,6 @@ export const Services = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
-      <TableHeadValue value="Action" type="atn" />
       <TableHeadValue value="Nama Layanan">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
@@ -406,38 +418,54 @@ export const Services = ({ sectionId }) => {
                       labelText="Harga"
                       value={transaction.serviceprice}
                     />
+                    <UserInput
+                      subVariant="readonly"
+                      labelText="Status"
+                      value={transaction.servicetypestatus}
+                    />
                   </InputWrapper>
                 ))}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <SecondaryButton
+                    buttonText="Edit Data"
+                    iconPosition="start"
+                    onClick={() =>
+                      openEdit(
+                        user["Nama Layanan"].idservice,
+                        user["Nama Layanan"].servicename,
+                        user["Jenis Layanan"]
+                      )
+                    }
+                  >
+                    <EditIcon width="12px" height="100%" />
+                  </SecondaryButton>
+                  <SecondaryButton
+                    buttonText="Hapus Data"
+                    iconPosition="start"
+                    subVariant="hollow"
+                    onClick={() =>
+                      handleSubmitDelete(user["Nama Layanan"].idservice)
+                    }
+                  >
+                    <TrashIcon
+                      width="20px"
+                      height="100%"
+                      color="var(--color-red)"
+                    />
+                  </SecondaryButton>
+                </div>
               </>
             }
           >
             <TableBodyValue type="num" value={startIndex + index} />
-            <TableBodyValue type="atn">
-              <SecondaryButton
-                buttonText="Edit"
-                iconPosition="start"
-                onClick={() =>
-                  openEdit(
-                    user["Nama Layanan"].idservice,
-                    user["Nama Layanan"].servicename,
-                    user["Jenis Layanan"]
-                  )
-                }
-              >
-                <EditIcon width="12px" height="100%" />
-              </SecondaryButton>
-              <SecondaryButton
-                variant="icon"
-                subVariant="hollow"
-                onClick={() => handleSubmitDelete(user.idservice)}
-              >
-                <TrashIcon
-                  width="20px"
-                  height="100%"
-                  color="var(--color-red)"
-                />
-              </SecondaryButton>
-            </TableBodyValue>
             <TableBodyValue value={user["Nama Layanan"].servicename} />
             <TableBodyValue value={user["Nama Layanan"].servicecreate} />
             <TableBodyValue value={user["Nama Layanan"].serviceupdate} />
@@ -478,6 +506,7 @@ export const Services = ({ sectionId }) => {
           {inputData.subService.map((subService, index) => (
             <InputWrapper key={index}>
               <UserInput
+                id={`service-name-${index}`}
                 labelText="Jenis Layanan"
                 placeholder="e.g Scaling gigi"
                 type="text"
@@ -487,6 +516,7 @@ export const Services = ({ sectionId }) => {
                 error={errors.servicetype}
               />
               <UserInput
+                id={`service-price-${index}`}
                 labelText="Atur Harga"
                 placeholder="Masukkan Harga"
                 type="text"
@@ -495,20 +525,15 @@ export const Services = ({ sectionId }) => {
                 onChange={(e) => handleRowChange(index, e)}
                 error={errors.price}
               />
-              {index <= 0 && (
-                <SecondaryButton
-                  variant="icon"
-                  subVariant="hollow"
-                  onClick={handleAddRow}
-                >
-                  <PlusIcon
+              {index <= 0 ? (
+                <SecondaryButton variant="icon" subVariant="hollow">
+                  <TrashIcon
                     width="20px"
                     height="100%"
-                    color="var(--color-blue)"
+                    color="var(--color-red-30)"
                   />
                 </SecondaryButton>
-              )}
-              {index > 0 && (
+              ) : (
                 <SecondaryButton
                   variant="icon"
                   subVariant="hollow"
@@ -523,6 +548,14 @@ export const Services = ({ sectionId }) => {
               )}
             </InputWrapper>
           ))}
+          <SecondaryButton
+            iconPosition="start"
+            subVariant="hollow"
+            buttonText="Tambah Jenis Layanan"
+            onClick={handleAddRow}
+          >
+            <PlusIcon width="15px" height="100%" />
+          </SecondaryButton>
         </SubmitForm>
       )}
       {isEditOpen && (
@@ -546,37 +579,36 @@ export const Services = ({ sectionId }) => {
             />
           </InputWrapper>
           {currentData.subService.map((subService, index) => (
-            <InputWrapper key={subService.id}>
+            <InputWrapper key={index}>
               <UserInput
+                id={`edit-service-name-${index}`}
                 labelText="Jenis Layanan"
                 placeholder="e.g Scaling gigi"
                 type="text"
                 name="servicetype"
                 value={subService.servicetype}
                 onChange={(e) => handleRowEditChange(index, e)}
+                error={errors.servicetype}
               />
               <UserInput
+                id={`edit-service-price-${index}`}
                 labelText="Atur Harga"
                 placeholder="Masukkan Harga"
                 type="text"
                 name="price"
                 value={subService.price}
                 onChange={(e) => handleRowEditChange(index, e)}
+                error={errors.servicetype}
               />
-              {index <= 0 && (
-                <SecondaryButton
-                  variant="icon"
-                  subVariant="hollow"
-                  onClick={handleAddEditRow}
-                >
-                  <PlusIcon
+              {index <= 0 ? (
+                <SecondaryButton variant="icon" subVariant="hollow">
+                  <TrashIcon
                     width="20px"
                     height="100%"
-                    color="var(--color-blue)"
+                    color="var(--color-red-30)"
                   />
                 </SecondaryButton>
-              )}
-              {index > 0 && (
+              ) : (
                 <SecondaryButton
                   variant="icon"
                   subVariant="hollow"
@@ -591,6 +623,14 @@ export const Services = ({ sectionId }) => {
               )}
             </InputWrapper>
           ))}
+          <SecondaryButton
+            iconPosition="start"
+            subVariant="hollow"
+            buttonText="Tambah Jenis Layanan"
+            onClick={handleAddEditRow}
+          >
+            <PlusIcon width="15px" height="100%" />
+          </SecondaryButton>
         </SubmitForm>
       )}
     </section>
