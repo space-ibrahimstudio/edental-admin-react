@@ -43,7 +43,7 @@ export const Reservation = ({ sectionId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
-  const [loadData, setLoadData] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // perform action state
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -184,7 +184,7 @@ export const Reservation = ({ sectionId }) => {
 
     if (confirmSubmit) {
       try {
-        setLoadData(true);
+        setIsLoading(true);
         await handleCUDReserve(
           inputData.name,
           inputData.phone,
@@ -203,7 +203,7 @@ export const Reservation = ({ sectionId }) => {
       } catch (error) {
         console.error("Error occurred during submit reservation:", error);
       } finally {
-        setLoadData(false);
+        setIsLoading(false);
       }
     }
   };
@@ -299,7 +299,7 @@ export const Reservation = ({ sectionId }) => {
 
     if (confirmEdit) {
       try {
-        setLoadData(true);
+        setIsLoading(true);
         await handleCUDReserve(
           currentData.name,
           currentData.phone,
@@ -320,7 +320,7 @@ export const Reservation = ({ sectionId }) => {
       } catch (error) {
         console.error("Error editing booking:", error);
       } finally {
-        setLoadData(false);
+        setIsLoading(false);
       }
     }
   };
@@ -371,7 +371,7 @@ export const Reservation = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoadData(true);
+        setIsLoading(true);
         const data = await fetchReserveList(currentPage, limit, setTotalPages);
 
         setReserveData(data);
@@ -380,7 +380,7 @@ export const Reservation = ({ sectionId }) => {
         console.error("Error fetching user data:", error);
         showNotifications("danger", "Error fetching user data.");
       } finally {
-        setLoadData(false);
+        setIsLoading(false);
       }
     };
 
@@ -470,7 +470,7 @@ export const Reservation = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={loadData}
+        loading={isLoading}
       >
         {filteredData.map((user, index) => (
           <TableRow key={user.idreservation} isEven={index % 2 === 0}>
@@ -532,7 +532,7 @@ export const Reservation = ({ sectionId }) => {
           onSubmit={handleSubmit}
           saveText="Simpan"
           cancelText="Batal"
-          loading={loadData}
+          loading={isLoading}
         >
           <InputWrapper>
             <UserInput
@@ -666,7 +666,7 @@ export const Reservation = ({ sectionId }) => {
           onSubmit={handleSubmitEdit}
           saveText="Simpan Perubahan"
           cancelText="Batal"
-          loading={loadData}
+          loading={isLoading}
         >
           <InputWrapper>
             <UserInput

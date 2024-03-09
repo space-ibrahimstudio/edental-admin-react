@@ -26,7 +26,7 @@ export const BranchList = ({ sectionId }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [loadData, setLoadData] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [limit, setLimit] = useState(5);
   const [inputData, setInputData] = useState({
     region: "",
@@ -97,7 +97,7 @@ export const BranchList = ({ sectionId }) => {
 
     if (confirmSubmit) {
       try {
-        setLoadData(true);
+        setIsLoading(true);
         await handleCUDBranch(
           inputData.region,
           inputData.name,
@@ -113,7 +113,7 @@ export const BranchList = ({ sectionId }) => {
       } catch (error) {
         console.error("Error occurred during submit reservation:", error);
       } finally {
-        setLoadData(false);
+        setIsLoading(false);
       }
     }
   };
@@ -161,7 +161,7 @@ export const BranchList = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoadData(true);
+        setIsLoading(true);
         const data = await fetchOutletList(currentPage, limit, setTotalPages);
 
         setBranchData(data);
@@ -170,7 +170,7 @@ export const BranchList = ({ sectionId }) => {
         console.error("Error fetching user data:", error);
         showNotifications("danger", "Error fetching user data.");
       } finally {
-        setLoadData(false);
+        setIsLoading(false);
       }
     };
 
@@ -220,7 +220,7 @@ export const BranchList = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={loadData}
+        loading={isLoading}
       >
         {filteredData.map((user, index) => (
           <TableRow key={user.idoutlet} isEven={index % 2 === 0}>
@@ -246,7 +246,7 @@ export const BranchList = ({ sectionId }) => {
           onSubmit={handleSubmit}
           saveText="Simpan"
           cancelText="Batal"
-          loading={loadData}
+          loading={isLoading}
         >
           <InputWrapper>
             <UserInput

@@ -22,7 +22,7 @@ export const CustList = ({ sectionId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [loadData, setLoadData] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [limit, setLimit] = useState(5);
   const [formData, setFormData] = useState({
     name: "",
@@ -93,7 +93,7 @@ export const CustList = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoadData(true);
+        setIsLoading(true);
         const data = await fetchCustList(currentPage, limit, setTotalPages);
 
         setCustData(data);
@@ -102,7 +102,7 @@ export const CustList = ({ sectionId }) => {
         console.error("Error fetching user data:", error);
         showNotifications("danger", "Error fetching user data.");
       } finally {
-        setLoadData(false);
+        setIsLoading(false);
       }
     };
 
@@ -148,7 +148,7 @@ export const CustList = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={loadData}
+        loading={isLoading}
       >
         {filteredData.map((user, index) => (
           <TableRow key={user.idauthuser} isEven={index % 2 === 0}>

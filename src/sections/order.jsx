@@ -24,7 +24,7 @@ export const Order = ({ sectionId }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [loadData, setLoadData] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [limit, setLimit] = useState(5);
   const [formData, setFormData] = useState({
     name: "",
@@ -101,7 +101,7 @@ export const Order = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoadData(true);
+        setIsLoading(true);
         const data = await fetchOrderList(currentPage, limit, setTotalPages);
 
         setOrderData(data);
@@ -110,7 +110,7 @@ export const Order = ({ sectionId }) => {
         console.error("Error fetching user data:", error);
         showNotifications("danger", "Error fetching user data.");
       } finally {
-        setLoadData(false);
+        setIsLoading(false);
       }
     };
 
@@ -156,7 +156,7 @@ export const Order = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={loadData}
+        loading={isLoading}
       >
         {filteredData.map((user, index) => (
           <TableRow
