@@ -256,5 +256,5 @@
   text-align: center;
   font-size: 35px;
   color: #045e83;
-  font-family: "Plus Jakarta Sans";
+  font-family: var(--font-jakarta);
 } */

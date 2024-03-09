@@ -29,6 +29,10 @@
   color: var(--color-blue);
 }
 
+.navMenuTab:focus {
+  outline: none;
+}
+
 .active {
   border: 1px dashed var(--color-blue);
   color: var(--color-blue);
@@ -39,6 +43,7 @@
   position: relative;
   font-size: 14px;
   font-family: var(--font-open);
+  font-weight: 600;
   color: inherit;
   text-align: left;
 }

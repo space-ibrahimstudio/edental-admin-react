@@ -3,7 +3,7 @@
   align-self: stretch;
   position: relative;
   font-size: 35px;
-  font-family: "Plus Jakarta Sans";
+  font-family: var(--font-jakarta);
   color: #045e83;
   text-align: center;
 }
