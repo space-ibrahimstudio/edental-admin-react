@@ -5,6 +5,7 @@ import { PrivateRoute } from "./components/routing/private-route";
 import HomeReplace from "./pages/home-replace";
 import Dashboard from "./pages/dashboard/dashboard";
 import WarningScreen from "./components/feedback/warning-screen";
+import ErrorScreen from "./pages/error404";
 import { fetchTabMenus } from "./components/tools/data";
 import { toPathname, Fragment } from "./components/tools/controller";
 
@@ -57,6 +58,7 @@ function App() {
       ) : (
         <Routes>
           <Route path="/" element={<HomeReplace />} />
+          <Route path="*" element={<ErrorScreen />} />
           <Route
             path="/dashboard"
             element={<PrivateRoute element={<Dashboard />} />}

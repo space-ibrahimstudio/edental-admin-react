@@ -3,7 +3,7 @@
   align-self: stretch;
   position: relative;
   font-size: var(--font-subtitle);
-  font-weight: 700;
+  font-weight: 600;
   font-family: var(--font-jakarta);
   color: var(--color-semidarkblue);
   text-align: center;
@@ -22,7 +22,7 @@
 
 .form-footer-button-text {
   font-size: var(--font-graph);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-white);
   text-align: left;
   margin: 0;
@@ -52,7 +52,7 @@
 .form-footer-link {
   cursor: pointer;
   color: var(--color-blue);
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease-in-out;
 }

@@ -1,29 +1,29 @@
-.home-replace-body,
-.home-replace-title {
+.homeReplaceBody,
+.homeReplaceTitle {
   margin: 0;
   align-self: stretch;
   position: relative;
   font-size: inherit;
-  font-weight: 700;
+  font-weight: 600;
   font-family: var(--font-jakarta);
 }
 
-.home-replace-body {
+.homeReplaceBody {
   font-size: var(--font-subtitle);
   font-weight: 600;
   font-family: inherit;
   color: var(--color-foreground);
 }
 
-.home-replace,
-.home-replace-content {
+.homeReplace,
+.homeReplaceContent {
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.home-replace-content {
+.homeReplaceContent {
   align-self: stretch;
   justify-content: flex-start;
   padding: var(--padd-20-0);
@@ -35,7 +35,7 @@
   font-family: var(--font-open);
 }
 
-.home-replace {
+.homeReplace {
   width: 100%;
   position: relative;
   height: 100vh;

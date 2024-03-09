@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
+import { Fragment } from "../components/tools/controller";
 import { useLoading } from "../components/feedback/context/loading-context";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import { PortalForm } from "../components/user-input/forms";
 import { PrimButton } from "../components/user-input/buttons";
 import { LogoPrimary } from "../components/layout/icons";
 import { checkLoginStatus, handleLogout } from "../components/tools/handler";
-import "./styles/home-replace.css";
+import styles from "./styles/home-replace.module.css";
 
 const HomeReplace = () => {
   const [loginFormOpen, setLoginFormOpen] = useState(false);
@@ -48,7 +49,7 @@ const HomeReplace = () => {
   }, []);
 
   return (
-    <div className="home-replace">
+    <Fragment>
       <Helmet>
         <title>Edental ID</title>
         <meta
@@ -72,18 +73,22 @@ const HomeReplace = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="robots" content="index, follow" />
       </Helmet>
-      <section className="home-replace-content">
-        <LogoPrimary width="150px" height="100%" />
-        <h1 className="home-replace-title">Welcome to Edental.id</h1>
-        <h4 className="home-replace-body">This is the Homepage replacement.</h4>
-        {loggedIn ? (
-          <PrimButton buttonText="Logout" onClick={logoutClick} />
-        ) : (
-          <PrimButton buttonText="Masuk/Daftar" onClick={openLogin} />
-        )}
-      </section>
-      {loginFormOpen && <PortalForm type="login" onClose={closeLogin} />}
-    </div>
+      <div className={styles.homeReplace}>
+        <section className={styles.homeReplaceContent}>
+          <LogoPrimary width="150px" height="100%" />
+          <h1 className={styles.homeReplaceTitle}>Welcome to Edental.id</h1>
+          <h4 className={styles.homeReplaceBody}>
+            This is the Homepage replacement.
+          </h4>
+          {loggedIn ? (
+            <PrimButton buttonText="Logout" onClick={logoutClick} />
+          ) : (
+            <PrimButton buttonText="Masuk/Daftar" onClick={openLogin} />
+          )}
+        </section>
+        {loginFormOpen && <PortalForm type="login" onClose={closeLogin} />}
+      </div>
+    </Fragment>
   );
 };
 
