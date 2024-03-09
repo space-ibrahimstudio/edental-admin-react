@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Fragment } from "../tools/controller";
 import { useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { toTitleCase } from "../tools/controller";
+import { LoadingElement } from "../feedback/loading-screen";
 import { ChevronDown, ArrowIcon } from "../layout/icons";
 import prim from "./styles/prim-button.module.css";
 import scnd from "./styles/scnd-button.module.css";
@@ -13,6 +15,7 @@ export function PrimButton({
   onClick,
   iconPosition,
   children,
+  loading,
 }) {
   if (iconPosition === "start") {
     if (variant === "hollow") {
@@ -25,25 +28,45 @@ export function PrimButton({
     } else {
       return (
         <button className={prim.primButton} onClick={onClick}>
-          {children}
-          <b className={prim.primButtonText}>{buttonText}</b>
+          {loading ? (
+            <Fragment>
+              <b className={prim.primButtonHollowText}>Loading</b>
+              <LoadingElement />
+            </Fragment>
+          ) : (
+            <Fragment>
+              {children}
+              <b className={prim.primButtonText}>{buttonText}</b>
+            </Fragment>
+          )}
         </button>
       );
     }
-  } else if (variant === "hollow") {
-    return (
-      <button className={prim.primButtonHollow} onClick={onClick}>
-        <b className={prim.primButtonHollowText}>{buttonText}</b>
-        {children}
-      </button>
-    );
   } else {
-    return (
-      <button className={prim.primButton} onClick={onClick}>
-        <b className={prim.primButtonText}>{buttonText}</b>
-        {children}
-      </button>
-    );
+    if (variant === "hollow") {
+      return (
+        <button className={prim.primButtonHollow} onClick={onClick}>
+          <b className={prim.primButtonHollowText}>{buttonText}</b>
+          {children}
+        </button>
+      );
+    } else {
+      return (
+        <button className={prim.primButton} onClick={onClick}>
+          {loading ? (
+            <Fragment>
+              <b className={prim.primButtonHollowText}>Loading</b>
+              <LoadingElement />
+            </Fragment>
+          ) : (
+            <Fragment>
+              <b className={prim.primButtonText}>{buttonText}</b>
+              {children}
+            </Fragment>
+          )}
+        </button>
+      );
+    }
   }
 }
 
@@ -69,10 +92,6 @@ export function SecondaryButton({
         <button className={scnd.scndButtonHollow} onClick={onClick}>
           {children}
         </button>
-        // <button className="scnd-button" onClick={onClick}>
-        //   <b className="scnd-button-text">{buttonText}</b>
-        //   {children}
-        // </button>
       );
     } else if (subVariant === "hollow-line") {
       return (

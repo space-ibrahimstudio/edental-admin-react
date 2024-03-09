@@ -10,7 +10,7 @@
   position: relative;
   font-size: 14px;
   font-weight: 600;
-  font-family: Quicksand;
+  font-family: var(--font-open);
   margin-left: 15px;
   color: #0f3948;
   text-align: left;
@@ -28,7 +28,7 @@
   border: 0;
   outline: 0;
   font-weight: 600;
-  font-family: Quicksand;
+  font-family: var(--font-open);
   font-size: 16px;
   background-color: transparent;
   flex: 1;

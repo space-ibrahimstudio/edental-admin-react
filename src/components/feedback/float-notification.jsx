@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./styles/float-notification.css";
+import styles from "./styles/float-notification.module.css";
 
 export function FloatNotification({ type, message, onClose }) {
   const [isClosing, setIsClosing] = useState(false);
@@ -30,34 +30,43 @@ export function FloatNotification({ type, message, onClose }) {
 
   if (type === "danger") {
     return (
-      <section className={`notif-float ${isClosing ? "out" : "in"}`} ref={ref}>
+      <section
+        className={`${styles.notifFloat} ${isClosing ? styles.out : styles.in}`}
+        ref={ref}
+      >
         <main
-          className="notif-float-content"
+          className={styles.notifFloatContent}
           style={{ backgroundColor: "var(--color-red)" }}
         >
-          <p className="notif-float-content-text">{message}</p>
+          <p className={styles.notifFloatContentText}>{message}</p>
         </main>
       </section>
     );
   } else if (type === "warning") {
     return (
-      <section className={`notif-float ${isClosing ? "out" : "in"}`} ref={ref}>
+      <section
+        className={`${styles.notifFloat} ${isClosing ? styles.out : styles.in}`}
+        ref={ref}
+      >
         <main
-          className="notif-float-content"
+          className={styles.notifFloatContent}
           style={{ backgroundColor: "var(--color-yellow)" }}
         >
-          <p className="notif-float-content-text">{message}</p>
+          <p className={styles.notifFloatContentText}>{message}</p>
         </main>
       </section>
     );
   } else if (type === "success") {
     return (
-      <section className={`notif-float ${isClosing ? "out" : "in"}`} ref={ref}>
+      <section
+        className={`${styles.notifFloat} ${isClosing ? styles.out : styles.in}`}
+        ref={ref}
+      >
         <main
-          className="notif-float-content"
+          className={styles.notifFloatContent}
           style={{ backgroundColor: "var(--color-blue)" }}
         >
-          <p className="notif-float-content-text">{message}</p>
+          <p className={styles.notifFloatContentText}>{message}</p>
         </main>
       </section>
     );

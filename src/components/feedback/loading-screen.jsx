@@ -1,28 +1,46 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import { LogoText } from "../layout/icons";
-import "./styles/loading-screen.css";
+import { Fragment } from "../tools/controller";
+import styles from "./styles/loading-screen.module.css";
 
 export function LoadingScreen() {
   return (
-    <div className="loading-screen">
+    <Fragment>
       <Helmet>
         <title>Loading ...</title>
       </Helmet>
-      <div className="loading-wrapper">
-        <div className="loading-circle">
-          <div className="loading-circle-body">
-            <div className="circle-body" />
-            <div className="circle-body" />
-            <div className="circle-body" />
+      <div className={styles.loadingScreen}>
+        <div className={styles.loadingWrapper}>
+          <div className={styles.loadingCircle}>
+            <div className={styles.loadingCircleBody}>
+              <div className={styles.circleBody} />
+              <div className={styles.circleBody} />
+              <div className={styles.circleBody} />
+            </div>
+            <div className={styles.loadingCircleShadow}>
+              <div className={styles.circleShadow} />
+              <div className={styles.circleShadow} />
+              <div className={styles.circleShadow} />
+            </div>
           </div>
-          <div className="loading-circle-shadow">
-            <div className="circle-shadow" />
-            <div className="circle-shadow" />
-            <div className="circle-shadow" />
-          </div>
+          <LogoText width="100%" height="18px" />
         </div>
-        <LogoText width="100%" height="18px" />
+      </div>
+    </Fragment>
+  );
+}
+
+export function LoadingElement() {
+  return (
+    <div className={styles.loadingCircle}>
+      <div
+        className={styles.loadingCircleBody}
+        style={{ padding: "0", gap: "4px" }}
+      >
+        <div className={styles.circleBodySm} />
+        <div className={styles.circleBodySm} />
+        <div className={styles.circleBodySm} />
       </div>
     </div>
   );

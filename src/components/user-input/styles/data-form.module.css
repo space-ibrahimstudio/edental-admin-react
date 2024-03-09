@@ -11,7 +11,7 @@
 .formSubtitle {
   font-size: 18px;
   font-weight: 600;
-  font-family: Quicksand;
+  font-family: var(--font-open);
   color: #0f3948;
 }
 

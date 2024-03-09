@@ -228,7 +228,7 @@
   text-align: left;
   font-size: 18px;
   color: #fff;
-  font-family: Quicksand;
+  font-family: var(--font-open);
 }
 
 .tabel-section-body::-webkit-scrollbar {

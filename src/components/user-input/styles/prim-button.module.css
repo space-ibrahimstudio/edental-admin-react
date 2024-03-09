@@ -1,7 +1,7 @@
 .primButtonHollowText {
   position: relative;
   font-size: 16px;
-  font-family: Quicksand;
+  font-family: var(--font-open);
   color: inherit;
   text-align: left;
 }
@@ -34,7 +34,7 @@
 .primButtonText {
   position: relative;
   font-size: 16px;
-  font-family: Quicksand;
+  font-family: var(--font-open);
   color: inherit;
   text-align: left;
 }

@@ -97,6 +97,7 @@ export const BranchList = ({ sectionId }) => {
 
     if (confirmSubmit) {
       try {
+        setLoadData(true);
         await handleCUDBranch(
           inputData.region,
           inputData.name,
@@ -111,6 +112,8 @@ export const BranchList = ({ sectionId }) => {
         closeForm();
       } catch (error) {
         console.error("Error occurred during submit reservation:", error);
+      } finally {
+        setLoadData(false);
       }
     }
   };
@@ -243,6 +246,7 @@ export const BranchList = ({ sectionId }) => {
           onSubmit={handleSubmit}
           saveText="Simpan"
           cancelText="Batal"
+          loading={loadData}
         >
           <InputWrapper>
             <UserInput

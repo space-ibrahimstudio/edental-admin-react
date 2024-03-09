@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { OhYeah } from "../tools/controller";
+import { Fragment } from "../tools/controller";
 import "./styles/table-data.css";
 import "../../pages/styles/new.css";
 
@@ -127,33 +127,33 @@ export const TableHeadValue = ({ position, type, value, children }) => {
     }
   } else if (type === "num") {
     return (
-      <OhYeah>
+      <Fragment>
         <th className="tabel-head-num-th">
           <b className="tabel-head-num-th-text">{value}</b>
           {children}
         </th>
         <div className="line-divider" />
-      </OhYeah>
+      </Fragment>
     );
   } else if (type === "atn") {
     return (
-      <OhYeah>
+      <Fragment>
         <th className="tabel-head-atn-th">
           <b className="tabel-head-num-th-text">{value}</b>
           {children}
         </th>
         <div className="line-divider" />
-      </OhYeah>
+      </Fragment>
     );
   } else {
     return (
-      <OhYeah>
+      <Fragment>
         <th className="tabel-head-th">
           <b className="tabel-head-th-text">{value}</b>
           {children}
         </th>
         <div className="line-divider" />
-      </OhYeah>
+      </Fragment>
     );
   }
 };
@@ -177,28 +177,28 @@ export const TableBodyValue = ({ position, type, value, children }) => {
     }
   } else if (type === "num") {
     return (
-      <OhYeah>
+      <Fragment>
         <td className="tabel-body-num-td">
           <b className="tabel-body-num-td-text">{value}</b>
         </td>
         <div className="line-divider" />
-      </OhYeah>
+      </Fragment>
     );
   } else if (type === "atn") {
     return (
-      <OhYeah>
+      <Fragment>
         <td className="tabel-body-atn-td">{children}</td>
         <div className="line-divider" />
-      </OhYeah>
+      </Fragment>
     );
   } else {
     return (
-      <OhYeah>
+      <Fragment>
         <td className="tabel-body-td">
           <b className="tabel-body-td-text">{value}</b>
         </td>
         <div className="line-divider" />
-      </OhYeah>
+      </Fragment>
     );
   }
 };

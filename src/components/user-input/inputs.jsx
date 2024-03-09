@@ -55,31 +55,32 @@ export function FieldInput({
         </div>
       </div>
     );
-  }
-  return (
-    <div className="input-field">
-      <label htmlFor={id} style={{ display: "none" }}>
-        {placeholder}
-      </label>
-      <div className="input-field-input">
-        <input
-          id={id}
-          className="input-field-value"
-          placeholder={placeholder}
-          type={type}
-          name={name}
-          value={value}
-          onChange={onChange}
-          autoComplete={autoComplete}
-        />
-      </div>
-      {errorMssg && (
-        <div className="input-field-mssg">
-          <h6 className="input-field-mssg-text">{errorMssg}</h6>
+  } else {
+    return (
+      <div className="input-field">
+        <label htmlFor={id} style={{ display: "none" }}>
+          {placeholder}
+        </label>
+        <div className="input-field-input">
+          <input
+            id={id}
+            className="input-field-value"
+            placeholder={placeholder}
+            type={type}
+            name={name}
+            value={value}
+            onChange={onChange}
+            autoComplete={autoComplete}
+          />
         </div>
-      )}
-    </div>
-  );
+        {errorMssg && (
+          <div className="input-field-mssg">
+            <h6 className="input-field-mssg-text">{errorMssg}</h6>
+          </div>
+        )}
+      </div>
+    );
+  }
 }
 
 FieldInput.propTypes = {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Fragment } from "../components/tools/controller";
 import { fetchOrderList } from "../components/tools/data";
 import { handleCUDReserve } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
@@ -163,7 +164,7 @@ export const Order = ({ sectionId }) => {
             key={user["Transaction"].idtransaction}
             isEven={index % 2 === 0}
             expanded={
-              <>
+              <Fragment>
                 {user["Detail Transaction"].map((transaction, index) => (
                   <InputWrapper width="100%" key={index}>
                     <UserInput
@@ -183,7 +184,7 @@ export const Order = ({ sectionId }) => {
                     />
                   </InputWrapper>
                 ))}
-              </>
+              </Fragment>
             }
           >
             <TableBodyValue type="num" value={startIndex + index} />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Fragment } from "../components/tools/controller";
 import {
   fetchServiceList,
   fetchAllServiceList,
@@ -171,6 +172,7 @@ export const Services = ({ sectionId }) => {
     }
 
     try {
+      setLoadData(true);
       await handleCUDService(inputData);
       const data = await fetchServiceList(currentPage, limit, setTotalPages);
       setServiceData(data);
@@ -179,6 +181,8 @@ export const Services = ({ sectionId }) => {
       closeForm();
     } catch (error) {
       console.error("Error occurred during submit reservation:", error);
+    } finally {
+      setLoadData(false);
     }
   };
   // end add data function
@@ -273,6 +277,7 @@ export const Services = ({ sectionId }) => {
 
   const handleSubmitEdit = async () => {
     try {
+      setLoadData(true);
       await handleCUDService(currentData, "edit", selectedData);
       const data = await fetchServiceList(currentPage, limit, setTotalPages);
       setServiceData(data);
@@ -281,6 +286,8 @@ export const Services = ({ sectionId }) => {
       closeEdit();
     } catch (error) {
       console.error("Error editing booking:", error);
+    } finally {
+      setLoadData(false);
     }
   };
 
@@ -404,7 +411,7 @@ export const Services = ({ sectionId }) => {
             key={user["Nama Layanan"].idservice}
             isEven={index % 2 === 0}
             expanded={
-              <>
+              <Fragment>
                 {user["Jenis Layanan"].map((transaction, index) => (
                   <InputWrapper width="100%" key={index}>
                     <UserInput
@@ -461,7 +468,7 @@ export const Services = ({ sectionId }) => {
                     />
                   </SecondaryButton>
                 </div>
-              </>
+              </Fragment>
             }
           >
             <TableBodyValue type="num" value={startIndex + index} />
@@ -489,6 +496,7 @@ export const Services = ({ sectionId }) => {
           onSubmit={handleSubmit}
           saveText="Simpan"
           cancelText="Batal"
+          loading={loadData}
         >
           <InputWrapper>
             <UserInput
@@ -567,6 +575,7 @@ export const Services = ({ sectionId }) => {
           onSubmit={handleSubmitEdit}
           saveText="Simpan Perubahan"
           cancelText="Batal"
+          loading={loadData}
         >
           <InputWrapper>
             <UserInput

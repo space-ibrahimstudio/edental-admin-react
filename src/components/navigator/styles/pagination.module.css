@@ -32,7 +32,7 @@
 .paginationNumText {
   position: relative;
   font-size: 16px;
-  font-family: var(--font-sand);
+  font-family: var(--font-open);
   color: inherit;
   text-align: left;
 }

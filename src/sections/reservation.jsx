@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Fragment } from "../components/tools/controller";
 import {
   fetchReserveList,
   fetchAllCustList,
@@ -183,6 +184,7 @@ export const Reservation = ({ sectionId }) => {
 
     if (confirmSubmit) {
       try {
+        setLoadData(true);
         await handleCUDReserve(
           inputData.name,
           inputData.phone,
@@ -200,6 +202,8 @@ export const Reservation = ({ sectionId }) => {
         closeForm();
       } catch (error) {
         console.error("Error occurred during submit reservation:", error);
+      } finally {
+        setLoadData(false);
       }
     }
   };
@@ -295,6 +299,7 @@ export const Reservation = ({ sectionId }) => {
 
     if (confirmEdit) {
       try {
+        setLoadData(true);
         await handleCUDReserve(
           currentData.name,
           currentData.phone,
@@ -314,6 +319,8 @@ export const Reservation = ({ sectionId }) => {
         closeEdit();
       } catch (error) {
         console.error("Error editing booking:", error);
+      } finally {
+        setLoadData(false);
       }
     }
   };
@@ -525,6 +532,7 @@ export const Reservation = ({ sectionId }) => {
           onSubmit={handleSubmit}
           saveText="Simpan"
           cancelText="Batal"
+          loading={loadData}
         >
           <InputWrapper>
             <UserInput
@@ -601,7 +609,7 @@ export const Reservation = ({ sectionId }) => {
               error={errors.typeservice}
             >
               {inputData.service ? (
-                <>
+                <Fragment>
                   <option value="">Pilih tipe layanan</option>
                   {Array.isArray(subServiceData) &&
                     subServiceData.map((subservice) => (
@@ -612,7 +620,7 @@ export const Reservation = ({ sectionId }) => {
                         {subservice.servicetypename}
                       </option>
                     ))}
-                </>
+                </Fragment>
               ) : (
                 <option value="">Mohon pilih layanan dahulu</option>
               )}
@@ -658,6 +666,7 @@ export const Reservation = ({ sectionId }) => {
           onSubmit={handleSubmitEdit}
           saveText="Simpan Perubahan"
           cancelText="Batal"
+          loading={loadData}
         >
           <InputWrapper>
             <UserInput
@@ -729,7 +738,7 @@ export const Reservation = ({ sectionId }) => {
               error={errors.typeservice}
             >
               {currentData.service ? (
-                <>
+                <Fragment>
                   <option value="">Pilih tipe layanan</option>
                   {Array.isArray(subServiceData) &&
                     subServiceData.map((subservice, index) => (
@@ -737,7 +746,7 @@ export const Reservation = ({ sectionId }) => {
                         {subservice.servicetypename}
                       </option>
                     ))}
-                </>
+                </Fragment>
               ) : (
                 <option value="">Mohon pilih layanan dahulu</option>
               )}

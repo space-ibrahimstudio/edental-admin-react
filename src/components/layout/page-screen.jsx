@@ -43,6 +43,7 @@ export function PageScreen({ variant, pageId, children }) {
 }
 
 PageScreen.propTypes = {
+  variant: PropTypes.string,
   pageId: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
 };

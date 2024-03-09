@@ -192,6 +192,7 @@ export function PortalForm({ type, onClose }) {
 export function SubmitForm({
   formTitle,
   formSubtitle,
+  loading,
   onSubmit,
   saveText,
   cancelText,
@@ -268,6 +269,7 @@ export function SubmitForm({
               buttonText={saveText}
               onClick={onSubmit}
               iconPosition="start"
+              loading={loading}
             >
               <CheckIcon width="12px" height="100%" />
             </PrimButton>
