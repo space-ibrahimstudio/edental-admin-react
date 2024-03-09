@@ -94,6 +94,7 @@ export const Reservation = ({ sectionId }) => {
       reservationdate: "",
       reservationtime: "",
     });
+    setCustExist(false);
   };
   // start data paging
   const rowsPerPage = limit;
@@ -126,15 +127,22 @@ export const Reservation = ({ sectionId }) => {
 
     if (name === "phone") {
       let phoneExists = false;
+      let matchedData = null;
 
       allData.forEach((item) => {
         if (item.userphone === value) {
           phoneExists = true;
+          matchedData = item;
         }
       });
 
       if (phoneExists) {
         setCustExist(true);
+        setInputData((prevState) => ({
+          ...prevState,
+          name: matchedData.username,
+          email: matchedData.useremail,
+        }));
       } else {
         setCustExist(false);
       }
@@ -252,6 +260,14 @@ export const Reservation = ({ sectionId }) => {
       } else {
         setCustExist(false);
       }
+    }
+
+    const selectedService = serviceData.find(
+      (service) => service["Nama Layanan"].servicename === value
+    );
+
+    if (selectedService) {
+      setSubServiceData(selectedService["Jenis Layanan"]);
     }
   };
 
@@ -399,6 +415,7 @@ export const Reservation = ({ sectionId }) => {
       try {
         const data = await fetchAllServiceList();
         setServiceData(data);
+        setSubServiceData(data);
       } catch (error) {
         showNotifications("danger", "Error fetching sub service data.");
       }
@@ -424,7 +441,6 @@ export const Reservation = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               variant="select"
-              subVariant="nolabel"
               id="total-reservation"
               value={limit}
               onChange={handleLimitChange}
@@ -495,13 +511,13 @@ export const Reservation = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown ? (
+      {isDataShown && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           handlePagination={handlePageChange}
         />
-      ) : null}
+      )}
       {isFormOpen && (
         <SubmitForm
           formTitle="Tambah Reservasi"
@@ -513,6 +529,7 @@ export const Reservation = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               id="user-phone"
+              subVariant="label"
               labelText="Nomor Telepon"
               placeholder="0882xxx"
               type="text"
@@ -520,11 +537,17 @@ export const Reservation = ({ sectionId }) => {
               value={inputData.phone}
               onChange={handleInputChange}
               error={errors.phone}
+              info={
+                custExist
+                  ? "Existing Customer, Name and Email will auto-fill."
+                  : ""
+              }
             />
           </InputWrapper>
           <InputWrapper>
             <UserInput
               id="user-name"
+              subVariant={custExist ? "readonly" : "label"}
               labelText="Nama Pelanggan"
               placeholder="John Doe"
               type="text"
@@ -535,6 +558,7 @@ export const Reservation = ({ sectionId }) => {
             />
             <UserInput
               id="user-email"
+              subVariant={custExist ? "readonly" : "label"}
               labelText="Email"
               placeholder="customer@gmail.com"
               type="email"
@@ -548,6 +572,7 @@ export const Reservation = ({ sectionId }) => {
             <UserInput
               variant="select"
               id="service"
+              subVariant="label"
               labelText="Nama Layanan"
               name="service"
               value={inputData.service}
@@ -568,6 +593,7 @@ export const Reservation = ({ sectionId }) => {
             <UserInput
               variant="select"
               id="service-type"
+              subVariant="label"
               labelText="Tipe Layanan"
               name="typeservice"
               value={inputData.typeservice}
@@ -595,6 +621,7 @@ export const Reservation = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               id="date"
+              subVariant="label"
               labelText="Tanggal Reservasi"
               placeholder="Atur tanggal"
               type="date"
@@ -607,6 +634,7 @@ export const Reservation = ({ sectionId }) => {
             <UserInput
               variant="select"
               id="time"
+              subVariant="label"
               labelText="Jam Reservasi"
               name="reservationtime"
               value={inputData.reservationtime}
@@ -634,6 +662,7 @@ export const Reservation = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               id="edit-user-phone"
+              subVariant="readonly"
               labelText="Nomor Telepon"
               placeholder="0882xxx"
               type="text"
@@ -646,6 +675,7 @@ export const Reservation = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               id="edit-user-name"
+              subVariant="readonly"
               labelText="Nama Pelanggan"
               placeholder="John Doe"
               type="text"
@@ -656,6 +686,7 @@ export const Reservation = ({ sectionId }) => {
             />
             <UserInput
               id="edit-user-email"
+              subVariant="readonly"
               labelText="Email"
               placeholder="customer@gmail.com"
               type="email"
@@ -669,44 +700,53 @@ export const Reservation = ({ sectionId }) => {
             <UserInput
               variant="select"
               id="edit-service"
+              subVariant="label"
               labelText="Nama Layanan"
               name="service"
               value={currentData.service}
-              onChange={handleInputChange}
+              onChange={handleInputEditChange}
               error={errors.service}
             >
               <option value="">Pilih layanan</option>
               {Array.isArray(serviceData) &&
                 serviceData.map((service) => (
-                  <option key={service.idservice} value={service.servicename}>
-                    {service.servicename}
+                  <option
+                    key={service["Nama Layanan"].idservice}
+                    value={service["Nama Layanan"].servicename}
+                  >
+                    {service["Nama Layanan"].servicename}
                   </option>
                 ))}
             </UserInput>
             <UserInput
               variant="select"
               id="edit-service-type"
+              subVariant="label"
               labelText="Tipe Layanan"
               name="typeservice"
               value={currentData.typeservice}
-              onChange={handleInputChange}
+              onChange={handleInputEditChange}
               error={errors.typeservice}
             >
-              <option value="">Pilih tipe layanan</option>
-              {Array.isArray(subServiceData) &&
-                subServiceData.map((subservice) => (
-                  <option
-                    key={subservice.idservicetype}
-                    value={subservice.servicetypename}
-                  >
-                    {subservice.servicetypename}
-                  </option>
-                ))}
+              {currentData.service ? (
+                <>
+                  <option value="">Pilih tipe layanan</option>
+                  {Array.isArray(subServiceData) &&
+                    subServiceData.map((subservice, index) => (
+                      <option key={index} value={subservice.servicetypename}>
+                        {subservice.servicetypename}
+                      </option>
+                    ))}
+                </>
+              ) : (
+                <option value="">Mohon pilih layanan dahulu</option>
+              )}
             </UserInput>
           </InputWrapper>
           <InputWrapper>
             <UserInput
               id="edit-date"
+              subVariant="label"
               labelText="Tanggal Reservasi"
               placeholder="Atur tanggal"
               type="date"
@@ -718,6 +758,7 @@ export const Reservation = ({ sectionId }) => {
             <UserInput
               variant="select"
               id="edit-time"
+              subVariant="label"
               labelText="Jam Reservasi"
               name="reservationtime"
               value={currentData.reservationtime}

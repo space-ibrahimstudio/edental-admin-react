@@ -30,7 +30,6 @@ export const Accounting = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               variant="select"
-              subVariant="nolabel"
               id="total-accounting"
               value={limit}
               onChange={handleLimitChange}
@@ -47,7 +46,7 @@ export const Accounting = ({ sectionId }) => {
         </div>
       </div>
       <TableData dataShown={isDataShown}></TableData>
-      {isDataShown ? <Pagination /> : null}
+      {isDataShown && <Pagination />}
     </section>
   );
 };

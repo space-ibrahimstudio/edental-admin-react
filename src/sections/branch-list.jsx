@@ -195,7 +195,6 @@ export const BranchList = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               variant="select"
-              subVariant="nolabel"
               id="total-branch"
               value={limit}
               onChange={handleLimitChange}
@@ -230,13 +229,13 @@ export const BranchList = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown ? (
+      {isDataShown && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           handlePagination={handlePageChange}
         />
-      ) : null}
+      )}
       {isFormOpen && (
         <SubmitForm
           formTitle="Tambah Cabang"
@@ -248,6 +247,7 @@ export const BranchList = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               id="outlet-name"
+              subVariant="label"
               labelText="Nama Cabang"
               placeholder="Edental Jakarta"
               type="text"
@@ -258,6 +258,7 @@ export const BranchList = ({ sectionId }) => {
             />
             <UserInput
               id="outlet-region"
+              subVariant="label"
               labelText="Provinsi"
               placeholder="Jakarta"
               type="text"
@@ -270,6 +271,7 @@ export const BranchList = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               id="outlet-address"
+              subVariant="label"
               labelText="Alamat Cabang"
               placeholder="123 Main Street"
               type="text"
@@ -280,6 +282,7 @@ export const BranchList = ({ sectionId }) => {
             />
             <UserInput
               id="oultet-phone"
+              subVariant="label"
               labelText="Nomor Kontak Cabang"
               placeholder="0882xxx"
               type="text"

@@ -374,7 +374,6 @@ export const Services = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               variant="select"
-              subVariant="nolabel"
               id="total-services"
               value={limit}
               onChange={handleLimitChange}
@@ -494,6 +493,7 @@ export const Services = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               id="service-name"
+              subVariant="label"
               labelText="Nama Layanan"
               placeholder="Masukkan nama layanan"
               type="text"
@@ -507,6 +507,7 @@ export const Services = ({ sectionId }) => {
             <InputWrapper key={index}>
               <UserInput
                 id={`service-name-${index}`}
+                subVariant="label"
                 labelText="Jenis Layanan"
                 placeholder="e.g Scaling gigi"
                 type="text"
@@ -517,6 +518,7 @@ export const Services = ({ sectionId }) => {
               />
               <UserInput
                 id={`service-price-${index}`}
+                subVariant="label"
                 labelText="Atur Harga"
                 placeholder="Masukkan Harga"
                 type="text"
@@ -569,6 +571,7 @@ export const Services = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               id="edit-service-name"
+              subVariant="label"
               labelText="Nama Layanan"
               placeholder="Masukkan nama layanan"
               type="text"
@@ -582,6 +585,7 @@ export const Services = ({ sectionId }) => {
             <InputWrapper key={index}>
               <UserInput
                 id={`edit-service-name-${index}`}
+                subVariant="label"
                 labelText="Jenis Layanan"
                 placeholder="e.g Scaling gigi"
                 type="text"
@@ -592,6 +596,7 @@ export const Services = ({ sectionId }) => {
               />
               <UserInput
                 id={`edit-service-price-${index}`}
+                subVariant="label"
                 labelText="Atur Harga"
                 placeholder="Masukkan Harga"
                 type="text"

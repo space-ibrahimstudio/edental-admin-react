@@ -137,7 +137,6 @@ export const Order = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               variant="select"
-              subVariant="nolabel"
               id="total-order"
               value={limit}
               onChange={handleLimitChange}
@@ -200,13 +199,13 @@ export const Order = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown ? (
+      {isDataShown && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           handlePagination={handlePageChange}
         />
-      ) : null}
+      )}
     </section>
   );
 };

@@ -130,7 +130,6 @@ export const CustList = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               variant="select"
-              subVariant="nolabel"
               id="total-datacustomer"
               value={limit}
               onChange={handleLimitChange}
@@ -162,13 +161,13 @@ export const CustList = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown ? (
+      {isDataShown && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           handlePagination={handlePageChange}
         />
-      ) : null}
+      )}
     </section>
   );
 };

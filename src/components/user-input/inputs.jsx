@@ -106,9 +106,29 @@ export function SearchInput({
   const handleSearch = (e) => {
     const searchTerm = e.target.value;
     setSearchTerm(searchTerm);
-    const filteredData = userData.filter((item) =>
-      item[property].toLowerCase().includes(searchTerm.toLowerCase())
-    );
+
+    const filteredData = userData.filter((item) => {
+      const findProperty = (obj, prop) => {
+        if (obj && typeof obj === "object") {
+          for (let key in obj) {
+            if (key.toLowerCase() === prop.toLowerCase()) {
+              return obj[key];
+            } else if (typeof obj[key] === "object") {
+              return findProperty(obj[key], prop);
+            }
+          }
+        }
+        return undefined;
+      };
+
+      const itemProperty = findProperty(item, property);
+
+      if (itemProperty && typeof itemProperty === "string") {
+        return itemProperty.toLowerCase().includes(searchTerm.toLowerCase());
+      }
+      return false;
+    });
+
     setUserData(filteredData);
   };
 
@@ -146,6 +166,7 @@ export function UserInput({
   id,
   labelText,
   error,
+  info,
   min,
   placeholder,
   type,
@@ -160,32 +181,7 @@ export function UserInput({
   };
 
   if (variant === "select") {
-    if (subVariant === "nolabel") {
-      return (
-        <div className={styles.inputLabel}>
-          <label htmlFor={id} className={styles.inputLabelField}>
-            <select
-              id={id}
-              className={styles.inputLabelFieldInput}
-              name={name}
-              value={value}
-              onChange={onChange}
-              required={isRequired}
-            >
-              {children}
-            </select>
-          </label>
-          {error && (
-            <h6
-              className={styles.inputLabelText}
-              style={{ color: "var(--color-red)" }}
-            >
-              {error}
-            </h6>
-          )}
-        </div>
-      );
-    } else {
+    if (subVariant === "label") {
       return (
         <div className={styles.inputLabel}>
           <h6 className={styles.inputLabelText}>{labelText}</h6>
@@ -209,49 +205,53 @@ export function UserInput({
               {error}
             </h6>
           )}
+          {info && (
+            <h6
+              className={styles.inputLabelText}
+              style={{ color: "var(--color-blue)" }}
+            >
+              {info}
+            </h6>
+          )}
+        </div>
+      );
+    } else {
+      return (
+        <div className={styles.inputLabel}>
+          <label htmlFor={id} className={styles.inputLabelField}>
+            <select
+              id={id}
+              className={styles.inputLabelFieldInput}
+              name={name}
+              value={value}
+              onChange={onChange}
+              required={isRequired}
+            >
+              {children}
+            </select>
+          </label>
+          {error && (
+            <h6
+              className={styles.inputLabelText}
+              style={{ color: "var(--color-red)" }}
+            >
+              {error}
+            </h6>
+          )}
+          {info && (
+            <h6
+              className={styles.inputLabelText}
+              style={{ color: "var(--color-blue)" }}
+            >
+              {info}
+            </h6>
+          )}
         </div>
       );
     }
   } else {
     if (type === "password") {
-      if (subVariant === "nolabel") {
-        return (
-          <div className={styles.inputLabel}>
-            <label htmlFor={id} className={styles.inputLabelField}>
-              <input
-                id={id}
-                className={styles.inputLabelFieldInput}
-                placeholder={placeholder}
-                type={passwordSeen ? "text" : "password"}
-                name={name}
-                value={value}
-                onChange={onChange}
-                min={min}
-                required={isRequired}
-              />
-              <div
-                className={styles.closeWrapper}
-                style={{ padding: "0 10px 0 0" }}
-                onClick={togglePasswordSeen}
-              >
-                {passwordSeen ? (
-                  <EyeSlash width="19px" height="100%" color="#3880EB" />
-                ) : (
-                  <EyeOpen width="19px" height="100%" color="#3880EB" />
-                )}
-              </div>
-            </label>
-            {error && (
-              <h6
-                className={styles.inputLabelText}
-                style={{ color: "var(--color-red)" }}
-              >
-                {error}
-              </h6>
-            )}
-          </div>
-        );
-      } else {
+      if (subVariant === "label") {
         return (
           <div className={styles.inputLabel}>
             <h6 className={styles.inputLabelText}>{labelText}</h6>
@@ -287,13 +287,67 @@ export function UserInput({
                 {error}
               </h6>
             )}
+            {info && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-blue)" }}
+              >
+                {info}
+              </h6>
+            )}
+          </div>
+        );
+      } else {
+        return (
+          <div className={styles.inputLabel}>
+            <label htmlFor={id} className={styles.inputLabelField}>
+              <input
+                id={id}
+                className={styles.inputLabelFieldInput}
+                placeholder={placeholder}
+                type={passwordSeen ? "text" : "password"}
+                name={name}
+                value={value}
+                onChange={onChange}
+                min={min}
+                required={isRequired}
+              />
+              <div
+                className={styles.closeWrapper}
+                style={{ padding: "0 10px 0 0" }}
+                onClick={togglePasswordSeen}
+              >
+                {passwordSeen ? (
+                  <EyeSlash width="19px" height="100%" color="#3880EB" />
+                ) : (
+                  <EyeOpen width="19px" height="100%" color="#3880EB" />
+                )}
+              </div>
+            </label>
+            {error && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-red)" }}
+              >
+                {error}
+              </h6>
+            )}
+            {info && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-blue)" }}
+              >
+                {info}
+              </h6>
+            )}
           </div>
         );
       }
     } else {
-      if (subVariant === "nolabel") {
+      if (subVariant === "label") {
         return (
           <div className={styles.inputLabel}>
+            <h6 className={styles.inputLabelText}>{labelText}</h6>
             <label htmlFor={id} className={styles.inputLabelField}>
               <input
                 id={id}
@@ -313,6 +367,14 @@ export function UserInput({
                 style={{ color: "var(--color-red)" }}
               >
                 {error}
+              </h6>
+            )}
+            {info && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-blue)" }}
+              >
+                {info}
               </h6>
             )}
           </div>
@@ -321,21 +383,43 @@ export function UserInput({
         return (
           <div className={styles.inputLabel}>
             <h6 className={styles.inputLabelText}>{labelText}</h6>
-            <label className={styles.inputLabelField}>
+            <label
+              className={styles.inputLabelField}
+              style={{ border: "1px solid var(--color-blue-30)" }}
+            >
               <input
+                id={id}
                 className={styles.inputLabelFieldInput}
                 style={{ cursor: "default" }}
-                type="text"
+                placeholder={placeholder}
+                type={type}
+                name={name}
                 value={value}
+                onChange={onChange}
                 readOnly
               />
             </label>
+            {error && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-red)" }}
+              >
+                {error}
+              </h6>
+            )}
+            {info && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-blue)" }}
+              >
+                {info}
+              </h6>
+            )}
           </div>
         );
       } else {
         return (
           <div className={styles.inputLabel}>
-            <h6 className={styles.inputLabelText}>{labelText}</h6>
             <label htmlFor={id} className={styles.inputLabelField}>
               <input
                 id={id}
@@ -355,6 +439,14 @@ export function UserInput({
                 style={{ color: "var(--color-red)" }}
               >
                 {error}
+              </h6>
+            )}
+            {info && (
+              <h6
+                className={styles.inputLabelText}
+                style={{ color: "var(--color-blue)" }}
+              >
+                {info}
               </h6>
             )}
           </div>
