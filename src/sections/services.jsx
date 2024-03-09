@@ -196,15 +196,31 @@ export const Services = ({ sectionId }) => {
         return;
       }
 
+      const isConfirmed = window.confirm(
+        "Apakah anda yakin untuk menambahkan data?"
+      );
+      if (!isConfirmed) {
+        return;
+      }
+
       setIsLoading(true);
       await handleCUDService(inputData);
+      showNotifications(
+        "success",
+        "Selamat! Data Layanan baru berhasil ditambahkan."
+      );
+
       const data = await fetchServiceList(currentPage, limit, setTotalPages);
       setServiceData(data);
       setFilteredData(data);
 
       closeForm();
     } catch (error) {
-      console.error("Error occurred during submit reservation:", error);
+      console.error("Error occurred during submit service:", error);
+      showNotifications(
+        "danger",
+        "Gagal menambahkan data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -322,7 +338,6 @@ export const Services = ({ sectionId }) => {
         (subService) =>
           subService.servicetype.trim() === "" || subService.price.trim() === ""
       );
-
       if (currentData.service.trim() === "" || isSubServiceEmpty) {
         setErrors((prevErrors) => ({
           ...prevErrors,
@@ -344,27 +359,45 @@ export const Services = ({ sectionId }) => {
         return;
       }
 
+      const isConfirmed = window.confirm(
+        "Apakah anda yakin untuk menyimpan perubahan data?"
+      );
+      if (!isConfirmed) {
+        return;
+      }
+
       setIsLoading(true);
       await handleCUDService(currentData, "edit", selectedData);
+      showNotifications(
+        "success",
+        "Selamat! Perubahan data Layanan berhasil disimpan."
+      );
+
       const data = await fetchServiceList(currentPage, limit, setTotalPages);
       setServiceData(data);
       setFilteredData(data);
 
       closeEdit();
     } catch (error) {
-      console.error("Error editing booking:", error);
+      console.error("Error editing service:", error);
+      showNotifications(
+        "danger",
+        "Gagal memperbarui data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSubmitDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this Reservation Data?"
-    );
+    const confirmDelete = window.confirm("Yakin untuk menghapus data?");
     if (confirmDelete) {
       try {
         await handleCUDService(inputData, "delete", id);
+        showNotifications(
+          "success",
+          "Selamat! Data Layanan yang anda pilih berhasil dihapus."
+        );
 
         const data = await fetchServiceList(currentPage, limit, setTotalPages);
         setServiceData(data);
@@ -374,7 +407,11 @@ export const Services = ({ sectionId }) => {
           serviceData.filter((service) => service.idservice !== id)
         );
       } catch (error) {
-        console.error("Error deleting booking:", error);
+        console.error("Error deleting service:", error);
+        showNotifications(
+          "danger",
+          "Gagal menghapus data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
       }
     }
   };
@@ -382,9 +419,8 @@ export const Services = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
-      <TableHeadValue value="Nama Layanan">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
+      <TableHeadValue value="Nama Layanan" />
+      <TableHeadValue value="ID Layanan" />
       <TableHeadValue value="Tanggal Dibuat">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
@@ -404,8 +440,11 @@ export const Services = ({ sectionId }) => {
         setServiceData(data);
         setFilteredData(data);
       } catch (error) {
-        console.error("Error fetching user data:", error);
-        showNotifications("danger", "Error fetching user data.");
+        console.error("Error fetching service data:", error);
+        showNotifications(
+          "danger",
+          "Gagal menampilkan data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
       } finally {
         setIsLoading(false);
       }
@@ -420,7 +459,7 @@ export const Services = ({ sectionId }) => {
         const data = await fetchAllServiceList();
         setAllData(data);
       } catch (error) {
-        showNotifications("danger", "Error fetching user data.");
+        console.error("Error fetching all service data:", error);
       }
     };
 
@@ -540,6 +579,7 @@ export const Services = ({ sectionId }) => {
           >
             <TableBodyValue type="num" value={startIndex + index} />
             <TableBodyValue value={service["Nama Layanan"].servicename} />
+            <TableBodyValue value={service["Nama Layanan"].idservice} />
             <TableBodyValue value={service["Nama Layanan"].servicecreate} />
             <TableBodyValue value={service["Nama Layanan"].serviceupdate} />
             <TableBodyValue
