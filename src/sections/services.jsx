@@ -77,6 +77,7 @@ export const Services = ({ sectionId }) => {
 
   const handleLimitChange = (event) => {
     setLimit(parseInt(event.target.value, 10));
+    setCurrentPage(1);
   };
   // end data paging
   // start add data function

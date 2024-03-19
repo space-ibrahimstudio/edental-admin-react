@@ -368,3 +368,38 @@ export async function fetchOutletList(currentPage, limit, setTotalPages) {
     throw error;
   }
 }
+
+export async function fetchStockList(currentPage, limit, setTotalPages) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        limit: limit.toString(),
+        hal: currentPage - 1,
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/viewstock`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    const { TTLPage } = response.data;
+    setTotalPages(TTLPage);
+    console.log("Stock list:", response.data);
+
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching stock list:", error);
+    throw error;
+  }
+}

@@ -10,6 +10,7 @@ import ServiceTab from "./tab-service";
 import BranchTab from "./tab-branch";
 import KasTab from "./tab-kas";
 import POSupplyTab from "./tab-posupply";
+import StockTab from "./tab-stock";
 import CentralPOTab from "./tab-popusat";
 import ReservationTab from "./tab-reservation";
 import OrderTab from "./tab-order";
@@ -37,9 +38,11 @@ const Dashboard = () => {
         return <BranchTab />;
       case "kas":
         return <KasTab />;
-      case "po-supply":
+      case "po-masuk":
         return <POSupplyTab />;
-      case "po-pusat":
+      case "stock":
+        return <StockTab />;
+      case "po-keluar":
         return <CentralPOTab />;
       case "reservation":
         return <ReservationTab />;

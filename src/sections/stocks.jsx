@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Fragment } from "../components/tools/controller";
 import {
-  fetchReserveList,
+  fetchStockList,
   fetchAllCustList,
   fetchHoursList,
   fetchAllServiceList,
@@ -17,18 +17,13 @@ import {
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
 import { InputWrapper, UserInput } from "../components/user-input/inputs";
-import {
-  ChevronDown,
-  PlusIcon,
-  EditIcon,
-  TrashIcon,
-} from "../components/layout/icons";
+import { PlusIcon, EditIcon, TrashIcon } from "../components/layout/icons";
 import { SecondaryButton, PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
 import { Pagination } from "../components/navigator/pagination";
 import styles from "./styles/tabel-section.module.css";
 
-export const Reservation = ({ sectionId }) => {
+export const Stocks = ({ sectionId }) => {
   const { showNotifications } = useNotifications();
   // data state
   const [reserveData, setReserveData] = useState([]);
@@ -196,7 +191,7 @@ export const Reservation = ({ sectionId }) => {
           inputData.reservationtime
         );
 
-        const data = await fetchReserveList(currentPage, limit, setTotalPages);
+        const data = await fetchStockList(currentPage, limit, setTotalPages);
         setReserveData(data);
         setFilteredData(data);
 
@@ -313,7 +308,7 @@ export const Reservation = ({ sectionId }) => {
           selectedData
         );
 
-        const data = await fetchReserveList(currentPage, limit, setTotalPages);
+        const data = await fetchStockList(currentPage, limit, setTotalPages);
         setReserveData(data);
         setFilteredData(data);
 
@@ -334,7 +329,7 @@ export const Reservation = ({ sectionId }) => {
       try {
         await handleCUDReserve("", "", "", "", "", "", "", "delete", id);
 
-        const data = await fetchReserveList(currentPage, limit, setTotalPages);
+        const data = await fetchStockList(currentPage, limit, setTotalPages);
         setReserveData(data);
         setFilteredData(data);
 
@@ -351,20 +346,16 @@ export const Reservation = ({ sectionId }) => {
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
       <TableHeadValue value="Action" type="atn" />
-      <TableHeadValue value="Nama Pengguna">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
-      <TableHeadValue value="Kode" />
-      <TableHeadValue value="Email" />
-      <TableHeadValue value="Telepon" />
-      <TableHeadValue value="Layanan" />
-      <TableHeadValue value="Tipe Layanan" />
-      <TableHeadValue value="Tanggal Reservasi">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
-      <TableHeadValue value="Jam Reservasi">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
+      <TableHeadValue value="Kategori" />
+      <TableHeadValue value="Sub Kategori" />
+      <TableHeadValue value="Nama Item" />
+      <TableHeadValue value="SKU" />
+      <TableHeadValue value="Unit" />
+      <TableHeadValue value="Harga" />
+      <TableHeadValue value="Stok Akhir" />
+      <TableHeadValue value="Stok Masuk" />
+      <TableHeadValue value="Stok Keluar" />
+      <TableHeadValue value="Total Harga" />
       <TableHeadValue value="Cabang" position="end" />
     </TableRow>
   );
@@ -373,7 +364,7 @@ export const Reservation = ({ sectionId }) => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const data = await fetchReserveList(currentPage, limit, setTotalPages);
+        const data = await fetchStockList(currentPage, limit, setTotalPages);
 
         setReserveData(data);
         setFilteredData(data);
@@ -434,13 +425,13 @@ export const Reservation = ({ sectionId }) => {
 
   return (
     <section id={sectionId} className={styles.tabelSection}>
-      <b className={styles.tabelSectionTitle}>Data Reservasi</b>
+      <b className={styles.tabelSectionTitle}>Data Stock</b>
       <div className={styles.tabelSectionNav}>
         <InputWrapper>
           <SearchInput
             id="search-reservation"
-            placeholder="Search by name ..."
-            property="name"
+            placeholder="Search by Item name ..."
+            property="itemname"
             userData={reserveData}
             setUserData={setFilteredData}
           />
@@ -474,7 +465,7 @@ export const Reservation = ({ sectionId }) => {
         loading={isLoading}
       >
         {filteredData.map((user, index) => (
-          <TableRow key={user.idreservation} isEven={index % 2 === 0}>
+          <TableRow key={user.idstock} isEven={index % 2 === 0}>
             <TableBodyValue type="num" value={startIndex + index} />
             <TableBodyValue type="atn">
               <SecondaryButton
@@ -507,15 +498,17 @@ export const Reservation = ({ sectionId }) => {
                 />
               </SecondaryButton>
             </TableBodyValue>
-            <TableBodyValue value={user.name} />
-            <TableBodyValue value={user.rscode} />
-            <TableBodyValue value={user.email} />
-            <TableBodyValue value={user.phone} />
-            <TableBodyValue value={user.service} />
-            <TableBodyValue value={user.typeservice} />
-            <TableBodyValue value={user.reservationdate} />
-            <TableBodyValue value={user.reservationtime} />
-            <TableBodyValue value={user.idbranch} position="end" />
+            <TableBodyValue value={user.categorystock} />
+            <TableBodyValue value={user.subcategorystock} />
+            <TableBodyValue value={user.itemname} />
+            <TableBodyValue value={user.sku} />
+            <TableBodyValue value={user.unit} />
+            <TableBodyValue value={user.value} />
+            <TableBodyValue value={user.lastqty} />
+            <TableBodyValue value={user.stockin} />
+            <TableBodyValue value={user.stockout} />
+            <TableBodyValue value={user.totalvalue} />
+            <TableBodyValue value={user.idoutlet} position="end" />
           </TableRow>
         ))}
       </TableData>

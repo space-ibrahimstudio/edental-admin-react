@@ -55,6 +55,7 @@ export const CustList = ({ sectionId }) => {
 
   const handleLimitChange = (event) => {
     setLimit(parseInt(event.target.value, 10));
+    setCurrentPage(1);
   };
 
   const handleSubmit = async (e) => {

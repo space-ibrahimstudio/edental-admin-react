@@ -284,3 +284,38 @@ export async function handleCUDBranch(
     console.error("Error during branch CUD:", error);
   }
 }
+
+export async function handleCUDOrder(inputData, operation, id) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        layanan: inputData.service,
+      })
+    );
+
+    if (operation === "edit") {
+      formData.append("idedit", id);
+    } else if (operation === "delete") {
+      formData.append("iddelete", id);
+    }
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/cudorder`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("Order CUD response:", response.data);
+  } catch (error) {
+    console.error("Error during order CUD:", error);
+  }
+}

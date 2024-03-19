@@ -42,6 +42,7 @@
 
 .inputLabelField {
   cursor: pointer;
+  overflow: hidden;
   align-self: stretch;
   border-radius: 5px;
   background-color: #fdfdfd;

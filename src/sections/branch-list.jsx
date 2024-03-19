@@ -67,6 +67,7 @@ export const BranchList = ({ sectionId }) => {
   };
   const handleLimitChange = (event) => {
     setLimit(parseInt(event.target.value, 10));
+    setCurrentPage(1);
   };
 
   const openForm = () => setIsFormOpen(true);
