@@ -290,7 +290,7 @@ export const Stocks = ({ sectionId }) => {
             <TableBodyValue value={user.unit} />
             <TableBodyValue value={user.lastqty} />
             <TableBodyValue value={user.value} />
-            <TableBodyValue value={user.stockin} />
+            <TableBodyValue value={user.totalvalue} />
             <TableBodyValue value={user.idoutlet} position="end" />
           </TableRow>
         ))}
