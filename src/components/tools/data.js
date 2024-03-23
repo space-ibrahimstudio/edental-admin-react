@@ -403,3 +403,33 @@ export async function fetchStockList(currentPage, limit, setTotalPages) {
     throw error;
   }
 }
+
+export async function fetchAllCatList() {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/searchcategorystock`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("All category list:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching all category list:", error);
+    throw error;
+  }
+}

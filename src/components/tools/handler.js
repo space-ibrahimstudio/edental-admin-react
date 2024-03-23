@@ -319,3 +319,43 @@ export async function handleCUDOrder(inputData, operation, id) {
     console.error("Error during order CUD:", error);
   }
 }
+
+export async function handleCUDStock(inputData, operation, id) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        categorystock: inputData.cat,
+        subcategorystock: inputData.subCat,
+        itemname: inputData.item,
+        unit: inputData.satuan,
+        stockin: inputData.jumlah,
+        value: inputData.nilai,
+      })
+    );
+
+    if (operation === "edit") {
+      formData.append("idedit", id);
+    } else if (operation === "delete") {
+      formData.append("iddelete", id);
+    }
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/cudstock`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("Stock CUD response:", response.data);
+  } catch (error) {
+    console.error("Error during stock CUD:", error);
+  }
+}

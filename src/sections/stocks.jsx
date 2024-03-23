@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Fragment } from "../components/tools/controller";
-import {
-  fetchStockList,
-  fetchAllCustList,
-  fetchHoursList,
-  fetchAllServiceList,
-} from "../components/tools/data";
-import { handleCUDReserve } from "../components/tools/handler";
-import { getCurrentDate } from "../components/tools/controller";
+import { fetchStockList, fetchAllCatList } from "../components/tools/data";
+import { handleCUDStock } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
   TableData,
@@ -17,8 +11,8 @@ import {
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
 import { InputWrapper, UserInput } from "../components/user-input/inputs";
-import { PlusIcon, EditIcon, TrashIcon } from "../components/layout/icons";
-import { SecondaryButton, PrimButton } from "../components/user-input/buttons";
+import { PlusIcon } from "../components/layout/icons";
+import { PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
 import { Pagination } from "../components/navigator/pagination";
 import styles from "./styles/tabel-section.module.css";
@@ -26,12 +20,11 @@ import styles from "./styles/tabel-section.module.css";
 export const Stocks = ({ sectionId }) => {
   const { showNotifications } = useNotifications();
   // data state
-  const [reserveData, setReserveData] = useState([]);
+  const [stockData, setStockData] = useState([]);
   const [allData, setAllData] = useState([]);
-  const [selectedData, setSelectedData] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
-  const [serviceData, setServiceData] = useState([]);
-  const [subServiceData, setSubServiceData] = useState([]);
+  const [catData, setCatData] = useState([]);
+  const [subCatData, setSubCatData] = useState([]);
   // conditional context
   const [custExist, setCustExist] = useState(false);
   const [isDataShown, setIsDataShown] = useState(true);
@@ -40,55 +33,40 @@ export const Stocks = ({ sectionId }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   // perform action state
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   // input state
-  const [hours, setHours] = useState([]);
   const [inputData, setInputData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    service: "",
-    typeservice: "",
-    reservationdate: "",
-    reservationtime: "",
-  });
-  const [currentData, setCurrentData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    service: "",
-    typeservice: "",
-    reservationdate: "",
-    reservationtime: "",
+    cat: "",
+    subCat: "",
+    item: "",
+    satuan: "",
+    jumlah: "",
+    nilai: "",
   });
   const [errors, setErrors] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    service: "",
-    typeservice: "",
-    reservationdate: "",
-    reservationtime: "",
+    cat: "",
+    subCat: "",
+    item: "",
+    satuan: "",
+    jumlah: "",
+    nilai: "",
   });
   const cleanInput = () => {
     setInputData({
-      name: "",
-      phone: "",
-      email: "",
-      service: "",
-      typeservice: "",
-      reservationdate: "",
-      reservationtime: "",
+      cat: "",
+      subCat: "",
+      item: "",
+      satuan: "",
+      jumlah: "",
+      nilai: "",
     });
     setErrors({
-      name: "",
-      phone: "",
-      email: "",
-      service: "",
-      typeservice: "",
-      reservationdate: "",
-      reservationtime: "",
+      cat: "",
+      subCat: "",
+      item: "",
+      satuan: "",
+      jumlah: "",
+      nilai: "",
     });
     setCustExist(false);
   };
@@ -122,239 +100,90 @@ export const Stocks = ({ sectionId }) => {
       [name]: value,
     }));
 
-    if (name === "phone") {
-      let phoneExists = false;
-      let matchedData = null;
+    // if (name === "phone") {
+    //   let phoneExists = false;
+    //   let matchedData = null;
 
-      allData.forEach((item) => {
-        if (item.userphone === value) {
-          phoneExists = true;
-          matchedData = item;
-        }
-      });
+    //   allData.forEach((item) => {
+    //     if (item.userphone === value) {
+    //       phoneExists = true;
+    //       matchedData = item;
+    //     }
+    //   });
 
-      if (phoneExists) {
-        setCustExist(true);
-        setInputData((prevState) => ({
-          ...prevState,
-          name: matchedData.username,
-          email: matchedData.useremail,
-        }));
-      } else {
-        setCustExist(false);
-      }
-    }
+    //   if (phoneExists) {
+    //     setCustExist(true);
+    //     setInputData((prevState) => ({
+    //       ...prevState,
+    //       name: matchedData.username,
+    //       email: matchedData.useremail,
+    //     }));
+    //   } else {
+    //     setCustExist(false);
+    //   }
+    // }
 
-    const selectedService = serviceData.find(
-      (service) => service["Nama Layanan"].servicename === value
+    const selectedCategory = catData.find(
+      (service) => service["category_stok"].categorystockname === value
     );
 
-    if (selectedService) {
-      setSubServiceData(selectedService["Jenis Layanan"]);
+    if (selectedCategory) {
+      setSubCatData(selectedCategory["subcategory_stok"]);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let hasError = false;
-    const newErrors = { ...errors };
+    // let hasError = false;
+    // const newErrors = { ...errors };
 
-    for (const key in inputData) {
-      if (inputData[key].trim() === "") {
-        newErrors[key] = "This field is required.";
-        hasError = true;
-      } else {
-        newErrors[key] = "";
-      }
-    }
+    // for (const key in inputData) {
+    //   if (inputData[key].trim() === "") {
+    //     newErrors[key] = "This field is required.";
+    //     hasError = true;
+    //   } else {
+    //     newErrors[key] = "";
+    //   }
+    // }
 
-    if (hasError) {
-      setErrors(newErrors);
-      return;
-    }
+    // if (hasError) {
+    //   setErrors(newErrors);
+    //   return;
+    // }
 
     const confirmSubmit = window.confirm(
-      "Are you sure you want to submit this Reservation Data?"
+      "Are you sure you want to submit this Stock Data?"
     );
 
     if (confirmSubmit) {
       try {
         setIsLoading(true);
-        await handleCUDReserve(
-          inputData.name,
-          inputData.phone,
-          inputData.email,
-          inputData.service,
-          inputData.typeservice,
-          inputData.reservationdate,
-          inputData.reservationtime
-        );
+        await handleCUDStock(inputData);
 
         const data = await fetchStockList(currentPage, limit, setTotalPages);
-        setReserveData(data);
+        setStockData(data);
         setFilteredData(data);
 
         closeForm();
       } catch (error) {
-        console.error("Error occurred during submit reservation:", error);
+        console.error("Error occurred during submit stock po:", error);
       } finally {
         setIsLoading(false);
       }
     }
   };
   // end add data function
-  // start edit/delete data function
-  const openEdit = (
-    id,
-    name,
-    phone,
-    email,
-    service,
-    typeservice,
-    reservationdate,
-    reservationtime
-  ) => {
-    setSelectedData(id);
-    setCurrentData({
-      name,
-      phone,
-      email,
-      service,
-      typeservice,
-      reservationdate,
-      reservationtime,
-    });
-    setIsEditOpen(true);
-  };
-
-  const closeEdit = () => {
-    cleanInput();
-    setIsEditOpen(false);
-    setSelectedData(null);
-  };
-
-  const handleInputEditChange = (e) => {
-    const { name, value } = e.target;
-    setErrors({
-      ...errors,
-      [name]: "",
-    });
-
-    setCurrentData({
-      ...currentData,
-      [name]: value,
-    });
-
-    if (name === "phone") {
-      let phoneExists = false;
-
-      allData.forEach((item) => {
-        if (item.userphone === value) {
-          phoneExists = true;
-        }
-      });
-
-      if (phoneExists) {
-        setCustExist(true);
-      } else {
-        setCustExist(false);
-      }
-    }
-
-    const selectedService = serviceData.find(
-      (service) => service["Nama Layanan"].servicename === value
-    );
-
-    if (selectedService) {
-      setSubServiceData(selectedService["Jenis Layanan"]);
-    }
-  };
-
-  const handleSubmitEdit = async () => {
-    let hasError = false;
-    const newErrors = { ...errors };
-
-    for (const key in currentData) {
-      if (currentData[key].trim() === "") {
-        newErrors[key] = "This field is required.";
-        hasError = true;
-      } else {
-        newErrors[key] = "";
-      }
-    }
-
-    if (hasError) {
-      setErrors(newErrors);
-      return;
-    }
-
-    const confirmEdit = window.confirm(
-      "Are you sure you want to submit this Reservation Data?"
-    );
-
-    if (confirmEdit) {
-      try {
-        setIsLoading(true);
-        await handleCUDReserve(
-          currentData.name,
-          currentData.phone,
-          currentData.email,
-          currentData.service,
-          currentData.typeservice,
-          currentData.reservationdate,
-          currentData.reservationtime,
-          "edit",
-          selectedData
-        );
-
-        const data = await fetchStockList(currentPage, limit, setTotalPages);
-        setReserveData(data);
-        setFilteredData(data);
-
-        closeEdit();
-      } catch (error) {
-        console.error("Error editing booking:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  const handleSubmitDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this Reservation Data?"
-    );
-    if (confirmDelete) {
-      try {
-        await handleCUDReserve("", "", "", "", "", "", "", "delete", id);
-
-        const data = await fetchStockList(currentPage, limit, setTotalPages);
-        setReserveData(data);
-        setFilteredData(data);
-
-        setReserveData(
-          reserveData.filter((reserve) => reserve.idreservation !== id)
-        );
-      } catch (error) {
-        console.error("Error deleting booking:", error);
-      }
-    }
-  };
-  // end edit/delete data function
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
-      <TableHeadValue value="Action" type="atn" />
       <TableHeadValue value="Kategori" />
       <TableHeadValue value="Sub Kategori" />
-      <TableHeadValue value="Nama Item" />
       <TableHeadValue value="SKU" />
+      <TableHeadValue value="Nama Item" />
       <TableHeadValue value="Unit" />
-      <TableHeadValue value="Harga" />
       <TableHeadValue value="Stok Akhir" />
-      <TableHeadValue value="Stok Masuk" />
-      <TableHeadValue value="Stok Keluar" />
+      <TableHeadValue value="Harga" />
       <TableHeadValue value="Total Harga" />
       <TableHeadValue value="Cabang" position="end" />
     </TableRow>
@@ -366,7 +195,7 @@ export const Stocks = ({ sectionId }) => {
         setIsLoading(true);
         const data = await fetchStockList(currentPage, limit, setTotalPages);
 
-        setReserveData(data);
+        setStockData(data);
         setFilteredData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -382,10 +211,10 @@ export const Stocks = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchAllCustList();
+        const data = await fetchAllCatList();
         setAllData(data);
       } catch (error) {
-        showNotifications("danger", "Error fetching user data.");
+        showNotifications("danger", "Error fetching stock data.");
       }
     };
 
@@ -397,24 +226,11 @@ export const Stocks = ({ sectionId }) => {
   }, [filteredData]);
 
   useEffect(() => {
-    const fetchHours = async () => {
-      try {
-        const data = await fetchHoursList();
-        setHours(data);
-      } catch (error) {
-        showNotifications("danger", "Error fetching hours data.");
-      }
-    };
-
-    fetchHours();
-  }, []);
-
-  useEffect(() => {
     const fetchService = async () => {
       try {
-        const data = await fetchAllServiceList();
-        setServiceData(data);
-        setSubServiceData(data);
+        const data = await fetchAllCatList();
+        setCatData(data);
+        setSubCatData(data);
       } catch (error) {
         showNotifications("danger", "Error fetching sub service data.");
       }
@@ -432,7 +248,7 @@ export const Stocks = ({ sectionId }) => {
             id="search-reservation"
             placeholder="Search by Item name ..."
             property="itemname"
-            userData={reserveData}
+            userData={stockData}
             setUserData={setFilteredData}
           />
         </InputWrapper>
@@ -465,49 +281,16 @@ export const Stocks = ({ sectionId }) => {
         loading={isLoading}
       >
         {filteredData.map((user, index) => (
-          <TableRow key={user.idstock} isEven={index % 2 === 0}>
+          <TableRow key={index} isEven={index % 2 === 0}>
             <TableBodyValue type="num" value={startIndex + index} />
-            <TableBodyValue type="atn">
-              <SecondaryButton
-                buttonText="Edit"
-                iconPosition="start"
-                onClick={() =>
-                  openEdit(
-                    user.idreservation,
-                    user.name,
-                    user.phone,
-                    user.email,
-                    user.service,
-                    user.typeservice,
-                    user.reservationdate,
-                    user.reservationtime
-                  )
-                }
-              >
-                <EditIcon width="12px" height="100%" />
-              </SecondaryButton>
-              <SecondaryButton
-                variant="icon"
-                subVariant="hollow"
-                onClick={() => handleSubmitDelete(user.idreservation)}
-              >
-                <TrashIcon
-                  width="20px"
-                  height="100%"
-                  color="var(--color-red)"
-                />
-              </SecondaryButton>
-            </TableBodyValue>
             <TableBodyValue value={user.categorystock} />
             <TableBodyValue value={user.subcategorystock} />
-            <TableBodyValue value={user.itemname} />
             <TableBodyValue value={user.sku} />
+            <TableBodyValue value={user.itemname} />
             <TableBodyValue value={user.unit} />
-            <TableBodyValue value={user.value} />
             <TableBodyValue value={user.lastqty} />
+            <TableBodyValue value={user.value} />
             <TableBodyValue value={user.stockin} />
-            <TableBodyValue value={user.stockout} />
-            <TableBodyValue value={user.totalvalue} />
             <TableBodyValue value={user.idoutlet} position="end" />
           </TableRow>
         ))}
@@ -521,7 +304,7 @@ export const Stocks = ({ sectionId }) => {
       )}
       {isFormOpen && (
         <SubmitForm
-          formTitle="Tambah Reservasi"
+          formTitle="Tambah Data Stock"
           onClose={closeForm}
           onSubmit={handleSubmit}
           saveText="Simpan"
@@ -530,251 +313,108 @@ export const Stocks = ({ sectionId }) => {
         >
           <InputWrapper>
             <UserInput
-              id="user-phone"
-              subVariant="label"
-              labelText="Nomor Telepon"
-              placeholder="0882xxx"
-              type="text"
-              name="phone"
-              value={inputData.phone}
-              onChange={handleInputChange}
-              error={errors.phone}
-              info={
-                custExist
-                  ? "Existing Customer, Name and Email will auto-fill."
-                  : ""
-              }
-            />
-          </InputWrapper>
-          <InputWrapper>
-            <UserInput
-              id="user-name"
-              subVariant={custExist ? "readonly" : "label"}
-              labelText="Nama Pelanggan"
-              placeholder="John Doe"
-              type="text"
-              name="name"
-              value={inputData.name}
-              onChange={handleInputChange}
-              error={errors.name}
-            />
-            <UserInput
-              id="user-email"
-              subVariant={custExist ? "readonly" : "label"}
-              labelText="Email"
-              placeholder="customer@gmail.com"
-              type="email"
-              name="email"
-              value={inputData.email}
-              onChange={handleInputChange}
-              error={errors.email}
-            />
-          </InputWrapper>
-          <InputWrapper>
-            <UserInput
               variant="select"
-              id="service"
+              id="category"
               subVariant="label"
-              labelText="Nama Layanan"
-              name="service"
-              value={inputData.service}
+              labelText="Kategori"
+              name="cat"
+              value={inputData.cat}
               onChange={handleInputChange}
-              error={errors.service}
+              error={errors.cat}
             >
-              <option value="">Pilih layanan</option>
-              {Array.isArray(serviceData) &&
-                serviceData.map((service) => (
+              <option value="">Pilih kategori</option>
+              {Array.isArray(catData) &&
+                catData.map((service) => (
                   <option
-                    key={service["Nama Layanan"].idservice}
-                    value={service["Nama Layanan"].servicename}
+                    key={service["category_stok"].idcategorystock}
+                    value={service["category_stok"].categorystockname}
                   >
-                    {service["Nama Layanan"].servicename}
+                    {service["category_stok"].categorystockname}
                   </option>
                 ))}
             </UserInput>
             <UserInput
               variant="select"
-              id="service-type"
+              id="sub-category"
               subVariant="label"
-              labelText="Tipe Layanan"
-              name="typeservice"
-              value={inputData.typeservice}
+              labelText="Sub Kategori"
+              name="subCat"
+              value={inputData.subCat}
               onChange={handleInputChange}
-              error={errors.typeservice}
+              error={errors.subCat}
             >
-              {inputData.service ? (
+              {inputData.cat ? (
                 <Fragment>
-                  <option value="">Pilih tipe layanan</option>
-                  {Array.isArray(subServiceData) &&
-                    subServiceData.map((subservice) => (
+                  <option value="">Pilih sub kategori</option>
+                  {Array.isArray(subCatData) &&
+                    subCatData.map((subservice) => (
                       <option
-                        key={subservice.idservicetype}
-                        value={subservice.servicetypename}
+                        key={subservice.idsubcategorystock}
+                        value={subservice.subcategorystock}
                       >
-                        {subservice.servicetypename}
+                        {subservice.subcategorystock}
                       </option>
                     ))}
                 </Fragment>
               ) : (
-                <option value="">Mohon pilih layanan dahulu</option>
+                <option value="">Mohon pilih kategori dahulu</option>
               )}
             </UserInput>
           </InputWrapper>
           <InputWrapper>
             <UserInput
-              id="date"
+              id="item-name"
               subVariant="label"
-              labelText="Tanggal Reservasi"
-              placeholder="Atur tanggal"
-              type="date"
-              name="reservationdate"
-              value={inputData.reservationdate}
-              onChange={handleInputChange}
-              error={errors.reservationdate}
-              min={getCurrentDate()}
-            />
-            <UserInput
-              variant="select"
-              id="time"
-              subVariant="label"
-              labelText="Jam Reservasi"
-              name="reservationtime"
-              value={inputData.reservationtime}
-              onChange={handleInputChange}
-              error={errors.reservationtime}
-            >
-              <option value="">Pilih jadwal tersedia</option>
-              {hours.map((hour, index) => (
-                <option key={index} value={hour}>
-                  {hour}
-                </option>
-              ))}
-            </UserInput>
-          </InputWrapper>
-        </SubmitForm>
-      )}
-      {isEditOpen && (
-        <SubmitForm
-          formTitle="Edit Reservasi"
-          onClose={closeEdit}
-          onSubmit={handleSubmitEdit}
-          saveText="Simpan Perubahan"
-          cancelText="Batal"
-          loading={isLoading}
-        >
-          <InputWrapper>
-            <UserInput
-              id="edit-user-phone"
-              subVariant="readonly"
-              labelText="Nomor Telepon"
-              placeholder="0882xxx"
+              labelText="Nama Item"
+              placeholder="STERILISATOR"
               type="text"
-              name="phone"
-              value={currentData.phone}
-              onChange={handleInputEditChange}
-              error={errors.phone}
+              name="item"
+              value={inputData.item}
+              onChange={handleInputChange}
+              error={errors.item}
             />
+            <UserInput
+              variant="select"
+              id="item-unit"
+              subVariant="label"
+              labelText="Unit/satuan"
+              name="satuan"
+              value={inputData.satuan}
+              onChange={handleInputChange}
+              error={errors.satuan}
+            >
+              <option value="">Pilih Satuan</option>
+              <option value="PCS">PCS</option>
+              <option value="PACK">PACK</option>
+              <option value="BOTTLE">BOTTLE</option>
+              <option value="TUBE">TUBE</option>
+              <option value="BOX">BOX</option>
+              <option value="SET">SET</option>
+            </UserInput>
           </InputWrapper>
           <InputWrapper>
             <UserInput
-              id="edit-user-name"
-              subVariant="readonly"
-              labelText="Nama Pelanggan"
-              placeholder="John Doe"
+              id="total-item"
+              subVariant="label"
+              labelText="Jumlah"
+              placeholder="40"
               type="text"
-              name="name"
-              value={currentData.name}
-              onChange={handleInputEditChange}
-              error={errors.name}
+              name="jumlah"
+              value={inputData.jumlah}
+              onChange={handleInputChange}
+              error={errors.jumlah}
             />
             <UserInput
-              id="edit-user-email"
-              subVariant="readonly"
-              labelText="Email"
-              placeholder="customer@gmail.com"
-              type="email"
-              name="email"
-              value={currentData.email}
-              onChange={handleInputEditChange}
-              error={errors.email}
+              id="value-item"
+              subVariant="label"
+              labelText="Nilai Unit"
+              placeholder="100000"
+              type="text"
+              name="nilai"
+              value={inputData.nilai}
+              onChange={handleInputChange}
+              error={errors.nilai}
             />
-          </InputWrapper>
-          <InputWrapper>
-            <UserInput
-              variant="select"
-              id="edit-service"
-              subVariant="label"
-              labelText="Nama Layanan"
-              name="service"
-              value={currentData.service}
-              onChange={handleInputEditChange}
-              error={errors.service}
-            >
-              <option value="">Pilih layanan</option>
-              {Array.isArray(serviceData) &&
-                serviceData.map((service) => (
-                  <option
-                    key={service["Nama Layanan"].idservice}
-                    value={service["Nama Layanan"].servicename}
-                  >
-                    {service["Nama Layanan"].servicename}
-                  </option>
-                ))}
-            </UserInput>
-            <UserInput
-              variant="select"
-              id="edit-service-type"
-              subVariant="label"
-              labelText="Tipe Layanan"
-              name="typeservice"
-              value={currentData.typeservice}
-              onChange={handleInputEditChange}
-              error={errors.typeservice}
-            >
-              {currentData.service ? (
-                <Fragment>
-                  <option value="">Pilih tipe layanan</option>
-                  {Array.isArray(subServiceData) &&
-                    subServiceData.map((subservice, index) => (
-                      <option key={index} value={subservice.servicetypename}>
-                        {subservice.servicetypename}
-                      </option>
-                    ))}
-                </Fragment>
-              ) : (
-                <option value="">Mohon pilih layanan dahulu</option>
-              )}
-            </UserInput>
-          </InputWrapper>
-          <InputWrapper>
-            <UserInput
-              id="edit-date"
-              subVariant="label"
-              labelText="Tanggal Reservasi"
-              placeholder="Atur tanggal"
-              type="date"
-              name="reservationdate"
-              value={currentData.reservationdate}
-              onChange={handleInputEditChange}
-              error={errors.reservationdate}
-            />
-            <UserInput
-              variant="select"
-              id="edit-time"
-              subVariant="label"
-              labelText="Jam Reservasi"
-              name="reservationtime"
-              value={currentData.reservationtime}
-              onChange={handleInputEditChange}
-              error={errors.reservationtime}
-            >
-              <option value="">Pilih jadwal tersedia</option>
-              {hours.map((hour, index) => (
-                <option key={index} value={hour}>
-                  {hour}
-                </option>
-              ))}
-            </UserInput>
           </InputWrapper>
         </SubmitForm>
       )}
