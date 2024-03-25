@@ -11,7 +11,6 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
-import { toPathname } from "../components/tools/controller";
 import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import { PlusIcon } from "../components/layout/icons";
 import { PrimButton } from "../components/user-input/buttons";

@@ -446,3 +446,35 @@ export async function fetchLogStock(stockName) {
     throw error;
   }
 }
+
+export async function fetchCentralPOList(page, limit) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        limit: limit.toString(),
+        hal: page.toString(),
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/viewpostock`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("Central PO list:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching central PO list:", error);
+    throw error;
+  }
+}
