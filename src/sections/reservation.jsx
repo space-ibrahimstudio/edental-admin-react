@@ -473,7 +473,7 @@ export const Reservation = ({ sectionId }) => {
         dataShown={isDataShown}
         loading={isLoading}
       >
-        {filteredData.map((user, index) => (
+        {filteredData.map((reserve, index) => (
           <TableRow key={index} isEven={index % 2 === 0}>
             <TableBodyValue
               type="num"
@@ -485,14 +485,14 @@ export const Reservation = ({ sectionId }) => {
                 iconPosition="start"
                 onClick={() =>
                   openEdit(
-                    user.idreservation,
-                    user.name,
-                    user.phone,
-                    user.email,
-                    user.service,
-                    user.typeservice,
-                    user.reservationdate,
-                    user.reservationtime
+                    reserve.idreservation,
+                    reserve.name,
+                    reserve.phone,
+                    reserve.email,
+                    reserve.service,
+                    reserve.typeservice,
+                    reserve.reservationdate,
+                    reserve.reservationtime
                   )
                 }
               >
@@ -501,7 +501,7 @@ export const Reservation = ({ sectionId }) => {
               <SecondaryButton
                 variant="icon"
                 subVariant="hollow"
-                onClick={() => handleSubmitDelete(user.idreservation)}
+                onClick={() => handleSubmitDelete(reserve.idreservation)}
               >
                 <TrashIcon
                   width="20px"
@@ -510,14 +510,14 @@ export const Reservation = ({ sectionId }) => {
                 />
               </SecondaryButton>
             </TableBodyValue>
-            <TableBodyValue value={user.name} />
-            <TableBodyValue value={user.rscode} />
-            <TableBodyValue value={user.email} />
-            <TableBodyValue value={user.phone} />
-            <TableBodyValue value={user.service} />
-            <TableBodyValue value={user.typeservice} />
-            <TableBodyValue value={user.reservationdate} />
-            <TableBodyValue value={user.reservationtime} />
+            <TableBodyValue value={reserve.name} />
+            <TableBodyValue value={reserve.rscode} />
+            <TableBodyValue value={reserve.email} />
+            <TableBodyValue value={reserve.phone} />
+            <TableBodyValue value={reserve.service} />
+            <TableBodyValue value={reserve.typeservice} />
+            <TableBodyValue value={reserve.reservationdate} />
+            <TableBodyValue value={reserve.reservationtime} />
             <TableBodyValue
               value={sessionStorage.getItem("outletName")}
               position="end"

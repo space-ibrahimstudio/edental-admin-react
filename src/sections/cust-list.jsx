@@ -150,17 +150,17 @@ export const CustList = ({ sectionId }) => {
         dataShown={isDataShown}
         loading={isLoading}
       >
-        {filteredData.map((user, index) => (
+        {filteredData.map((cust, index) => (
           <TableRow key={index} isEven={index % 2 === 0}>
             <TableBodyValue
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
-            <TableBodyValue value={user.username} />
-            <TableBodyValue value={user.address} />
-            <TableBodyValue value={user.useremail} />
-            <TableBodyValue value={user.userphone} />
-            <TableBodyValue value={user.usercreate} position="end" />
+            <TableBodyValue value={cust.username} />
+            <TableBodyValue value={cust.address} />
+            <TableBodyValue value={cust.useremail} />
+            <TableBodyValue value={cust.userphone} />
+            <TableBodyValue value={cust.usercreate} position="end" />
           </TableRow>
         ))}
       </TableData>

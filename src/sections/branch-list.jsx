@@ -223,16 +223,16 @@ export const BranchList = ({ sectionId }) => {
         dataShown={isDataShown}
         loading={isLoading}
       >
-        {filteredData.map((user, index) => (
+        {filteredData.map((branch, index) => (
           <TableRow key={index} isEven={index % 2 === 0}>
             <TableBodyValue
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
-            <TableBodyValue value={user.outlet_name} />
-            <TableBodyValue value={user.outlet_address} />
-            <TableBodyValue value={user.outlet_region} />
-            <TableBodyValue value={user.outlet_phone} position="end" />
+            <TableBodyValue value={branch.outlet_name} />
+            <TableBodyValue value={branch.outlet_address} />
+            <TableBodyValue value={branch.outlet_region} />
+            <TableBodyValue value={branch.outlet_phone} position="end" />
           </TableRow>
         ))}
       </TableData>

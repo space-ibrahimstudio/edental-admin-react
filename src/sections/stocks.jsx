@@ -287,24 +287,24 @@ export const Stocks = ({ sectionId }) => {
         dataShown={isDataShown}
         loading={isLoading}
       >
-        {filteredData.map((user, index) => (
+        {filteredData.map((stock, index) => (
           <TableRow
             key={index}
             isEven={index % 2 === 0}
-            onClick={() => navigateStockHistory(user.itemname)}
+            onClick={() => navigateStockHistory(stock.itemname)}
           >
             <TableBodyValue
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
-            <TableBodyValue value={user.categorystock} />
-            <TableBodyValue value={user.subcategorystock} />
-            <TableBodyValue value={user.sku} />
-            <TableBodyValue value={user.itemname} />
-            <TableBodyValue value={user.unit} />
-            <TableBodyValue value={user.lastqty} />
-            <TableBodyValue value={user.value} />
-            <TableBodyValue value={user.totalvalue} />
+            <TableBodyValue value={stock.categorystock} />
+            <TableBodyValue value={stock.subcategorystock} />
+            <TableBodyValue value={stock.sku} />
+            <TableBodyValue value={stock.itemname} />
+            <TableBodyValue value={stock.unit} />
+            <TableBodyValue value={stock.lastqty} />
+            <TableBodyValue value={stock.value} />
+            <TableBodyValue value={stock.totalvalue} />
             <TableBodyValue
               value={sessionStorage.getItem("notifications")}
               position="end"
