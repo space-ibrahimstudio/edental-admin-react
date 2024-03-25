@@ -4,6 +4,7 @@ import { useLoading } from "./components/feedback/context/loading-context";
 import { PrivateRoute } from "./components/routing/private-route";
 import HomeReplace from "./pages/home-replace";
 import Dashboard from "./pages/dashboard/dashboard";
+import StockHistory from "./pages/dashboard/stock-history";
 import WarningScreen from "./components/feedback/warning-screen";
 import ErrorScreen from "./pages/error404";
 import { fetchTabMenus } from "./components/tools/data";
@@ -84,6 +85,10 @@ function App() {
                   ))}
               </React.Fragment>
             ))}
+          <Route
+            path="/dashboard/warehouse/stock/:stockName"
+            element={<StockHistory />}
+          />
         </Routes>
       )}
     </Fragment>

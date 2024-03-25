@@ -24,13 +24,14 @@ export async function handleLogin(username, password) {
 
     if (!responseData.error) {
       const userData = responseData.data[0];
-      const { secret, level, idoutlet } = userData;
+      const { secret, level, idoutlet, outlet_name } = userData;
 
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("username", username);
       sessionStorage.setItem("secret", secret);
       sessionStorage.setItem("level", level);
       sessionStorage.setItem("outlet", idoutlet);
+      sessionStorage.setItem("outletName", outlet_name);
     } else if (!response.data.status) {
       console.log("Invalid username or password. Please try again.");
     } else {

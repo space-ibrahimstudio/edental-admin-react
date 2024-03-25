@@ -22,7 +22,7 @@ import {
 } from "../components/layout/icons";
 import { SecondaryButton, PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
-import { Pagination } from "../components/navigator/pagination";
+import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
 export const Services = ({ sectionId }) => {
@@ -69,14 +69,11 @@ export const Services = ({ sectionId }) => {
     });
   };
   // start data paging
-  const rowsPerPage = limit;
-  const startIndex = (currentPage - 1) * rowsPerPage + 1;
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
-
   const handleLimitChange = (event) => {
-    setLimit(parseInt(event.target.value, 10));
+    setLimit(parseInt(event.target.value));
     setCurrentPage(1);
   };
   // end data paging
@@ -433,13 +430,15 @@ export const Services = ({ sectionId }) => {
   );
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (page, limit) => {
       try {
         setIsLoading(true);
-        const data = await fetchServiceList(currentPage, limit, setTotalPages);
+        const offset = (page - 1) * limit;
+        const data = await fetchServiceList(offset, limit);
 
-        setServiceData(data);
-        setFilteredData(data);
+        setServiceData(data.data);
+        setFilteredData(data.data);
+        setTotalPages(data.TTLPage);
       } catch (error) {
         console.error("Error fetching service data:", error);
         showNotifications(
@@ -451,7 +450,7 @@ export const Services = ({ sectionId }) => {
       }
     };
 
-    fetchData();
+    fetchData(currentPage, limit);
   }, [currentPage, limit]);
 
   useEffect(() => {
@@ -515,7 +514,7 @@ export const Services = ({ sectionId }) => {
         {filteredData.map((service, index) => (
           <TableRow
             type="expand"
-            key={service["Nama Layanan"].idservice}
+            key={index}
             isEven={index % 2 === 0}
             expanded={
               <Fragment>
@@ -578,7 +577,10 @@ export const Services = ({ sectionId }) => {
               </Fragment>
             }
           >
-            <TableBodyValue type="num" value={startIndex + index} />
+            <TableBodyValue
+              type="num"
+              value={(currentPage - 1) * limit + index + 1}
+            />
             <TableBodyValue value={service["Nama Layanan"].servicename} />
             <TableBodyValue value={service["Nama Layanan"].idservice} />
             <TableBodyValue value={service["Nama Layanan"].servicecreate} />
@@ -591,10 +593,10 @@ export const Services = ({ sectionId }) => {
         ))}
       </TableData>
       {isDataShown && (
-        <Pagination
+        <PaginationV2
           currentPage={currentPage}
           totalPages={totalPages}
-          handlePagination={handlePageChange}
+          onPageChange={handlePageChange}
         />
       )}
       {isFormOpen && (

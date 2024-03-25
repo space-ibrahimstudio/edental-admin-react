@@ -13,7 +13,7 @@ import { PlusIcon, ChevronDown } from "../components/layout/icons";
 import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import { PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
-import { Pagination } from "../components/navigator/pagination";
+import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
 export const BranchList = ({ sectionId }) => {
@@ -60,13 +60,11 @@ export const BranchList = ({ sectionId }) => {
       phone: "",
     });
   };
-  const rowsPerPage = limit;
-  const startIndex = (currentPage - 1) * rowsPerPage + 1;
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
   const handleLimitChange = (event) => {
-    setLimit(parseInt(event.target.value, 10));
+    setLimit(parseInt(event.target.value));
     setCurrentPage(1);
   };
 
@@ -160,13 +158,15 @@ export const BranchList = ({ sectionId }) => {
   );
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (page, limit) => {
       try {
         setIsLoading(true);
-        const data = await fetchOutletList(currentPage, limit, setTotalPages);
+        const offset = (page - 1) * limit;
+        const data = await fetchOutletList(offset, limit);
 
-        setBranchData(data);
-        setFilteredData(data);
+        setBranchData(data.data);
+        setFilteredData(data.data);
+        setTotalPages(data.TTLPage);
       } catch (error) {
         console.error("Error fetching user data:", error);
         showNotifications("danger", "Error fetching user data.");
@@ -175,7 +175,7 @@ export const BranchList = ({ sectionId }) => {
       }
     };
 
-    fetchData();
+    fetchData(currentPage, limit);
   }, [currentPage, limit]);
 
   useEffect(() => {
@@ -224,8 +224,11 @@ export const BranchList = ({ sectionId }) => {
         loading={isLoading}
       >
         {filteredData.map((user, index) => (
-          <TableRow key={user.idoutlet} isEven={index % 2 === 0}>
-            <TableBodyValue type="num" value={startIndex + index} />
+          <TableRow key={index} isEven={index % 2 === 0}>
+            <TableBodyValue
+              type="num"
+              value={(currentPage - 1) * limit + index + 1}
+            />
             <TableBodyValue value={user.outlet_name} />
             <TableBodyValue value={user.outlet_address} />
             <TableBodyValue value={user.outlet_region} />
@@ -234,10 +237,10 @@ export const BranchList = ({ sectionId }) => {
         ))}
       </TableData>
       {isDataShown && (
-        <Pagination
+        <PaginationV2
           currentPage={currentPage}
           totalPages={totalPages}
-          handlePagination={handlePageChange}
+          onPageChange={handlePageChange}
         />
       )}
       {isFormOpen && (

@@ -89,7 +89,7 @@ export async function fetchHoursList() {
   return availableHours;
 }
 
-export async function fetchReserveList(currentPage, limit, setTotalPages) {
+export async function fetchReserveList(page, limit) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -99,7 +99,7 @@ export async function fetchReserveList(currentPage, limit, setTotalPages) {
       JSON.stringify({
         secret: userSecret,
         limit: limit.toString(),
-        hal: currentPage - 1,
+        hal: page.toString(),
       })
     );
 
@@ -113,18 +113,15 @@ export async function fetchReserveList(currentPage, limit, setTotalPages) {
       }
     );
 
-    const { TTLPage } = response.data;
-    setTotalPages(TTLPage);
     console.log("Reservation list:", response.data);
-
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Error fetching reservation list:", error);
     throw error;
   }
 }
 
-export async function fetchCustList(currentPage, limit, setTotalPages) {
+export async function fetchCustList(page, limit) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -134,7 +131,7 @@ export async function fetchCustList(currentPage, limit, setTotalPages) {
       JSON.stringify({
         secret: userSecret,
         limit: limit.toString(),
-        hal: currentPage - 1,
+        hal: page.toString(),
       })
     );
 
@@ -148,11 +145,8 @@ export async function fetchCustList(currentPage, limit, setTotalPages) {
       }
     );
 
-    const { TTLPage } = response.data;
-    setTotalPages(TTLPage);
     console.log("Customer list:", response.data);
-
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Error fetching customer list:", error);
     throw error;
@@ -203,7 +197,7 @@ export async function fetchIPAddress() {
   }
 }
 
-export async function fetchOrderList(currentPage, limit, setTotalPages) {
+export async function fetchOrderList(page, limit) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -213,7 +207,7 @@ export async function fetchOrderList(currentPage, limit, setTotalPages) {
       JSON.stringify({
         secret: userSecret,
         limit: limit.toString(),
-        hal: currentPage - 1,
+        hal: page.toString(),
       })
     );
 
@@ -227,18 +221,15 @@ export async function fetchOrderList(currentPage, limit, setTotalPages) {
       }
     );
 
-    const { TTLPage } = response.data;
-    setTotalPages(TTLPage);
     console.log("Order list:", response.data);
-
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Error fetching order list:", error);
     throw error;
   }
 }
 
-export async function fetchServiceList(currentPage, limit, setTotalPages) {
+export async function fetchServiceList(page, limit) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -248,7 +239,7 @@ export async function fetchServiceList(currentPage, limit, setTotalPages) {
       JSON.stringify({
         secret: userSecret,
         limit: limit.toString(),
-        hal: currentPage - 1,
+        hal: page.toString(),
       })
     );
 
@@ -262,11 +253,8 @@ export async function fetchServiceList(currentPage, limit, setTotalPages) {
       }
     );
 
-    const { TTLPage } = response.data;
-    setTotalPages(TTLPage);
     console.log("Service list:", response.data);
-
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Error fetching service list:", error);
     throw error;
@@ -334,7 +322,7 @@ export async function fetchAllSubServiceList() {
   }
 }
 
-export async function fetchOutletList(currentPage, limit, setTotalPages) {
+export async function fetchOutletList(page, limit) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -344,7 +332,7 @@ export async function fetchOutletList(currentPage, limit, setTotalPages) {
       JSON.stringify({
         secret: userSecret,
         limit: limit.toString(),
-        hal: currentPage - 1,
+        hal: page.toString(),
       })
     );
 
@@ -358,18 +346,15 @@ export async function fetchOutletList(currentPage, limit, setTotalPages) {
       }
     );
 
-    const { TTLPage } = response.data;
-    setTotalPages(TTLPage);
     console.log("Branch list:", response.data);
-
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Error fetching branch list:", error);
     throw error;
   }
 }
 
-export async function fetchStockList(currentPage, limit, setTotalPages) {
+export async function fetchStockList(page, limit) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -379,7 +364,7 @@ export async function fetchStockList(currentPage, limit, setTotalPages) {
       JSON.stringify({
         secret: userSecret,
         limit: limit.toString(),
-        hal: currentPage - 1,
+        hal: page.toString(),
       })
     );
 
@@ -393,11 +378,8 @@ export async function fetchStockList(currentPage, limit, setTotalPages) {
       }
     );
 
-    const { TTLPage } = response.data;
-    setTotalPages(TTLPage);
     console.log("Stock list:", response.data);
-
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Error fetching stock list:", error);
     throw error;
@@ -430,6 +412,37 @@ export async function fetchAllCatList() {
     return response.data.data;
   } catch (error) {
     console.error("Error fetching all category list:", error);
+    throw error;
+  }
+}
+
+export async function fetchLogStock(stockName) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        stockname: stockName,
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/logstock`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log(`${stockName} stock log history data:`, response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching stock log history:", error);
     throw error;
   }
 }

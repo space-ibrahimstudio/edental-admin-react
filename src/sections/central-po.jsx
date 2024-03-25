@@ -4,7 +4,7 @@ import { PlusIcon } from "../components/layout/icons";
 import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import { PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
-import { Pagination } from "../components/navigator/pagination";
+import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
 export const CentralPO = ({ sectionId }) => {
@@ -50,7 +50,7 @@ export const CentralPO = ({ sectionId }) => {
         </div>
       </div>
       <TableData dataShown={isDataShown}></TableData>
-      {isDataShown && <Pagination />}
+      {isDataShown && <PaginationV2 />}
     </section>
   );
 };

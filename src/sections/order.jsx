@@ -19,7 +19,7 @@ import {
 } from "../components/layout/icons";
 import { SearchInput } from "../components/user-input/inputs";
 import { PrimButton, SecondaryButton } from "../components/user-input/buttons";
-import { Pagination } from "../components/navigator/pagination";
+import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
 export const Order = ({ sectionId }) => {
@@ -62,14 +62,11 @@ export const Order = ({ sectionId }) => {
     });
   };
   // start data paging
-  const rowsPerPage = limit;
-  const startIndex = (currentPage - 1) * rowsPerPage + 1;
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
-
   const handleLimitChange = (event) => {
-    setLimit(parseInt(event.target.value, 10));
+    setLimit(parseInt(event.target.value));
     setCurrentPage(1);
   };
   // end data paging
@@ -334,13 +331,15 @@ export const Order = ({ sectionId }) => {
   );
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (page, limit) => {
       try {
         setIsLoading(true);
-        const data = await fetchOrderList(currentPage, limit, setTotalPages);
+        const offset = (page - 1) * limit;
+        const data = await fetchOrderList(offset, limit);
 
-        setOrderData(data);
-        setFilteredData(data);
+        setOrderData(data.data);
+        setFilteredData(data.data);
+        setTotalPages(data.TTLPage);
       } catch (error) {
         console.error("Error fetching user data:", error);
         showNotifications("danger", "Error fetching user data.");
@@ -349,7 +348,7 @@ export const Order = ({ sectionId }) => {
       }
     };
 
-    fetchData();
+    fetchData(currentPage, limit);
   }, [currentPage, limit]);
 
   useEffect(() => {
@@ -413,7 +412,7 @@ export const Order = ({ sectionId }) => {
         {filteredData.map((order, index) => (
           <TableRow
             type="expand"
-            key={order["Transaction"].idtransaction}
+            key={index}
             isEven={index % 2 === 0}
             expanded={
               <Fragment>
@@ -461,7 +460,10 @@ export const Order = ({ sectionId }) => {
               </Fragment>
             }
           >
-            <TableBodyValue type="num" value={startIndex + index} />
+            <TableBodyValue
+              type="num"
+              value={(currentPage - 1) * limit + index + 1}
+            />
             <TableBodyValue value={order["Transaction"].transactionname} />
             <TableBodyValue value={order["Transaction"].rscode} />
             <TableBodyValue value={order["Transaction"].transactionstatus} />
@@ -469,17 +471,17 @@ export const Order = ({ sectionId }) => {
             <TableBodyValue value={order["Transaction"].noinvoice} />
             <TableBodyValue value={order["Transaction"].transactioncreate} />
             <TableBodyValue
-              value={order["Transaction"].idbranch}
+              value={sessionStorage.getItem("outletName")}
               position="end"
             />
           </TableRow>
         ))}
       </TableData>
       {isDataShown && (
-        <Pagination
+        <PaginationV2
           currentPage={currentPage}
           totalPages={totalPages}
-          handlePagination={handlePageChange}
+          onPageChange={handlePageChange}
         />
       )}
       {isFormOpen && (

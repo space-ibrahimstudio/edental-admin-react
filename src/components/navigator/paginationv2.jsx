@@ -2,16 +2,16 @@ import React from "react";
 import { ChevronIcon } from "@ibrahimstudio/icons";
 import pgnt from "./styles/pagination.module.css";
 
-export function Pagination({ currentPage, totalPages, handlePagination }) {
+export const PaginationV2 = ({ currentPage, totalPages, onPageChange }) => {
   const prevPage = () => {
     if (currentPage > 1) {
-      handlePagination(currentPage - 1);
+      onPageChange(currentPage - 1);
     }
   };
 
   const nextPage = () => {
     if (currentPage < totalPages) {
-      handlePagination(currentPage + 1);
+      onPageChange(currentPage + 1);
     }
   };
 
@@ -46,7 +46,7 @@ export function Pagination({ currentPage, totalPages, handlePagination }) {
         className={`${pgnt.paginationArrow} ${
           pageNumber === "ellipsis" ? pgnt.ellipsis : ""
         } ${currentPage === pageNumber ? pgnt.active : ""}`}
-        onClick={() => handlePagination(pageNumber)}
+        onClick={() => onPageChange(pageNumber)}
       >
         {pageNumber === "ellipsis" ? (
           <b className={pgnt.paginationNumText}>...</b>
@@ -60,20 +60,22 @@ export function Pagination({ currentPage, totalPages, handlePagination }) {
   return (
     <div className={pgnt.pagination}>
       <button
-        className={pgnt.paginationArrow}
-        style={{ display: currentPage === 1 ? "none" : "flex" }}
+        className={`${pgnt.paginationArrow} ${
+          currentPage === 1 ? pgnt.disable : ""
+        }`}
         onClick={prevPage}
       >
         <ChevronIcon width="7px" height="100%" direction="left" />
       </button>
       {renderPageNumbers()}
       <button
-        className={pgnt.paginationArrow}
-        style={{ display: currentPage === totalPages ? "none" : "flex" }}
+        className={`${pgnt.paginationArrow} ${
+          currentPage === totalPages ? pgnt.disable : ""
+        }`}
         onClick={nextPage}
       >
         <ChevronIcon width="7px" height="100%" />
       </button>
     </div>
   );
-}
+};
