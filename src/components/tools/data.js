@@ -440,7 +440,7 @@ export async function fetchLogStock(stockName) {
     );
 
     console.log(`${stockName} stock log history data:`, response.data);
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Error fetching stock log history:", error);
     throw error;

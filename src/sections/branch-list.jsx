@@ -104,9 +104,11 @@ export const BranchList = ({ sectionId }) => {
           inputData.phone
         );
 
-        const data = await fetchOutletList(currentPage, limit, setTotalPages);
-        setBranchData(data);
-        setFilteredData(data);
+        const offset = (currentPage - 1) * limit;
+        const data = await fetchOutletList(offset, limit);
+        setBranchData(data.data);
+        setFilteredData(data.data);
+        setTotalPages(data.TTLPage);
 
         closeForm();
       } catch (error) {

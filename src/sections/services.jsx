@@ -208,9 +208,11 @@ export const Services = ({ sectionId }) => {
         "Selamat! Data Layanan baru berhasil ditambahkan."
       );
 
-      const data = await fetchServiceList(currentPage, limit, setTotalPages);
-      setServiceData(data);
-      setFilteredData(data);
+      const offset = (currentPage - 1) * limit;
+      const data = await fetchServiceList(offset, limit);
+      setServiceData(data.data);
+      setFilteredData(data.data);
+      setTotalPages(data.TTLPage);
 
       closeForm();
     } catch (error) {
@@ -371,9 +373,11 @@ export const Services = ({ sectionId }) => {
         "Selamat! Perubahan data Layanan berhasil disimpan."
       );
 
-      const data = await fetchServiceList(currentPage, limit, setTotalPages);
-      setServiceData(data);
-      setFilteredData(data);
+      const offset = (currentPage - 1) * limit;
+      const data = await fetchServiceList(offset, limit);
+      setServiceData(data.data);
+      setFilteredData(data.data);
+      setTotalPages(data.TTLPage);
 
       closeEdit();
     } catch (error) {
@@ -397,9 +401,11 @@ export const Services = ({ sectionId }) => {
           "Selamat! Data Layanan yang anda pilih berhasil dihapus."
         );
 
-        const data = await fetchServiceList(currentPage, limit, setTotalPages);
-        setServiceData(data);
-        setFilteredData(data);
+        const offset = (currentPage - 1) * limit;
+        const data = await fetchServiceList(offset, limit);
+        setServiceData(data.data);
+        setFilteredData(data.data);
+        setTotalPages(data.TTLPage);
 
         setServiceData(
           serviceData.filter((service) => service.idservice !== id)

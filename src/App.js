@@ -16,7 +16,7 @@ function App() {
 
   const { setLoading } = useLoading();
 
-  const minWidthForWarning = 940;
+  const minWidthForWarning = 1032;
 
   useEffect(() => {
     const handleResize = () => {

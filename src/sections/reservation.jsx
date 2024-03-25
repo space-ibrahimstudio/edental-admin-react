@@ -194,9 +194,11 @@ export const Reservation = ({ sectionId }) => {
           inputData.reservationtime
         );
 
-        const data = await fetchReserveList(currentPage, limit, setTotalPages);
-        setReserveData(data);
-        setFilteredData(data);
+        const offset = (currentPage - 1) * limit;
+        const data = await fetchReserveList(offset, limit);
+        setReserveData(data.data);
+        setFilteredData(data.data);
+        setTotalPages(data.TTLPage);
 
         closeForm();
       } catch (error) {
@@ -311,9 +313,11 @@ export const Reservation = ({ sectionId }) => {
           selectedData
         );
 
-        const data = await fetchReserveList(currentPage, limit, setTotalPages);
-        setReserveData(data);
-        setFilteredData(data);
+        const offset = (currentPage - 1) * limit;
+        const data = await fetchReserveList(offset, limit);
+        setReserveData(data.data);
+        setFilteredData(data.data);
+        setTotalPages(data.TTLPage);
 
         closeEdit();
       } catch (error) {
@@ -332,9 +336,11 @@ export const Reservation = ({ sectionId }) => {
       try {
         await handleCUDReserve("", "", "", "", "", "", "", "delete", id);
 
-        const data = await fetchReserveList(currentPage, limit, setTotalPages);
-        setReserveData(data);
-        setFilteredData(data);
+        const offset = (currentPage - 1) * limit;
+        const data = await fetchReserveList(offset, limit);
+        setReserveData(data.data);
+        setFilteredData(data.data);
+        setTotalPages(data.TTLPage);
 
         setReserveData(
           reserveData.filter((reserve) => reserve.idreservation !== id)

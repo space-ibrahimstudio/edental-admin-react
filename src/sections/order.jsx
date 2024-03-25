@@ -180,9 +180,11 @@ export const Order = ({ sectionId }) => {
         "Selamat! Data Order baru berhasil ditambahkan."
       );
 
-      const data = await fetchOrderList(currentPage, limit, setTotalPages);
-      setOrderData(data);
-      setFilteredData(data);
+      const offset = (currentPage - 1) * limit;
+      const data = await fetchOrderList(offset, limit);
+      setOrderData(data.data);
+      setFilteredData(data.data);
+      setTotalPages(data.TTLPage);
 
       closeForm();
     } catch (error) {
@@ -297,9 +299,11 @@ export const Order = ({ sectionId }) => {
         "Selamat! Perubahan data Layanan berhasil disimpan."
       );
 
-      const data = await fetchOrderList(currentPage, limit, setTotalPages);
-      setOrderData(data);
-      setFilteredData(data);
+      const offset = (currentPage - 1) * limit;
+      const data = await fetchOrderList(offset, limit);
+      setOrderData(data.data);
+      setFilteredData(data.data);
+      setTotalPages(data.TTLPage);
 
       closeEdit();
     } catch (error) {

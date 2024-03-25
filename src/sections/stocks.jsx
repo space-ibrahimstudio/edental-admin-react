@@ -24,12 +24,10 @@ export const Stocks = ({ sectionId }) => {
   const { showNotifications } = useNotifications();
   // data state
   const [stockData, setStockData] = useState([]);
-  const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [catData, setCatData] = useState([]);
   const [subCatData, setSubCatData] = useState([]);
   // conditional context
-  const [custExist, setCustExist] = useState(false);
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -71,7 +69,6 @@ export const Stocks = ({ sectionId }) => {
       jumlah: "",
       nilai: "",
     });
-    setCustExist(false);
   };
   // start data paging
   const handlePageChange = (page) => {
@@ -162,9 +159,11 @@ export const Stocks = ({ sectionId }) => {
         setIsLoading(true);
         await handleCUDStock(inputData);
 
-        const data = await fetchStockList(currentPage, limit, setTotalPages);
-        setStockData(data);
-        setFilteredData(data);
+        const offset = (currentPage - 1) * limit;
+        const data = await fetchStockList(offset, limit);
+        setStockData(data.data);
+        setFilteredData(data.data);
+        setTotalPages(data.TTLPage);
 
         closeForm();
       } catch (error) {
@@ -191,7 +190,7 @@ export const Stocks = ({ sectionId }) => {
   );
 
   const navigateStockHistory = (stockName) => {
-    navigate(`/dashboard/warehouse/stock/${toPathname(stockName)}`);
+    navigate(`/dashboard/warehouse/stock/${stockName.toLowerCase()}`);
   };
 
   useEffect(() => {
@@ -214,19 +213,6 @@ export const Stocks = ({ sectionId }) => {
 
     fetchData(currentPage, limit);
   }, [currentPage, limit]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchAllCatList();
-        setAllData(data);
-      } catch (error) {
-        showNotifications("danger", "Error fetching stock data.");
-      }
-    };
-
-    fetchData();
-  }, []);
 
   useEffect(() => {
     setIsDataShown(filteredData.length > 0);
@@ -305,10 +291,7 @@ export const Stocks = ({ sectionId }) => {
             <TableBodyValue value={stock.lastqty} />
             <TableBodyValue value={stock.value} />
             <TableBodyValue value={stock.totalvalue} />
-            <TableBodyValue
-              value={sessionStorage.getItem("notifications")}
-              position="end"
-            />
+            <TableBodyValue value={stock.outletname} position="end" />
           </TableRow>
         ))}
       </TableData>
