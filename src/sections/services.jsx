@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Fragment } from "../components/tools/controller";
-import {
-  fetchServiceList,
-  fetchAllServiceList,
-} from "../components/tools/data";
+import { fetchDataList, fetchAllDataList } from "../components/tools/data";
 import { handleCUDService } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
@@ -209,7 +206,7 @@ export const Services = ({ sectionId }) => {
       );
 
       const offset = (currentPage - 1) * limit;
-      const data = await fetchServiceList(offset, limit);
+      const data = await fetchDataList(offset, limit, "viewservice");
       setServiceData(data.data);
       setFilteredData(data.data);
       setTotalPages(data.TTLPage);
@@ -374,7 +371,7 @@ export const Services = ({ sectionId }) => {
       );
 
       const offset = (currentPage - 1) * limit;
-      const data = await fetchServiceList(offset, limit);
+      const data = await fetchDataList(offset, limit, "viewservice");
       setServiceData(data.data);
       setFilteredData(data.data);
       setTotalPages(data.TTLPage);
@@ -395,14 +392,14 @@ export const Services = ({ sectionId }) => {
     const confirmDelete = window.confirm("Yakin untuk menghapus data?");
     if (confirmDelete) {
       try {
-        await handleCUDService(inputData, "delete", id);
+        await handleCUDService("", "delete", id);
         showNotifications(
           "success",
           "Selamat! Data Layanan yang anda pilih berhasil dihapus."
         );
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchServiceList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewservice");
         setServiceData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
@@ -440,7 +437,7 @@ export const Services = ({ sectionId }) => {
       try {
         setIsLoading(true);
         const offset = (page - 1) * limit;
-        const data = await fetchServiceList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewservice");
 
         setServiceData(data.data);
         setFilteredData(data.data);
@@ -462,7 +459,7 @@ export const Services = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchAllServiceList();
+        const data = await fetchAllDataList("searchservice");
         setAllData(data);
       } catch (error) {
         console.error("Error fetching all service data:", error);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Fragment } from "../components/tools/controller";
-import { fetchStockList, fetchAllCatList } from "../components/tools/data";
+import { fetchDataList, fetchAllDataList } from "../components/tools/data";
 import { handleCUDStock } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
@@ -159,7 +159,7 @@ export const Stocks = ({ sectionId }) => {
         await handleCUDStock(inputData);
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchStockList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewstock");
         setStockData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
@@ -197,7 +197,7 @@ export const Stocks = ({ sectionId }) => {
       try {
         setIsLoading(true);
         const offset = (page - 1) * limit;
-        const data = await fetchStockList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewstock");
 
         setStockData(data.data);
         setFilteredData(data.data);
@@ -220,7 +220,7 @@ export const Stocks = ({ sectionId }) => {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const data = await fetchAllCatList();
+        const data = await fetchAllDataList("searchcategorystock");
         setCatData(data);
         setSubCatData(data);
       } catch (error) {

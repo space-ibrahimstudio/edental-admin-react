@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchOutletList } from "../components/tools/data";
+import { fetchDataList } from "../components/tools/data";
 import { handleCUDBranch } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
-import { PlusIcon, ChevronDown } from "../components/layout/icons";
+import { PlusIcon } from "../components/layout/icons";
 import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import { PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
@@ -18,23 +18,19 @@ import styles from "./styles/tabel-section.module.css";
 
 export const BranchList = ({ sectionId }) => {
   const { showNotifications } = useNotifications();
+  // data state
   const [branchData, setBranchData] = useState([]);
-  const [selectedData, setSelectedData] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
+  // conditional context
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [limit, setLimit] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  // perform action state
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  // input state
   const [inputData, setInputData] = useState({
-    region: "",
-    name: "",
-    address: "",
-    phone: "",
-  });
-  const [currentData, setCurrentData] = useState({
     region: "",
     name: "",
     address: "",
@@ -60,6 +56,7 @@ export const BranchList = ({ sectionId }) => {
       phone: "",
     });
   };
+  // start data paging
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -67,7 +64,8 @@ export const BranchList = ({ sectionId }) => {
     setLimit(parseInt(event.target.value));
     setCurrentPage(1);
   };
-
+  // end data paging
+  // start add data function
   const openForm = () => setIsFormOpen(true);
   const closeForm = () => {
     cleanInput();
@@ -76,79 +74,68 @@ export const BranchList = ({ sectionId }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setErrors({
-      ...errors,
-      [name]: "",
+
+    setInputData((prevState) => {
+      return { ...prevState, [name]: value };
     });
 
-    setInputData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setErrors((prevErrors) => {
+      return { ...prevErrors, [name]: "" };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const confirmSubmit = window.confirm(
-      "Are you sure you want to submit this Outlet Data?"
+    let hasError = false;
+    const newErrors = { ...errors };
+
+    for (const key in inputData) {
+      if (inputData[key].trim() === "") {
+        newErrors[key] = "Data ini tidak boleh kosong";
+        hasError = true;
+      } else {
+        newErrors[key] = "";
+      }
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
+      return;
+    }
+
+    const isConfirmed = window.confirm(
+      "Apakah anda yakin untuk menambahkan data?"
     );
 
-    if (confirmSubmit) {
+    if (isConfirmed) {
       try {
         setIsLoading(true);
-        await handleCUDBranch(
-          inputData.region,
-          inputData.name,
-          inputData.address,
-          inputData.phone
+        await handleCUDBranch(inputData);
+        showNotifications(
+          "success",
+          "Selamat! Data Cabang baru berhasil ditambahkan."
         );
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchOutletList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewoutlet");
         setBranchData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
 
         closeForm();
       } catch (error) {
-        console.error("Error occurred during submit reservation:", error);
+        console.error("Error occurred during submit branch:", error);
+        showNotifications(
+          "danger",
+          "Gagal menambahkan data Cabang. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
       } finally {
         setIsLoading(false);
       }
     }
   };
-
-  const openEdit = (id, region, name, address, phone) => {
-    setSelectedData(id);
-    setCurrentData({
-      region,
-      name,
-      address,
-      phone,
-    });
-    setIsEditOpen(true);
-  };
-
-  const closeEdit = () => {
-    cleanInput();
-    setIsEditOpen(false);
-    setSelectedData(null);
-  };
-
-  const handleInputEditChange = (e) => {
-    const { name, value } = e.target;
-    setErrors({
-      ...errors,
-      [name]: "",
-    });
-
-    setCurrentData({
-      ...currentData,
-      [name]: value,
-    });
-  };
-
+  // end add data function
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue type="num" value="NO" />
@@ -164,14 +151,17 @@ export const BranchList = ({ sectionId }) => {
       try {
         setIsLoading(true);
         const offset = (page - 1) * limit;
-        const data = await fetchOutletList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewoutlet");
 
         setBranchData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
       } catch (error) {
-        console.error("Error fetching user data:", error);
-        showNotifications("danger", "Error fetching user data.");
+        console.error("Error fetching branch data:", error);
+        showNotifications(
+          "danger",
+          "Gagal menampilkan data Cabang. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
       } finally {
         setIsLoading(false);
       }

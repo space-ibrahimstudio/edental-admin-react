@@ -64,7 +64,7 @@ export const TableRow = ({ type, onClick, isEven, expanded, children }) => {
     return <tr className="tabel-head-tr">{children}</tr>;
   } else if (type === "expand") {
     return (
-      <React.Fragment>
+      <Fragment>
         <tr
           className={`tabel-body-tr ${isEven ? "even" : ""}`}
           onClick={toggleExpand}
@@ -90,7 +90,7 @@ export const TableRow = ({ type, onClick, isEven, expanded, children }) => {
             {expanded}
           </div>
         )}
-      </React.Fragment>
+      </Fragment>
     );
   } else {
     return (

@@ -76,20 +76,21 @@ export async function handleLoginLog(ipAddress) {
   }
 }
 
-export const handleLogout = () => {
+export function handleLogout() {
   try {
     sessionStorage.removeItem("isLoggedIn");
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("secret");
     sessionStorage.removeItem("level");
     sessionStorage.removeItem("ipAddress");
+    sessionStorage.removeItem("outletName");
 
     console.log("Successfully logged out.");
     window.location.href = "/";
   } catch (error) {
     console.error("Error during logout:", error);
   }
-};
+}
 
 export async function handleAuth(showNotifications) {
   const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
@@ -103,6 +104,7 @@ export async function handleAuth(showNotifications) {
   const userSecret = sessionStorage.getItem("secrets");
   const userLevel = sessionStorage.getItem("level");
   const userIP = sessionStorage.getItem("ipAddress");
+  const userBranch = sessionStorage.getItem("outletName");
 
   const currentIPAddress = await fetchIPAddress();
 
@@ -110,7 +112,8 @@ export async function handleAuth(showNotifications) {
     currentIPAddress === userIP &&
     userName === sessionStorage.getItem("username") &&
     userSecret === sessionStorage.getItem("secrets") &&
-    userLevel === sessionStorage.getItem("level")
+    userLevel === sessionStorage.getItem("level") &&
+    userBranch === sessionStorage.getItem("outletName")
   ) {
     console.log("User data and IP Address validation successful.");
     return true;
@@ -151,17 +154,7 @@ export async function checkLoginStatus() {
   }
 }
 
-export async function handleCUDReserve(
-  name,
-  phone,
-  email,
-  service,
-  typeservice,
-  reservationdate,
-  reservationtime,
-  operation,
-  id
-) {
+export async function handleCUDReserve(inputData, operation, id) {
   try {
     const userSecret = sessionStorage.getItem("secret");
     const idBranch = sessionStorage.getItem("outlet");
@@ -174,13 +167,13 @@ export async function handleCUDReserve(
         idservice: "1",
         idservicetype: "1",
         idbranch: idBranch,
-        name,
-        phone,
-        email,
-        service,
-        typeservice,
-        reservationdate,
-        reservationtime,
+        name: inputData.name,
+        phone: inputData.phone,
+        email: inputData.email,
+        service: inputData.service,
+        typeservice: inputData.typeservice,
+        reservationdate: inputData.reservationdate,
+        reservationtime: inputData.reservationtime,
       })
     );
 
@@ -242,14 +235,7 @@ export async function handleCUDService(inputData, operation, id) {
   }
 }
 
-export async function handleCUDBranch(
-  region,
-  name,
-  address,
-  phone,
-  operation,
-  id
-) {
+export async function handleCUDBranch(inputData, operation, id) {
   try {
     const userSecret = sessionStorage.getItem("secret");
     const formData = new FormData();
@@ -257,10 +243,10 @@ export async function handleCUDBranch(
       "data",
       JSON.stringify({
         secret: userSecret,
-        region,
-        name,
-        address,
-        phone,
+        region: inputData.region,
+        name: inputData.name,
+        address: inputData.address,
+        phone: inputData.phone,
       })
     );
 

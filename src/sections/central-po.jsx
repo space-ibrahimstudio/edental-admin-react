@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  fetchServiceList,
-  fetchAllServiceList,
-  fetchCentralPOList,
-} from "../components/tools/data";
-import {
-  handleCUDService,
-  handleCUDCentralPO,
-} from "../components/tools/handler";
+import { fetchDataList } from "../components/tools/data";
+import { handleCUDCentralPO } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
   TableData,
@@ -16,30 +9,27 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
-import { InputWrapper, UserInput } from "../components/user-input/inputs";
 import {
-  ChevronDown,
-  PlusIcon,
-  EditIcon,
-  TrashIcon,
-} from "../components/layout/icons";
+  InputWrapper,
+  UserInput,
+  SearchInput,
+} from "../components/user-input/inputs";
+import { ChevronDown, PlusIcon, EditIcon } from "../components/layout/icons";
 import { SecondaryButton, PrimButton } from "../components/user-input/buttons";
-import { SearchInput } from "../components/user-input/inputs";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
 export const CentralPO = ({ sectionId }) => {
   const { showNotifications } = useNotifications();
   // data state
-  const [serviceData, setServiceData] = useState([]);
-  const [allData, setAllData] = useState([]);
+  const [poData, setPoData] = useState([]);
   const [selectedData, setSelectedData] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   // conditional context
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [totalPages, setTotalPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -113,7 +103,7 @@ export const CentralPO = ({ sectionId }) => {
 
     for (const key in inputData) {
       if (inputData[key].trim() === "") {
-        newErrors[key] = "This field is required.";
+        newErrors[key] = "Data ini tidak boleh kosong";
         hasError = true;
       } else {
         newErrors[key] = "";
@@ -139,17 +129,17 @@ export const CentralPO = ({ sectionId }) => {
         );
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchCentralPOList(offset, limit);
-        setServiceData(data.data);
+        const data = await fetchDataList(offset, limit, "viewpostock");
+        setPoData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
 
         closeForm();
       } catch (error) {
-        console.error("Error occurred during submit service:", error);
+        console.error("Error occurred during submit central PO:", error);
         showNotifications(
           "danger",
-          "Gagal menambahkan data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+          "Gagal menambahkan data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
         setIsLoading(false);
@@ -191,7 +181,7 @@ export const CentralPO = ({ sectionId }) => {
 
     for (const key in currentData) {
       if (currentData[key].trim() === "") {
-        newErrors[key] = "This field is required.";
+        newErrors[key] = "Data ini tidak boleh kosong";
         hasError = true;
       } else {
         newErrors[key] = "";
@@ -213,21 +203,21 @@ export const CentralPO = ({ sectionId }) => {
         await handleCUDCentralPO(currentData, "edit", selectedData);
         showNotifications(
           "success",
-          "Selamat! Perubahan data Layanan berhasil disimpan."
+          "Selamat! Perubahan data PO Pusat berhasil disimpan."
         );
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchCentralPOList(offset, limit);
-        setServiceData(data.data);
+        const data = await fetchDataList(offset, limit, "viewpostock");
+        setPoData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
 
         closeEdit();
       } catch (error) {
-        console.error("Error editing service:", error);
+        console.error("Error editing central PO:", error);
         showNotifications(
           "danger",
-          "Gagal memperbarui data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+          "Gagal memperbarui data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
         setIsLoading(false);
@@ -257,9 +247,9 @@ export const CentralPO = ({ sectionId }) => {
       try {
         setIsLoading(true);
         const offset = (page - 1) * limit;
-        const data = await fetchCentralPOList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewpostock");
 
-        setServiceData(data.data);
+        setPoData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
       } catch (error) {
@@ -277,19 +267,6 @@ export const CentralPO = ({ sectionId }) => {
   }, [currentPage, limit]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchAllServiceList();
-        setAllData(data);
-      } catch (error) {
-        console.error("Error fetching all service data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
     setIsDataShown(filteredData.length > 0);
   }, [filteredData]);
 
@@ -302,7 +279,7 @@ export const CentralPO = ({ sectionId }) => {
             id="search-services"
             placeholder="Search by item name ..."
             property="itemname"
-            userData={serviceData}
+            userData={poData}
             setUserData={setFilteredData}
           />
         </InputWrapper>
@@ -334,7 +311,7 @@ export const CentralPO = ({ sectionId }) => {
         dataShown={isDataShown}
         loading={isLoading}
       >
-        {filteredData.map((service, index) => (
+        {filteredData.map((po, index) => (
           <TableRow key={index} isEven={index % 2 === 0}>
             <TableBodyValue
               type="num"
@@ -345,25 +322,20 @@ export const CentralPO = ({ sectionId }) => {
                 buttonText="Edit"
                 iconPosition="start"
                 onClick={() =>
-                  openEdit(
-                    service.idpostock,
-                    service.itemname,
-                    service.sku,
-                    service.qty
-                  )
+                  openEdit(po.idpostock, po.itemname, po.sku, po.qty)
                 }
               >
                 <EditIcon width="12px" height="100%" />
               </SecondaryButton>
             </TableBodyValue>
-            <TableBodyValue value={service.itemname} />
-            <TableBodyValue value={service.sku} />
-            <TableBodyValue value={service.postockcode} />
-            <TableBodyValue value={service.postockcreate} />
-            <TableBodyValue value={service.qty} />
-            <TableBodyValue value={service.username} />
-            <TableBodyValue value={service.outletname} />
-            <TableBodyValue value={service.status} position="end" />
+            <TableBodyValue value={po.itemname} />
+            <TableBodyValue value={po.sku} />
+            <TableBodyValue value={po.postockcode} />
+            <TableBodyValue value={po.postockcreate} />
+            <TableBodyValue value={po.qty} />
+            <TableBodyValue value={po.username} />
+            <TableBodyValue value={po.outletname} />
+            <TableBodyValue value={po.status} position="end" />
           </TableRow>
         ))}
       </TableData>

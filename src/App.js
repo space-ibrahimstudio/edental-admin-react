@@ -8,7 +8,11 @@ import StockHistory from "./pages/dashboard/stock-history";
 import WarningScreen from "./components/feedback/warning-screen";
 import ErrorScreen from "./pages/error404";
 import { fetchTabMenus } from "./components/tools/data";
-import { toPathname, Fragment } from "./components/tools/controller";
+import {
+  Fragment,
+  toPathname,
+  ResetScrolling,
+} from "./components/tools/controller";
 
 function App() {
   const [tabMenus, setTabMenus] = useState([]);
@@ -57,39 +61,42 @@ function App() {
       {windowWidth < minWidthForWarning ? (
         <WarningScreen />
       ) : (
-        <Routes>
-          <Route path="/" element={<HomeReplace />} />
-          <Route path="*" element={<ErrorScreen />} />
-          <Route
-            path="/dashboard"
-            element={<PrivateRoute element={<Dashboard />} />}
-          />
-          {Array.isArray(tabMenus) &&
-            tabMenus.map((menu) => (
-              <React.Fragment key={menu["Menu Utama"].idmenu}>
-                <Route
-                  path={`/dashboard/${toPathname(
-                    menu["Menu Utama"].menu_name
-                  )}`}
-                  element={<PrivateRoute element={<Dashboard />} />}
-                />
-                {menu["Sub Menu"] &&
-                  menu["Sub Menu"].map((submenu) => (
-                    <Route
-                      key={submenu.idsubmenu}
-                      path={`/dashboard/${toPathname(
-                        menu["Menu Utama"].menu_name
-                      )}/${toPathname(submenu.submenu_name)}`}
-                      element={<PrivateRoute element={<Dashboard />} />}
-                    />
-                  ))}
-              </React.Fragment>
-            ))}
-          <Route
-            path="/dashboard/warehouse/stock/:stockName"
-            element={<StockHistory />}
-          />
-        </Routes>
+        <Fragment>
+          <ResetScrolling />
+          <Routes>
+            <Route path="/" element={<HomeReplace />} />
+            <Route path="*" element={<ErrorScreen />} />
+            <Route
+              path="/dashboard"
+              element={<PrivateRoute element={<Dashboard />} />}
+            />
+            {Array.isArray(tabMenus) &&
+              tabMenus.map((menu) => (
+                <React.Fragment key={menu["Menu Utama"].idmenu}>
+                  <Route
+                    path={`/dashboard/${toPathname(
+                      menu["Menu Utama"].menu_name
+                    )}`}
+                    element={<PrivateRoute element={<Dashboard />} />}
+                  />
+                  {menu["Sub Menu"] &&
+                    menu["Sub Menu"].map((submenu) => (
+                      <Route
+                        key={submenu.idsubmenu}
+                        path={`/dashboard/${toPathname(
+                          menu["Menu Utama"].menu_name
+                        )}/${toPathname(submenu.submenu_name)}`}
+                        element={<PrivateRoute element={<Dashboard />} />}
+                      />
+                    ))}
+                </React.Fragment>
+              ))}
+            <Route
+              path="/dashboard/warehouse/stock/:stockName"
+              element={<StockHistory />}
+            />
+          </Routes>
+        </Fragment>
       )}
     </Fragment>
   );

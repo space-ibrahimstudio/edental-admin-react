@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Fragment } from "../components/tools/controller";
 import {
-  fetchReserveList,
-  fetchAllCustList,
   fetchHoursList,
-  fetchAllServiceList,
+  fetchDataList,
+  fetchAllDataList,
 } from "../components/tools/data";
 import { handleCUDReserve } from "../components/tools/handler";
 import { getCurrentDate } from "../components/tools/controller";
@@ -184,18 +183,10 @@ export const Reservation = ({ sectionId }) => {
     if (confirmSubmit) {
       try {
         setIsLoading(true);
-        await handleCUDReserve(
-          inputData.name,
-          inputData.phone,
-          inputData.email,
-          inputData.service,
-          inputData.typeservice,
-          inputData.reservationdate,
-          inputData.reservationtime
-        );
+        await handleCUDReserve(inputData);
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchReserveList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewreservation");
         setReserveData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
@@ -301,20 +292,10 @@ export const Reservation = ({ sectionId }) => {
     if (confirmEdit) {
       try {
         setIsLoading(true);
-        await handleCUDReserve(
-          currentData.name,
-          currentData.phone,
-          currentData.email,
-          currentData.service,
-          currentData.typeservice,
-          currentData.reservationdate,
-          currentData.reservationtime,
-          "edit",
-          selectedData
-        );
+        await handleCUDReserve(currentData, "edit", selectedData);
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchReserveList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewreservation");
         setReserveData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
@@ -334,10 +315,10 @@ export const Reservation = ({ sectionId }) => {
     );
     if (confirmDelete) {
       try {
-        await handleCUDReserve("", "", "", "", "", "", "", "delete", id);
+        await handleCUDReserve("", "delete", id);
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchReserveList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewreservation");
         setReserveData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
@@ -378,7 +359,7 @@ export const Reservation = ({ sectionId }) => {
       try {
         setIsLoading(true);
         const offset = (page - 1) * limit;
-        const data = await fetchReserveList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewreservation");
 
         setReserveData(data.data);
         setFilteredData(data.data);
@@ -397,7 +378,7 @@ export const Reservation = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchAllCustList();
+        const data = await fetchAllDataList("searchcustomer");
         setAllData(data);
       } catch (error) {
         showNotifications("danger", "Error fetching user data.");
@@ -427,7 +408,7 @@ export const Reservation = ({ sectionId }) => {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const data = await fetchAllServiceList();
+        const data = await fetchAllDataList("searchservice");
         setServiceData(data);
         setSubServiceData(data);
       } catch (error) {

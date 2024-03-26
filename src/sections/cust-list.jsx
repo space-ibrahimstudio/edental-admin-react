@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchCustList } from "../components/tools/data";
-import { handleCUDReserve } from "../components/tools/handler";
+import { fetchDataList } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
   TableData,
@@ -9,36 +8,27 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { ChevronDown, PlusIcon } from "../components/layout/icons";
-import { InputWrapper, UserInput } from "../components/user-input/inputs";
+import {
+  InputWrapper,
+  UserInput,
+  SearchInput,
+} from "../components/user-input/inputs";
 import { PrimButton } from "../components/user-input/buttons";
-import { SearchInput } from "../components/user-input/inputs";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
 export const CustList = ({ sectionId }) => {
+  const { showNotifications } = useNotifications();
+  // data state
   const [custData, setCustData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  // conditional context
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [limit, setLimit] = useState(5);
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    service: "",
-    typeservice: "",
-    reservationdate: "",
-    reservationtime: "",
-  });
-
-  const { showNotifications } = useNotifications();
-
-  const openForm = () => setIsFormOpen(true);
-  const closeForm = () => setIsFormOpen(false);
-
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  // start data paging
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -46,35 +36,7 @@ export const CustList = ({ sectionId }) => {
     setLimit(parseInt(event.target.value));
     setCurrentPage(1);
   };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await handleCUDReserve(
-        formData.name,
-        formData.phone,
-        formData.email,
-        formData.service,
-        formData.typeservice,
-        formData.reservationdate,
-        formData.reservationtime
-      );
-      setIsFormOpen(false);
-    } catch (error) {
-      console.error("Error occurred during submit reservation:", error);
-    } finally {
-      window.location.reload();
-    }
-  };
-
+  // end data paging
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue type="num" value="NO" />
@@ -93,14 +55,17 @@ export const CustList = ({ sectionId }) => {
       try {
         setIsLoading(true);
         const offset = (page - 1) * limit;
-        const data = await fetchCustList(offset, limit);
+        const data = await fetchDataList(offset, limit, "viewcustomer");
 
         setCustData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
       } catch (error) {
-        console.error("Error fetching user data:", error);
-        showNotifications("danger", "Error fetching user data.");
+        console.error("Error fetching customer data:", error);
+        showNotifications(
+          "danger",
+          "Gagal menampilkan data Customer. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
       } finally {
         setIsLoading(false);
       }

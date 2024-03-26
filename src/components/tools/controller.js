@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
-export const toTitleCase = (str) => {
+export function toTitleCase(str) {
   return str.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
-};
+}
 
-export const toPathname = (pathname) => {
+export function toPathname(pathname) {
   return pathname.toLowerCase().replace(/\s+/g, "-");
-};
+}
 
 export function getCurrentDate() {
   const today = new Date();
@@ -24,4 +25,14 @@ export function getCurrentDate() {
 
 export function Fragment({ children }) {
   return <React.Fragment>{children}</React.Fragment>;
+}
+
+export function ResetScrolling() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
 }

@@ -89,100 +89,6 @@ export async function fetchHoursList() {
   return availableHours;
 }
 
-export async function fetchReserveList(page, limit) {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
-
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-        limit: limit.toString(),
-        hal: page.toString(),
-      })
-    );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewreservation`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("Reservation list:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching reservation list:", error);
-    throw error;
-  }
-}
-
-export async function fetchCustList(page, limit) {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
-
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-        limit: limit.toString(),
-        hal: page.toString(),
-      })
-    );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewcustomer`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("Customer list:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching customer list:", error);
-    throw error;
-  }
-}
-
-export async function fetchAllCustList() {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
-
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-      })
-    );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/searchcustomer`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("All customer list:", response.data);
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching all customer list:", error);
-    throw error;
-  }
-}
-
 export async function fetchIPAddress() {
   try {
     const response = await axios.get("https://api.ipify.org?format=json");
@@ -194,225 +100,6 @@ export async function fetchIPAddress() {
   } catch (error) {
     console.error("Error obtaining IP address:", error);
     return "0.0.0.0";
-  }
-}
-
-export async function fetchOrderList(page, limit) {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
-
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-        limit: limit.toString(),
-        hal: page.toString(),
-      })
-    );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/vieworder`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("Order list:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching order list:", error);
-    throw error;
-  }
-}
-
-export async function fetchServiceList(page, limit) {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
-
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-        limit: limit.toString(),
-        hal: page.toString(),
-      })
-    );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewservice`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("Service list:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching service list:", error);
-    throw error;
-  }
-}
-
-export async function fetchAllServiceList() {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
-
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-      })
-    );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/searchservice`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("All service list:", response.data);
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching all service list:", error);
-    throw error;
-  }
-}
-
-export async function fetchAllSubServiceList() {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
-
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-        idservice: "7",
-      })
-    );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewservicetype`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("All sub service list:", response.data);
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching all sub service list:", error);
-    throw error;
-  }
-}
-
-export async function fetchOutletList(page, limit) {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
-
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-        limit: limit.toString(),
-        hal: page.toString(),
-      })
-    );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewoutlet`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("Branch list:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching branch list:", error);
-    throw error;
-  }
-}
-
-export async function fetchStockList(page, limit) {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
-
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-        limit: limit.toString(),
-        hal: page.toString(),
-      })
-    );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewstock`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("Stock list:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching stock list:", error);
-    throw error;
-  }
-}
-
-export async function fetchAllCatList() {
-  try {
-    const userSecret = sessionStorage.getItem("secret");
-
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        secret: userSecret,
-      })
-    );
-
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/searchcategorystock`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("All category list:", response.data);
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching all category list:", error);
-    throw error;
   }
 }
 
@@ -447,7 +134,7 @@ export async function fetchLogStock(stockName) {
   }
 }
 
-export async function fetchCentralPOList(page, limit) {
+export async function fetchDataList(page, limit, apiEndpoint) {
   try {
     const userSecret = sessionStorage.getItem("secret");
 
@@ -462,7 +149,7 @@ export async function fetchCentralPOList(page, limit) {
     );
 
     const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewpostock`,
+      `${baseUrl}/edental_api/office/${apiEndpoint}`,
       formData,
       {
         headers: {
@@ -471,10 +158,40 @@ export async function fetchCentralPOList(page, limit) {
       }
     );
 
-    console.log("Central PO list:", response.data);
+    console.log(`${apiEndpoint} list:`, response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching central PO list:", error);
+    console.error(`Error fetching ${apiEndpoint} list:`, error);
+    throw error;
+  }
+}
+
+export async function fetchAllDataList(apiEndpoint) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/${apiEndpoint}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log(`All ${apiEndpoint} list:`, response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error(`Error fetching all ${apiEndpoint} list:`, error);
     throw error;
   }
 }

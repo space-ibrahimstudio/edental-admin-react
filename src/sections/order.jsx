@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Fragment } from "../components/tools/controller";
-import { fetchOrderList, fetchAllServiceList } from "../components/tools/data";
+import { fetchDataList, fetchAllDataList } from "../components/tools/data";
 import { handleCUDOrder } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
@@ -10,14 +10,17 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
-import { InputWrapper, UserInput } from "../components/user-input/inputs";
+import {
+  InputWrapper,
+  UserInput,
+  SearchInput,
+} from "../components/user-input/inputs";
 import {
   ChevronDown,
   PlusIcon,
   EditIcon,
   TrashIcon,
 } from "../components/layout/icons";
-import { SearchInput } from "../components/user-input/inputs";
 import { PrimButton, SecondaryButton } from "../components/user-input/buttons";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
@@ -28,14 +31,13 @@ export const Order = ({ sectionId }) => {
   const [orderData, setOrderData] = useState([]);
   const [serviceData, setServiceData] = useState([]);
   const [subServiceData, setSubServiceData] = useState([]);
-  const [allData, setAllData] = useState([]);
   const [selectedData, setSelectedData] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   // conditional context
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [totalPages, setTotalPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -181,7 +183,7 @@ export const Order = ({ sectionId }) => {
       );
 
       const offset = (currentPage - 1) * limit;
-      const data = await fetchOrderList(offset, limit);
+      const data = await fetchDataList(offset, limit, "vieworder");
       setOrderData(data.data);
       setFilteredData(data.data);
       setTotalPages(data.TTLPage);
@@ -300,7 +302,7 @@ export const Order = ({ sectionId }) => {
       );
 
       const offset = (currentPage - 1) * limit;
-      const data = await fetchOrderList(offset, limit);
+      const data = await fetchDataList(offset, limit, "vieworder");
       setOrderData(data.data);
       setFilteredData(data.data);
       setTotalPages(data.TTLPage);
@@ -339,7 +341,7 @@ export const Order = ({ sectionId }) => {
       try {
         setIsLoading(true);
         const offset = (page - 1) * limit;
-        const data = await fetchOrderList(offset, limit);
+        const data = await fetchDataList(offset, limit, "vieworder");
 
         setOrderData(data.data);
         setFilteredData(data.data);
@@ -362,7 +364,7 @@ export const Order = ({ sectionId }) => {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const data = await fetchAllServiceList();
+        const data = await fetchAllDataList("searchservice");
         setServiceData(data);
       } catch (error) {
         showNotifications("danger", "Error fetching sub service data.");

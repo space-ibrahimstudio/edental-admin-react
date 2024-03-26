@@ -255,7 +255,12 @@ export function SubmitForm({
               <div className={styles.formSubtitle}>{formSubtitle}</div>
             )}
           </header>
-          <main className={styles.formBody}>{children}</main>
+          <main
+            className={styles.formBody}
+            style={loading ? { opacity: "0.5" } : { opacity: "1" }}
+          >
+            {children}
+          </main>
           <footer className={styles.formFooter}>
             <PrimButton
               variant="hollow"
