@@ -356,9 +356,7 @@ export async function handleCUDCentralPO(inputData, operation, id) {
       "data",
       JSON.stringify({
         secret: userSecret,
-        itemname: inputData.item,
-        sku: inputData.sku,
-        stockin: inputData.jumlah,
+        postock: inputData.item,
       })
     );
 

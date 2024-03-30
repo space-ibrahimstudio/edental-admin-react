@@ -239,3 +239,10 @@ export const TableData = ({ headerData, dataShown, loading, children }) => {
     </div>
   );
 };
+
+TableData.propTypes = {
+  headerData: PropTypes.node,
+  dataShown: PropTypes.bool,
+  loading: PropTypes.bool,
+  children: PropTypes.node,
+};

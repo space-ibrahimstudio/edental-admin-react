@@ -14,7 +14,7 @@ import {
   SecondaryButton,
 } from "../user-input/buttons";
 import { useNotifications } from "../feedback/context/notifications-context";
-import { toPathname } from "../tools/controller";
+import { toPathname, toTitleCase } from "../tools/controller";
 import "./styles/nav.css";
 
 export function Nav() {
@@ -72,7 +72,7 @@ export function Nav() {
                   menu["Sub Menu"].map((submenu) => (
                     <DropDownButton
                       key={submenu.idsubmenu}
-                      buttonText={submenu.submenu_name}
+                      buttonText={toTitleCase(submenu.submenu_name)}
                       onClick={() =>
                         SubTabClick(
                           menu["Menu Utama"].menu_name,

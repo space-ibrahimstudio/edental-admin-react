@@ -14,8 +14,14 @@ import {
   UserInput,
   SearchInput,
 } from "../components/user-input/inputs";
-import { ChevronDown, PlusIcon } from "../components/layout/icons";
-import { PrimButton, DropDownButton } from "../components/user-input/buttons";
+import { ChevronDown, PlusIcon, TrashIcon } from "../components/layout/icons";
+import {
+  PrimButton,
+  SecondaryButton,
+  DropDownButton,
+  ButtonGroup,
+} from "../components/user-input/buttons";
+import { Fragment } from "../components/tools/controller";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
@@ -37,34 +43,29 @@ export const CentralPO = ({ sectionId }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState(null);
   const [inputData, setInputData] = useState({
-    item: "",
-    sku: "",
-    jumlah: "",
-  });
-  const [errors, setErrors] = useState({
-    item: "",
-    sku: "",
-    jumlah: "",
+    item: [{ itemname: "", sku: "", stockin: "" }],
   });
   const cleanInput = () => {
     setInputData({
-      item: "",
-      sku: "",
-      jumlah: "",
-    });
-    setErrors({
-      item: "",
-      sku: "",
-      jumlah: "",
+      item: [{ itemname: "", sku: "", stockin: "" }],
     });
     setSuggestions([]);
   };
+  const [selectedSuggest, setSelectedSuggest] = useState(
+    Array(inputData.item.length).fill(false)
+  );
+
+  const buttonList = ["open", "pending", "sending", "complete", "rejected"];
   // start data paging
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
   const handleLimitChange = (event) => {
     setLimit(parseInt(event.target.value));
+    setCurrentPage(1);
+  };
+  const handleStatusChange = (status) => {
+    setStatus(status);
     setCurrentPage(1);
   };
   // end data paging
@@ -75,45 +76,70 @@ export const CentralPO = ({ sectionId }) => {
     setIsFormOpen(false);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (index, e) => {
     const { name, value } = e.target;
-    setInputData((prevData) => ({
-      ...prevData,
-      [name]: value,
+    const updatedItem = [...inputData.item];
+    updatedItem[index][name] = value;
+
+    setInputData((prevState) => ({
+      ...prevState,
+      item: updatedItem,
     }));
+
+    if (name === "itemname") {
+      setSelectedSuggest((prevSuggestionSelected) => {
+        const updatedSuggestionSelected = [...prevSuggestionSelected];
+        updatedSuggestionSelected[index] = false;
+        return updatedSuggestionSelected;
+      });
+    }
   };
 
-  const handleSuggestionClick = (selectedItem, selectedSku) => {
-    setInputData((prevData) => ({
-      ...prevData,
-      item: selectedItem,
+  const handleSuggestionClick = (index, selectedItem, selectedSku) => {
+    const updatedItem = [...inputData.item];
+    updatedItem[index] = {
+      ...updatedItem[index],
+      itemname: selectedItem,
       sku: selectedSku,
+    };
+
+    setInputData((prevState) => ({
+      ...prevState,
+      item: prevState.item.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              itemname: selectedItem,
+              sku: selectedSku,
+            }
+          : item
+      ),
+    }));
+
+    const updatedSuggestionSelected = [...selectedSuggest];
+    updatedSuggestionSelected[index] = true;
+    setSelectedSuggest(updatedSuggestionSelected);
+  };
+
+  const handleAddRow = () => {
+    setInputData((prevState) => ({
+      ...prevState,
+      item: [...prevState.item, { itemname: "", sku: "", stockin: "" }],
     }));
   };
 
-  const handleStatusChange = (status) => {
-    setStatus(status);
+  const handleRemoveRow = (index) => {
+    const updatedItem = [...inputData.item];
+    updatedItem.splice(index, 1);
+
+    setInputData((prevState) => ({
+      ...prevState,
+      item: updatedItem,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    let hasError = false;
-    const newErrors = { ...errors };
-
-    for (const key in inputData) {
-      if (inputData[key].trim() === "") {
-        newErrors[key] = "Data ini tidak boleh kosong";
-        hasError = true;
-      } else {
-        newErrors[key] = "";
-      }
-    }
-
-    if (hasError) {
-      setErrors(newErrors);
-      return;
-    }
 
     const isConfirmed = window.confirm(
       "Apakah anda yakin untuk menambahkan data?"
@@ -129,7 +155,7 @@ export const CentralPO = ({ sectionId }) => {
         );
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchStockPO(offset, limit, 0, "viewpostock");
+        const data = await fetchStockPO(offset, limit, status, "viewpostock");
         setPoData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
@@ -150,15 +176,11 @@ export const CentralPO = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
-      <TableHeadValue value="Nama Item" />
-      <TableHeadValue value="SKU Item" />
       <TableHeadValue value="Kode PO" />
       <TableHeadValue value="Tanggal Dibuat">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue value="QTY." />
-      <TableHeadValue value="Admin Cabang" />
-      <TableHeadValue value="Cabang" position="end" />
+      <TableHeadValue value="Admin Cabang" position="end" />
     </TableRow>
   );
 
@@ -169,9 +191,17 @@ export const CentralPO = ({ sectionId }) => {
         const offset = (page - 1) * limit;
         const data = await fetchStockPO(offset, limit, status, "viewpostock");
 
-        setPoData(data.data);
-        setFilteredData(data.data);
-        setTotalPages(data.TTLPage);
+        if (data && data.data && data.data.length > 0) {
+          setPoData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setPoData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
       } catch (error) {
         console.error("Error fetching central PO data:", error);
         showNotifications(
@@ -189,13 +219,29 @@ export const CentralPO = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchSearchData("searchstock", inputData.item);
-        setSuggestions(
-          data.map((item) => ({
-            name: item.itemname,
-            sku: item.sku,
-          }))
+        const rowPromises = inputData.item.map(async (item) => {
+          if (item.itemname.trim() !== "") {
+            const data = await fetchSearchData("searchstock", [item]);
+            return data.map((item) => ({
+              name: item.itemname,
+              sku: item.sku,
+            }));
+          } else {
+            return [];
+          }
+        });
+
+        const rowData = await Promise.all(rowPromises);
+        const noItemValue = inputData.item.every(
+          (item) => item.itemname.trim() === ""
         );
+
+        if (noItemValue) {
+          setSuggestions([]);
+        } else {
+          setSuggestions(rowData);
+        }
+
         setError(null);
       } catch (error) {
         console.error("Error fetching suggestions:", error);
@@ -203,11 +249,7 @@ export const CentralPO = ({ sectionId }) => {
       }
     };
 
-    if (inputData.item.trim() !== "") {
-      fetchData();
-    } else {
-      setSuggestions([]);
-    }
+    fetchData();
   }, [inputData.item]);
 
   useEffect(() => {
@@ -221,8 +263,8 @@ export const CentralPO = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-services"
-            placeholder="Search by item name ..."
-            property="itemname"
+            placeholder="Search by stock code ..."
+            property="postockcode"
             userData={poData}
             setUserData={setFilteredData}
           />
@@ -250,13 +292,12 @@ export const CentralPO = ({ sectionId }) => {
           </PrimButton>
         </div>
       </div>
-      <div>
-        <h1>{status.toUpperCase()} Orders</h1>
-        <button onClick={() => handleStatusChange("open")}>Open</button>
-        <button onClick={() => handleStatusChange("pending")}>Pending</button>
-        <button onClick={() => handleStatusChange("sending")}>Sending</button>
-        <button onClick={() => handleStatusChange("complete")}>Complete</button>
-        <button onClick={() => handleStatusChange("rejected")}>Rejected</button>
+      <div className={styles.tabelSectionNav}>
+        <ButtonGroup
+          buttonList={buttonList}
+          activeButton={status}
+          onGroupChange={handleStatusChange}
+        />
       </div>
       <TableData
         headerData={tableHeadData}
@@ -264,18 +305,41 @@ export const CentralPO = ({ sectionId }) => {
         loading={isLoading}
       >
         {filteredData.map((po, index) => (
-          <TableRow key={index} isEven={index % 2 === 0}>
+          <TableRow
+            type="expand"
+            key={index}
+            isEven={index % 2 === 0}
+            expanded={
+              <Fragment>
+                {po["Detail PO"].map((detailPO, index) => (
+                  <InputWrapper width="100%" key={index}>
+                    <UserInput
+                      subVariant="readonly"
+                      labelText="Nama Item"
+                      value={detailPO.itemname}
+                    />
+                    <UserInput
+                      subVariant="readonly"
+                      labelText="SKU Item"
+                      value={detailPO.sku}
+                    />
+                    <UserInput
+                      subVariant="readonly"
+                      labelText="Jumlah"
+                      value={detailPO.qty}
+                    />
+                  </InputWrapper>
+                ))}
+              </Fragment>
+            }
+          >
             <TableBodyValue
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
-            <TableBodyValue value={po.itemname} />
-            <TableBodyValue value={po.sku} />
-            <TableBodyValue value={po.postockcode} />
-            <TableBodyValue value={po.postockcreate} />
-            <TableBodyValue value={po.qty} />
-            <TableBodyValue value={po.username} />
-            <TableBodyValue value={po.outletname} position="end" />
+            <TableBodyValue value={po["PO Stock"].postockcode} />
+            <TableBodyValue value={po["PO Stock"].postockcreate} />
+            <TableBodyValue value={po["PO Stock"].username} position="end" />
           </TableRow>
         ))}
       </TableData>
@@ -295,51 +359,89 @@ export const CentralPO = ({ sectionId }) => {
           cancelText="Batal"
           loading={isLoading}
         >
-          <InputWrapper>
-            <UserInput
-              id="item-name"
-              subVariant="label"
-              labelText="Nama Item"
-              placeholder="Masukkan nama item"
-              type="text"
-              name="item"
-              value={inputData.item}
-              onChange={handleInputChange}
-              error={errors.item}
-            >
-              {suggestions.map((item, index) => (
-                <DropDownButton
-                  key={index}
-                  buttonText={item.name}
-                  onClick={() => handleSuggestionClick(item.name, item.sku)}
+          {inputData.item.map((item, index) => (
+            <React.Fragment key={index}>
+              <InputWrapper>
+                <UserInput
+                  id={`item-name-${index}`}
+                  subVariant="label"
+                  labelText="Nama Item"
+                  placeholder="Masukkan nama item"
+                  type="text"
+                  name="itemname"
+                  value={item.itemname}
+                  onChange={(e) => handleInputChange(index, e)}
+                >
+                  {suggestions[index] &&
+                    !selectedSuggest[index] &&
+                    suggestions[index].map((existItem, existIndex) => (
+                      <DropDownButton
+                        key={existIndex}
+                        buttonText={existItem.name}
+                        onClick={() =>
+                          handleSuggestionClick(
+                            index,
+                            existItem.name,
+                            existItem.sku
+                          )
+                        }
+                      />
+                    ))}
+                </UserInput>
+              </InputWrapper>
+              <InputWrapper>
+                <UserInput
+                  id={`item-sku-${index}`}
+                  subVariant="label"
+                  labelText="SKU Item"
+                  placeholder="Masukkan SKU item"
+                  type="text"
+                  name="sku"
+                  value={item.sku}
+                  onChange={(e) => handleInputChange(index, e)}
                 />
-              ))}
-            </UserInput>
-          </InputWrapper>
-          <InputWrapper>
-            <UserInput
-              id="item-sku"
-              subVariant="label"
-              labelText="SKU Item"
-              placeholder="Masukkan SKU item"
-              type="text"
-              name="sku"
-              value={inputData.sku}
-              onChange={handleInputChange}
-              error={errors.sku}
-            />
-            <UserInput
-              id="item-qty"
-              subVariant="label"
-              labelText="Jumlah Item"
-              placeholder="Masukkan jumlah item"
-              type="text"
-              name="jumlah"
-              value={inputData.jumlah}
-              onChange={handleInputChange}
-              error={errors.jumlah}
-            />
-          </InputWrapper>
+                <UserInput
+                  id={`item-qty-${index}`}
+                  subVariant="label"
+                  labelText="Jumlah Item"
+                  placeholder="Masukkan jumlah item"
+                  type="text"
+                  name="stockin"
+                  value={item.stockin}
+                  onChange={(e) => handleInputChange(index, e)}
+                />
+                {index <= 0 ? (
+                  <SecondaryButton variant="icon" subVariant="hollow">
+                    <TrashIcon
+                      width="20px"
+                      height="100%"
+                      color="var(--color-red-30)"
+                    />
+                  </SecondaryButton>
+                ) : (
+                  <SecondaryButton
+                    variant="icon"
+                    subVariant="hollow"
+                    onClick={() => handleRemoveRow(index)}
+                  >
+                    <TrashIcon
+                      width="20px"
+                      height="100%"
+                      color="var(--color-red)"
+                    />
+                  </SecondaryButton>
+                )}
+              </InputWrapper>
+            </React.Fragment>
+          ))}
+          <SecondaryButton
+            iconPosition="start"
+            subVariant="hollow"
+            buttonText="Tambah Item"
+            onClick={handleAddRow}
+          >
+            <PlusIcon width="15px" height="100%" />
+          </SecondaryButton>
         </SubmitForm>
       )}
     </section>
