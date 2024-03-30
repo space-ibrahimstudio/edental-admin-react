@@ -362,6 +362,7 @@ export function UserInput({
                 required={isRequired}
               />
             </label>
+            {children}
             {error && (
               <h6
                 className={styles.inputLabelText}
@@ -434,6 +435,7 @@ export function UserInput({
                 required={isRequired}
               />
             </label>
+            {children}
             {error && (
               <h6
                 className={styles.inputLabelText}

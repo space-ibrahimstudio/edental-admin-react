@@ -166,6 +166,39 @@ export async function fetchDataList(page, limit, apiEndpoint) {
   }
 }
 
+export async function fetchStockPO(page, limit, status, apiEndpoint) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        limit: limit.toString(),
+        hal: page.toString(),
+        status: status,
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/${apiEndpoint}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log(`${apiEndpoint} list:`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching ${apiEndpoint} list:`, error);
+    throw error;
+  }
+}
+
 export async function fetchAllDataList(apiEndpoint) {
   try {
     const userSecret = sessionStorage.getItem("secret");

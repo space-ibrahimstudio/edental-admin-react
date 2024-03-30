@@ -167,11 +167,11 @@ SecondaryButton.propTypes = {
 };
 
 export function DropDownButton({ buttonText, onClick }) {
-  const titleCaseText = toTitleCase(buttonText);
+  // const titleCaseText = toTitleCase(buttonText);
 
   return (
     <div className={tab.dropdownButton} onClick={onClick}>
-      <b className={tab.dropdownButtonText}>{titleCaseText}</b>
+      <b className={tab.dropdownButtonText}>{buttonText}</b>
       <div className={tab.dropdownButtonIcon}>
         <ArrowIcon width="10px" height="100%" />
       </div>

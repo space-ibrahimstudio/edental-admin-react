@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchDataList, fetchSearchData } from "../components/tools/data";
+import { fetchStockPO, fetchSearchData } from "../components/tools/data";
 import { handleCUDCentralPO } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
@@ -15,7 +15,7 @@ import {
   SearchInput,
 } from "../components/user-input/inputs";
 import { ChevronDown, PlusIcon } from "../components/layout/icons";
-import { PrimButton } from "../components/user-input/buttons";
+import { PrimButton, DropDownButton } from "../components/user-input/buttons";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
@@ -56,6 +56,7 @@ export const CentralPO = ({ sectionId }) => {
       sku: "",
       jumlah: "",
     });
+    setSuggestions([]);
   };
   // start data paging
   const handlePageChange = (page) => {
@@ -123,7 +124,7 @@ export const CentralPO = ({ sectionId }) => {
         );
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchDataList(offset, limit, "viewpostock");
+        const data = await fetchStockPO(offset, limit, "0", "viewpostock");
         setPoData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
@@ -162,7 +163,7 @@ export const CentralPO = ({ sectionId }) => {
       try {
         setIsLoading(true);
         const offset = (page - 1) * limit;
-        const data = await fetchDataList(offset, limit, "viewpostock");
+        const data = await fetchStockPO(offset, limit, "0", "viewpostock");
 
         setPoData(data.data);
         setFilteredData(data.data);
@@ -294,17 +295,15 @@ export const CentralPO = ({ sectionId }) => {
               value={inputData.item}
               onChange={handleInputChange}
               error={errors.item}
-            />
-          </InputWrapper>
-          <InputWrapper>
-            {suggestions.map((item, index) => (
-              <li
-                key={index}
-                onClick={() => handleSuggestionClick(item.name, item.sku)}
-              >
-                {item.name} - {item.sku}
-              </li>
-            ))}
+            >
+              {suggestions.map((item, index) => (
+                <DropDownButton
+                  key={index}
+                  buttonText={item.name}
+                  onClick={() => handleSuggestionClick(item.name, item.sku)}
+                />
+              ))}
+            </UserInput>
           </InputWrapper>
           <InputWrapper>
             <UserInput
