@@ -195,3 +195,34 @@ export async function fetchAllDataList(apiEndpoint) {
     throw error;
   }
 }
+
+export async function fetchSearchData(apiEndpoint, query) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        item: query,
+      })
+    );
+
+    const response = await axios.post(
+      `${baseUrl}/edental_api/office/${apiEndpoint}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log(`All ${apiEndpoint} list:`, response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error(`Error fetching all ${apiEndpoint} list:`, error);
+    throw error;
+  }
+}

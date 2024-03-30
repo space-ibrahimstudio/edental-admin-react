@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchDataList } from "../components/tools/data";
+import { fetchDataList, fetchSearchData } from "../components/tools/data";
 import { handleCUDCentralPO } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
@@ -14,8 +14,8 @@ import {
   UserInput,
   SearchInput,
 } from "../components/user-input/inputs";
-import { ChevronDown, PlusIcon, EditIcon } from "../components/layout/icons";
-import { SecondaryButton, PrimButton } from "../components/user-input/buttons";
+import { ChevronDown, PlusIcon } from "../components/layout/icons";
+import { PrimButton } from "../components/user-input/buttons";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
@@ -23,7 +23,6 @@ export const CentralPO = ({ sectionId }) => {
   const { showNotifications } = useNotifications();
   // data state
   const [poData, setPoData] = useState([]);
-  const [selectedData, setSelectedData] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   // conditional context
   const [isDataShown, setIsDataShown] = useState(true);
@@ -33,14 +32,10 @@ export const CentralPO = ({ sectionId }) => {
   const [isLoading, setIsLoading] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
   // input state
+  const [suggestions, setSuggestions] = useState([]);
+  const [error, setError] = useState(null);
   const [inputData, setInputData] = useState({
-    item: "",
-    sku: "",
-    jumlah: "",
-  });
-  const [currentData, setCurrentData] = useState({
     item: "",
     sku: "",
     jumlah: "",
@@ -52,11 +47,6 @@ export const CentralPO = ({ sectionId }) => {
   });
   const cleanInput = () => {
     setInputData({
-      item: "",
-      sku: "",
-      jumlah: "",
-    });
-    setCurrentData({
       item: "",
       sku: "",
       jumlah: "",
@@ -85,14 +75,18 @@ export const CentralPO = ({ sectionId }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    setInputData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
-    setInputData((prevState) => {
-      return { ...prevState, [name]: value };
-    });
-
-    setErrors((prevErrors) => {
-      return { ...prevErrors, [name]: "" };
-    });
+  const handleSuggestionClick = (selectedItem, selectedSku) => {
+    setInputData((prevData) => ({
+      ...prevData,
+      item: selectedItem,
+      sku: selectedSku,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -147,88 +141,9 @@ export const CentralPO = ({ sectionId }) => {
     }
   };
   // end add data function
-  // start edit/delete data function
-  const openEdit = (id, item, sku, jumlah) => {
-    setSelectedData(id);
-    setCurrentData({
-      item,
-      sku,
-      jumlah,
-    });
-    setIsEditOpen(true);
-  };
-  const closeEdit = () => {
-    cleanInput();
-    setIsEditOpen(false);
-    setSelectedData(null);
-  };
-
-  const handleInputEditChange = (e) => {
-    const { name, value } = e.target;
-
-    setCurrentData((prevState) => {
-      return { ...prevState, [name]: value };
-    });
-
-    setErrors((prevErrors) => {
-      return { ...prevErrors, [name]: "" };
-    });
-  };
-
-  const handleSubmitEdit = async () => {
-    let hasError = false;
-    const newErrors = { ...errors };
-
-    for (const key in currentData) {
-      if (currentData[key].trim() === "") {
-        newErrors[key] = "Data ini tidak boleh kosong";
-        hasError = true;
-      } else {
-        newErrors[key] = "";
-      }
-    }
-
-    if (hasError) {
-      setErrors(newErrors);
-      return;
-    }
-
-    const isConfirmed = window.confirm(
-      "Apakah anda yakin untuk menyimpan perubahan data?"
-    );
-
-    if (isConfirmed) {
-      try {
-        setIsLoading(true);
-        await handleCUDCentralPO(currentData, "edit", selectedData);
-        showNotifications(
-          "success",
-          "Selamat! Perubahan data PO Pusat berhasil disimpan."
-        );
-
-        const offset = (currentPage - 1) * limit;
-        const data = await fetchDataList(offset, limit, "viewpostock");
-        setPoData(data.data);
-        setFilteredData(data.data);
-        setTotalPages(data.TTLPage);
-
-        closeEdit();
-      } catch (error) {
-        console.error("Error editing central PO:", error);
-        showNotifications(
-          "danger",
-          "Gagal memperbarui data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-  // end edit/delete data function
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
-      <TableHeadValue value="Action" type="atn" />
       <TableHeadValue value="Nama Item" />
       <TableHeadValue value="SKU Item" />
       <TableHeadValue value="Kode PO" />
@@ -265,6 +180,30 @@ export const CentralPO = ({ sectionId }) => {
 
     fetchData(currentPage, limit);
   }, [currentPage, limit]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchSearchData("searchstock", inputData.item);
+        setSuggestions(
+          data.map((item) => ({
+            name: item.itemname,
+            sku: item.sku,
+          }))
+        );
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+        setError("Error fetching suggestions");
+      }
+    };
+
+    if (inputData.item.trim() !== "") {
+      fetchData();
+    } else {
+      setSuggestions([]);
+    }
+  }, [inputData.item]);
 
   useEffect(() => {
     setIsDataShown(filteredData.length > 0);
@@ -317,17 +256,6 @@ export const CentralPO = ({ sectionId }) => {
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
-            <TableBodyValue type="atn">
-              <SecondaryButton
-                buttonText="Edit"
-                iconPosition="start"
-                onClick={() =>
-                  openEdit(po.idpostock, po.itemname, po.sku, po.qty)
-                }
-              >
-                <EditIcon width="12px" height="100%" />
-              </SecondaryButton>
-            </TableBodyValue>
             <TableBodyValue value={po.itemname} />
             <TableBodyValue value={po.sku} />
             <TableBodyValue value={po.postockcode} />
@@ -369,6 +297,16 @@ export const CentralPO = ({ sectionId }) => {
             />
           </InputWrapper>
           <InputWrapper>
+            {suggestions.map((item, index) => (
+              <li
+                key={index}
+                onClick={() => handleSuggestionClick(item.name, item.sku)}
+              >
+                {item.name} - {item.sku}
+              </li>
+            ))}
+          </InputWrapper>
+          <InputWrapper>
             <UserInput
               id="item-sku"
               subVariant="label"
@@ -389,54 +327,6 @@ export const CentralPO = ({ sectionId }) => {
               name="jumlah"
               value={inputData.jumlah}
               onChange={handleInputChange}
-              error={errors.jumlah}
-            />
-          </InputWrapper>
-        </SubmitForm>
-      )}
-      {isEditOpen && (
-        <SubmitForm
-          formTitle="Edit Permintaan PO Pusat"
-          onClose={closeEdit}
-          onSubmit={handleSubmitEdit}
-          saveText="Simpan Perubahan"
-          cancelText="Batal"
-          loading={isLoading}
-        >
-          <InputWrapper>
-            <UserInput
-              id="edit-item-name"
-              subVariant="label"
-              labelText="Nama Item"
-              placeholder="Masukkan nama item"
-              type="text"
-              name="item"
-              value={currentData.item}
-              onChange={handleInputEditChange}
-              error={errors.item}
-            />
-          </InputWrapper>
-          <InputWrapper>
-            <UserInput
-              id="edit-item-sku"
-              subVariant="label"
-              labelText="SKU Item"
-              placeholder="Masukkan SKU item"
-              type="text"
-              name="sku"
-              value={currentData.sku}
-              onChange={handleInputEditChange}
-              error={errors.sku}
-            />
-            <UserInput
-              id="edit-item-qty"
-              subVariant="label"
-              labelText="Jumlah Item"
-              placeholder="Masukkan jumlah item"
-              type="text"
-              name="jumlah"
-              value={currentData.jumlah}
-              onChange={handleInputEditChange}
               error={errors.jumlah}
             />
           </InputWrapper>
