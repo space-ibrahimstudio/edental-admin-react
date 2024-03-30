@@ -33,6 +33,7 @@ export const CentralPO = ({ sectionId }) => {
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
   // input state
+  const [status, setStatus] = useState("open");
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState(null);
   const [inputData, setInputData] = useState({
@@ -90,6 +91,10 @@ export const CentralPO = ({ sectionId }) => {
     }));
   };
 
+  const handleStatusChange = (status) => {
+    setStatus(status);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -124,7 +129,7 @@ export const CentralPO = ({ sectionId }) => {
         );
 
         const offset = (currentPage - 1) * limit;
-        const data = await fetchStockPO(offset, limit, "0", "viewpostock");
+        const data = await fetchStockPO(offset, limit, 0, "viewpostock");
         setPoData(data.data);
         setFilteredData(data.data);
         setTotalPages(data.TTLPage);
@@ -153,17 +158,16 @@ export const CentralPO = ({ sectionId }) => {
       </TableHeadValue>
       <TableHeadValue value="QTY." />
       <TableHeadValue value="Admin Cabang" />
-      <TableHeadValue value="Cabang" />
-      <TableHeadValue value="Status" position="end" />
+      <TableHeadValue value="Cabang" position="end" />
     </TableRow>
   );
 
   useEffect(() => {
-    const fetchData = async (page, limit) => {
+    const fetchData = async (page, limit, status) => {
       try {
         setIsLoading(true);
         const offset = (page - 1) * limit;
-        const data = await fetchStockPO(offset, limit, "0", "viewpostock");
+        const data = await fetchStockPO(offset, limit, status, "viewpostock");
 
         setPoData(data.data);
         setFilteredData(data.data);
@@ -179,8 +183,8 @@ export const CentralPO = ({ sectionId }) => {
       }
     };
 
-    fetchData(currentPage, limit);
-  }, [currentPage, limit]);
+    fetchData(currentPage, limit, status);
+  }, [currentPage, limit, status]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -246,6 +250,14 @@ export const CentralPO = ({ sectionId }) => {
           </PrimButton>
         </div>
       </div>
+      <div>
+        <h1>{status.toUpperCase()} Orders</h1>
+        <button onClick={() => handleStatusChange("open")}>Open</button>
+        <button onClick={() => handleStatusChange("pending")}>Pending</button>
+        <button onClick={() => handleStatusChange("sending")}>Sending</button>
+        <button onClick={() => handleStatusChange("complete")}>Complete</button>
+        <button onClick={() => handleStatusChange("rejected")}>Rejected</button>
+      </div>
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
@@ -263,8 +275,7 @@ export const CentralPO = ({ sectionId }) => {
             <TableBodyValue value={po.postockcreate} />
             <TableBodyValue value={po.qty} />
             <TableBodyValue value={po.username} />
-            <TableBodyValue value={po.outletname} />
-            <TableBodyValue value={po.status} position="end" />
+            <TableBodyValue value={po.outletname} position="end" />
           </TableRow>
         ))}
       </TableData>

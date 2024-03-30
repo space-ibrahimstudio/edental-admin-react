@@ -177,7 +177,18 @@ export async function fetchStockPO(page, limit, status, apiEndpoint) {
         secret: userSecret,
         limit: limit.toString(),
         hal: page.toString(),
-        status: status,
+        status:
+          status === "open"
+            ? 0
+            : status === "pending"
+            ? 1
+            : status === "sending"
+            ? 2
+            : status === "complete"
+            ? 3
+            : status === "rejected"
+            ? 4
+            : 0,
       })
     );
 
