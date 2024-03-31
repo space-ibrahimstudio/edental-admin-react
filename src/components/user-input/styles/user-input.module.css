@@ -73,8 +73,66 @@
 
 .inputWrap {
   gap: 10px;
+  position: relative;
   align-items: center;
   align-self: stretch;
   flex-direction: row;
   flex-wrap: wrap;
+}
+
+.inputExpand {
+  display: flex;
+  position: absolute;
+  top: 85px;
+  left: 0;
+  border-radius: 10px;
+  background-color: var(--color-white-second);
+  box-shadow: 0 10px 3px transparent, 0 7px 3px transparent,
+    0 4px 2px rgba(0, 0, 0, 0.02), 0 2px 2px rgba(0, 0, 0, 0.03),
+    0 0 1px rgba(0, 0, 0, 0.03);
+  width: 100%;
+  overflow: hidden;
+  z-index: 99999;
+  padding: 15px;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: flex-start;
+}
+
+.inputExpand.opened {
+  animation-name: instantReveal;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.inputExpand.closed {
+  animation-name: instantHide;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes instantReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes instantHide {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
 }

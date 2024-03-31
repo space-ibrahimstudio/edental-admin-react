@@ -18,8 +18,9 @@ import { ChevronDown, PlusIcon, TrashIcon } from "../components/layout/icons";
 import {
   PrimButton,
   SecondaryButton,
-  DropDownButton,
+  ButtonList,
   ButtonGroup,
+  DropDownButton,
 } from "../components/user-input/buttons";
 import { Fragment } from "../components/tools/controller";
 import { PaginationV2 } from "../components/navigator/paginationv2";
@@ -30,6 +31,7 @@ export const CentralPO = ({ sectionId }) => {
   // data state
   const [poData, setPoData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
   // conditional context
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,20 +42,21 @@ export const CentralPO = ({ sectionId }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   // input state
   const [status, setStatus] = useState("open");
-  const [suggestions, setSuggestions] = useState([]);
-  const [error, setError] = useState(null);
   const [inputData, setInputData] = useState({
+    item: [{ itemname: "", sku: "", stockin: "" }],
+  });
+  const [errors, setErrors] = useState({
     item: [{ itemname: "", sku: "", stockin: "" }],
   });
   const cleanInput = () => {
     setInputData({
       item: [{ itemname: "", sku: "", stockin: "" }],
     });
+    setErrors({
+      item: [{ itemname: "", sku: "", stockin: "" }],
+    });
     setSuggestions([]);
   };
-  const [selectedSuggest, setSelectedSuggest] = useState(
-    Array(inputData.item.length).fill(false)
-  );
 
   const buttonList = ["open", "pending", "sending", "complete", "rejected"];
   // start data paging
@@ -76,55 +79,63 @@ export const CentralPO = ({ sectionId }) => {
     setIsFormOpen(false);
   };
 
-  const handleInputChange = (index, e) => {
+  const handleInputChange = async (index, e) => {
     const { name, value } = e.target;
-    const updatedItem = [...inputData.item];
-    updatedItem[index][name] = value;
-
     setInputData((prevState) => ({
       ...prevState,
-      item: updatedItem,
+      item: prevState.item.map((item, idx) =>
+        idx === index ? { ...item, [name]: value } : item
+      ),
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      item: prevErrors.item.map((error, idx) =>
+        idx === index ? { ...error, [name]: "" } : error
+      ),
     }));
 
     if (name === "itemname") {
-      setSelectedSuggest((prevSuggestionSelected) => {
-        const updatedSuggestionSelected = [...prevSuggestionSelected];
-        updatedSuggestionSelected[index] = false;
-        return updatedSuggestionSelected;
-      });
+      try {
+        const response = await fetchSearchData("searchstock", value);
+        setSuggestions((prevSuggestions) => ({
+          ...prevSuggestions,
+          [index]: response,
+        }));
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+      }
     }
   };
 
-  const handleSuggestionClick = (index, selectedItem, selectedSku) => {
-    const updatedItem = [...inputData.item];
-    updatedItem[index] = {
-      ...updatedItem[index],
-      itemname: selectedItem,
-      sku: selectedSku,
-    };
-
+  const handleSuggestionClick = (index, selectedStock) => {
     setInputData((prevState) => ({
       ...prevState,
-      item: prevState.item.map((item, i) =>
-        i === index
+      item: prevState.item.map((item, idx) =>
+        idx === index
           ? {
               ...item,
-              itemname: selectedItem,
-              sku: selectedSku,
+              itemname: selectedStock.itemname,
+              sku: selectedStock.sku,
             }
           : item
       ),
     }));
-
-    const updatedSuggestionSelected = [...selectedSuggest];
-    updatedSuggestionSelected[index] = true;
-    setSelectedSuggest(updatedSuggestionSelected);
+    setSuggestions((prevSuggestions) => ({
+      ...prevSuggestions,
+      [index]: [],
+    }));
   };
 
   const handleAddRow = () => {
     setInputData((prevState) => ({
       ...prevState,
       item: [...prevState.item, { itemname: "", sku: "", stockin: "" }],
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      item: [...prevErrors.item, { itemname: "", sku: "", stockin: "" }],
     }));
   };
 
@@ -141,6 +152,31 @@ export const CentralPO = ({ sectionId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const isFieldEmpty = inputData.item.some(
+      (itemDetail) =>
+        itemDetail.itemname.trim() === "" ||
+        itemDetail.sku.trim() === "" ||
+        itemDetail.stockin.trim() === ""
+    );
+
+    if (isFieldEmpty) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        item: inputData.item.map((itemDetal) => ({
+          itemname:
+            itemDetal.itemname.trim() === ""
+              ? "Nama Item tidak boleh kosong"
+              : "",
+          sku: itemDetal.sku.trim() === "" ? "SKU Item tidak boleh kosong" : "",
+          stockin:
+            itemDetal.stockin.trim() === ""
+              ? "Jumlah item tidak boleh kosong"
+              : "",
+        })),
+      }));
+      return;
+    }
+
     const isConfirmed = window.confirm(
       "Apakah anda yakin untuk menambahkan data?"
     );
@@ -156,10 +192,18 @@ export const CentralPO = ({ sectionId }) => {
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchStockPO(offset, limit, status, "viewpostock");
-        setPoData(data.data);
-        setFilteredData(data.data);
-        setTotalPages(data.TTLPage);
 
+        if (data && data.data && data.data.length > 0) {
+          setPoData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setPoData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
         closeForm();
       } catch (error) {
         console.error("Error occurred during submit central PO:", error);
@@ -215,42 +259,6 @@ export const CentralPO = ({ sectionId }) => {
 
     fetchData(currentPage, limit, status);
   }, [currentPage, limit, status]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const rowPromises = inputData.item.map(async (item) => {
-          if (item.itemname.trim() !== "") {
-            const data = await fetchSearchData("searchstock", [item]);
-            return data.map((item) => ({
-              name: item.itemname,
-              sku: item.sku,
-            }));
-          } else {
-            return [];
-          }
-        });
-
-        const rowData = await Promise.all(rowPromises);
-        const noItemValue = inputData.item.every(
-          (item) => item.itemname.trim() === ""
-        );
-
-        if (noItemValue) {
-          setSuggestions([]);
-        } else {
-          setSuggestions(rowData);
-        }
-
-        setError(null);
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-        setError("Error fetching suggestions");
-      }
-    };
-
-    fetchData();
-  }, [inputData.item]);
 
   useEffect(() => {
     setIsDataShown(filteredData.length > 0);
@@ -361,7 +369,24 @@ export const CentralPO = ({ sectionId }) => {
         >
           {inputData.item.map((item, index) => (
             <React.Fragment key={index}>
-              <InputWrapper>
+              <InputWrapper
+                isExpanded={suggestions[index] && suggestions[index].length > 0}
+                expanded={
+                  <React.Fragment>
+                    {suggestions[index] &&
+                      suggestions[index].map((suggestion, idx) => (
+                        <SecondaryButton
+                          key={idx}
+                          subVariant="hollow-line"
+                          buttonText={suggestion.itemname}
+                          onClick={() =>
+                            handleSuggestionClick(index, suggestion)
+                          }
+                        />
+                      ))}
+                  </React.Fragment>
+                }
+              >
                 <UserInput
                   id={`item-name-${index}`}
                   subVariant="label"
@@ -371,23 +396,8 @@ export const CentralPO = ({ sectionId }) => {
                   name="itemname"
                   value={item.itemname}
                   onChange={(e) => handleInputChange(index, e)}
-                >
-                  {suggestions[index] &&
-                    !selectedSuggest[index] &&
-                    suggestions[index].map((existItem, existIndex) => (
-                      <DropDownButton
-                        key={existIndex}
-                        buttonText={existItem.name}
-                        onClick={() =>
-                          handleSuggestionClick(
-                            index,
-                            existItem.name,
-                            existItem.sku
-                          )
-                        }
-                      />
-                    ))}
-                </UserInput>
+                  error={errors.item[index].itemname}
+                />
               </InputWrapper>
               <InputWrapper>
                 <UserInput
@@ -397,8 +407,10 @@ export const CentralPO = ({ sectionId }) => {
                   placeholder="Masukkan SKU item"
                   type="text"
                   name="sku"
+                  autoComplete="off"
                   value={item.sku}
                   onChange={(e) => handleInputChange(index, e)}
+                  error={errors.item[index].sku}
                 />
                 <UserInput
                   id={`item-qty-${index}`}
@@ -409,6 +421,7 @@ export const CentralPO = ({ sectionId }) => {
                   name="stockin"
                   value={item.stockin}
                   onChange={(e) => handleInputChange(index, e)}
+                  error={errors.item[index].stockin}
                 />
                 {index <= 0 ? (
                   <SecondaryButton variant="icon" subVariant="hollow">

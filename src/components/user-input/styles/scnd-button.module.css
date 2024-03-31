@@ -73,6 +73,7 @@
 }
 
 .scndButtonHollowLine:hover {
+  color: #fff;
   border: 1px solid var(--color-blue);
   background-color: var(--color-blue);
 }

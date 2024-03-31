@@ -152,13 +152,21 @@ export function SearchInput({
   );
 }
 
-export function InputWrapper({ width, children }) {
+export function InputWrapper({ width, isExpanded, expanded, children }) {
   return (
     <div className={styles.inputWrap} style={{ width: width }}>
       {children}
+      {isExpanded && <div className={styles.inputExpand}>{expanded}</div>}
     </div>
   );
 }
+
+InputWrapper.propTypes = {
+  width: PropTypes.string,
+  isExpanded: PropTypes.bool,
+  expanded: PropTypes.node,
+  children: PropTypes.node,
+};
 
 export function UserInput({
   variant,
@@ -170,6 +178,7 @@ export function UserInput({
   info,
   min,
   placeholder,
+  autoComplete,
   type,
   name,
   value,
@@ -194,6 +203,7 @@ export function UserInput({
               value={value}
               onChange={onChange}
               required={isRequired}
+              autoComplete={autoComplete}
             >
               {children}
             </select>
@@ -227,6 +237,7 @@ export function UserInput({
               value={value}
               onChange={onChange}
               required={isRequired}
+              autoComplete={autoComplete}
             >
               {children}
             </select>
@@ -360,9 +371,9 @@ export function UserInput({
                 onChange={onChange}
                 min={min}
                 required={isRequired}
+                autoComplete={autoComplete}
               />
             </label>
-            {children}
             {error && (
               <h6
                 className={styles.inputLabelText}
@@ -398,7 +409,7 @@ export function UserInput({
                 name={name}
                 value={value}
                 onChange={onChange}
-                readOnly
+                readOnly={true}
               />
             </label>
             {error && (
@@ -433,9 +444,9 @@ export function UserInput({
                 onChange={onChange}
                 min={min}
                 required={isRequired}
+                autoComplete={autoComplete}
               />
             </label>
-            {children}
             {error && (
               <h6
                 className={styles.inputLabelText}

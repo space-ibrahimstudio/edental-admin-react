@@ -278,3 +278,11 @@ export function ButtonGroup({ buttonList, activeButton, onGroupChange }) {
     </div>
   );
 }
+
+export function ButtonList({ isOpen, children }) {
+  return (
+    <section className={`${tab.dropdown} ${isOpen ? tab.opened : tab.closed}`}>
+      {children}
+    </section>
+  );
+}
