@@ -22,7 +22,7 @@ export const UserList = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-usermanajemen"
-            placeholder="Search by products ..."
+            placeholder="Search data ..."
             property="username"
           />
         </InputWrapper>

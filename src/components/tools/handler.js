@@ -247,6 +247,11 @@ export async function handleCUDBranch(inputData, operation, id) {
         name: inputData.name,
         address: inputData.address,
         phone: inputData.phone,
+        mainregion: inputData.mainregion,
+        postcode: inputData.postcode,
+        cctr_group: inputData.cctrGroup,
+        cctr: inputData.cctr,
+        coordinate: inputData.coordinate,
       })
     );
 
@@ -281,7 +286,7 @@ export async function handleCUDOrder(inputData, operation, id) {
       "data",
       JSON.stringify({
         secret: userSecret,
-        layanan: inputData.service,
+        layanan: inputData.layanan,
       })
     );
 

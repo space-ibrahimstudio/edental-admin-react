@@ -22,7 +22,7 @@ export const Accounting = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-accounting"
-            placeholder="Search by products ..."
+            placeholder="Search data ..."
             property="username"
           />
         </InputWrapper>

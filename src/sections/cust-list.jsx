@@ -85,7 +85,7 @@ export const CustList = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-datacustomer"
-            placeholder="Search by name ..."
+            placeholder="Search data ..."
             property="username"
             userData={custData}
             setUserData={setFilteredData}
@@ -105,9 +105,9 @@ export const CustList = ({ sectionId }) => {
               <option value={50}>Baris per Halaman: 50</option>
             </UserInput>
           </InputWrapper>
-          <PrimButton buttonText="Tambah Baru" iconPosition="start">
+          {/* <PrimButton buttonText="Tambah Baru" iconPosition="start">
             <PlusIcon width="17px" height="100%" />
-          </PrimButton>
+          </PrimButton> */}
         </div>
       </div>
       <TableData

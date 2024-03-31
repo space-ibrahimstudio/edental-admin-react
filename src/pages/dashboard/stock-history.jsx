@@ -68,7 +68,7 @@ const StockHistory = () => {
           <InputWrapper>
             <SearchInput
               id="search-reservation"
-              placeholder="Search by Item name ..."
+              placeholder="Search data ..."
               property="itemname"
               userData={stockData}
               setUserData={setFilteredData}

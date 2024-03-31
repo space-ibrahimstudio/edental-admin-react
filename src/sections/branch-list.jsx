@@ -35,12 +35,22 @@ export const BranchList = ({ sectionId }) => {
     name: "",
     address: "",
     phone: "",
+    mainregion: "",
+    postcode: "",
+    cctrGroup: "",
+    cctr: "",
+    coordinate: "",
   });
   const [errors, setErrors] = useState({
     region: "",
     name: "",
     address: "",
     phone: "",
+    mainregion: "",
+    postcode: "",
+    cctrGroup: "",
+    cctr: "",
+    coordinate: "",
   });
   const cleanInput = () => {
     setInputData({
@@ -48,12 +58,22 @@ export const BranchList = ({ sectionId }) => {
       name: "",
       address: "",
       phone: "",
+      mainregion: "",
+      postcode: "",
+      cctrGroup: "",
+      cctr: "",
+      coordinate: "",
     });
     setErrors({
       region: "",
       name: "",
       address: "",
       phone: "",
+      mainregion: "",
+      postcode: "",
+      cctrGroup: "",
+      cctr: "",
+      coordinate: "",
     });
   };
   // start data paging
@@ -181,7 +201,7 @@ export const BranchList = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-branch"
-            placeholder="Search by location ..."
+            placeholder="Search data ..."
             property="outlet_name"
             userData={branchData}
             setUserData={setFilteredData}
@@ -257,10 +277,34 @@ export const BranchList = ({ sectionId }) => {
               error={errors.name}
             />
             <UserInput
+              id="oultet-phone"
+              subVariant="label"
+              labelText="Nomor Kontak Cabang"
+              placeholder="0882xxx"
+              type="text"
+              name="phone"
+              value={inputData.phone}
+              onChange={handleInputChange}
+              error={errors.phone}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <UserInput
+              id="outlet-mainregion"
+              subVariant="label"
+              labelText="Main Region"
+              placeholder="Jawa Barat"
+              type="text"
+              name="mainregion"
+              value={inputData.mainregion}
+              onChange={handleInputChange}
+              error={errors.mainregion}
+            />
+            <UserInput
               id="outlet-region"
               subVariant="label"
-              labelText="Provinsi"
-              placeholder="Jakarta"
+              labelText="Region"
+              placeholder="Bandung"
               type="text"
               name="region"
               value={inputData.region}
@@ -281,15 +325,50 @@ export const BranchList = ({ sectionId }) => {
               error={errors.address}
             />
             <UserInput
-              id="oultet-phone"
+              id="outlet-postcode"
               subVariant="label"
-              labelText="Nomor Kontak Cabang"
-              placeholder="0882xxx"
+              labelText="Alamat Cabang"
+              placeholder="123 Main Street"
               type="text"
-              name="phone"
-              value={inputData.phone}
+              name="postcode"
+              value={inputData.postcode}
               onChange={handleInputChange}
-              error={errors.phone}
+              error={errors.postcode}
+            />
+            <UserInput
+              id="outlet-coordinate"
+              subVariant="label"
+              labelText="Titik Koordinat"
+              placeholder="Masukkan titik koordinat"
+              type="text"
+              name="coordinate"
+              value={inputData.coordinate}
+              onChange={handleInputChange}
+              error={errors.coordinate}
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <UserInput
+              id="outlet-cctrgroup"
+              subVariant="label"
+              labelText="CCTR Group"
+              placeholder="Masukkan CCTR Group"
+              type="text"
+              name="cctrGroup"
+              value={inputData.cctrGroup}
+              onChange={handleInputChange}
+              error={errors.cctrGroup}
+            />
+            <UserInput
+              id="outlet-cctr"
+              subVariant="label"
+              labelText="CCTR"
+              placeholder="Masukkan CCTR"
+              type="text"
+              name="cctr"
+              value={inputData.cctr}
+              onChange={handleInputChange}
+              error={errors.cctr}
             />
           </InputWrapper>
         </SubmitForm>

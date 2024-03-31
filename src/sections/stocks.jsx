@@ -77,6 +77,9 @@ export const Stocks = ({ sectionId }) => {
     setLimit(parseInt(event.target.value));
     setCurrentPage(1);
   };
+  const navigateStockHistory = (stockName) => {
+    navigate(`/dashboard/warehouse/stock/${stockName.toLowerCase()}`);
+  };
   // end data paging
   // start add data function
   const openForm = () => setIsFormOpen(true);
@@ -87,38 +90,15 @@ export const Stocks = ({ sectionId }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setErrors({
-      ...errors,
-      [name]: "",
-    });
-
     setInputData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
 
-    // if (name === "phone") {
-    //   let phoneExists = false;
-    //   let matchedData = null;
-
-    //   allData.forEach((item) => {
-    //     if (item.userphone === value) {
-    //       phoneExists = true;
-    //       matchedData = item;
-    //     }
-    //   });
-
-    //   if (phoneExists) {
-    //     setCustExist(true);
-    //     setInputData((prevState) => ({
-    //       ...prevState,
-    //       name: matchedData.username,
-    //       email: matchedData.useremail,
-    //     }));
-    //   } else {
-    //     setCustExist(false);
-    //   }
-    // }
+    setErrors({
+      ...errors,
+      [name]: "",
+    });
 
     const selectedCategory = catData.find(
       (service) => service["category_stok"].categorystockname === value
@@ -132,31 +112,35 @@ export const Stocks = ({ sectionId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // let hasError = false;
-    // const newErrors = { ...errors };
+    let hasError = false;
+    const newErrors = { ...errors };
 
-    // for (const key in inputData) {
-    //   if (inputData[key].trim() === "") {
-    //     newErrors[key] = "This field is required.";
-    //     hasError = true;
-    //   } else {
-    //     newErrors[key] = "";
-    //   }
-    // }
+    for (const key in inputData) {
+      if (inputData[key].trim() === "") {
+        newErrors[key] = "This field is required.";
+        hasError = true;
+      } else {
+        newErrors[key] = "";
+      }
+    }
 
-    // if (hasError) {
-    //   setErrors(newErrors);
-    //   return;
-    // }
+    if (hasError) {
+      setErrors(newErrors);
+      return;
+    }
 
-    const confirmSubmit = window.confirm(
-      "Are you sure you want to submit this Stock Data?"
+    const isConfirmed = window.confirm(
+      "Apakah anda yakin untuk menambahkan data?"
     );
 
-    if (confirmSubmit) {
+    if (isConfirmed) {
       try {
         setIsLoading(true);
         await handleCUDStock(inputData);
+        showNotifications(
+          "success",
+          "Selamat! Data Stok baru berhasil ditambahkan."
+        );
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewstock");
@@ -174,7 +158,11 @@ export const Stocks = ({ sectionId }) => {
         }
         closeForm();
       } catch (error) {
-        console.error("Error occurred during submit stock po:", error);
+        console.error("Error occurred during submit stock data:", error);
+        showNotifications(
+          "danger",
+          "Gagal menambahkan data Stok. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
       } finally {
         setIsLoading(false);
       }
@@ -196,10 +184,6 @@ export const Stocks = ({ sectionId }) => {
     </TableRow>
   );
 
-  const navigateStockHistory = (stockName) => {
-    navigate(`/dashboard/warehouse/stock/${stockName.toLowerCase()}`);
-  };
-
   useEffect(() => {
     const fetchData = async (page, limit) => {
       try {
@@ -220,7 +204,10 @@ export const Stocks = ({ sectionId }) => {
         }
       } catch (error) {
         console.error("Error fetching stock data:", error);
-        showNotifications("danger", "Error fetching stock data.");
+        showNotifications(
+          "danger",
+          "Gagal menampilkan data Stok. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
       } finally {
         setIsLoading(false);
       }
@@ -254,7 +241,7 @@ export const Stocks = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-reservation"
-            placeholder="Search by Item name ..."
+            placeholder="Search data ..."
             property="itemname"
             userData={stockData}
             setUserData={setFilteredData}

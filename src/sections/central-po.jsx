@@ -220,11 +220,11 @@ export const CentralPO = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
-      <TableHeadValue value="Kode PO" />
       <TableHeadValue value="Tanggal Dibuat">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue value="Admin Cabang" position="end" />
+      <TableHeadValue value="Nomor PO" />
+      <TableHeadValue value="Nama User" position="end" />
     </TableRow>
   );
 
@@ -271,7 +271,7 @@ export const CentralPO = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-services"
-            placeholder="Search by stock code ..."
+            placeholder="Search data ..."
             property="postockcode"
             userData={poData}
             setUserData={setFilteredData}
@@ -345,8 +345,8 @@ export const CentralPO = ({ sectionId }) => {
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
-            <TableBodyValue value={po["PO Stock"].postockcode} />
             <TableBodyValue value={po["PO Stock"].postockcreate} />
+            <TableBodyValue value={po["PO Stock"].postockcode} />
             <TableBodyValue value={po["PO Stock"].username} position="end" />
           </TableRow>
         ))}

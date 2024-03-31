@@ -18,9 +18,7 @@ import { ChevronDown, PlusIcon, TrashIcon } from "../components/layout/icons";
 import {
   PrimButton,
   SecondaryButton,
-  ButtonList,
   ButtonGroup,
-  DropDownButton,
 } from "../components/user-input/buttons";
 import { Fragment } from "../components/tools/controller";
 import { PaginationV2 } from "../components/navigator/paginationv2";
@@ -40,8 +38,8 @@ export const SupplyPO = ({ sectionId }) => {
   const [isLoading, setIsLoading] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
-  // input state
   const [status, setStatus] = useState("open");
+  // input state
   const [inputData, setInputData] = useState({
     item: [{ itemname: "", sku: "", stockin: "" }],
   });
@@ -220,12 +218,12 @@ export const SupplyPO = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
-      <TableHeadValue value="Kode PO" />
       <TableHeadValue value="Tanggal Dibuat">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue value="Admin Cabang" />
-      <TableHeadValue value="Cabang" position="end" />
+      <TableHeadValue value="Nomor PO" />
+      <TableHeadValue value="Nama User" />
+      <TableHeadValue value="Nama Cabang" position="end" />
     </TableRow>
   );
 
@@ -272,7 +270,7 @@ export const SupplyPO = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-services"
-            placeholder="Search by stock code ..."
+            placeholder="Search data ..."
             property="postockcode"
             userData={poData}
             setUserData={setFilteredData}
@@ -346,8 +344,8 @@ export const SupplyPO = ({ sectionId }) => {
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
-            <TableBodyValue value={po["PO Stock"].postockcode} />
             <TableBodyValue value={po["PO Stock"].postockcreate} />
+            <TableBodyValue value={po["PO Stock"].postockcode} />
             <TableBodyValue value={po["PO Stock"].username} />
             <TableBodyValue value={po["PO Stock"].outletname} position="end" />
           </TableRow>

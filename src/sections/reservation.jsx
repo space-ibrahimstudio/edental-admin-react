@@ -37,7 +37,7 @@ export const Reservation = ({ sectionId }) => {
   const [serviceData, setServiceData] = useState([]);
   const [subServiceData, setSubServiceData] = useState([]);
   // conditional context
-  const [custExist, setCustExist] = useState(false);
+  const [dataExist, setDataExist] = useState(false);
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -94,7 +94,7 @@ export const Reservation = ({ sectionId }) => {
       reservationdate: "",
       reservationtime: "",
     });
-    setCustExist(false);
+    setDataExist(false);
   };
   // start data paging
   const handlePageChange = (page) => {
@@ -114,15 +114,15 @@ export const Reservation = ({ sectionId }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setErrors({
-      ...errors,
-      [name]: "",
-    });
-
     setInputData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
+
+    setErrors({
+      ...errors,
+      [name]: "",
+    });
 
     if (name === "phone") {
       let phoneExists = false;
@@ -136,14 +136,14 @@ export const Reservation = ({ sectionId }) => {
       });
 
       if (phoneExists) {
-        setCustExist(true);
+        setDataExist(true);
         setInputData((prevState) => ({
           ...prevState,
           name: matchedData.username,
           email: matchedData.useremail,
         }));
       } else {
-        setCustExist(false);
+        setDataExist(false);
       }
     }
 
@@ -176,21 +176,33 @@ export const Reservation = ({ sectionId }) => {
       return;
     }
 
-    const confirmSubmit = window.confirm(
-      "Are you sure you want to submit this Reservation Data?"
+    const isConfirmed = window.confirm(
+      "Apakah anda yakin untuk menambahkan data?"
     );
 
-    if (confirmSubmit) {
+    if (isConfirmed) {
       try {
         setIsLoading(true);
         await handleCUDReserve(inputData);
+        showNotifications(
+          "success",
+          "Selamat! Data Reservasi baru berhasil ditambahkan."
+        );
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewreservation");
-        setReserveData(data.data);
-        setFilteredData(data.data);
-        setTotalPages(data.TTLPage);
 
+        if (data && data.data && data.data.length > 0) {
+          setReserveData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setReserveData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
         closeForm();
       } catch (error) {
         console.error("Error occurred during submit reservation:", error);
@@ -252,9 +264,9 @@ export const Reservation = ({ sectionId }) => {
       });
 
       if (phoneExists) {
-        setCustExist(true);
+        setDataExist(true);
       } else {
-        setCustExist(false);
+        setDataExist(false);
       }
     }
 
@@ -426,7 +438,7 @@ export const Reservation = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-reservation"
-            placeholder="Search by name ..."
+            placeholder="Search data ..."
             property="name"
             userData={reserveData}
             setUserData={setFilteredData}
@@ -540,7 +552,7 @@ export const Reservation = ({ sectionId }) => {
               onChange={handleInputChange}
               error={errors.phone}
               info={
-                custExist
+                dataExist
                   ? "Existing Customer, Name and Email will auto-fill."
                   : ""
               }
@@ -549,7 +561,7 @@ export const Reservation = ({ sectionId }) => {
           <InputWrapper>
             <UserInput
               id="user-name"
-              subVariant={custExist ? "readonly" : "label"}
+              subVariant={dataExist ? "readonly" : "label"}
               labelText="Nama Pelanggan"
               placeholder="John Doe"
               type="text"
@@ -560,7 +572,7 @@ export const Reservation = ({ sectionId }) => {
             />
             <UserInput
               id="user-email"
-              subVariant={custExist ? "readonly" : "label"}
+              subVariant={dataExist ? "readonly" : "label"}
               labelText="Email"
               placeholder="customer@gmail.com"
               type="email"

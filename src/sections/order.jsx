@@ -44,23 +44,23 @@ export const Order = ({ sectionId }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   // input state
   const [inputData, setInputData] = useState({
-    service: [{ service: "", servicetype: "", price: "" }],
+    layanan: [{ service: "", servicetype: "", price: "" }],
   });
   const [currentData, setCurrentData] = useState({
-    service: [{ service: "", servicetype: "", price: "" }],
+    layanan: [{ service: "", servicetype: "", price: "" }],
   });
   const [errors, setErrors] = useState({
-    service: [{ service: "", servicetype: "", price: "" }],
+    layanan: [{ service: "", servicetype: "", price: "" }],
   });
   const cleanInput = () => {
     setInputData({
-      service: [{ service: "", servicetype: "", price: "" }],
+      layanan: [{ service: "", servicetype: "", price: "" }],
     });
     setCurrentData({
-      service: [{ service: "", servicetype: "", price: "" }],
+      layanan: [{ service: "", servicetype: "", price: "" }],
     });
     setErrors({
-      service: [{ service: "", servicetype: "", price: "" }],
+      layanan: [{ service: "", servicetype: "", price: "" }],
     });
   };
   // start data paging
@@ -81,20 +81,18 @@ export const Order = ({ sectionId }) => {
 
   const handleInputChange = (index, e) => {
     const { name, value } = e.target;
-    const updatedService = [...inputData.service];
-    updatedService[index][name] = value;
-
     setInputData((prevState) => ({
       ...prevState,
-      service: updatedService,
+      layanan: prevState.layanan.map((item, idx) =>
+        idx === index ? { ...item, [name]: value } : item
+      ),
     }));
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      service: {
-        ...prevErrors.service,
-        [index]: "",
-      },
+      layanan: prevErrors.layanan.map((error, idx) =>
+        idx === index ? { ...error, [name]: "" } : error
+      ),
     }));
 
     const selectedService = serviceData.find(
@@ -109,94 +107,97 @@ export const Order = ({ sectionId }) => {
   const handleAddRow = () => {
     setInputData((prevState) => ({
       ...prevState,
-      service: [
-        ...prevState.service,
+      layanan: [
+        ...prevState.layanan,
         { service: "", servicetype: "", price: "" },
       ],
     }));
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      service: [
-        ...prevErrors.service,
+      layanan: [
+        ...prevErrors.layanan,
         { service: "", servicetype: "", price: "" },
       ],
     }));
   };
 
   const handleRemoveRow = (index) => {
-    const updatedService = [...inputData.service];
+    const updatedService = [...inputData.layanan];
     updatedService.splice(index, 1);
 
     setInputData((prevState) => ({
       ...prevState,
-      service: updatedService,
+      layanan: updatedService,
     }));
   };
 
   const handleSubmit = async (e) => {
-    try {
-      e.preventDefault();
+    e.preventDefault();
 
-      if (errors.service !== "") {
-        return;
+    const isFieldEmpty = inputData.layanan.some(
+      (service) =>
+        service.service.trim() === "" ||
+        service.servicetype.trim() === "" ||
+        service.price.trim() === ""
+    );
+
+    if (isFieldEmpty) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        layanan: inputData.layanan.map((service) => ({
+          service:
+            service.service.trim() === "" ? "Layanan tidak boleh kosong" : "",
+          servicetype:
+            service.servicetype.trim() === ""
+              ? "Jenis Layanan tidak boleh kosong"
+              : "",
+          price:
+            service.price.trim() === ""
+              ? "Harga Layanan tidak boleh kosong"
+              : "",
+        })),
+      }));
+      return;
+    }
+
+    const isConfirmed = window.confirm(
+      "Apakah anda yakin untuk menambahkan data?"
+    );
+
+    if (isConfirmed) {
+      try {
+        setIsLoading(true);
+        await handleCUDOrder(inputData);
+        showNotifications(
+          "success",
+          "Selamat! Data Order baru berhasil ditambahkan."
+        );
+
+        const offset = (currentPage - 1) * limit;
+        const data = await fetchDataList(offset, limit, "vieworder");
+
+        if (data && data.data && data.data.length > 0) {
+          setOrderData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setOrderData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
+        closeForm();
+      } catch (error) {
+        console.error("Error occurred during submit order:", error);
+        showNotifications(
+          "danger",
+          "Gagal menambahkan data Order. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
+      } finally {
+        setIsLoading(false);
       }
-
-      const isServiceEmpty = inputData.service.some(
-        (service) =>
-          service.service.trim() === "" ||
-          service.servicetype.trim() === "" ||
-          service.price.trim() === ""
-      );
-
-      if (isServiceEmpty) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          service: inputData.service.map((service) => ({
-            service:
-              service.service.trim() === "" ? "Layanan tidak boleh kosong" : "",
-            servicetype:
-              service.servicetype.trim() === ""
-                ? "Jenis Layanan tidak boleh kosong"
-                : "",
-            price:
-              service.price.trim() === ""
-                ? "Harga Layanan tidak boleh kosong"
-                : "",
-          })),
-        }));
-        return;
-      }
-
-      const isConfirmed = window.confirm(
-        "Apakah anda yakin untuk menambahkan data?"
-      );
-      if (!isConfirmed) {
-        return;
-      }
-
-      setIsLoading(true);
-      await handleCUDOrder(inputData);
-      showNotifications(
-        "success",
-        "Selamat! Data Order baru berhasil ditambahkan."
-      );
-
-      const offset = (currentPage - 1) * limit;
-      const data = await fetchDataList(offset, limit, "vieworder");
-      setOrderData(data.data);
-      setFilteredData(data.data);
-      setTotalPages(data.TTLPage);
-
-      closeForm();
-    } catch (error) {
-      console.error("Error occurred during submit order:", error);
-      showNotifications(
-        "danger",
-        "Gagal menambahkan data Order. Mohon periksa koneksi internet anda dan muat ulang halaman."
-      );
-    } finally {
-      setIsLoading(false);
     }
   };
   // end add data function
@@ -204,7 +205,7 @@ export const Order = ({ sectionId }) => {
   const openEdit = (id, jenisLayanan) => {
     setSelectedData(id);
     setCurrentData({
-      service: jenisLayanan.map(({ service, servicetype, price }) => ({
+      layanan: jenisLayanan.map(({ service, servicetype, price }) => ({
         service: service,
         servicetype: servicetype,
         price: price,
@@ -220,20 +221,26 @@ export const Order = ({ sectionId }) => {
 
   const handleRowEditChange = (index, e) => {
     const { name, value } = e.target;
-    const updatedService = [...currentData.service];
+    const updatedService = [...currentData.layanan];
     updatedService[index][name] = value;
 
     setCurrentData((prevState) => ({
       ...prevState,
-      service: updatedService,
+      layanan: updatedService,
     }));
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      service: {
-        ...prevErrors.service,
-        [index]: "",
-      },
+      layanan: [
+        ...prevErrors.layanan.slice(0, index),
+        {
+          ...prevErrors.layanan[index],
+          service: "",
+          servicetype: "",
+          price: "",
+        },
+        ...prevErrors.layanan.slice(index + 1),
+      ],
     }));
 
     const selectedService = serviceData.find(
@@ -260,28 +267,28 @@ export const Order = ({ sectionId }) => {
   const handleAddEditRow = () => {
     setCurrentData((prevState) => ({
       ...prevState,
-      service: [
-        ...prevState.service,
+      layanan: [
+        ...prevState.layanan,
         { service: "", servicetype: "", price: "" },
       ],
     }));
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      service: [
-        ...prevErrors.service,
+      layanan: [
+        ...prevErrors.layanan,
         { service: "", servicetype: "", price: "" },
       ],
     }));
   };
 
   const handleRemoveEditRow = (index) => {
-    const updatedService = [...currentData.service];
+    const updatedService = [...currentData.layanan];
     updatedService.splice(index, 1);
 
     setCurrentData((prevState) => ({
       ...prevState,
-      service: updatedService,
+      layanan: updatedService,
     }));
   };
 
@@ -343,12 +350,23 @@ export const Order = ({ sectionId }) => {
         const offset = (page - 1) * limit;
         const data = await fetchDataList(offset, limit, "vieworder");
 
-        setOrderData(data.data);
-        setFilteredData(data.data);
-        setTotalPages(data.TTLPage);
+        if (data && data.data && data.data.length > 0) {
+          setOrderData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setOrderData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
       } catch (error) {
         console.error("Error fetching user data:", error);
-        showNotifications("danger", "Error fetching user data.");
+        showNotifications(
+          "danger",
+          "Gagal menampilkan data Order. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
       } finally {
         setIsLoading(false);
       }
@@ -381,7 +399,7 @@ export const Order = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-order"
-            placeholder="Search by name ..."
+            placeholder="Search data ..."
             property="transactionname"
             userData={orderData}
             setUserData={setFilteredData}
@@ -492,14 +510,14 @@ export const Order = ({ sectionId }) => {
       )}
       {isFormOpen && (
         <SubmitForm
-          formTitle="Tambah Order"
+          formTitle="Tambah Data Order"
           onClose={closeForm}
           onSubmit={handleSubmit}
           saveText="Simpan"
           cancelText="Batal"
           loading={isLoading}
         >
-          {inputData.service.map((service, index) => (
+          {inputData.layanan.map((service, index) => (
             <InputWrapper key={index}>
               <UserInput
                 id={`service-name-${index}`}
@@ -510,7 +528,7 @@ export const Order = ({ sectionId }) => {
                 name="servicetype"
                 value={service.service}
                 onChange={(e) => handleInputChange(index, e)}
-                error={errors.service[index].service}
+                error={errors.layanan[index].service}
               />
               <UserInput
                 id={`service-name-${index}`}
@@ -521,7 +539,7 @@ export const Order = ({ sectionId }) => {
                 name="servicetype"
                 value={service.servicetype}
                 onChange={(e) => handleInputChange(index, e)}
-                error={errors.service[index].servicetype}
+                error={errors.layanan[index].servicetype}
               />
               <UserInput
                 id={`service-price-${index}`}
@@ -532,7 +550,7 @@ export const Order = ({ sectionId }) => {
                 name="price"
                 value={service.price}
                 onChange={(e) => handleInputChange(index, e)}
-                error={errors.service[index].price}
+                error={errors.layanan[index].price}
               />
               {index <= 0 ? (
                 <SecondaryButton variant="icon" subVariant="hollow">
@@ -576,10 +594,10 @@ export const Order = ({ sectionId }) => {
           cancelText="Batal"
           loading={isLoading}
         >
-          {currentData.service.map((service, index) => (
+          {currentData.layanan.map((service, index) => (
             <InputWrapper key={index}>
               <UserInput
-                id={`service-name-${index}`}
+                id={`edit-service-name-${index}`}
                 variant="select"
                 subVariant="label"
                 labelText="Nama Layanan"
@@ -597,7 +615,7 @@ export const Order = ({ sectionId }) => {
                 ))}
               </UserInput>
               <UserInput
-                id={`service-type-name-${index}`}
+                id={`edit-service-type-name-${index}`}
                 variant="select"
                 subVariant="label"
                 labelText="Jenis Layanan"
@@ -607,18 +625,12 @@ export const Order = ({ sectionId }) => {
                 onChange={(e) => handleRowEditChange(index, e)}
                 // error={errors.service[index].servicetype}
               >
-                {currentData.service ? (
-                  <Fragment>
-                    <option value="">Pilih tipe layanan</option>
-                    {subServiceData.map((subservice, i) => (
-                      <option key={i} value={subservice.servicetypename}>
-                        {subservice.servicetypename}
-                      </option>
-                    ))}
-                  </Fragment>
-                ) : (
-                  <option value="">Mohon pilih layanan dahulu</option>
-                )}
+                <option value="">Pilih tipe layanan</option>
+                {subServiceData.map((subservice, i) => (
+                  <option key={i} value={subservice.servicetypename}>
+                    {subservice.servicetypename}
+                  </option>
+                ))}
               </UserInput>
               {index <= 0 ? (
                 <SecondaryButton variant="icon" subVariant="hollow">

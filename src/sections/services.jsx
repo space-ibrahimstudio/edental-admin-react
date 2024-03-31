@@ -33,7 +33,7 @@ export const Services = ({ sectionId }) => {
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [totalPages, setTotalPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -83,7 +83,6 @@ export const Services = ({ sectionId }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
     setInputData((prevState) => {
       return { ...prevState, [name]: value };
     });
@@ -115,20 +114,18 @@ export const Services = ({ sectionId }) => {
 
   const handleRowChange = (index, e) => {
     const { name, value } = e.target;
-    const updatedSubService = [...inputData.subService];
-    updatedSubService[index][name] = value;
-
     setInputData((prevState) => ({
       ...prevState,
-      subService: updatedSubService,
+      subService: prevState.subService.map((item, idx) =>
+        idx === index ? { ...item, [name]: value } : item
+      ),
     }));
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      subService: {
-        ...prevErrors.subService,
-        [index]: "",
-      },
+      subService: prevErrors.subService.map((error, idx) =>
+        idx === index ? { ...error, [name]: "" } : error
+      ),
     }));
   };
 
@@ -143,7 +140,10 @@ export const Services = ({ sectionId }) => {
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      subService: [...prevErrors.subService, { servicetype: "", price: "" }],
+      subService: [
+        ...prevErrors.subService,
+        { id: "", servicetype: "", price: "" },
+      ],
     }));
   };
 
@@ -158,68 +158,75 @@ export const Services = ({ sectionId }) => {
   };
 
   const handleSubmit = async (e) => {
-    try {
-      e.preventDefault();
+    e.preventDefault();
 
-      if (errors.service !== "") {
-        return;
-      }
+    if (errors.service !== "") {
+      return;
+    }
 
-      const isSubServiceEmpty = inputData.subService.some(
-        (subService) =>
-          subService.servicetype.trim() === "" || subService.price.trim() === ""
-      );
+    const isSubServiceEmpty = inputData.subService.some(
+      (subService) =>
+        subService.servicetype.trim() === "" || subService.price.trim() === ""
+    );
 
-      if (inputData.service.trim() === "" || isSubServiceEmpty) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          service:
-            inputData.service.trim() === ""
-              ? "Nama Layanan tidak boleh kosong"
+    if (inputData.service.trim() === "" || isSubServiceEmpty) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        service:
+          inputData.service.trim() === ""
+            ? "Nama Layanan tidak boleh kosong"
+            : "",
+        subService: inputData.subService.map((subService) => ({
+          servicetype:
+            subService.servicetype.trim() === ""
+              ? "Jenis Layanan tidak boleh kosong"
               : "",
-          subService: inputData.subService.map((subService) => ({
-            servicetype:
-              subService.servicetype.trim() === ""
-                ? "Jenis Layanan tidak boleh kosong"
-                : "",
-            price:
-              subService.price.trim() === ""
-                ? "Harga Layanan tidak boleh kosong"
-                : "",
-          })),
-        }));
-        return;
+          price:
+            subService.price.trim() === ""
+              ? "Harga Layanan tidak boleh kosong"
+              : "",
+        })),
+      }));
+      return;
+    }
+
+    const isConfirmed = window.confirm(
+      "Apakah anda yakin untuk menambahkan data?"
+    );
+
+    if (isConfirmed) {
+      try {
+        setIsLoading(true);
+        await handleCUDService(inputData);
+        showNotifications(
+          "success",
+          "Selamat! Data Layanan baru berhasil ditambahkan."
+        );
+
+        const offset = (currentPage - 1) * limit;
+        const data = await fetchDataList(offset, limit, "viewservice");
+
+        if (data && data.data && data.data.length > 0) {
+          setServiceData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setServiceData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
+        closeForm();
+      } catch (error) {
+        console.error("Error occurred during submit service:", error);
+        showNotifications(
+          "danger",
+          "Gagal menambahkan data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
+      } finally {
+        setIsLoading(false);
       }
-
-      const isConfirmed = window.confirm(
-        "Apakah anda yakin untuk menambahkan data?"
-      );
-      if (!isConfirmed) {
-        return;
-      }
-
-      setIsLoading(true);
-      await handleCUDService(inputData);
-      showNotifications(
-        "success",
-        "Selamat! Data Layanan baru berhasil ditambahkan."
-      );
-
-      const offset = (currentPage - 1) * limit;
-      const data = await fetchDataList(offset, limit, "viewservice");
-      setServiceData(data.data);
-      setFilteredData(data.data);
-      setTotalPages(data.TTLPage);
-
-      closeForm();
-    } catch (error) {
-      console.error("Error occurred during submit service:", error);
-      showNotifications(
-        "danger",
-        "Gagal menambahkan data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
-      );
-    } finally {
-      setIsLoading(false);
     }
   };
   // end add data function
@@ -480,7 +487,7 @@ export const Services = ({ sectionId }) => {
         <InputWrapper>
           <SearchInput
             id="search-services"
-            placeholder="Search by name ..."
+            placeholder="Search data ..."
             property="servicename"
             userData={serviceData}
             setUserData={setFilteredData}
