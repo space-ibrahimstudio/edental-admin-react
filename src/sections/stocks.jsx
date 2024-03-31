@@ -160,10 +160,18 @@ export const Stocks = ({ sectionId }) => {
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewstock");
-        setStockData(data.data);
-        setFilteredData(data.data);
-        setTotalPages(data.TTLPage);
 
+        if (data && data.data && data.data.length > 0) {
+          setStockData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setStockData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
         closeForm();
       } catch (error) {
         console.error("Error occurred during submit stock po:", error);
@@ -199,9 +207,17 @@ export const Stocks = ({ sectionId }) => {
         const offset = (page - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewstock");
 
-        setStockData(data.data);
-        setFilteredData(data.data);
-        setTotalPages(data.TTLPage);
+        if (data && data.data && data.data.length > 0) {
+          setStockData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setStockData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
       } catch (error) {
         console.error("Error fetching stock data:", error);
         showNotifications("danger", "Error fetching stock data.");

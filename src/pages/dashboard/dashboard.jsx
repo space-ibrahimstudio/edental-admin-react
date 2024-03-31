@@ -41,7 +41,7 @@ const Dashboard = () => {
       case "po-masuk":
         return <POMasukTab />;
       case "po-keluar":
-        return <CentralPOTab />;
+        return <POMasukTab />;
       case "po-pusat":
         return <CentralPOTab />;
       case "stock":
