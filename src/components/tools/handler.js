@@ -164,8 +164,8 @@ export async function handleCUDReserve(inputData, operation, id) {
       "data",
       JSON.stringify({
         secret: userSecret,
-        idservice: "1",
-        idservicetype: "1",
+        idservice: inputData.idservice,
+        idservicetype: inputData.idservicetype,
         idbranch: idBranch,
         name: inputData.name,
         phone: inputData.phone,

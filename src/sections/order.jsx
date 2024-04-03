@@ -337,6 +337,7 @@ export const Order = ({ sectionId }) => {
       <TableHeadValue value="Nama Pengguna" />
       <TableHeadValue value="Telepon" />
       <TableHeadValue value="Cabang" />
+      <TableHeadValue value="Kode Voucher" />
       <TableHeadValue value="Status" position="end" />
     </TableRow>
   );
@@ -492,6 +493,7 @@ export const Order = ({ sectionId }) => {
             <TableBodyValue value={order["Transaction"].transactionname} />
             <TableBodyValue value={order["Transaction"].transactionphone} />
             <TableBodyValue value={order["Transaction"].outlet_name} />
+            <TableBodyValue value={order["Transaction"].voucher} />
             <TableBodyValue
               value={order["Transaction"].transactionstatus}
               position="end"

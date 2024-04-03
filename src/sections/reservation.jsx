@@ -49,6 +49,8 @@ export const Reservation = ({ sectionId }) => {
   // input state
   const [hours, setHours] = useState([]);
   const [inputData, setInputData] = useState({
+    idservice: "",
+    idservicetype: "",
     name: "",
     phone: "",
     email: "",
@@ -58,6 +60,8 @@ export const Reservation = ({ sectionId }) => {
     reservationtime: "",
   });
   const [currentData, setCurrentData] = useState({
+    idservice: "",
+    idservicetype: "",
     name: "",
     phone: "",
     email: "",
@@ -67,6 +71,8 @@ export const Reservation = ({ sectionId }) => {
     reservationtime: "",
   });
   const [errors, setErrors] = useState({
+    idservice: "",
+    idservicetype: "",
     name: "",
     phone: "",
     email: "",
@@ -77,6 +83,8 @@ export const Reservation = ({ sectionId }) => {
   });
   const cleanInput = () => {
     setInputData({
+      idservice: "",
+      idservicetype: "",
       name: "",
       phone: "",
       email: "",
@@ -86,6 +94,8 @@ export const Reservation = ({ sectionId }) => {
       reservationtime: "",
     });
     setErrors({
+      idservice: "",
+      idservicetype: "",
       name: "",
       phone: "",
       email: "",
@@ -164,7 +174,7 @@ export const Reservation = ({ sectionId }) => {
 
     for (const key in inputData) {
       if (inputData[key].trim() === "") {
-        newErrors[key] = "This field is required.";
+        newErrors[key] = "Data ini tidak boleh kosong.";
         hasError = true;
       } else {
         newErrors[key] = "";
@@ -356,6 +366,7 @@ export const Reservation = ({ sectionId }) => {
       <TableHeadValue value="Telepon" />
       <TableHeadValue value="Layanan" />
       <TableHeadValue value="Tipe Layanan" />
+      <TableHeadValue value="Kode Voucher" />
       <TableHeadValue value="Tanggal Reservasi">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
@@ -515,6 +526,7 @@ export const Reservation = ({ sectionId }) => {
             <TableBodyValue value={reserve.phone} />
             <TableBodyValue value={reserve.service} />
             <TableBodyValue value={reserve.typeservice} />
+            <TableBodyValue value={reserve.voucher} />
             <TableBodyValue value={reserve.reservationdate} />
             <TableBodyValue value={reserve.reservationtime} />
             <TableBodyValue value={reserve.outlet_name} position="end" />
