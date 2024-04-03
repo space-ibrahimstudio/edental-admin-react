@@ -329,17 +329,15 @@ export const Order = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue type="num" value="NO" />
-      <TableHeadValue hasIcon="yes" value="Nama Pengguna">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
-      <TableHeadValue value="Kode" />
-      <TableHeadValue value="Status" />
-      <TableHeadValue value="Telepon" />
-      <TableHeadValue value="Nomor Invoice" />
       <TableHeadValue value="Tanggal Order" hasIcon="yes">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue value="Cabang" position="end" />
+      <TableHeadValue value="Kode Reservasi" />
+      <TableHeadValue value="Nomor Invoice" />
+      <TableHeadValue value="Nama Pengguna" />
+      <TableHeadValue value="Telepon" />
+      <TableHeadValue value="Cabang" />
+      <TableHeadValue value="Status" position="end" />
     </TableRow>
   );
 
@@ -488,14 +486,14 @@ export const Order = ({ sectionId }) => {
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
-            <TableBodyValue value={order["Transaction"].transactionname} />
-            <TableBodyValue value={order["Transaction"].rscode} />
-            <TableBodyValue value={order["Transaction"].transactionstatus} />
-            <TableBodyValue value={order["Transaction"].transactionphone} />
-            <TableBodyValue value={order["Transaction"].noinvoice} />
             <TableBodyValue value={order["Transaction"].transactioncreate} />
+            <TableBodyValue value={order["Transaction"].rscode} />
+            <TableBodyValue value={order["Transaction"].noinvoice} />
+            <TableBodyValue value={order["Transaction"].transactionname} />
+            <TableBodyValue value={order["Transaction"].transactionphone} />
+            <TableBodyValue value={order["Transaction"].outlet_name} />
             <TableBodyValue
-              value={sessionStorage.getItem("outletName")}
+              value={order["Transaction"].transactionstatus}
               position="end"
             />
           </TableRow>

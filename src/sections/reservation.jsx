@@ -347,11 +347,11 @@ export const Reservation = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
-      <TableHeadValue value="Action" type="atn" />
+      {/* <TableHeadValue value="Action" type="atn" /> */}
       <TableHeadValue value="Nama Pengguna">
         <ChevronDown width="10px" height="100%" />
       </TableHeadValue>
-      <TableHeadValue value="Kode" />
+      <TableHeadValue value="Kode Reservasi" />
       <TableHeadValue value="Email" />
       <TableHeadValue value="Telepon" />
       <TableHeadValue value="Layanan" />
@@ -478,7 +478,7 @@ export const Reservation = ({ sectionId }) => {
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
-            <TableBodyValue type="atn">
+            {/* <TableBodyValue type="atn">
               <SecondaryButton
                 buttonText="Edit"
                 iconPosition="start"
@@ -508,7 +508,7 @@ export const Reservation = ({ sectionId }) => {
                   color="var(--color-red)"
                 />
               </SecondaryButton>
-            </TableBodyValue>
+            </TableBodyValue> */}
             <TableBodyValue value={reserve.name} />
             <TableBodyValue value={reserve.rscode} />
             <TableBodyValue value={reserve.email} />
@@ -517,10 +517,7 @@ export const Reservation = ({ sectionId }) => {
             <TableBodyValue value={reserve.typeservice} />
             <TableBodyValue value={reserve.reservationdate} />
             <TableBodyValue value={reserve.reservationtime} />
-            <TableBodyValue
-              value={sessionStorage.getItem("outletName")}
-              position="end"
-            />
+            <TableBodyValue value={reserve.outlet_name} position="end" />
           </TableRow>
         ))}
       </TableData>

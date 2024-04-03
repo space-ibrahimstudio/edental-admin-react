@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import { PageScreen } from "../../components/layout/page-screen";
@@ -11,9 +12,12 @@ import {
   TableHeadValue,
   TableBodyValue,
 } from "../../components/layout/tables";
+import { PrimButton } from "../../components/user-input/buttons";
+import { ArrowIcon } from "../../components/layout/icons";
 import styles from "../../sections/styles/tabel-section.module.css";
 
 const StockHistory = () => {
+  const navigate = useNavigate();
   const { showNotifications } = useNotifications();
   const { stockName } = useParams();
   // data state
@@ -21,6 +25,10 @@ const StockHistory = () => {
   const [filteredData, setFilteredData] = useState([]);
   // conditional context
   const [isLoading, setIsLoading] = useState(false);
+
+  const goBack = () => {
+    navigate(-1);
+  };
 
   // end add data function
   const tableHeadData = (
@@ -64,17 +72,15 @@ const StockHistory = () => {
         <b className={styles.tabelSectionTitle}>
           History Stock for {stockName}
         </b>
-        {/* <div className={styles.tabelSectionNav}>
-          <InputWrapper>
-            <SearchInput
-              id="search-reservation"
-              placeholder="Search data ..."
-              property="itemname"
-              userData={stockData}
-              setUserData={setFilteredData}
-            />
-          </InputWrapper>
-        </div> */}
+        <div className={styles.tabelSectionNav}>
+          <PrimButton
+            buttonText="Kembali"
+            iconPosition="start"
+            onClick={goBack}
+          >
+            <ArrowIcon direction="left" width="17px" height="100%" />
+          </PrimButton>
+        </div>
         <TableData
           headerData={tableHeadData}
           loading={isLoading}
