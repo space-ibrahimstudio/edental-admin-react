@@ -489,8 +489,8 @@ export const BranchList = ({ sectionId }) => {
             <UserInput
               id="outlet-postcode"
               subVariant="label"
-              labelText="Alamat Cabang"
-              placeholder="123 Main Street"
+              labelText="Kode Pos"
+              placeholder="40282"
               type="text"
               name="postcode"
               value={inputData.postcode}
@@ -607,8 +607,8 @@ export const BranchList = ({ sectionId }) => {
             <UserInput
               id="edit-outlet-postcode"
               subVariant="label"
-              labelText="Alamat Cabang"
-              placeholder="123 Main Street"
+              labelText="Kode Pos"
+              placeholder="40282"
               type="text"
               name="postcode"
               value={currentData.postcode}
