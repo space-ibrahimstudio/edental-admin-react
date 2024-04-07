@@ -14,12 +14,7 @@ import {
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
 import { InputWrapper } from "../components/user-input/inputs";
-import {
-  ChevronDown,
-  PlusIcon,
-  EditIcon,
-  TrashIcon,
-} from "../components/layout/icons";
+import { PlusIcon, EditIcon, TrashIcon } from "../components/layout/icons";
 import { SearchInput } from "../components/user-input/inputs";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";

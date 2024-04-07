@@ -21,13 +21,6 @@ export const ColumnsTitle = ({ columnsText, hasIcon, children, maxWidth }) => {
   }
 };
 
-ColumnsTitle.propTypes = {
-  columnsText: PropTypes.string,
-  hasIcon: PropTypes.string,
-  children: PropTypes.node,
-  maxWidth: PropTypes.string,
-};
-
 export const ColumnsBody = ({ columnsText, hasIcon, children, maxWidth }) => {
   if (hasIcon === "yes") {
     return (
@@ -44,13 +37,6 @@ export const ColumnsBody = ({ columnsText, hasIcon, children, maxWidth }) => {
       </div>
     );
   }
-};
-
-ColumnsBody.propTypes = {
-  columnsText: PropTypes.string,
-  hasIcon: PropTypes.string,
-  children: PropTypes.node,
-  maxWidth: PropTypes.string,
 };
 
 export const TableRow = ({
@@ -252,11 +238,4 @@ export const TableData = ({ headerData, dataShown, loading, children }) => {
       )}
     </div>
   );
-};
-
-TableData.propTypes = {
-  headerData: PropTypes.node,
-  dataShown: PropTypes.bool,
-  loading: PropTypes.bool,
-  children: PropTypes.node,
 };

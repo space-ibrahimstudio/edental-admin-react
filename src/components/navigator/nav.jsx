@@ -12,7 +12,7 @@ import {
 import { TabButton, DropDownButton } from "../user-input/buttons";
 import { useNotifications } from "../feedback/context/notifications-context";
 import { toPathname, toTitleCase } from "../tools/controller";
-import "./styles/nav.css";
+import styles from "./styles/nav.module.css";
 
 export function Nav() {
   const [tabMenus, setTabMenus] = useState([]);
@@ -51,12 +51,12 @@ export function Nav() {
   }, []);
 
   return (
-    <nav className="nav">
-      <div className="nav-body">
+    <nav className={styles.nav}>
+      <div className={styles.navBody}>
         <div style={{ cursor: "pointer" }} onClick={logoClick}>
           <LogoPrimary width="140px" height="100%" />
         </div>
-        <div className="nav-menu">
+        <div className={styles.navMenu}>
           {Array.isArray(tabMenus) &&
             tabMenus.map((menu) => (
               <TabButton
@@ -81,14 +81,14 @@ export function Nav() {
               </TabButton>
             ))}
         </div>
-        <div className="nav-option">
-          <div className="nav-notif">
+        <div className={styles.navOption}>
+          <div className={styles.navNotif}>
             <BellNotification width="100%" height="25px" />
-            <div className="nav-notif-counter">
-              <div className="nav-notif-counter-text">3</div>
+            <div className={styles.navNotifCounter}>
+              <div className={styles.navNotifCounterText}>3</div>
             </div>
           </div>
-          <div className="nav-user">
+          <div className={styles.navUser}>
             <UserAvatar width="37.6px" height="100%" />
           </div>
           <Button

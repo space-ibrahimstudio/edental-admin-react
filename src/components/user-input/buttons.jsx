@@ -8,7 +8,6 @@ import { ChevronDown, ArrowIcon } from "../layout/icons";
 import prim from "./styles/prim-button.module.css";
 import scnd from "./styles/scnd-button.module.css";
 import tab from "./styles/tab-button.module.css";
-import pgnt from "../navigator/styles/pagination.module.css";
 
 export function PrimButton({
   variant,
@@ -260,29 +259,3 @@ TabButton.propTypes = {
   buttonText: PropTypes.string.isRequired,
   children: PropTypes.node,
 };
-
-export function ButtonGroup({ buttonList, activeButton, onGroupChange }) {
-  return (
-    <div className={pgnt.pagination}>
-      {buttonList.map((button) => (
-        <button
-          key={button}
-          className={`${pgnt.paginationArrow} ${
-            button === activeButton ? pgnt.active : ""
-          }`}
-          onClick={() => onGroupChange(button)}
-        >
-          <b className={pgnt.paginationNumText}>{toTitleCase(button)}</b>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-export function ButtonList({ isOpen, children }) {
-  return (
-    <section className={`${tab.dropdown} ${isOpen ? tab.opened : tab.closed}`}>
-      {children}
-    </section>
-  );
-}
