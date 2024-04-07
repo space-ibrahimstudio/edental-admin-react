@@ -53,7 +53,14 @@ ColumnsBody.propTypes = {
   maxWidth: PropTypes.string,
 };
 
-export const TableRow = ({ type, onClick, isEven, expanded, children }) => {
+export const TableRow = ({
+  type,
+  isClickable,
+  onClick,
+  isEven,
+  expanded,
+  children,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -66,7 +73,9 @@ export const TableRow = ({ type, onClick, isEven, expanded, children }) => {
     return (
       <Fragment>
         <tr
-          className={`tabel-body-tr ${isEven ? "even" : ""}`}
+          className={`tabel-body-tr ${isEven ? "even" : ""} ${
+            isClickable ? "clickable" : ""
+          }`}
           onClick={toggleExpand}
         >
           {children}
@@ -94,7 +103,12 @@ export const TableRow = ({ type, onClick, isEven, expanded, children }) => {
     );
   } else {
     return (
-      <tr className={`tabel-body-tr ${isEven ? "even" : ""}`} onClick={onClick}>
+      <tr
+        className={`tabel-body-tr ${isEven ? "even" : ""} ${
+          isClickable ? "clickable" : ""
+        }`}
+        onClick={onClick}
+      >
         {children}
       </tr>
     );
@@ -234,7 +248,7 @@ export const TableData = ({ headerData, dataShown, loading, children }) => {
           </div>
         </table>
       ) : (
-        <p className="tabel-nodata">No data to display.</p>
+        <p className="tabel-nodata">Tidak ada data untuk ditampilkan.</p>
       )}
     </div>
   );

@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Input } from "@ibrahimstudio/input";
+import { Button } from "@ibrahimstudio/button";
+import { formatDate } from "@ibrahimstudio/function";
 import { Fragment } from "../components/tools/controller";
 import { fetchDataList, fetchAllDataList } from "../components/tools/data";
 import { handleCUDService } from "../components/tools/handler";
@@ -10,14 +13,13 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
-import { InputWrapper, UserInput } from "../components/user-input/inputs";
+import { InputWrapper } from "../components/user-input/inputs";
 import {
   ChevronDown,
   PlusIcon,
   EditIcon,
   TrashIcon,
 } from "../components/layout/icons";
-import { SecondaryButton, PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
@@ -33,7 +35,7 @@ export const Services = ({ sectionId }) => {
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -66,11 +68,17 @@ export const Services = ({ sectionId }) => {
     });
   };
   // start data paging
+  const options = [
+    { value: 5, label: "Baris per Halaman: 5" },
+    { value: 10, label: "Baris per Halaman: 10" },
+    { value: 20, label: "Baris per Halaman: 20" },
+    { value: 50, label: "Baris per Halaman: 50" },
+  ];
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  const handleLimitChange = (event) => {
-    setLimit(parseInt(event.target.value));
+  const handleLimitChange = (value) => {
+    setLimit(value);
     setCurrentPage(1);
   };
   // end data paging
@@ -222,7 +230,7 @@ export const Services = ({ sectionId }) => {
         console.error("Error occurred during submit service:", error);
         showNotifications(
           "danger",
-          "Gagal menambahkan data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+          "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
         setIsLoading(false);
@@ -332,84 +340,104 @@ export const Services = ({ sectionId }) => {
     }));
   };
 
-  const handleSubmitEdit = async () => {
-    try {
-      if (errors.service !== "") {
-        return;
-      }
+  const handleSubmitEdit = async (e) => {
+    e.preventDefault();
 
-      const isSubServiceEmpty = currentData.subService.some(
-        (subService) =>
-          subService.servicetype.trim() === "" || subService.price.trim() === ""
-      );
-      if (currentData.service.trim() === "" || isSubServiceEmpty) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          service:
-            currentData.service.trim() === ""
-              ? "Nama Layanan tidak boleh kosong"
+    if (errors.service !== "") {
+      return;
+    }
+
+    const isSubServiceEmpty = currentData.subService.some(
+      (subService) =>
+        subService.servicetype.trim() === "" || subService.price.trim() === ""
+    );
+    if (currentData.service.trim() === "" || isSubServiceEmpty) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        service:
+          currentData.service.trim() === ""
+            ? "Nama Layanan tidak boleh kosong"
+            : "",
+        subService: currentData.subService.map((subService) => ({
+          servicetype:
+            subService.servicetype.trim() === ""
+              ? "Jenis Layanan tidak boleh kosong"
               : "",
-          subService: currentData.subService.map((subService) => ({
-            servicetype:
-              subService.servicetype.trim() === ""
-                ? "Jenis Layanan tidak boleh kosong"
-                : "",
-            price:
-              subService.price.trim() === ""
-                ? "Harga Layanan tidak boleh kosong"
-                : "",
-          })),
-        }));
-        return;
+          price:
+            subService.price.trim() === ""
+              ? "Harga Layanan tidak boleh kosong"
+              : "",
+        })),
+      }));
+      return;
+    }
+
+    const isConfirmed = window.confirm(
+      "Apakah anda yakin untuk menyimpan perubahan data?"
+    );
+
+    if (isConfirmed) {
+      try {
+        setIsLoading(true);
+        await handleCUDService(currentData, "edit", selectedData);
+        showNotifications(
+          "success",
+          "Selamat! Data Layanan berhasil diperbarui."
+        );
+
+        const offset = (currentPage - 1) * limit;
+        const data = await fetchDataList(offset, limit, "viewservice");
+
+        if (data && data.data && data.data.length > 0) {
+          setServiceData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setServiceData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
+        closeEdit();
+      } catch (error) {
+        console.error("Error editing service data:", error);
+        showNotifications(
+          "danger",
+          "Gagal menyimpan perubahan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
+      } finally {
+        setIsLoading(false);
       }
-
-      const isConfirmed = window.confirm(
-        "Apakah anda yakin untuk menyimpan perubahan data?"
-      );
-      if (!isConfirmed) {
-        return;
-      }
-
-      setIsLoading(true);
-      await handleCUDService(currentData, "edit", selectedData);
-      showNotifications(
-        "success",
-        "Selamat! Perubahan data Layanan berhasil disimpan."
-      );
-
-      const offset = (currentPage - 1) * limit;
-      const data = await fetchDataList(offset, limit, "viewservice");
-      setServiceData(data.data);
-      setFilteredData(data.data);
-      setTotalPages(data.TTLPage);
-
-      closeEdit();
-    } catch (error) {
-      console.error("Error editing service:", error);
-      showNotifications(
-        "danger",
-        "Gagal memperbarui data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
-      );
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleSubmitDelete = async (id) => {
-    const confirmDelete = window.confirm("Yakin untuk menghapus data?");
+    const confirmDelete = window.confirm(
+      "Apakah anda yakin untuk menghapus data?"
+    );
     if (confirmDelete) {
       try {
         await handleCUDService("", "delete", id);
         showNotifications(
           "success",
-          "Selamat! Data Layanan yang anda pilih berhasil dihapus."
+          "Selamat! Data yang anda pilih berhasil dihapus."
         );
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewservice");
-        setServiceData(data.data);
-        setFilteredData(data.data);
-        setTotalPages(data.TTLPage);
+
+        if (data && data.data && data.data.length > 0) {
+          setServiceData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setServiceData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
 
         setServiceData(
           serviceData.filter((service) => service.idservice !== id)
@@ -418,7 +446,7 @@ export const Services = ({ sectionId }) => {
         console.error("Error deleting service:", error);
         showNotifications(
           "danger",
-          "Gagal menghapus data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+          "Gagal menghapus data. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       }
     }
@@ -429,12 +457,8 @@ export const Services = ({ sectionId }) => {
       <TableHeadValue value="NO" type="num" />
       <TableHeadValue value="Nama Layanan" />
       <TableHeadValue value="ID Layanan" />
-      <TableHeadValue value="Tanggal Dibuat">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
-      <TableHeadValue value="Terakhir Diupdate">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
+      <TableHeadValue value="Tanggal Dibuat" />
+      <TableHeadValue value="Terakhir Diupdate" />
       <TableHeadValue value="Status" position="end" />
     </TableRow>
   );
@@ -446,9 +470,17 @@ export const Services = ({ sectionId }) => {
         const offset = (page - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewservice");
 
-        setServiceData(data.data);
-        setFilteredData(data.data);
-        setTotalPages(data.TTLPage);
+        if (data && data.data && data.data.length > 0) {
+          setServiceData(data.data);
+          setFilteredData(data.data);
+          setTotalPages(data.TTLPage);
+          setIsDataShown(true);
+        } else {
+          setServiceData([]);
+          setFilteredData([]);
+          setTotalPages(0);
+          setIsDataShown(false);
+        }
       } catch (error) {
         console.error("Error fetching service data:", error);
         showNotifications(
@@ -482,39 +514,37 @@ export const Services = ({ sectionId }) => {
 
   return (
     <section id={sectionId} className={styles.tabelSection}>
-      <b className={styles.tabelSectionTitle}>Nama Layanan</b>
+      <b className={styles.tabelSectionTitle}>Layanan</b>
       <div className={styles.tabelSectionNav}>
         <InputWrapper>
           <SearchInput
-            id="search-services"
-            placeholder="Search data ..."
+            id={`search-data-${sectionId}`}
+            placeholder="Cari data ..."
             property="servicename"
             userData={serviceData}
             setUserData={setFilteredData}
           />
         </InputWrapper>
-        <div className={styles.tabelSectionOption}>
-          <InputWrapper>
-            <UserInput
-              variant="select"
-              id="total-services"
-              value={limit}
-              onChange={handleLimitChange}
-            >
-              <option value={5}>Baris per Halaman: 5</option>
-              <option value={10}>Baris per Halaman: 10</option>
-              <option value={20}>Baris per Halaman: 20</option>
-              <option value={50}>Baris per Halaman: 50</option>
-            </UserInput>
-          </InputWrapper>
-          <PrimButton
+        <InputWrapper>
+          <Input
+            id={`limit-data-${sectionId}`}
+            variant="select"
+            radius="full"
+            isLabeled={false}
+            placeholder="Baris per Halaman"
+            value={limit}
+            options={options}
+            onSelect={handleLimitChange}
+            isReadonly={isDataShown ? false : true}
+          />
+          <Button
+            id={`add-new-data-${sectionId}`}
+            radius="full"
             buttonText="Tambah Baru"
             onClick={openForm}
-            iconPosition="start"
-          >
-            <PlusIcon width="17px" height="100%" />
-          </PrimButton>
-        </div>
+            startContent={<PlusIcon width="17px" height="100%" />}
+          />
+        </InputWrapper>
       </div>
       <TableData
         headerData={tableHeadData}
@@ -526,24 +556,28 @@ export const Services = ({ sectionId }) => {
             type="expand"
             key={index}
             isEven={index % 2 === 0}
+            isClickable={true}
             expanded={
               <Fragment>
                 {service["Jenis Layanan"].map((subService, index) => (
                   <InputWrapper width="100%" key={index}>
-                    <UserInput
-                      subVariant="readonly"
-                      labelText="Nama Jenis Layanan"
+                    <Input
+                      id={`service-type-name-${index}`}
+                      labelText="Jenis Layanan"
                       value={subService.servicetypename}
+                      isReadonly
                     />
-                    <UserInput
-                      subVariant="readonly"
+                    <Input
+                      id={`service-type-price-${index}`}
                       labelText="Harga"
                       value={subService.serviceprice}
+                      isReadonly
                     />
-                    <UserInput
-                      subVariant="readonly"
+                    <Input
+                      id={`service-type-status-${index}`}
                       labelText="Status"
                       value={subService.servicetypestatus}
+                      isReadonly
                     />
                   </InputWrapper>
                 ))}
@@ -556,9 +590,12 @@ export const Services = ({ sectionId }) => {
                     gap: "10px",
                   }}
                 >
-                  <SecondaryButton
-                    buttonText="Edit Data"
-                    iconPosition="start"
+                  <Button
+                    id={`edit-data-${index}`}
+                    size="sm"
+                    radius="full"
+                    buttonText="Edit"
+                    startContent={<EditIcon width="12px" height="100%" />}
                     onClick={() =>
                       openEdit(
                         service["Nama Layanan"].idservice,
@@ -566,23 +603,19 @@ export const Services = ({ sectionId }) => {
                         service["Jenis Layanan"]
                       )
                     }
-                  >
-                    <EditIcon width="12px" height="100%" />
-                  </SecondaryButton>
-                  <SecondaryButton
-                    buttonText="Hapus Data"
-                    iconPosition="start"
-                    subVariant="hollow"
+                  />
+                  <Button
+                    id={`delete-data-${index}`}
+                    size="sm"
+                    radius="full"
+                    color="var(--color-red)"
+                    variant="dashed"
+                    buttonText="Hapus"
+                    startContent={<TrashIcon width="12px" height="100%" />}
                     onClick={() =>
                       handleSubmitDelete(service["Nama Layanan"].idservice)
                     }
-                  >
-                    <TrashIcon
-                      width="20px"
-                      height="100%"
-                      color="var(--color-red)"
-                    />
-                  </SecondaryButton>
+                  />
                 </div>
               </Fragment>
             }
@@ -593,8 +626,12 @@ export const Services = ({ sectionId }) => {
             />
             <TableBodyValue value={service["Nama Layanan"].servicename} />
             <TableBodyValue value={service["Nama Layanan"].idservice} />
-            <TableBodyValue value={service["Nama Layanan"].servicecreate} />
-            <TableBodyValue value={service["Nama Layanan"].serviceupdate} />
+            <TableBodyValue
+              value={formatDate(service["Nama Layanan"].servicecreate, "en-gb")}
+            />
+            <TableBodyValue
+              value={formatDate(service["Nama Layanan"].serviceupdate, "en-gb")}
+            />
             <TableBodyValue
               value={service["Nama Layanan"].servicestatus}
               position="end"
@@ -611,7 +648,7 @@ export const Services = ({ sectionId }) => {
       )}
       {isFormOpen && (
         <SubmitForm
-          formTitle="Tambah Layanan"
+          formTitle="Tambah Data Layanan"
           onClose={closeForm}
           onSubmit={handleSubmit}
           saveText="Simpan"
@@ -619,78 +656,86 @@ export const Services = ({ sectionId }) => {
           loading={isLoading}
         >
           <InputWrapper>
-            <UserInput
+            <Input
               id="service-name"
-              subVariant="label"
               labelText="Nama Layanan"
               placeholder="Masukkan nama layanan"
               type="text"
               name="service"
               value={inputData.service}
               onChange={handleInputChange}
-              error={errors.service}
+              errorContent={errors.service}
+              isRequired
             />
           </InputWrapper>
           {inputData.subService.map((subService, index) => (
             <InputWrapper key={index}>
-              <UserInput
-                id={`service-name-${index}`}
-                subVariant="label"
+              <Input
+                id={`service-type-name-${index}`}
                 labelText="Jenis Layanan"
-                placeholder="e.g Scaling gigi"
+                placeholder="e.g. Scaling gigi"
                 type="text"
                 name="servicetype"
                 value={subService.servicetype}
                 onChange={(e) => handleRowChange(index, e)}
-                error={errors.subService[index].servicetype}
+                errorContent={errors.subService[index].servicetype}
+                isRequired
               />
-              <UserInput
-                id={`service-price-${index}`}
-                subVariant="label"
+              <Input
+                id={`service-type-price-${index}`}
                 labelText="Atur Harga"
-                placeholder="Masukkan Harga"
+                placeholder="Masukkan harga"
                 type="text"
                 name="price"
                 value={subService.price}
                 onChange={(e) => handleRowChange(index, e)}
-                error={errors.subService[index].price}
+                errorContent={errors.subService[index].price}
+                isRequired
               />
               {index <= 0 ? (
-                <SecondaryButton variant="icon" subVariant="hollow">
-                  <TrashIcon
-                    width="20px"
-                    height="100%"
-                    color="var(--color-red-30)"
-                  />
-                </SecondaryButton>
+                <Button
+                  id={`delete-row-${index}`}
+                  variant="dashed"
+                  subVariant="icon"
+                  size="sm"
+                  radius="full"
+                  color="var(--color-red-30)"
+                  isTooltip
+                  tooltipText="Hapus"
+                  iconContent={<TrashIcon width="15px" height="100%" />}
+                  isDisabled
+                />
               ) : (
-                <SecondaryButton
-                  variant="icon"
-                  subVariant="hollow"
+                <Button
+                  id={`delete-row-${index}`}
+                  variant="dashed"
+                  subVariant="icon"
+                  size="sm"
+                  radius="full"
+                  color="var(--color-red)"
+                  isTooltip
+                  tooltipText="Hapus"
+                  iconContent={<TrashIcon width="15px" height="100%" />}
                   onClick={() => handleRemoveRow(index)}
-                >
-                  <TrashIcon
-                    width="20px"
-                    height="100%"
-                    color="var(--color-red)"
-                  />
-                </SecondaryButton>
+                />
               )}
             </InputWrapper>
           ))}
-          <SecondaryButton
-            iconPosition="start"
-            subVariant="hollow"
+          <Button
+            id="add-new-row"
+            variant="hollow"
+            size="sm"
+            radius="full"
+            color="var(--color-semidarkblue)"
             buttonText="Tambah Jenis Layanan"
+            startContent={<PlusIcon width="15px" height="100%" />}
             onClick={handleAddRow}
-          >
-            <PlusIcon width="15px" height="100%" />
-          </SecondaryButton>
+          />
         </SubmitForm>
       )}
       {isEditOpen && (
         <SubmitForm
-          formTitle="Edit Layanan"
+          formTitle="Edit Data Layanan"
           onClose={closeEdit}
           onSubmit={handleSubmitEdit}
           saveText="Simpan Perubahan"
@@ -698,79 +743,87 @@ export const Services = ({ sectionId }) => {
           loading={isLoading}
         >
           <InputWrapper>
-            <UserInput
+            <Input
               id="edit-service-name"
-              subVariant="label"
               labelText="Nama Layanan"
               placeholder="Masukkan nama layanan"
               type="text"
               name="service"
               value={currentData.service}
               onChange={handleInputEditChange}
-              error={errors.service}
+              errorContent={errors.service}
+              isRequired
             />
           </InputWrapper>
           {currentData.subService.map((subService, index) => (
             <InputWrapper key={index}>
-              <UserInput
-                id={`edit-service-name-${index}`}
-                subVariant="label"
+              <Input
+                id={`edit-service-type-name-${index}`}
                 labelText="Jenis Layanan"
-                placeholder="e.g Scaling gigi"
+                placeholder="e.g. Scaling gigi"
                 type="text"
                 name="servicetype"
                 value={subService.servicetype}
                 onChange={(e) => handleRowEditChange(index, e)}
-                error={
+                errorContent={
                   errors.subService[index]
                     ? errors.subService[index].servicetype
                     : ""
                 }
+                isRequired
               />
-              <UserInput
-                id={`edit-service-price-${index}`}
-                subVariant="label"
+              <Input
+                id={`edit-service-type-price-${index}`}
                 labelText="Atur Harga"
                 placeholder="Masukkan Harga"
                 type="text"
                 name="price"
                 value={subService.price}
                 onChange={(e) => handleRowEditChange(index, e)}
-                error={
+                errorContent={
                   errors.subService[index] ? errors.subService[index].price : ""
                 }
+                isRequired
               />
               {index <= 0 ? (
-                <SecondaryButton variant="icon" subVariant="hollow">
-                  <TrashIcon
-                    width="20px"
-                    height="100%"
-                    color="var(--color-red-30)"
-                  />
-                </SecondaryButton>
+                <Button
+                  id={`edit-delete-row-${index}`}
+                  variant="dashed"
+                  subVariant="icon"
+                  size="sm"
+                  radius="full"
+                  color="var(--color-red-30)"
+                  isTooltip
+                  tooltipText="Hapus"
+                  iconContent={<TrashIcon width="15px" height="100%" />}
+                  isDisabled
+                />
               ) : (
-                <SecondaryButton
-                  variant="icon"
-                  subVariant="hollow"
+                <Button
+                  id={`edit-delete-row-${index}`}
+                  variant="dashed"
+                  subVariant="icon"
+                  size="sm"
+                  radius="full"
+                  color="var(--color-red)"
+                  isTooltip
+                  tooltipText="Hapus"
+                  iconContent={<TrashIcon width="15px" height="100%" />}
                   onClick={() => handleRemoveEditRow(index)}
-                >
-                  <TrashIcon
-                    width="20px"
-                    height="100%"
-                    color="var(--color-red)"
-                  />
-                </SecondaryButton>
+                />
               )}
             </InputWrapper>
           ))}
-          <SecondaryButton
-            iconPosition="start"
-            subVariant="hollow"
+          <Button
+            id="edit-add-new-row"
+            variant="hollow"
+            size="sm"
+            radius="full"
+            color="var(--color-semidarkblue)"
             buttonText="Tambah Jenis Layanan"
+            startContent={<PlusIcon width="15px" height="100%" />}
             onClick={handleAddEditRow}
-          >
-            <PlusIcon width="15px" height="100%" />
-          </SecondaryButton>
+          />
         </SubmitForm>
       )}
     </section>

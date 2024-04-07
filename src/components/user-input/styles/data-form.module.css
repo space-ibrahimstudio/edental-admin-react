@@ -11,7 +11,7 @@
 .formSubtitle {
   font-size: 18px;
   font-weight: 600;
-  font-family: var(--font-open);
+  font-family: var(--font-dm);
   color: #0f3948;
 }
 
@@ -30,25 +30,10 @@
   align-items: center;
   justify-content: flex-start;
   align-self: stretch;
-  overflow-y: auto;
   flex-direction: column;
   padding: 1px;
   gap: 10px 0;
-  /* max-height: 300px; */
   box-sizing: border-box;
-}
-
-.formBody::-webkit-scrollbar {
-  width: 7px;
-}
-
-.formBody::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.formBody::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 5px;
 }
 
 .form,
@@ -80,7 +65,6 @@
   width: 100%;
   border-radius: 20px;
   background-color: #f5f5f7;
-  overflow: hidden;
   justify-content: flex-start;
   padding: 40px;
   box-sizing: border-box;

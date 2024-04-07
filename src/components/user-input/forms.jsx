@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Button } from "@ibrahimstudio/button";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { handleLogin, handleLoginLog } from "../tools/handler";
@@ -6,7 +7,6 @@ import { fetchIPAddress } from "../tools/data";
 import { useNotifications } from "../feedback/context/notifications-context";
 import { FieldInput } from "./inputs";
 import { LogoPrimary, CheckIcon, CloseIcon } from "../layout/icons";
-import { PrimButton } from "./buttons";
 import styles from "./styles/data-form.module.css";
 import "./styles/portal-form.css";
 
@@ -244,9 +244,10 @@ export function SubmitForm({
   const modalElement = (
     <div className={styles.formScroll}>
       <div className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
-        <div
+        <form
           className={`${styles.form} ${isClosing ? styles.close : ""}`}
           ref={ref}
+          onSubmit={onSubmit}
         >
           <header className={styles.formHead}>
             <LogoPrimary width="96px" height="100%" color="var(--color-blue)" />
@@ -262,24 +263,24 @@ export function SubmitForm({
             {children}
           </main>
           <footer className={styles.formFooter}>
-            <PrimButton
-              variant="hollow"
+            <Button
+              id="cancel-form-submit"
+              variant="dashed"
+              radius="full"
+              color="var(--color-semidarkblue)"
               buttonText={cancelText}
               onClick={handleClose}
-              iconPosition="start"
-            >
-              <CloseIcon width="12px" height="100%" />
-            </PrimButton>
-            <PrimButton
+              startContent={<CloseIcon width="12px" height="100%" />}
+            />
+            <Button
+              id="handle-form-submit"
+              radius="full"
+              type="submit"
               buttonText={saveText}
-              onClick={onSubmit}
-              iconPosition="start"
-              loading={loading}
-            >
-              <CheckIcon width="12px" height="100%" />
-            </PrimButton>
+              startContent={<CheckIcon width="12px" height="100%" />}
+            />
           </footer>
-        </div>
+        </form>
       </div>
     </div>
   );

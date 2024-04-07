@@ -27,7 +27,7 @@
   text-align: left;
   margin: 0;
   position: relative;
-  font-family: var(--font-open);
+  font-family: var(--font-dm);
 }
 
 .form-footer-button {
@@ -67,7 +67,7 @@
   position: relative;
   font-size: var(--font-small);
   font-weight: 600;
-  font-family: var(--font-open);
+  font-family: var(--font-dm);
   text-align: center;
   color: var(--color-darkblue);
 }

@@ -7,7 +7,7 @@ import { InputWrapper } from "../components/user-input/inputs";
 import { SearchInput } from "../components/user-input/inputs";
 import styles from "./styles/tabel-section.module.css";
 
-export const Accounting = ({ sectionId }) => {
+export const OutPO = ({ sectionId }) => {
   const [limit, setLimit] = useState(5);
 
   const options = [
@@ -22,7 +22,7 @@ export const Accounting = ({ sectionId }) => {
 
   return (
     <section id={sectionId} className={styles.tabelSection}>
-      <b className={styles.tabelSectionTitle}>Kas</b>
+      <b className={styles.tabelSectionTitle}>PO Keluar</b>
       <div className={styles.tabelSectionNav}>
         <InputWrapper>
           <SearchInput

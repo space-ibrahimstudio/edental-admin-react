@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { Fragment } from "../components/tools/controller";
 import { useLoading } from "../components/feedback/context/loading-context";
 import { useNotifications } from "../components/feedback/context/notifications-context";

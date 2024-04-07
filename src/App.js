@@ -3,8 +3,9 @@ import { Route, Routes } from "react-router-dom";
 import { useLoading } from "./components/feedback/context/loading-context";
 import { PrivateRoute } from "./components/routing/private-route";
 import HomeReplace from "./pages/home-replace";
-import Dashboard from "./pages/dashboard/dashboard";
-import StockHistory from "./pages/dashboard/stock-history";
+import Dashboard from "./pages/dashboard";
+import StockHistory from "./pages/stock-history";
+import DetailOrder from "./pages/order-detail";
 import WarningScreen from "./components/feedback/warning-screen";
 import ErrorScreen from "./pages/error404";
 import { fetchTabMenus } from "./components/tools/data";
@@ -94,6 +95,10 @@ function App() {
             <Route
               path="/dashboard/warehouse/stock/:stockName"
               element={<StockHistory />}
+            />
+            <Route
+              path="/dashboard/order/order-customer/:noInvoice"
+              element={<DetailOrder />}
             />
           </Routes>
         </Fragment>

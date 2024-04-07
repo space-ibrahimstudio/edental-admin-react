@@ -143,12 +143,15 @@
 }
 
 .tabel-body-tr {
-  cursor: pointer;
   flex-direction: row;
   justify-content: flex-start;
   border-top: 1px solid var(--color-blue-30);
   background-color: var(--color-blue-5);
   transition: all 0.3s ease-in-out;
+}
+
+.tabel-body-tr.clickable {
+  cursor: pointer;
 }
 
 .tabel-body-tr.even {
@@ -228,7 +231,7 @@
   text-align: left;
   font-size: 18px;
   color: #fff;
-  font-family: var(--font-open);
+  font-family: var(--font-dm);
 }
 
 .tabel-section-body::-webkit-scrollbar {

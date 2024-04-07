@@ -1,7 +1,7 @@
 .scndButtonText {
   position: relative;
   font-size: 14px;
-  font-family: var(--font-open);
+  font-family: var(--font-dm);
   color: inherit;
   text-align: left;
 }

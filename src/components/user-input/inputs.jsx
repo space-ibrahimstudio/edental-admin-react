@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { Input } from "@ibrahimstudio/input";
 import { EyeOpen, EyeSlash, SearchIcon } from "../layout/icons";
 import "./styles/field-input.css";
 import styles from "./styles/user-input.module.css";
@@ -101,6 +102,7 @@ export function SearchInput({
   property,
   userData,
   setUserData,
+  isReadonly,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -134,21 +136,18 @@ export function SearchInput({
   };
 
   return (
-    <div className={styles.inputLabel}>
-      <label htmlFor={id} className={styles.inputLabelField}>
-        <div className={styles.closeWrapper} style={{ padding: "0 0 0 10px" }}>
-          <SearchIcon width="17px" height="100%" />
-        </div>
-        <input
-          id={id}
-          className={styles.inputLabelFieldInput}
-          placeholder={placeholder}
-          type="text"
-          value={searchTerm}
-          onChange={handleSearch}
-        />
-      </label>
-    </div>
+    <Input
+      id={id}
+      isLabeled={false}
+      placeholder={placeholder}
+      type="text"
+      radius="full"
+      name={searchTerm}
+      value={searchTerm}
+      onChange={handleSearch}
+      isReadonly={isReadonly}
+      startContent={<SearchIcon width="17px" height="100%" />}
+    />
   );
 }
 

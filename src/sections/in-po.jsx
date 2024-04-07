@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Input } from "@ibrahimstudio/input";
 import { formatDate } from "@ibrahimstudio/function";
-import { fetchDataList } from "../components/tools/data";
+import { fetchStockPO } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
   TableData,
@@ -11,14 +10,14 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { InputWrapper, SearchInput } from "../components/user-input/inputs";
+import { Fragment } from "../components/tools/controller";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
-export const Order = ({ sectionId }) => {
-  const navigate = useNavigate();
+export const InPO = ({ sectionId }) => {
   const { showNotifications } = useNotifications();
   // data state
-  const [orderData, setOrderData] = useState([]);
+  const [poData, setPoData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   // conditional context
   const [isDataShown, setIsDataShown] = useState(true);
@@ -26,7 +25,16 @@ export const Order = ({ sectionId }) => {
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  // input state
+  const [status, setStatus] = useState("");
   // start data paging
+  const statusList = [
+    { value: "open", label: "Open" },
+    { value: "pending", label: "Tertunda" },
+    { value: "sending", label: "Terkirim" },
+    { value: "complete", label: "Selesai" },
+    { value: "rejected", label: "Ditolak" },
+  ];
   const options = [
     { value: 5, label: "Baris per Halaman: 5" },
     { value: 10, label: "Baris per Halaman: 10" },
@@ -40,55 +48,52 @@ export const Order = ({ sectionId }) => {
     setLimit(value);
     setCurrentPage(1);
   };
-  const navigateOrderDetail = (noInvoice) => {
-    navigate(`/dashboard/order/order-customer/${noInvoice}`);
+  const handleStatusChange = (value) => {
+    setStatus(value);
+    setCurrentPage(1);
   };
   // end data paging
   const tableHeadData = (
     <TableRow type="heading">
-      <TableHeadValue type="num" value="NO" />
-      <TableHeadValue value="Tanggal Order" />
-      <TableHeadValue value="Kode Reservasi" />
-      <TableHeadValue value="Nomor Invoice" />
-      <TableHeadValue value="Nama Pengguna" />
-      <TableHeadValue value="Telepon" />
-      <TableHeadValue value="Cabang" />
-      <TableHeadValue value="Kode Voucher" />
-      <TableHeadValue value="Status" position="end" />
+      <TableHeadValue value="NO" type="num" />
+      <TableHeadValue value="Tanggal Dibuat" />
+      <TableHeadValue value="Nomor PO" />
+      <TableHeadValue value="Nama Admin" />
+      <TableHeadValue value="Nama Outlet" position="end" />
     </TableRow>
   );
 
   useEffect(() => {
-    const fetchData = async (page, limit) => {
+    const fetchData = async (page, limit, status) => {
       try {
         setIsLoading(true);
         const offset = (page - 1) * limit;
-        const data = await fetchDataList(offset, limit, "vieworder");
+        const data = await fetchStockPO(offset, limit, status, "viewpostock");
 
         if (data && data.data && data.data.length > 0) {
-          setOrderData(data.data);
+          setPoData(data.data);
           setFilteredData(data.data);
           setTotalPages(data.TTLPage);
           setIsDataShown(true);
         } else {
-          setOrderData([]);
+          setPoData([]);
           setFilteredData([]);
           setTotalPages(0);
           setIsDataShown(false);
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Error fetching central PO data:", error);
         showNotifications(
           "danger",
-          "Gagal menampilkan data Order. Mohon periksa koneksi internet anda dan muat ulang halaman."
+          "Gagal menampilkan data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData(currentPage, limit);
-  }, [currentPage, limit]);
+    fetchData(currentPage, limit, status);
+  }, [currentPage, limit, status]);
 
   useEffect(() => {
     setIsDataShown(filteredData.length > 0);
@@ -96,15 +101,25 @@ export const Order = ({ sectionId }) => {
 
   return (
     <section id={sectionId} className={styles.tabelSection}>
-      <b className={styles.tabelSectionTitle}>Order Customer</b>
+      <b className={styles.tabelSectionTitle}>Data PO Masuk</b>
       <div className={styles.tabelSectionNav}>
         <InputWrapper>
           <SearchInput
             id={`search-data-${sectionId}`}
             placeholder="Cari data ..."
-            property="transactionname"
-            userData={orderData}
+            property="postockcode"
+            userData={poData}
             setUserData={setFilteredData}
+          />
+          <Input
+            id={`filter-data-${sectionId}`}
+            variant="select"
+            radius="full"
+            isLabeled={false}
+            placeholder="Filter Status"
+            value={status}
+            options={statusList}
+            onSelect={handleStatusChange}
           />
         </InputWrapper>
         <InputWrapper>
@@ -126,33 +141,61 @@ export const Order = ({ sectionId }) => {
         dataShown={isDataShown}
         loading={isLoading}
       >
-        {filteredData.map((order, index) => (
+        {filteredData.map((po, index) => (
           <TableRow
+            type="expand"
             key={index}
             isEven={index % 2 === 0}
             isClickable={true}
-            onClick={() => navigateOrderDetail(order["Transaction"].noinvoice)}
+            expanded={
+              <Fragment>
+                {po["Detail PO"].map((detailPO, index) => (
+                  <Fragment key={index}>
+                    <InputWrapper width="100%">
+                      <Input
+                        id={`item-name-${index}`}
+                        labelText="Nama Item"
+                        value={detailPO.itemname}
+                        isReadonly
+                      />
+                      <Input
+                        id={`item-sku-${index}`}
+                        labelText="SKU Item"
+                        value={detailPO.sku}
+                        isReadonly
+                      />
+                      <Input
+                        id={`item-qty-${index}`}
+                        labelText="Jumlah Item"
+                        value={detailPO.qty}
+                        isReadonly
+                      />
+                    </InputWrapper>
+                    <InputWrapper width="100%">
+                      <Input
+                        id={`item-note-${index}`}
+                        variant="textarea"
+                        labelText="Keterangan"
+                        placeholder="Tidak ada keterangan"
+                        value={detailPO.note}
+                        isReadonly
+                      />
+                    </InputWrapper>
+                  </Fragment>
+                ))}
+              </Fragment>
+            }
           >
             <TableBodyValue
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
             <TableBodyValue
-              value={formatDate(
-                order["Transaction"].transactioncreate,
-                "en-gb"
-              )}
+              value={formatDate(po["PO Stock"].postockcreate, "en-gb")}
             />
-            <TableBodyValue value={order["Transaction"].rscode} />
-            <TableBodyValue value={order["Transaction"].noinvoice} />
-            <TableBodyValue value={order["Transaction"].transactionname} />
-            <TableBodyValue value={order["Transaction"].transactionphone} />
-            <TableBodyValue value={order["Transaction"].outlet_name} />
-            <TableBodyValue value={order["Transaction"].voucher} />
-            <TableBodyValue
-              value={order["Transaction"].transactionstatus}
-              position="end"
-            />
+            <TableBodyValue value={po["PO Stock"].postockcode} />
+            <TableBodyValue value={po["PO Stock"].username} />
+            <TableBodyValue value={po["PO Stock"].outletname} position="end" />
           </TableRow>
         ))}
       </TableData>

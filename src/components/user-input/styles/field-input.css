@@ -2,7 +2,7 @@
   border: 0;
   outline: 0;
   font-weight: 600;
-  font-family: var(--font-open);
+  font-family: var(--font-dm);
   font-size: var(--font-graph);
   background-color: transparent;
   flex: 1;
@@ -53,7 +53,7 @@
   position: relative;
   font-size: var(--font-small);
   font-weight: 500;
-  font-family: var(--font-open);
+  font-family: var(--font-dm);
   color: var(--color-red);
   text-align: center;
 }
@@ -73,7 +73,7 @@
   position: relative;
   font-size: var(--font-small);
   font-weight: 500;
-  font-family: var(--font-open);
+  font-family: var(--font-dm);
   color: var(--color-darkblue);
   text-align: center;
   text-decoration: none;

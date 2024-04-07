@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Button } from "@ibrahimstudio/button";
 import { useNavigate } from "react-router-dom";
 import { fetchTabMenus } from "../tools/data";
 import { handleLogout } from "../tools/handler";
@@ -8,11 +9,7 @@ import {
   BellNotification,
   ExitIcon,
 } from "../layout/icons";
-import {
-  TabButton,
-  DropDownButton,
-  SecondaryButton,
-} from "../user-input/buttons";
+import { TabButton, DropDownButton } from "../user-input/buttons";
 import { useNotifications } from "../feedback/context/notifications-context";
 import { toPathname, toTitleCase } from "../tools/controller";
 import "./styles/nav.css";
@@ -94,9 +91,15 @@ export function Nav() {
           <div className="nav-user">
             <UserAvatar width="37.6px" height="100%" />
           </div>
-          <SecondaryButton buttonText="Log out" onClick={logoutClick}>
-            <ExitIcon width="14px" height="100%" />
-          </SecondaryButton>
+          <Button
+            id="logout"
+            size="sm"
+            radius="full"
+            bgColor="var(--color-semidarkblue)"
+            buttonText="Log out"
+            endContent={<ExitIcon width="14px" height="100%" />}
+            onClick={logoutClick}
+          />
         </div>
       </div>
     </nav>

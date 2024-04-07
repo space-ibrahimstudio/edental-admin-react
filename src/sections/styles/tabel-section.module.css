@@ -3,19 +3,10 @@
   position: relative;
 }
 
-.tabelSectionNav,
-.tabelSectionOption {
+.tabelSectionNav {
   display: flex;
   flex-direction: row;
   align-items: center;
-}
-
-.tabelSectionOption {
-  justify-content: center;
-  gap: 15px;
-}
-
-.tabelSectionNav {
   align-self: stretch;
   justify-content: space-between;
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { LoadingProvider } from "./components/feedback/context/loading-context";
 import { NotificationsProvider } from "./components/feedback/context/notifications-context";
 import App from "./App";
@@ -11,11 +12,13 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <NotificationsProvider>
-        <LoadingProvider>
-          <App />
-        </LoadingProvider>
-      </NotificationsProvider>
+      <HelmetProvider>
+        <NotificationsProvider>
+          <LoadingProvider>
+            <App />
+          </LoadingProvider>
+        </NotificationsProvider>
+      </HelmetProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { Button } from "@ibrahimstudio/button";
+import { Input } from "@ibrahimstudio/input";
 import { fetchDataList } from "../components/tools/data";
 import { handleCUDBranch } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
@@ -10,8 +12,7 @@ import {
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
 import { PlusIcon } from "../components/layout/icons";
-import { InputWrapper, UserInput } from "../components/user-input/inputs";
-import { PrimButton } from "../components/user-input/buttons";
+import { InputWrapper } from "../components/user-input/inputs";
 import { SearchInput } from "../components/user-input/inputs";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
@@ -26,7 +27,7 @@ export const BranchList = ({ sectionId }) => {
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -90,11 +91,17 @@ export const BranchList = ({ sectionId }) => {
     });
   };
   // start data paging
+  const options = [
+    { value: 5, label: "Baris per Halaman: 5" },
+    { value: 10, label: "Baris per Halaman: 10" },
+    { value: 20, label: "Baris per Halaman: 20" },
+    { value: 50, label: "Baris per Halaman: 50" },
+  ];
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  const handleLimitChange = (event) => {
-    setLimit(parseInt(event.target.value));
+  const handleLimitChange = (value) => {
+    setLimit(value);
     setCurrentPage(1);
   };
   // end data paging
@@ -170,7 +177,7 @@ export const BranchList = ({ sectionId }) => {
         console.error("Error occurred during submit branch:", error);
         showNotifications(
           "danger",
-          "Gagal menambahkan data Cabang. Mohon periksa koneksi internet anda dan muat ulang halaman."
+          "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
         setIsLoading(false);
@@ -225,7 +232,9 @@ export const BranchList = ({ sectionId }) => {
     });
   };
 
-  const handleSubmitEdit = async () => {
+  const handleSubmitEdit = async (e) => {
+    e.preventDefault();
+
     let hasError = false;
     const newErrors = { ...errors };
 
@@ -243,11 +252,11 @@ export const BranchList = ({ sectionId }) => {
       return;
     }
 
-    const confirmEdit = window.confirm(
-      "Apakah anda yakin untuk menyimpan perubahan?"
+    const isConfirmed = window.confirm(
+      "Apakah anda yakin untuk menyimpan perubahan data?"
     );
 
-    if (confirmEdit) {
+    if (isConfirmed) {
       try {
         setIsLoading(true);
         await handleCUDBranch(currentData, "edit", selectedData);
@@ -340,35 +349,33 @@ export const BranchList = ({ sectionId }) => {
       <div className={styles.tabelSectionNav}>
         <InputWrapper>
           <SearchInput
-            id="search-branch"
-            placeholder="Search data ..."
+            id={`search-data-${sectionId}`}
+            placeholder="Cari data ..."
             property="outlet_name"
             userData={branchData}
             setUserData={setFilteredData}
           />
         </InputWrapper>
-        <div className={styles.tabelSectionOption}>
-          <InputWrapper>
-            <UserInput
-              variant="select"
-              id="total-branch"
-              value={limit}
-              onChange={handleLimitChange}
-            >
-              <option value={5}>Baris per Halaman: 5</option>
-              <option value={10}>Baris per Halaman: 10</option>
-              <option value={20}>Baris per Halaman: 20</option>
-              <option value={50}>Baris per Halaman: 50</option>
-            </UserInput>
-          </InputWrapper>
-          <PrimButton
+        <InputWrapper>
+          <Input
+            id={`limit-data-${sectionId}`}
+            variant="select"
+            radius="full"
+            isLabeled={false}
+            placeholder="Baris per Halaman"
+            value={limit}
+            options={options}
+            onSelect={handleLimitChange}
+            isReadonly={isDataShown ? false : true}
+          />
+          <Button
+            id={`add-new-data-${sectionId}`}
+            radius="full"
             buttonText="Tambah Baru"
-            iconPosition="start"
             onClick={openForm}
-          >
-            <PlusIcon width="17px" height="100%" />
-          </PrimButton>
-        </div>
+            startContent={<PlusIcon width="17px" height="100%" />}
+          />
+        </InputWrapper>
       </div>
       <TableData
         headerData={tableHeadData}
@@ -379,6 +386,7 @@ export const BranchList = ({ sectionId }) => {
           <TableRow
             key={index}
             isEven={index % 2 === 0}
+            isClickable={true}
             onClick={() =>
               openEdit(
                 branch.idoutlet,
@@ -419,7 +427,7 @@ export const BranchList = ({ sectionId }) => {
       )}
       {isFormOpen && (
         <SubmitForm
-          formTitle="Tambah Cabang"
+          formTitle="Tambah Data Cabang"
           onClose={closeForm}
           onSubmit={handleSubmit}
           saveText="Simpan"
@@ -427,110 +435,112 @@ export const BranchList = ({ sectionId }) => {
           loading={isLoading}
         >
           <InputWrapper>
-            <UserInput
+            <Input
               id="outlet-name"
-              subVariant="label"
               labelText="Nama Cabang"
               placeholder="Edental Jakarta"
               type="text"
               name="name"
               value={inputData.name}
               onChange={handleInputChange}
-              error={errors.name}
+              errorContent={errors.name}
+              isRequired
             />
-            <UserInput
-              id="oultet-phone"
-              subVariant="label"
+            <Input
+              id="outlet-phone"
               labelText="Nomor Kontak Cabang"
               placeholder="0882xxx"
-              type="text"
+              type="tel"
               name="phone"
               value={inputData.phone}
               onChange={handleInputChange}
-              error={errors.phone}
+              errorContent={errors.phone}
+              isRequired
             />
           </InputWrapper>
           <InputWrapper>
-            <UserInput
+            <Input
               id="outlet-mainregion"
-              subVariant="label"
               labelText="Main Region"
               placeholder="Jawa Barat"
               type="text"
               name="mainregion"
               value={inputData.mainregion}
               onChange={handleInputChange}
-              error={errors.mainregion}
+              errorContent={errors.mainregion}
+              isRequired
             />
-            <UserInput
+            <Input
               id="outlet-region"
-              subVariant="label"
               labelText="Region"
               placeholder="Bandung"
               type="text"
               name="region"
               value={inputData.region}
               onChange={handleInputChange}
-              error={errors.region}
+              errorContent={errors.region}
+              isRequired
             />
           </InputWrapper>
           <InputWrapper>
-            <UserInput
+            <Input
               id="outlet-address"
-              subVariant="label"
               labelText="Alamat Cabang"
               placeholder="123 Main Street"
               type="text"
               name="address"
               value={inputData.address}
               onChange={handleInputChange}
-              error={errors.address}
-            />
-            <UserInput
-              id="outlet-postcode"
-              subVariant="label"
-              labelText="Kode Pos"
-              placeholder="40282"
-              type="text"
-              name="postcode"
-              value={inputData.postcode}
-              onChange={handleInputChange}
-              error={errors.postcode}
-            />
-            <UserInput
-              id="outlet-coordinate"
-              subVariant="label"
-              labelText="Titik Koordinat"
-              placeholder="Masukkan titik koordinat"
-              type="text"
-              name="coordinate"
-              value={inputData.coordinate}
-              onChange={handleInputChange}
-              error={errors.coordinate}
+              errorContent={errors.address}
+              isRequired
             />
           </InputWrapper>
           <InputWrapper>
-            <UserInput
+            <Input
+              id="outlet-postcode"
+              labelText="Kode Pos"
+              placeholder="40282"
+              type="number"
+              name="postcode"
+              value={inputData.postcode}
+              onChange={handleInputChange}
+              errorContent={errors.postcode}
+              isRequired
+            />
+            <Input
+              id="outlet-coordinate"
+              labelText="Titik Koordinat"
+              placeholder="Masukkan titik koordinat"
+              type="number"
+              name="coordinate"
+              value={inputData.coordinate}
+              onChange={handleInputChange}
+              errorContent={errors.coordinate}
+              isRequired
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <Input
               id="outlet-cctrgroup"
-              subVariant="label"
               labelText="CCTR Group"
-              placeholder="Masukkan CCTR Group"
+              placeholder="Masukkan CCTR group"
               type="text"
               name="cctrGroup"
               value={inputData.cctrGroup}
               onChange={handleInputChange}
-              error={errors.cctrGroup}
+              errorContent={errors.cctrGroup}
+              isRequired
             />
-            <UserInput
+            <Input
               id="outlet-cctr"
-              subVariant="label"
               labelText="CCTR"
               placeholder="Masukkan CCTR"
               type="text"
               name="cctr"
               value={inputData.cctr}
               onChange={handleInputChange}
-              error={errors.cctr}
+              errorContent={errors.cctr}
+              isRequired
             />
           </InputWrapper>
         </SubmitForm>
@@ -545,110 +555,112 @@ export const BranchList = ({ sectionId }) => {
           loading={isLoading}
         >
           <InputWrapper>
-            <UserInput
+            <Input
               id="edit-outlet-name"
-              subVariant="label"
               labelText="Nama Cabang"
               placeholder="Edental Jakarta"
               type="text"
               name="name"
               value={currentData.name}
               onChange={handleInputEditChange}
-              error={errors.name}
+              errorContent={errors.name}
+              isRequired
             />
-            <UserInput
-              id="edit-oultet-phone"
-              subVariant="label"
+            <Input
+              id="edit-outlet-phone"
               labelText="Nomor Kontak Cabang"
               placeholder="0882xxx"
-              type="text"
+              type="tel"
               name="phone"
               value={currentData.phone}
               onChange={handleInputEditChange}
-              error={errors.phone}
+              errorContent={errors.phone}
+              isRequired
             />
           </InputWrapper>
           <InputWrapper>
-            <UserInput
+            <Input
               id="edit-outlet-mainregion"
-              subVariant="label"
               labelText="Main Region"
               placeholder="Jawa Barat"
               type="text"
               name="mainregion"
               value={currentData.mainregion}
               onChange={handleInputEditChange}
-              error={errors.mainregion}
+              errorContent={errors.mainregion}
+              isRequired
             />
-            <UserInput
+            <Input
               id="edit-outlet-region"
-              subVariant="label"
               labelText="Region"
               placeholder="Bandung"
               type="text"
               name="region"
               value={currentData.region}
               onChange={handleInputEditChange}
-              error={errors.region}
+              errorContent={errors.region}
+              isRequired
             />
           </InputWrapper>
           <InputWrapper>
-            <UserInput
+            <Input
               id="edit-outlet-address"
-              subVariant="label"
               labelText="Alamat Cabang"
               placeholder="123 Main Street"
               type="text"
               name="address"
               value={currentData.address}
               onChange={handleInputEditChange}
-              error={errors.address}
-            />
-            <UserInput
-              id="edit-outlet-postcode"
-              subVariant="label"
-              labelText="Kode Pos"
-              placeholder="40282"
-              type="text"
-              name="postcode"
-              value={currentData.postcode}
-              onChange={handleInputEditChange}
-              error={errors.postcode}
-            />
-            <UserInput
-              id="edit-outlet-coordinate"
-              subVariant="label"
-              labelText="Titik Koordinat"
-              placeholder="Masukkan titik koordinat"
-              type="text"
-              name="coordinate"
-              value={currentData.coordinate}
-              onChange={handleInputEditChange}
-              error={errors.coordinate}
+              errorContent={errors.address}
+              isRequired
             />
           </InputWrapper>
           <InputWrapper>
-            <UserInput
+            <Input
+              id="edit-outlet-postcode"
+              labelText="Kode Pos"
+              placeholder="40282"
+              type="number"
+              name="postcode"
+              value={currentData.postcode}
+              onChange={handleInputEditChange}
+              errorContent={errors.postcode}
+              isRequired
+            />
+            <Input
+              id="edit-outlet-coordinate"
+              labelText="Titik Koordinat"
+              placeholder="Masukkan titik koordinat"
+              type="number"
+              name="coordinate"
+              value={currentData.coordinate}
+              onChange={handleInputEditChange}
+              errorContent={errors.coordinate}
+              isRequired
+            />
+          </InputWrapper>
+          <InputWrapper>
+            <Input
               id="edit-outlet-cctrgroup"
-              subVariant="label"
               labelText="CCTR Group"
-              placeholder="Masukkan CCTR Group"
+              placeholder="Masukkan CCTR group"
               type="text"
               name="cctrGroup"
               value={currentData.cctrGroup}
               onChange={handleInputEditChange}
-              error={errors.cctrGroup}
+              errorContent={errors.cctrGroup}
+              isRequired
             />
-            <UserInput
+            <Input
               id="edit-outlet-cctr"
-              subVariant="label"
               labelText="CCTR"
               placeholder="Masukkan CCTR"
               type="text"
               name="cctr"
               value={currentData.cctr}
               onChange={handleInputEditChange}
-              error={errors.cctr}
+              errorContent={errors.cctr}
+              isRequired
             />
           </InputWrapper>
         </SubmitForm>

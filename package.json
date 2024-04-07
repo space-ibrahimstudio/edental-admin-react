@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ibrahimstudio/button": "^1.1.1",
+    "@ibrahimstudio/function": "^1.0.3",
     "@ibrahimstudio/icons": "^1.0.2",
+    "@ibrahimstudio/input": "^1.1.2",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -13,7 +16,7 @@
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-helmet": "^6.1.0",
+    "react-helmet-async": "^2.0.4",
     "react-router-dom": "^6.22.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"

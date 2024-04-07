@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Button } from "@ibrahimstudio/button";
+import { Input } from "@ibrahimstudio/input";
 import { useNavigate } from "react-router-dom";
-import { Fragment } from "../components/tools/controller";
 import { fetchDataList, fetchAllDataList } from "../components/tools/data";
 import { handleCUDStock } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
@@ -11,9 +12,8 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
-import { InputWrapper, UserInput } from "../components/user-input/inputs";
+import { InputWrapper } from "../components/user-input/inputs";
 import { PlusIcon } from "../components/layout/icons";
-import { PrimButton } from "../components/user-input/buttons";
 import { SearchInput } from "../components/user-input/inputs";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
@@ -30,7 +30,7 @@ export const Stocks = ({ sectionId }) => {
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -51,6 +51,14 @@ export const Stocks = ({ sectionId }) => {
     jumlah: "",
     nilai: "",
   });
+  const itemUnits = [
+    { value: "PCS", label: "pcs" },
+    { value: "PACK", label: "pack" },
+    { value: "BOTTLE", label: "bottle" },
+    { value: "TUBE", label: "tube" },
+    { value: "BOX", label: "box" },
+    { value: "SET", label: "set" },
+  ];
   const cleanInput = () => {
     setInputData({
       cat: "",
@@ -70,11 +78,17 @@ export const Stocks = ({ sectionId }) => {
     });
   };
   // start data paging
+  const options = [
+    { value: 5, label: "Baris per Halaman: 5" },
+    { value: 10, label: "Baris per Halaman: 10" },
+    { value: 20, label: "Baris per Halaman: 20" },
+    { value: 50, label: "Baris per Halaman: 50" },
+  ];
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  const handleLimitChange = (event) => {
-    setLimit(parseInt(event.target.value));
+  const handleLimitChange = (value) => {
+    setLimit(value);
     setCurrentPage(1);
   };
   const navigateStockHistory = (stockName) => {
@@ -99,14 +113,6 @@ export const Stocks = ({ sectionId }) => {
       ...errors,
       [name]: "",
     });
-
-    const selectedCategory = catData.find(
-      (service) => service["category_stok"].categorystockname === value
-    );
-
-    if (selectedCategory) {
-      setSubCatData(selectedCategory["subcategory_stok"]);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -117,7 +123,7 @@ export const Stocks = ({ sectionId }) => {
 
     for (const key in inputData) {
       if (inputData[key].trim() === "") {
-        newErrors[key] = "This field is required.";
+        newErrors[key] = "Data ini tidak boleh kosong";
         hasError = true;
       } else {
         newErrors[key] = "";
@@ -158,10 +164,10 @@ export const Stocks = ({ sectionId }) => {
         }
         closeForm();
       } catch (error) {
-        console.error("Error occurred during submit stock data:", error);
+        console.error("Error occurred during submit stock:", error);
         showNotifications(
           "danger",
-          "Gagal menambahkan data Stok. Mohon periksa koneksi internet anda dan muat ulang halaman."
+          "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
         setIsLoading(false);
@@ -227,7 +233,7 @@ export const Stocks = ({ sectionId }) => {
         setCatData(data);
         setSubCatData(data);
       } catch (error) {
-        showNotifications("danger", "Error fetching sub service data.");
+        console.error("Error fetching all category stock data:", error);
       }
     };
 
@@ -236,39 +242,37 @@ export const Stocks = ({ sectionId }) => {
 
   return (
     <section id={sectionId} className={styles.tabelSection}>
-      <b className={styles.tabelSectionTitle}>Data Stock</b>
+      <b className={styles.tabelSectionTitle}>Stock</b>
       <div className={styles.tabelSectionNav}>
         <InputWrapper>
           <SearchInput
-            id="search-reservation"
-            placeholder="Search data ..."
+            id={`search-data-${sectionId}`}
+            placeholder="Cari data ..."
             property="itemname"
             userData={stockData}
             setUserData={setFilteredData}
           />
         </InputWrapper>
-        <div className={styles.tabelSectionOption}>
-          <InputWrapper>
-            <UserInput
-              variant="select"
-              id="total-reservation"
-              value={limit}
-              onChange={handleLimitChange}
-            >
-              <option value={5}>Baris per Halaman: 5</option>
-              <option value={10}>Baris per Halaman: 10</option>
-              <option value={20}>Baris per Halaman: 20</option>
-              <option value={50}>Baris per Halaman: 50</option>
-            </UserInput>
-          </InputWrapper>
-          <PrimButton
+        <InputWrapper>
+          <Input
+            id={`limit-data-${sectionId}`}
+            variant="select"
+            radius="full"
+            isLabeled={false}
+            placeholder="Baris per Halaman"
+            value={limit}
+            options={options}
+            onSelect={handleLimitChange}
+            isReadonly={isDataShown ? false : true}
+          />
+          <Button
+            id={`add-new-data-${sectionId}`}
+            radius="full"
             buttonText="Tambah Baru"
             onClick={openForm}
-            iconPosition="start"
-          >
-            <PlusIcon width="17px" height="100%" />
-          </PrimButton>
-        </div>
+            startContent={<PlusIcon width="17px" height="100%" />}
+          />
+        </InputWrapper>
       </div>
       <TableData
         headerData={tableHeadData}
@@ -279,6 +283,7 @@ export const Stocks = ({ sectionId }) => {
           <TableRow
             key={index}
             isEven={index % 2 === 0}
+            isClickable={true}
             onClick={() => navigateStockHistory(stock.itemname)}
           >
             <TableBodyValue
@@ -314,108 +319,110 @@ export const Stocks = ({ sectionId }) => {
           loading={isLoading}
         >
           <InputWrapper>
-            <UserInput
-              variant="select"
-              id="category"
-              subVariant="label"
-              labelText="Kategori"
-              name="cat"
-              value={inputData.cat}
-              onChange={handleInputChange}
-              error={errors.cat}
-            >
-              <option value="">Pilih kategori</option>
-              {Array.isArray(catData) &&
-                catData.map((service) => (
-                  <option
-                    key={service["category_stok"].idcategorystock}
-                    value={service["category_stok"].categorystockname}
-                  >
-                    {service["category_stok"].categorystockname}
-                  </option>
-                ))}
-            </UserInput>
-            <UserInput
-              variant="select"
-              id="sub-category"
-              subVariant="label"
-              labelText="Sub Kategori"
-              name="subCat"
-              value={inputData.subCat}
-              onChange={handleInputChange}
-              error={errors.subCat}
-            >
-              {inputData.cat ? (
-                <Fragment>
-                  <option value="">Pilih sub kategori</option>
-                  {Array.isArray(subCatData) &&
-                    subCatData.map((subservice) => (
-                      <option
-                        key={subservice.idsubcategorystock}
-                        value={subservice.subcategorystock}
-                      >
-                        {subservice.subcategorystock}
-                      </option>
-                    ))}
-                </Fragment>
-              ) : (
-                <option value="">Mohon pilih kategori dahulu</option>
-              )}
-            </UserInput>
+            {Array.isArray(catData) && (
+              <Input
+                id="stock-category"
+                variant="select"
+                labelText="Kategori"
+                name="cat"
+                placeholder="Pilih kategori"
+                options={catData.map((cat) => ({
+                  value: cat["category_stok"].categorystockname,
+                  label: cat["category_stok"].categorystockname,
+                }))}
+                value={inputData.cat}
+                onSelect={(selectedValue) =>
+                  handleInputChange({
+                    target: { name: "cat", value: selectedValue },
+                  })
+                }
+                errorContent={errors.cat}
+                isRequired
+              />
+            )}
+            {Array.isArray(catData) && (
+              <Input
+                id="stock-subcategory"
+                variant="select"
+                labelText="Sub Kategori"
+                name="subCat"
+                placeholder="Pilih sub kategori"
+                options={
+                  inputData.cat
+                    ? catData
+                        .find(
+                          (cat) =>
+                            cat["category_stok"].categorystockname ===
+                            inputData.cat
+                        )
+                        ?.["subcategory_stok"].map((subCat) => ({
+                          value: subCat.subcategorystock,
+                          label: subCat.subcategorystock,
+                        }))
+                    : [{ value: "", label: "Mohon pilih layanan dahulu" }]
+                }
+                value={inputData.subCat}
+                onSelect={(selectedValue) =>
+                  handleInputChange({
+                    target: { name: "subCat", value: selectedValue },
+                  })
+                }
+                errorContent={errors.subCat}
+                isRequired
+              />
+            )}
           </InputWrapper>
           <InputWrapper>
-            <UserInput
-              id="item-name"
-              subVariant="label"
+            <Input
+              id="stock-item-name"
               labelText="Nama Item"
               placeholder="STERILISATOR"
               type="text"
               name="item"
               value={inputData.item}
               onChange={handleInputChange}
-              error={errors.item}
+              errorContent={errors.item}
+              isRequired
             />
-            <UserInput
+            <Input
+              id="stock-item-unit"
               variant="select"
-              id="item-unit"
-              subVariant="label"
               labelText="Unit/satuan"
+              placeholder="Pilih satuan/unit"
               name="satuan"
               value={inputData.satuan}
-              onChange={handleInputChange}
-              error={errors.satuan}
-            >
-              <option value="">Pilih Satuan</option>
-              <option value="PCS">PCS</option>
-              <option value="PACK">PACK</option>
-              <option value="BOTTLE">BOTTLE</option>
-              <option value="TUBE">TUBE</option>
-              <option value="BOX">BOX</option>
-              <option value="SET">SET</option>
-            </UserInput>
+              options={itemUnits}
+              onSelect={(selectedValue) =>
+                handleInputChange({
+                  target: { name: "satuan", value: selectedValue },
+                })
+              }
+              errorContent={errors.satuan}
+              isRequired
+            />
           </InputWrapper>
           <InputWrapper>
-            <UserInput
-              id="total-item"
-              subVariant="label"
+            <Input
+              id="stock-item-qty"
               labelText="Jumlah"
               placeholder="40"
-              type="text"
+              type="number"
               name="jumlah"
               value={inputData.jumlah}
               onChange={handleInputChange}
-              error={errors.jumlah}
+              errorContent={errors.jumlah}
+              isRequired
             />
-            <UserInput
-              id="value-item"
-              subVariant="label"
-              labelText="Nilai Unit"
+            <Input
+              id="stock-item-price"
+              labelText="Harga Item Satuan"
               placeholder="100000"
-              type="text"
+              type="number"
               name="nilai"
               value={inputData.nilai}
               onChange={handleInputChange}
-              error={errors.nilai}
+              errorContent={errors.nilai}
+              isRequired
             />
           </InputWrapper>
         </SubmitForm>

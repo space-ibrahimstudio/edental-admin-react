@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Button } from "@ibrahimstudio/button";
+import { Input } from "@ibrahimstudio/input";
+import { formatDate } from "@ibrahimstudio/function";
 import { fetchStockPO, fetchSearchData } from "../components/tools/data";
 import { handleCUDCentralPO } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
@@ -9,19 +12,9 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
-import {
-  InputWrapper,
-  UserInput,
-  SearchInput,
-} from "../components/user-input/inputs";
-import { ChevronDown, PlusIcon, TrashIcon } from "../components/layout/icons";
-import {
-  PrimButton,
-  SecondaryButton,
-  ButtonList,
-  ButtonGroup,
-  DropDownButton,
-} from "../components/user-input/buttons";
+import { InputWrapper, SearchInput } from "../components/user-input/inputs";
+import { PlusIcon, TrashIcon } from "../components/layout/icons";
+import { SecondaryButton } from "../components/user-input/buttons";
 import { Fragment } from "../components/tools/controller";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
@@ -36,39 +29,50 @@ export const CentralPO = ({ sectionId }) => {
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
   // input state
-  const [status, setStatus] = useState("open");
+  const [status, setStatus] = useState("");
   const [inputData, setInputData] = useState({
-    item: [{ itemname: "", sku: "", stockin: "" }],
+    item: [{ itemname: "", sku: "", stockin: "", note: "" }],
   });
   const [errors, setErrors] = useState({
-    item: [{ itemname: "", sku: "", stockin: "" }],
+    item: [{ itemname: "", sku: "", stockin: "", note: "" }],
   });
   const cleanInput = () => {
     setInputData({
-      item: [{ itemname: "", sku: "", stockin: "" }],
+      item: [{ itemname: "", sku: "", stockin: "", note: "" }],
     });
     setErrors({
-      item: [{ itemname: "", sku: "", stockin: "" }],
+      item: [{ itemname: "", sku: "", stockin: "", note: "" }],
     });
     setSuggestions([]);
   };
-
-  const buttonList = ["open", "pending", "sending", "complete", "rejected"];
   // start data paging
+  const statusList = [
+    { value: "open", label: "Open" },
+    { value: "pending", label: "Tertunda" },
+    { value: "sending", label: "Terkirim" },
+    { value: "complete", label: "Selesai" },
+    { value: "rejected", label: "Ditolak" },
+  ];
+  const options = [
+    { value: 5, label: "Baris per Halaman: 5" },
+    { value: 10, label: "Baris per Halaman: 10" },
+    { value: 20, label: "Baris per Halaman: 20" },
+    { value: 50, label: "Baris per Halaman: 50" },
+  ];
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  const handleLimitChange = (event) => {
-    setLimit(parseInt(event.target.value));
+  const handleLimitChange = (value) => {
+    setLimit(value);
     setCurrentPage(1);
   };
-  const handleStatusChange = (status) => {
-    setStatus(status);
+  const handleStatusChange = (value) => {
+    setStatus(value);
     setCurrentPage(1);
   };
   // end data paging
@@ -187,7 +191,7 @@ export const CentralPO = ({ sectionId }) => {
         await handleCUDCentralPO(inputData);
         showNotifications(
           "success",
-          "Selamat! Data PO Pusat baru berhasil ditambahkan."
+          "Selamat! Permintaan PO Pusat baru berhasil ditambahkan."
         );
 
         const offset = (currentPage - 1) * limit;
@@ -209,7 +213,7 @@ export const CentralPO = ({ sectionId }) => {
         console.error("Error occurred during submit central PO:", error);
         showNotifications(
           "danger",
-          "Gagal menambahkan data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman."
+          "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
         setIsLoading(false);
@@ -220,11 +224,9 @@ export const CentralPO = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue value="NO" type="num" />
-      <TableHeadValue value="Tanggal Dibuat">
-        <ChevronDown width="10px" height="100%" />
-      </TableHeadValue>
+      <TableHeadValue value="Tanggal Dibuat" />
       <TableHeadValue value="Nomor PO" />
-      <TableHeadValue value="Nama User" position="end" />
+      <TableHeadValue value="Nama Admin" position="end" />
     </TableRow>
   );
 
@@ -270,42 +272,43 @@ export const CentralPO = ({ sectionId }) => {
       <div className={styles.tabelSectionNav}>
         <InputWrapper>
           <SearchInput
-            id="search-services"
-            placeholder="Search data ..."
+            id={`search-data-${sectionId}`}
+            placeholder="Cari data ..."
             property="postockcode"
             userData={poData}
             setUserData={setFilteredData}
           />
+          <Input
+            id={`filter-data-${sectionId}`}
+            variant="select"
+            radius="full"
+            isLabeled={false}
+            placeholder="Filter Status"
+            value={status}
+            options={statusList}
+            onSelect={handleStatusChange}
+          />
         </InputWrapper>
-        <div className={styles.tabelSectionOption}>
-          <InputWrapper>
-            <UserInput
-              variant="select"
-              id="total-centralpo"
-              value={limit}
-              onChange={handleLimitChange}
-            >
-              <option value={5}>Baris per Halaman: 5</option>
-              <option value={10}>Baris per Halaman: 10</option>
-              <option value={20}>Baris per Halaman: 20</option>
-              <option value={50}>Baris per Halaman: 50</option>
-            </UserInput>
-          </InputWrapper>
-          <PrimButton
+        <InputWrapper>
+          <Input
+            id={`limit-data-${sectionId}`}
+            variant="select"
+            radius="full"
+            isLabeled={false}
+            placeholder="Baris per Halaman"
+            value={limit}
+            options={options}
+            onSelect={handleLimitChange}
+            isReadonly={isDataShown ? false : true}
+          />
+          <Button
+            id={`add-new-data-${sectionId}`}
+            radius="full"
             buttonText="Tambah Baru"
             onClick={openForm}
-            iconPosition="start"
-          >
-            <PlusIcon width="17px" height="100%" />
-          </PrimButton>
-        </div>
-      </div>
-      <div className={styles.tabelSectionNav}>
-        <ButtonGroup
-          buttonList={buttonList}
-          activeButton={status}
-          onGroupChange={handleStatusChange}
-        />
+            startContent={<PlusIcon width="17px" height="100%" />}
+          />
+        </InputWrapper>
       </div>
       <TableData
         headerData={tableHeadData}
@@ -317,26 +320,42 @@ export const CentralPO = ({ sectionId }) => {
             type="expand"
             key={index}
             isEven={index % 2 === 0}
+            isClickable={true}
             expanded={
               <Fragment>
                 {po["Detail PO"].map((detailPO, index) => (
-                  <InputWrapper width="100%" key={index}>
-                    <UserInput
-                      subVariant="readonly"
-                      labelText="Nama Item"
-                      value={detailPO.itemname}
-                    />
-                    <UserInput
-                      subVariant="readonly"
-                      labelText="SKU Item"
-                      value={detailPO.sku}
-                    />
-                    <UserInput
-                      subVariant="readonly"
-                      labelText="Jumlah"
-                      value={detailPO.qty}
-                    />
-                  </InputWrapper>
+                  <Fragment key={index}>
+                    <InputWrapper width="100%">
+                      <Input
+                        id={`item-name-${index}`}
+                        labelText="Nama Item"
+                        value={detailPO.itemname}
+                        isReadonly
+                      />
+                      <Input
+                        id={`item-sku-${index}`}
+                        labelText="SKU Item"
+                        value={detailPO.sku}
+                        isReadonly
+                      />
+                      <Input
+                        id={`item-qty-${index}`}
+                        labelText="Jumlah Item"
+                        value={detailPO.qty}
+                        isReadonly
+                      />
+                    </InputWrapper>
+                    <InputWrapper width="100%">
+                      <Input
+                        id={`item-note-${index}`}
+                        variant="textarea"
+                        labelText="Keterangan"
+                        placeholder="Tidak ada keterangan"
+                        value={detailPO.note}
+                        isReadonly
+                      />
+                    </InputWrapper>
+                  </Fragment>
                 ))}
               </Fragment>
             }
@@ -345,7 +364,9 @@ export const CentralPO = ({ sectionId }) => {
               type="num"
               value={(currentPage - 1) * limit + index + 1}
             />
-            <TableBodyValue value={po["PO Stock"].postockcreate} />
+            <TableBodyValue
+              value={formatDate(po["PO Stock"].postockcreate, "en-gb")}
+            />
             <TableBodyValue value={po["PO Stock"].postockcode} />
             <TableBodyValue value={po["PO Stock"].username} position="end" />
           </TableRow>
@@ -387,74 +408,92 @@ export const CentralPO = ({ sectionId }) => {
                   </React.Fragment>
                 }
               >
-                <UserInput
+                <Input
                   id={`item-name-${index}`}
-                  subVariant="label"
                   labelText="Nama Item"
                   placeholder="Masukkan nama item"
                   type="text"
                   name="itemname"
                   value={item.itemname}
                   onChange={(e) => handleInputChange(index, e)}
-                  error={errors.item[index].itemname}
+                  errorContent={errors.item[index].itemname}
+                  isRequired
                 />
               </InputWrapper>
               <InputWrapper>
-                <UserInput
+                <Input
                   id={`item-sku-${index}`}
-                  subVariant="label"
                   labelText="SKU Item"
                   placeholder="Masukkan SKU item"
                   type="text"
                   name="sku"
-                  autoComplete="off"
                   value={item.sku}
                   onChange={(e) => handleInputChange(index, e)}
-                  error={errors.item[index].sku}
+                  errorContent={errors.item[index].sku}
+                  isRequired
                 />
-                <UserInput
+                <Input
                   id={`item-qty-${index}`}
-                  subVariant="label"
                   labelText="Jumlah Item"
                   placeholder="Masukkan jumlah item"
                   type="text"
                   name="stockin"
                   value={item.stockin}
                   onChange={(e) => handleInputChange(index, e)}
-                  error={errors.item[index].stockin}
+                  errorContent={errors.item[index].stockin}
+                  isRequired
+                />
+                <Input
+                  id={`item-note-${index}`}
+                  variant="textarea"
+                  rows={3}
+                  labelText="Keterangan"
+                  placeholder="Tambah keterangan"
+                  type="text"
+                  name="note"
+                  value={item.note}
+                  onChange={(e) => handleInputChange(index, e)}
                 />
                 {index <= 0 ? (
-                  <SecondaryButton variant="icon" subVariant="hollow">
-                    <TrashIcon
-                      width="20px"
-                      height="100%"
-                      color="var(--color-red-30)"
-                    />
-                  </SecondaryButton>
+                  <Button
+                    id={`delete-row-${index}`}
+                    variant="dashed"
+                    subVariant="icon"
+                    size="sm"
+                    radius="full"
+                    color="var(--color-red-30)"
+                    isTooltip
+                    tooltipText="Hapus"
+                    iconContent={<TrashIcon width="15px" height="100%" />}
+                    isDisabled
+                  />
                 ) : (
-                  <SecondaryButton
-                    variant="icon"
-                    subVariant="hollow"
+                  <Button
+                    id={`delete-row-${index}`}
+                    variant="dashed"
+                    subVariant="icon"
+                    size="sm"
+                    radius="full"
+                    color="var(--color-red)"
+                    isTooltip
+                    tooltipText="Hapus"
+                    iconContent={<TrashIcon width="15px" height="100%" />}
                     onClick={() => handleRemoveRow(index)}
-                  >
-                    <TrashIcon
-                      width="20px"
-                      height="100%"
-                      color="var(--color-red)"
-                    />
-                  </SecondaryButton>
+                  />
                 )}
               </InputWrapper>
             </React.Fragment>
           ))}
-          <SecondaryButton
-            iconPosition="start"
-            subVariant="hollow"
-            buttonText="Tambah Item"
+          <Button
+            id="add-new-row"
+            variant="hollow"
+            size="sm"
+            radius="full"
+            color="var(--color-semidarkblue)"
+            buttonText="Tambah Jenis Layanan"
+            startContent={<PlusIcon width="15px" height="100%" />}
             onClick={handleAddRow}
-          >
-            <PlusIcon width="15px" height="100%" />
-          </SecondaryButton>
+          />
         </SubmitForm>
       )}
     </section>

@@ -1,18 +1,23 @@
 import React, { useState } from "react";
+import { Button } from "@ibrahimstudio/button";
+import { Input } from "@ibrahimstudio/input";
 import { TableData } from "../components/layout/tables";
 import { PlusIcon } from "../components/layout/icons";
-import { InputWrapper, UserInput } from "../components/user-input/inputs";
-import { PrimButton } from "../components/user-input/buttons";
+import { InputWrapper } from "../components/user-input/inputs";
 import { SearchInput } from "../components/user-input/inputs";
-import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
 export const UserList = ({ sectionId }) => {
-  const [isDataShown, setIsDataShown] = useState(false);
   const [limit, setLimit] = useState(5);
 
-  const handleLimitChange = (event) => {
-    setLimit(parseInt(event.target.value, 10));
+  const options = [
+    { value: 5, label: "Baris per Halaman: 5" },
+    { value: 10, label: "Baris per Halaman: 10" },
+    { value: 20, label: "Baris per Halaman: 20" },
+    { value: 50, label: "Baris per Halaman: 50" },
+  ];
+  const handleLimitChange = (value) => {
+    setLimit(value);
   };
 
   return (
@@ -21,32 +26,34 @@ export const UserList = ({ sectionId }) => {
       <div className={styles.tabelSectionNav}>
         <InputWrapper>
           <SearchInput
-            id="search-usermanajemen"
-            placeholder="Search data ..."
+            id={`search-data-${sectionId}`}
+            placeholder="Cari data ..."
             property="username"
+            isReadonly={true}
           />
         </InputWrapper>
-        <div className={styles.tabelSectionOption}>
-          <InputWrapper>
-            <UserInput
-              variant="select"
-              id="total-usermanajemen"
-              value={limit}
-              onChange={handleLimitChange}
-            >
-              <option value={5}>Baris per Halaman: 5</option>
-              <option value={10}>Baris per Halaman: 10</option>
-              <option value={20}>Baris per Halaman: 20</option>
-              <option value={50}>Baris per Halaman: 50</option>
-            </UserInput>
-          </InputWrapper>
-          <PrimButton buttonText="Tambah Baru" iconPosition="start">
-            <PlusIcon width="17px" height="100%" />
-          </PrimButton>
-        </div>
+        <InputWrapper>
+          <Input
+            id={`limit-data-${sectionId}`}
+            variant="select"
+            radius="full"
+            isLabeled={false}
+            placeholder="Baris per Halaman"
+            value={limit}
+            options={options}
+            onSelect={handleLimitChange}
+            isReadonly={true}
+          />
+          <Button
+            id={`add-new-data-${sectionId}`}
+            radius="full"
+            buttonText="Tambah Baru"
+            startContent={<PlusIcon width="17px" height="100%" />}
+            isDisabled
+          />
+        </InputWrapper>
       </div>
-      <TableData dataShown={isDataShown}></TableData>
-      {isDataShown && <PaginationV2 />}
+      <TableData dataShown={false}></TableData>
     </section>
   );
 };
