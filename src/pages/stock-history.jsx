@@ -25,7 +25,7 @@ const StockHistory = () => {
   const [stockData, setStockData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isDataShown, setIsDataShown] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
 
   const goBack = () => {
     navigate(-1);
@@ -48,7 +48,7 @@ const StockHistory = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const data = await fetchLogStock(stockName);
 
         if (data && data.data && data.data.length > 0) {
@@ -64,7 +64,7 @@ const StockHistory = () => {
         console.error("Error fetching history stock data:", error);
         showNotifications("danger", "Error fetching history stock data.");
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     };
 
@@ -109,7 +109,7 @@ const StockHistory = () => {
         </div>
         <TableData
           headerData={tableHeadData}
-          loading={isLoading}
+          loading={isFetching}
           dataShown={isDataShown}
         >
           {filteredData.map((history, index) => (

@@ -6,7 +6,7 @@
     "@ibrahimstudio/button": "^1.1.1",
     "@ibrahimstudio/function": "^1.0.3",
     "@ibrahimstudio/icons": "^1.0.2",
-    "@ibrahimstudio/input": "^1.1.2",
+    "@ibrahimstudio/input": "^1.1.10",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

@@ -32,6 +32,7 @@ export const Stocks = ({ sectionId }) => {
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
   // input state
@@ -193,7 +194,7 @@ export const Stocks = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async (page, limit) => {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const offset = (page - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewstock");
 
@@ -215,7 +216,7 @@ export const Stocks = ({ sectionId }) => {
           "Gagal menampilkan data Stok. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     };
 
@@ -223,22 +224,21 @@ export const Stocks = ({ sectionId }) => {
   }, [currentPage, limit]);
 
   useEffect(() => {
-    setIsDataShown(filteredData.length > 0);
-  }, [filteredData]);
-
-  useEffect(() => {
-    const fetchService = async () => {
+    const fetchData = async () => {
       try {
         const data = await fetchAllDataList("searchcategorystock");
         setCatData(data);
-        setSubCatData(data);
       } catch (error) {
         console.error("Error fetching all category stock data:", error);
       }
     };
 
-    fetchService();
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    setIsDataShown(filteredData.length > 0);
+  }, [filteredData]);
 
   return (
     <section id={sectionId} className={styles.tabelSection}>
@@ -277,7 +277,7 @@ export const Stocks = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={isLoading}
+        loading={isFetching}
       >
         {filteredData.map((stock, index) => (
           <TableRow
@@ -338,6 +338,7 @@ export const Stocks = ({ sectionId }) => {
                 }
                 errorContent={errors.cat}
                 isRequired
+                isSearchable
               />
             )}
             {Array.isArray(catData) && (
@@ -346,20 +347,22 @@ export const Stocks = ({ sectionId }) => {
                 variant="select"
                 labelText="Sub Kategori"
                 name="subCat"
-                placeholder="Pilih sub kategori"
-                options={
+                placeholder={
                   inputData.cat
-                    ? catData
-                        .find(
-                          (cat) =>
-                            cat["category_stok"].categorystockname ===
-                            inputData.cat
-                        )
-                        ?.["subcategory_stok"].map((subCat) => ({
-                          value: subCat.subcategorystock,
-                          label: subCat.subcategorystock,
-                        }))
-                    : [{ value: "", label: "Mohon pilih layanan dahulu" }]
+                    ? "Pilih sub kategori"
+                    : "Mohon pilih kategori dahulu"
+                }
+                options={
+                  inputData.cat &&
+                  catData
+                    .find(
+                      (cat) =>
+                        cat["category_stok"].categorystockname === inputData.cat
+                    )
+                    ?.["subcategory_stok"].map((subCat) => ({
+                      value: subCat.subcategorystock,
+                      label: subCat.subcategorystock,
+                    }))
                 }
                 value={inputData.subCat}
                 onSelect={(selectedValue) =>
@@ -369,10 +372,10 @@ export const Stocks = ({ sectionId }) => {
                 }
                 errorContent={errors.subCat}
                 isRequired
+                isSearchable
+                isDisabled={inputData.cat ? false : true}
               />
             )}
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="stock-item-name"
               labelText="Nama Item"
@@ -384,6 +387,8 @@ export const Stocks = ({ sectionId }) => {
               errorContent={errors.item}
               isRequired
             />
+          </InputWrapper>
+          <InputWrapper>
             <Input
               id="stock-item-unit"
               variant="select"
@@ -400,8 +405,6 @@ export const Stocks = ({ sectionId }) => {
               errorContent={errors.satuan}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="stock-item-qty"
               labelText="Jumlah"

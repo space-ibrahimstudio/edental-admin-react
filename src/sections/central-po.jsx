@@ -14,7 +14,6 @@ import {
 import { SubmitForm } from "../components/user-input/forms";
 import { InputWrapper, SearchInput } from "../components/user-input/inputs";
 import { PlusIcon, TrashIcon } from "../components/layout/icons";
-import { SecondaryButton } from "../components/user-input/buttons";
 import { Fragment } from "../components/tools/controller";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
@@ -24,13 +23,14 @@ export const CentralPO = ({ sectionId }) => {
   // data state
   const [poData, setPoData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
+  const [stockData, setStockData] = useState([]);
   // conditional context
   const [isDataShown, setIsDataShown] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
   // input state
@@ -48,7 +48,6 @@ export const CentralPO = ({ sectionId }) => {
     setErrors({
       item: [{ itemname: "", sku: "", stockin: "", note: "" }],
     });
-    setSuggestions([]);
   };
   // start data paging
   const statusList = [
@@ -97,37 +96,6 @@ export const CentralPO = ({ sectionId }) => {
       item: prevErrors.item.map((error, idx) =>
         idx === index ? { ...error, [name]: "" } : error
       ),
-    }));
-
-    if (name === "itemname") {
-      try {
-        const response = await fetchSearchData("searchstock", value);
-        setSuggestions((prevSuggestions) => ({
-          ...prevSuggestions,
-          [index]: response,
-        }));
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-      }
-    }
-  };
-
-  const handleSuggestionClick = (index, selectedStock) => {
-    setInputData((prevState) => ({
-      ...prevState,
-      item: prevState.item.map((item, idx) =>
-        idx === index
-          ? {
-              ...item,
-              itemname: selectedStock.itemname,
-              sku: selectedStock.sku,
-            }
-          : item
-      ),
-    }));
-    setSuggestions((prevSuggestions) => ({
-      ...prevSuggestions,
-      [index]: [],
     }));
   };
 
@@ -233,7 +201,7 @@ export const CentralPO = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async (page, limit, status) => {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const offset = (page - 1) * limit;
         const data = await fetchStockPO(offset, limit, status, "viewpostock");
 
@@ -255,12 +223,25 @@ export const CentralPO = ({ sectionId }) => {
           "Gagal menampilkan data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     };
 
     fetchData(currentPage, limit, status);
   }, [currentPage, limit, status]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchSearchData("searchstock", "");
+        setStockData(data);
+      } catch (error) {
+        console.error("Error fetching all customer data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     setIsDataShown(filteredData.length > 0);
@@ -313,7 +294,7 @@ export const CentralPO = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={isLoading}
+        loading={isFetching}
       >
         {filteredData.map((po, index) => (
           <TableRow
@@ -350,7 +331,7 @@ export const CentralPO = ({ sectionId }) => {
                         id={`item-note-${index}`}
                         variant="textarea"
                         labelText="Keterangan"
-                        placeholder="Tidak ada keterangan"
+                        fallbackValue="Tidak ada keterangan."
                         value={detailPO.note}
                         isReadonly
                       />
@@ -389,38 +370,30 @@ export const CentralPO = ({ sectionId }) => {
           loading={isLoading}
         >
           {inputData.item.map((item, index) => (
-            <React.Fragment key={index}>
-              <InputWrapper
-                isExpanded={suggestions[index] && suggestions[index].length > 0}
-                expanded={
-                  <React.Fragment>
-                    {suggestions[index] &&
-                      suggestions[index].map((suggestion, idx) => (
-                        <SecondaryButton
-                          key={idx}
-                          subVariant="hollow-line"
-                          buttonText={suggestion.itemname}
-                          onClick={() =>
-                            handleSuggestionClick(index, suggestion)
-                          }
-                        />
-                      ))}
-                  </React.Fragment>
-                }
-              >
-                <Input
-                  id={`item-name-${index}`}
-                  labelText="Nama Item"
-                  placeholder="Masukkan nama item"
-                  type="text"
-                  name="itemname"
-                  value={item.itemname}
-                  onChange={(e) => handleInputChange(index, e)}
-                  errorContent={errors.item[index].itemname}
-                  isRequired
-                />
-              </InputWrapper>
+            <Fragment key={index}>
               <InputWrapper>
+                {Array.isArray(stockData) && (
+                  <Input
+                    id={`item-name-${index}`}
+                    variant="select"
+                    labelText="Nama Item"
+                    name="itemname"
+                    placeholder="Pilih item"
+                    options={stockData.map((stock) => ({
+                      value: stock.itemname,
+                      label: stock.itemname,
+                    }))}
+                    value={item.itemname}
+                    onSelect={(selectedValue) =>
+                      handleInputChange(index, {
+                        target: { name: "itemname", value: selectedValue },
+                      })
+                    }
+                    errorContent={errors.item[index].itemname}
+                    isRequired
+                    isSearchable
+                  />
+                )}
                 <Input
                   id={`item-sku-${index}`}
                   labelText="SKU Item"
@@ -436,20 +409,21 @@ export const CentralPO = ({ sectionId }) => {
                   id={`item-qty-${index}`}
                   labelText="Jumlah Item"
                   placeholder="Masukkan jumlah item"
-                  type="text"
+                  type="number"
                   name="stockin"
                   value={item.stockin}
                   onChange={(e) => handleInputChange(index, e)}
                   errorContent={errors.item[index].stockin}
                   isRequired
                 />
+              </InputWrapper>
+              <InputWrapper>
                 <Input
                   id={`item-note-${index}`}
                   variant="textarea"
                   rows={3}
                   labelText="Keterangan"
                   placeholder="Tambah keterangan"
-                  type="text"
                   name="note"
                   value={item.note}
                   onChange={(e) => handleInputChange(index, e)}
@@ -482,7 +456,7 @@ export const CentralPO = ({ sectionId }) => {
                   />
                 )}
               </InputWrapper>
-            </React.Fragment>
+            </Fragment>
           ))}
           <Button
             id="add-new-row"
@@ -490,7 +464,7 @@ export const CentralPO = ({ sectionId }) => {
             size="sm"
             radius="full"
             color="var(--color-semidarkblue)"
-            buttonText="Tambah Jenis Layanan"
+            buttonText="Tambah Data Item"
             startContent={<PlusIcon width="15px" height="100%" />}
             onClick={handleAddRow}
           />

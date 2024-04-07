@@ -37,6 +37,7 @@ export const Reservation = ({ sectionId }) => {
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
   // input state
@@ -255,7 +256,7 @@ export const Reservation = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async (page, limit) => {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const offset = (page - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewreservation");
 
@@ -277,7 +278,7 @@ export const Reservation = ({ sectionId }) => {
           "Gagal menampilkan data Reservasi. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     };
 
@@ -298,11 +299,20 @@ export const Reservation = ({ sectionId }) => {
   }, []);
 
   useEffect(() => {
-    setIsDataShown(filteredData.length > 0);
-  }, [filteredData]);
+    const fetchData = async () => {
+      try {
+        const data = await fetchAllDataList("searchservice");
+        setServiceData(data);
+      } catch (error) {
+        console.error("Error fetching all service data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
-    const fetchHours = async () => {
+    const fetchData = async () => {
       try {
         const data = await fetchHoursList();
         setHours(data);
@@ -311,21 +321,12 @@ export const Reservation = ({ sectionId }) => {
       }
     };
 
-    fetchHours();
+    fetchData();
   }, []);
 
   useEffect(() => {
-    const fetchService = async () => {
-      try {
-        const data = await fetchAllDataList("searchservice");
-        setServiceData(data);
-      } catch (error) {
-        showNotifications("danger", "Error fetching sub service data.");
-      }
-    };
-
-    fetchService();
-  }, []);
+    setIsDataShown(filteredData.length > 0);
+  }, [filteredData]);
 
   return (
     <section id={sectionId} className={styles.tabelSection}>
@@ -364,7 +365,7 @@ export const Reservation = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={isLoading}
+        loading={isFetching}
       >
         {filteredData.map((reserve, index) => (
           <TableRow key={index} isEven={index % 2 === 0}>
@@ -421,8 +422,6 @@ export const Reservation = ({ sectionId }) => {
               }
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="reservation-user-name"
               labelText="Nama Pelanggan"
@@ -468,6 +467,7 @@ export const Reservation = ({ sectionId }) => {
                 }
                 errorContent={errors.service}
                 isRequired
+                isSearchable
               />
             )}
             {Array.isArray(serviceData) && (
@@ -476,19 +476,21 @@ export const Reservation = ({ sectionId }) => {
                 variant="select"
                 labelText="Jenis Layanan"
                 name="typeservice"
-                placeholder="Pilih jenis layanan"
-                options={
+                placeholder={
                   inputData.service
-                    ? serviceData
-                        .find(
-                          (s) =>
-                            s["Nama Layanan"].servicename === inputData.service
-                        )
-                        ?.["Jenis Layanan"].map((type) => ({
-                          value: type.servicetypename,
-                          label: type.servicetypename,
-                        }))
-                    : [{ value: "", label: "Mohon pilih layanan dahulu" }]
+                    ? "Pilih jenis layanan"
+                    : "Mohon pilih layanan dahulu"
+                }
+                options={
+                  inputData.service &&
+                  serviceData
+                    .find(
+                      (s) => s["Nama Layanan"].servicename === inputData.service
+                    )
+                    ?.["Jenis Layanan"].map((type) => ({
+                      value: type.servicetypename,
+                      label: type.servicetypename,
+                    }))
                 }
                 value={inputData.typeservice}
                 onSelect={(selectedValue) =>
@@ -498,6 +500,8 @@ export const Reservation = ({ sectionId }) => {
                 }
                 errorContent={errors.typeservice}
                 isRequired
+                isSearchable
+                isDisabled={inputData.service ? false : true}
               />
             )}
           </InputWrapper>
@@ -532,6 +536,7 @@ export const Reservation = ({ sectionId }) => {
               }
               errorContent={errors.reservationtime}
               isRequired
+              isSearchable
             />
           </InputWrapper>
         </SubmitForm>

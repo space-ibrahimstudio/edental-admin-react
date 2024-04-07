@@ -32,6 +32,7 @@ export const Services = ({ sectionId }) => {
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -461,7 +462,7 @@ export const Services = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async (page, limit) => {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const offset = (page - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewservice");
 
@@ -483,7 +484,7 @@ export const Services = ({ sectionId }) => {
           "Gagal menampilkan data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     };
 
@@ -544,7 +545,7 @@ export const Services = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={isLoading}
+        loading={isFetching}
       >
         {filteredData.map((service, index) => (
           <TableRow
@@ -680,7 +681,7 @@ export const Services = ({ sectionId }) => {
                 id={`service-type-price-${index}`}
                 labelText="Atur Harga"
                 placeholder="Masukkan harga"
-                type="text"
+                type="number"
                 name="price"
                 value={subService.price}
                 onChange={(e) => handleRowChange(index, e)}
@@ -771,7 +772,7 @@ export const Services = ({ sectionId }) => {
                 id={`edit-service-type-price-${index}`}
                 labelText="Atur Harga"
                 placeholder="Masukkan Harga"
-                type="text"
+                type="number"
                 name="price"
                 value={subService.price}
                 onChange={(e) => handleRowEditChange(index, e)}

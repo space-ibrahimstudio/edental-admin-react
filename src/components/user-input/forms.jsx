@@ -278,6 +278,7 @@ export function SubmitForm({
               type="submit"
               buttonText={saveText}
               startContent={<CheckIcon width="12px" height="100%" />}
+              isLoading={loading}
             />
           </footer>
         </form>

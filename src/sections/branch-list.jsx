@@ -29,6 +29,7 @@ export const BranchList = ({ sectionId }) => {
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   // perform action state
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -310,7 +311,7 @@ export const BranchList = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async (page, limit) => {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const offset = (page - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewoutlet");
 
@@ -332,7 +333,7 @@ export const BranchList = ({ sectionId }) => {
           "Gagal menampilkan data Cabang. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     };
 
@@ -380,7 +381,7 @@ export const BranchList = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={isLoading}
+        loading={isFetching}
       >
         {filteredData.map((branch, index) => (
           <TableRow
@@ -457,8 +458,6 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.phone}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="outlet-mainregion"
               labelText="Main Region"
@@ -470,6 +469,8 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.mainregion}
               isRequired
             />
+          </InputWrapper>
+          <InputWrapper>
             <Input
               id="outlet-region"
               labelText="Region"
@@ -481,8 +482,6 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.region}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="outlet-address"
               labelText="Alamat Cabang"
@@ -494,8 +493,6 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.address}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="outlet-postcode"
               labelText="Kode Pos"
@@ -507,6 +504,8 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.postcode}
               isRequired
             />
+          </InputWrapper>
+          <InputWrapper>
             <Input
               id="outlet-coordinate"
               labelText="Titik Koordinat"
@@ -518,8 +517,6 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.coordinate}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="outlet-cctrgroup"
               labelText="CCTR Group"
@@ -577,8 +574,6 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.phone}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="edit-outlet-mainregion"
               labelText="Main Region"
@@ -590,6 +585,8 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.mainregion}
               isRequired
             />
+          </InputWrapper>
+          <InputWrapper>
             <Input
               id="edit-outlet-region"
               labelText="Region"
@@ -601,8 +598,6 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.region}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="edit-outlet-address"
               labelText="Alamat Cabang"
@@ -614,8 +609,6 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.address}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="edit-outlet-postcode"
               labelText="Kode Pos"
@@ -627,6 +620,8 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.postcode}
               isRequired
             />
+          </InputWrapper>
+          <InputWrapper>
             <Input
               id="edit-outlet-coordinate"
               labelText="Titik Koordinat"
@@ -638,8 +633,6 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.coordinate}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
             <Input
               id="edit-outlet-cctrgroup"
               labelText="CCTR Group"

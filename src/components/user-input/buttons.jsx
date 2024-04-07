@@ -6,7 +6,6 @@ import { toTitleCase } from "../tools/controller";
 import { LoadingElement } from "../feedback/loading-screen";
 import { ChevronDown, ArrowIcon } from "../layout/icons";
 import prim from "./styles/prim-button.module.css";
-import scnd from "./styles/scnd-button.module.css";
 import tab from "./styles/tab-button.module.css";
 
 export function PrimButton({
@@ -76,94 +75,6 @@ PrimButton.propTypes = {
   iconPosition: PropTypes.string,
   children: PropTypes.node,
   variant: PropTypes.string,
-};
-
-export function SecondaryButton({
-  buttonText,
-  onClick,
-  variant,
-  subVariant,
-  iconPosition,
-  children,
-}) {
-  if (variant === "icon") {
-    if (subVariant === "hollow") {
-      return (
-        <button className={scnd.scndButtonHollow} onClick={onClick}>
-          {children}
-        </button>
-      );
-    } else if (subVariant === "hollow-line") {
-      return (
-        <button className={scnd.scndButtonHollowLine} onClick={onClick}>
-          {children}
-        </button>
-      );
-    } else {
-      return (
-        <button className={scnd.scndButton} onClick={onClick}>
-          {children}
-        </button>
-      );
-    }
-  } else {
-    if (iconPosition === "start") {
-      if (subVariant === "hollow") {
-        return (
-          <button className={scnd.scndButtonHollow} onClick={onClick}>
-            {children}
-            <b className={scnd.scndButtonText}>{buttonText}</b>
-          </button>
-        );
-      } else if (subVariant === "hollow-line") {
-        return (
-          <button className={scnd.scndButtonHollowLine} onClick={onClick}>
-            {children}
-            <b className={scnd.scndButtonText}>{buttonText}</b>
-          </button>
-        );
-      } else {
-        return (
-          <button className={scnd.scndButton} onClick={onClick}>
-            {children}
-            <b className={scnd.scndButtonText}>{buttonText}</b>
-          </button>
-        );
-      }
-    } else {
-      if (subVariant === "hollow") {
-        return (
-          <button className={scnd.scndButtonHollow} onClick={onClick}>
-            <b className={scnd.scndButtonText}>{buttonText}</b>
-            {children}
-          </button>
-        );
-      } else if (subVariant === "hollow-line") {
-        return (
-          <button className={scnd.scndButtonHollowLine} onClick={onClick}>
-            <b className={scnd.scndButtonText}>{buttonText}</b>
-            {children}
-          </button>
-        );
-      } else {
-        return (
-          <button className={scnd.scndButton} onClick={onClick}>
-            <b className={scnd.scndButtonText}>{buttonText}</b>
-            {children}
-          </button>
-        );
-      }
-    }
-  }
-}
-
-SecondaryButton.propTypes = {
-  onClick: PropTypes.func,
-  buttonText: PropTypes.string,
-  variant: PropTypes.string,
-  subVariant: PropTypes.string,
-  iconPosition: PropTypes.string,
-  children: PropTypes.node,
 };
 
 export function DropDownButton({ buttonText, onClick }) {

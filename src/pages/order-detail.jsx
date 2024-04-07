@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@ibrahimstudio/button";
+import { Input } from "@ibrahimstudio/input";
 import { formatDate } from "@ibrahimstudio/function";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
+import { Fragment } from "../components/tools/controller";
+import { handleCUDOrder } from "../components/tools/handler";
 import { PageScreen } from "../components/layout/page-screen";
 import { Nav } from "../components/navigator/nav";
-import { fetchDataList } from "../components/tools/data";
+import { fetchDataList, fetchAllDataList } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
   TableData,
@@ -14,8 +17,14 @@ import {
   TableHeadValue,
   TableBodyValue,
 } from "../components/layout/tables";
+import { SubmitForm } from "../components/user-input/forms";
 import { InputWrapper, SearchInput } from "../components/user-input/inputs";
-import { ArrowIcon } from "../components/layout/icons";
+import {
+  ArrowIcon,
+  TrashIcon,
+  PlusIcon,
+  EditIcon,
+} from "../components/layout/icons";
 import styles from "../sections/styles/tabel-section.module.css";
 
 const DetailOrder = () => {
@@ -24,11 +33,160 @@ const DetailOrder = () => {
   const { noInvoice } = useParams();
   const [orderDetail, setOrderDetail] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [serviceData, setServiceData] = useState([]);
+  const [selectedData, setSelectedData] = useState(null);
   const [isDataShown, setIsDataShown] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const [currentData, setCurrentData] = useState({
+    layanan: [{ service: "", servicetype: "", price: "" }],
+  });
+  const [errors, setErrors] = useState({
+    layanan: [{ service: "", servicetype: "", price: "" }],
+  });
+  const cleanInput = () => {
+    setCurrentData({
+      layanan: [{ service: "", servicetype: "", price: "" }],
+    });
+    setErrors({
+      layanan: [{ service: "", servicetype: "", price: "" }],
+    });
+  };
 
   const goBack = () => {
+    sessionStorage.removeItem("orderId");
     navigate(-1);
+  };
+
+  const openEdit = (layanan) => {
+    setCurrentData({
+      layanan: layanan.map((item) => ({ ...item })),
+    });
+    setIsEditOpen(true);
+  };
+  const closeEdit = () => {
+    cleanInput();
+    setIsEditOpen(false);
+    setSelectedData(null);
+  };
+
+  const handleInputEditChange = async (index, e) => {
+    const { name, value } = e.target;
+    setCurrentData((prevState) => ({
+      ...prevState,
+      layanan: prevState.layanan.map((layanan, idx) =>
+        idx === index ? { ...layanan, [name]: value } : layanan
+      ),
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      layanan: prevErrors.layanan.map((error, idx) =>
+        idx === index ? { ...error, [name]: "" } : error
+      ),
+    }));
+  };
+
+  const handleAddEditRow = () => {
+    setCurrentData((prevState) => ({
+      ...prevState,
+      layanan: [
+        ...prevState.layanan,
+        { service: "", servicetype: "", price: "" },
+      ],
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      layanan: [
+        ...prevErrors.layanan,
+        { service: "", servicetype: "", price: "" },
+      ],
+    }));
+  };
+
+  const handleRemoveEditRow = (index) => {
+    const updatedLayanan = [...currentData.layanan];
+    updatedLayanan.splice(index, 1);
+
+    setCurrentData((prevState) => ({
+      ...prevState,
+      layanan: updatedLayanan,
+    }));
+  };
+
+  const handleSubmitEdit = async (e) => {
+    e.preventDefault();
+
+    const isFieldEmpty = currentData.layanan.some(
+      (layananDetail) =>
+        layananDetail.service.trim() === "" ||
+        layananDetail.servicetype.trim() === "" ||
+        layananDetail.price.trim() === ""
+    );
+
+    if (isFieldEmpty) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        layanan: currentData.layanan.map((layananDetail) => ({
+          service:
+            layananDetail.service.trim() === ""
+              ? "Nama Layanan tidak boleh kosong"
+              : "",
+          servicetype:
+            layananDetail.servicetype.trim() === ""
+              ? "Jenis Layanan tidak boleh kosong"
+              : "",
+          price:
+            layananDetail.price.trim() === "" ? "Harga tidak boleh kosong" : "",
+        })),
+      }));
+      return;
+    }
+
+    const isConfirmed = window.confirm(
+      "Apakah anda yakin untuk menyimpan perubahan data?"
+    );
+
+    if (isConfirmed) {
+      try {
+        setIsLoading(true);
+        await handleCUDOrder(currentData, "edit", selectedData);
+        showNotifications(
+          "success",
+          "Selamat! Data Order berhasil diperbarui."
+        );
+
+        const data = await fetchDataList(0, 500, "vieworder");
+        const order = data.data.find(
+          (order) => order["Transaction"].noinvoice === noInvoice
+        );
+        const orderId = order["Detail Transaction"][0].idtransaction;
+
+        if (order && order["Detail Transaction"].length > 0) {
+          setOrderDetail(order["Detail Transaction"]);
+          setFilteredData(order["Detail Transaction"]);
+          setSelectedData(orderId);
+          setIsDataShown(true);
+        } else {
+          setOrderDetail([]);
+          setFilteredData([]);
+          setSelectedData(null);
+          setIsDataShown(false);
+        }
+        closeEdit();
+      } catch (error) {
+        console.error("Error editing order data:", error);
+        showNotifications(
+          "danger",
+          "Gagal menyimpan perubahan. Mohon periksa koneksi internet anda dan muat ulang halaman."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   // end add data function
@@ -46,19 +204,22 @@ const DetailOrder = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const data = await fetchDataList(0, 500, "vieworder");
         const order = data.data.find(
           (order) => order["Transaction"].noinvoice === noInvoice
         );
+        const orderId = order["Detail Transaction"][0].idtransaction;
 
         if (order && order["Detail Transaction"].length > 0) {
           setOrderDetail(order["Detail Transaction"]);
           setFilteredData(order["Detail Transaction"]);
+          setSelectedData(orderId);
           setIsDataShown(true);
         } else {
           setOrderDetail([]);
           setFilteredData([]);
+          setSelectedData(null);
           setIsDataShown(false);
         }
       } catch (error) {
@@ -68,7 +229,20 @@ const DetailOrder = () => {
           "Gagal menampilkan data Detail Order. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchAllDataList("searchservice");
+        setServiceData(data);
+      } catch (error) {
+        console.error("Error fetching all service data:", error);
       }
     };
 
@@ -109,11 +283,20 @@ const DetailOrder = () => {
               userData={orderDetail}
               setUserData={setFilteredData}
             />
+            <Button
+              id={`edit-order-data-${noInvoice}`}
+              buttonText="Edit Data"
+              radius="full"
+              startContent={
+                <EditIcon direction="left" width="17px" height="100%" />
+              }
+              onClick={() => openEdit(orderDetail)}
+            />
           </InputWrapper>
         </div>
         <TableData
           headerData={tableHeadData}
-          loading={isLoading}
+          loading={isFetching}
           dataShown={isDataShown}
         >
           {orderDetail.map((detail, index) => (
@@ -129,6 +312,146 @@ const DetailOrder = () => {
             </TableRow>
           ))}
         </TableData>
+        {isEditOpen && (
+          <SubmitForm
+            formTitle="Edit Data Order"
+            onClose={closeEdit}
+            onSubmit={handleSubmitEdit}
+            saveText="Simpan Perubahan"
+            cancelText="Batal"
+            loading={isLoading}
+          >
+            {currentData.layanan.map((detail, index) => (
+              <Fragment key={index}>
+                <InputWrapper>
+                  {Array.isArray(serviceData) && (
+                    <Input
+                      id={`edit-service-name-${index}`}
+                      variant="select"
+                      labelText="Nama Layanan"
+                      name="service"
+                      placeholder="Pilih layanan"
+                      options={serviceData.map((service) => ({
+                        value: service["Nama Layanan"].servicename,
+                        label: service["Nama Layanan"].servicename,
+                      }))}
+                      value={detail.service}
+                      onSelect={(selectedValue) =>
+                        handleInputEditChange(index, {
+                          target: { name: "service", value: selectedValue },
+                        })
+                      }
+                      errorContent={
+                        errors.layanan[index]
+                          ? errors.layanan[index].service
+                          : ""
+                      }
+                      isRequired
+                      isSearchable
+                    />
+                  )}
+                  {Array.isArray(serviceData) && (
+                    <Input
+                      id={`edit-service-type-name-${index}`}
+                      variant="select"
+                      labelText="Jenis Layanan"
+                      name="servicetype"
+                      placeholder={
+                        detail.service
+                          ? "Pilih jenis layanan"
+                          : "Mohon pilih layanan dahulu"
+                      }
+                      options={
+                        currentData.layanan[index].service &&
+                        serviceData
+                          .find(
+                            (s) =>
+                              s["Nama Layanan"].servicename ===
+                              currentData.layanan[index].service
+                          )
+                          ?.["Jenis Layanan"].map((type) => ({
+                            value: type.servicetypename,
+                            label: type.servicetypename,
+                          }))
+                      }
+                      value={detail.servicetype}
+                      onSelect={(selectedValue) =>
+                        handleInputEditChange(index, {
+                          target: {
+                            name: "servicetype",
+                            value: selectedValue,
+                          },
+                        })
+                      }
+                      errorContent={
+                        errors.layanan[index]
+                          ? errors.layanan[index].servicetype
+                          : ""
+                      }
+                      isRequired
+                      isSearchable
+                      isDisabled={
+                        currentData.layanan[index].service ? false : true
+                      }
+                    />
+                  )}
+                  <Input
+                    id={`edit-service-price-${index}`}
+                    labelText="Harga"
+                    placeholder="Masukkan harga"
+                    type="number"
+                    name="price"
+                    value={detail.price}
+                    onChange={(e) => handleInputEditChange(index, e)}
+                    errorContent={
+                      errors.layanan[index]
+                        ? errors.layanan[index].servicetype
+                        : ""
+                    }
+                    isRequired
+                  />
+                  {index <= 0 ? (
+                    <Button
+                      id={`edit-delete-row-${index}`}
+                      variant="dashed"
+                      subVariant="icon"
+                      size="sm"
+                      radius="full"
+                      color="var(--color-red-30)"
+                      isTooltip
+                      tooltipText="Hapus"
+                      iconContent={<TrashIcon width="15px" height="100%" />}
+                      isDisabled
+                    />
+                  ) : (
+                    <Button
+                      id={`edit-delete-row-${index}`}
+                      variant="dashed"
+                      subVariant="icon"
+                      size="sm"
+                      radius="full"
+                      color="var(--color-red)"
+                      isTooltip
+                      tooltipText="Hapus"
+                      iconContent={<TrashIcon width="15px" height="100%" />}
+                      onClick={() => handleRemoveEditRow(index)}
+                    />
+                  )}
+                </InputWrapper>
+              </Fragment>
+            ))}
+            <Button
+              id="edit-add-new-row"
+              variant="hollow"
+              size="sm"
+              radius="full"
+              color="var(--color-semidarkblue)"
+              buttonText="Tambah Order Item"
+              startContent={<PlusIcon width="15px" height="100%" />}
+              onClick={handleAddEditRow}
+            />
+          </SubmitForm>
+        )}
       </section>
     </PageScreen>
   );

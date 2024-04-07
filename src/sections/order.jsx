@@ -25,7 +25,7 @@ export const Order = ({ sectionId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   // start data paging
   const options = [
     { value: 5, label: "Baris per Halaman: 5" },
@@ -61,7 +61,7 @@ export const Order = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async (page, limit) => {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const offset = (page - 1) * limit;
         const data = await fetchDataList(offset, limit, "vieworder");
 
@@ -83,7 +83,7 @@ export const Order = ({ sectionId }) => {
           "Gagal menampilkan data Order. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     };
 
@@ -124,7 +124,7 @@ export const Order = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={isLoading}
+        loading={isFetching}
       >
         {filteredData.map((order, index) => (
           <TableRow

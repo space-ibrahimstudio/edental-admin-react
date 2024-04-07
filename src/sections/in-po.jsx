@@ -24,7 +24,7 @@ export const InPO = ({ sectionId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   // input state
   const [status, setStatus] = useState("");
   // start data paging
@@ -66,7 +66,7 @@ export const InPO = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async (page, limit, status) => {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const offset = (page - 1) * limit;
         const data = await fetchStockPO(offset, limit, status, "viewpostock");
 
@@ -88,7 +88,7 @@ export const InPO = ({ sectionId }) => {
           "Gagal menampilkan data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     };
 
@@ -139,7 +139,7 @@ export const InPO = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={isLoading}
+        loading={isFetching}
       >
         {filteredData.map((po, index) => (
           <TableRow
@@ -176,7 +176,7 @@ export const InPO = ({ sectionId }) => {
                         id={`item-note-${index}`}
                         variant="textarea"
                         labelText="Keterangan"
-                        placeholder="Tidak ada keterangan"
+                        fallbackValue="Tidak ada keterangan."
                         value={detailPO.note}
                         isReadonly
                       />

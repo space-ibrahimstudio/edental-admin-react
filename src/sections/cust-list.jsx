@@ -23,7 +23,7 @@ export const CustList = ({ sectionId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   // start data paging
   const options = [
     { value: 5, label: "Baris per Halaman: 5" },
@@ -53,7 +53,7 @@ export const CustList = ({ sectionId }) => {
   useEffect(() => {
     const fetchData = async (page, limit) => {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const offset = (page - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewcustomer");
 
@@ -75,7 +75,7 @@ export const CustList = ({ sectionId }) => {
           "Gagal menampilkan data Customer. Mohon periksa koneksi internet anda dan muat ulang halaman."
         );
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     };
 
@@ -116,7 +116,7 @@ export const CustList = ({ sectionId }) => {
       <TableData
         headerData={tableHeadData}
         dataShown={isDataShown}
-        loading={isLoading}
+        loading={isFetching}
       >
         {filteredData.map((cust, index) => (
           <TableRow key={index} isEven={index % 2 === 0}>
