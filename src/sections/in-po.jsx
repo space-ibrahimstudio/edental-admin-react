@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { Input } from "@ibrahimstudio/input";
 import { formatDate } from "@ibrahimstudio/function";
 import { fetchStockPO } from "../components/tools/data";
@@ -10,7 +10,6 @@ import {
   TableBodyValue,
 } from "../components/layout/tables";
 import { InputWrapper, SearchInput } from "../components/user-input/inputs";
-import { Fragment } from "../components/tools/controller";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 

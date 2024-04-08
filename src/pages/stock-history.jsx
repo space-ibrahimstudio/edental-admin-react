@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@ibrahimstudio/button";
+import { Input } from "@ibrahimstudio/input";
 import { formatDate, toTitleCase } from "@ibrahimstudio/function";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -14,7 +15,7 @@ import {
   TableHeadValue,
   TableBodyValue,
 } from "../components/layout/tables";
-import { InputWrapper, SearchInput } from "../components/user-input/inputs";
+import { InputWrapper } from "../components/user-input/inputs";
 import { ArrowIcon } from "../components/layout/icons";
 import styles from "../sections/styles/tabel-section.module.css";
 
@@ -23,13 +24,30 @@ const StockHistory = () => {
   const { showNotifications } = useNotifications();
   const { stockName } = useParams();
   const [stockData, setStockData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
   const [isDataShown, setIsDataShown] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   const goBack = () => {
     navigate(-1);
   };
+
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value);
+  };
+
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value);
+  };
+
+  const filteredData = stockData.filter((history) => {
+    if (!startDate || !endDate) return true;
+    const historyDate = new Date(history.logstockcreate);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return historyDate >= start && historyDate <= end;
+  });
 
   // end add data function
   const tableHeadData = (
@@ -53,11 +71,9 @@ const StockHistory = () => {
 
         if (data && data.data && data.data.length > 0) {
           setStockData(data.data);
-          setFilteredData(data.data);
           setIsDataShown(true);
         } else {
           setStockData([]);
-          setFilteredData([]);
           setIsDataShown(false);
         }
       } catch (error) {
@@ -76,7 +92,7 @@ const StockHistory = () => {
   }, [filteredData]);
 
   return (
-    <PageScreen pageId={`${stockName}-history`}>
+    <PageScreen pageId={`${stockName}-history`} variant="section">
       <Helmet>
         <title>{toTitleCase(stockName)} Stock History</title>
       </Helmet>
@@ -98,12 +114,23 @@ const StockHistory = () => {
             />
           </InputWrapper>
           <InputWrapper>
-            <SearchInput
-              id={`search-data-${stockName}`}
-              placeholder="Cari data ..."
-              property="sku"
-              userData={stockData}
-              setUserData={setFilteredData}
+            <Input
+              id={`${stockName}-filter-start`}
+              labelText="Mulai Dari"
+              type="date"
+              placeholder="Pilih tanggal"
+              name="startDate"
+              value={startDate}
+              onChange={handleStartDateChange}
+            />
+            <Input
+              id={`${stockName}-filter-end`}
+              labelText="Hingga"
+              type="date"
+              placeholder="Pilih tanggal"
+              name="endDate"
+              value={endDate}
+              onChange={handleEndDateChange}
             />
           </InputWrapper>
         </div>

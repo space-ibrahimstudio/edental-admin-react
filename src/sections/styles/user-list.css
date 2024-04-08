@@ -1,5 +1,5 @@
 .user-list-line,
-.user-list-title {
+.userListTitle {
   position: relative;
 }
 
@@ -52,7 +52,7 @@
   justify-content: space-between;
 }
 
-.user-list-row-name-text {
+.userListRowNameText {
   flex: 1;
   position: relative;
   font-weight: 600;
@@ -130,7 +130,7 @@
   z-index: 0;
 }
 
-.user-list-head-name {
+.userListHeadName {
   flex: 1;
   height: 53px;
   justify-content: flex-start;

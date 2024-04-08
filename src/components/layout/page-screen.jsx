@@ -1,45 +1,18 @@
 import React from "react";
 import PropTypes from "prop-types";
+import styles from "./styles/page-screen.module.css";
 
 export function PageScreen({ variant, pageId, children }) {
-  if (variant === "section") {
-    return (
-      <div
-        id={pageId}
-        style={{
-          width: "100%",
-          backgroundColor: "var(--color-foreground)",
-          display: "flex",
-          overflow: "hidden",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          minHeight: "100vh",
-        }}
-      >
-        {children}
-      </div>
-    );
-  } else {
-    return (
-      <div
-        id={pageId}
-        style={{
-          width: "100%",
-          backgroundColor: "var(--color-foreground)",
-          display: "flex",
-          overflow: "hidden",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          minHeight: "100vh",
-          marginTop: "70px",
-        }}
-      >
-        {children}
-      </div>
-    );
-  }
+  return (
+    <div
+      id={pageId}
+      className={`${styles.pageScreen} ${
+        variant === "section" ? styles.section : ""
+      }`}
+    >
+      {children}
+    </div>
+  );
 }
 
 PageScreen.propTypes = {

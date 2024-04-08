@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
 import { formatDate } from "@ibrahimstudio/function";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
-import { Fragment } from "../components/tools/controller";
 import { handleCUDOrder } from "../components/tools/handler";
 import { PageScreen } from "../components/layout/page-screen";
 import { Nav } from "../components/navigator/nav";
@@ -254,7 +253,7 @@ const DetailOrder = () => {
   }, [filteredData]);
 
   return (
-    <PageScreen pageId={`${noInvoice}-history`}>
+    <PageScreen pageId={`${noInvoice}-history`} variant="section">
       <Helmet>
         <title>Order Detail no.{noInvoice}</title>
       </Helmet>

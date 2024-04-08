@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { Route, Routes } from "react-router-dom";
 import { useLoading } from "./components/feedback/context/loading-context";
 import { PrivateRoute } from "./components/routing/private-route";
@@ -9,11 +9,7 @@ import DetailOrder from "./pages/order-detail";
 import WarningScreen from "./components/feedback/warning-screen";
 import ErrorScreen from "./pages/error404";
 import { fetchTabMenus } from "./components/tools/data";
-import {
-  Fragment,
-  toPathname,
-  ResetScrolling,
-} from "./components/tools/controller";
+import { toPathname, ResetScrolling } from "./components/tools/controller";
 
 function App() {
   const [tabMenus, setTabMenus] = useState([]);
@@ -73,7 +69,7 @@ function App() {
             />
             {Array.isArray(tabMenus) &&
               tabMenus.map((menu) => (
-                <React.Fragment key={menu["Menu Utama"].idmenu}>
+                <Fragment key={menu["Menu Utama"].idmenu}>
                   <Route
                     path={`/dashboard/${toPathname(
                       menu["Menu Utama"].menu_name
@@ -90,7 +86,7 @@ function App() {
                         element={<PrivateRoute element={<Dashboard />} />}
                       />
                     ))}
-                </React.Fragment>
+                </Fragment>
               ))}
             <Route
               path="/dashboard/warehouse/stock/:stockName"

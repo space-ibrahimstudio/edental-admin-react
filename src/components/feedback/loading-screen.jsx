@@ -1,7 +1,6 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Helmet } from "react-helmet-async";
 import { LogoText } from "../layout/icons";
-import { Fragment } from "../tools/controller";
 import styles from "./styles/loading-screen.module.css";
 
 export function LoadingScreen() {

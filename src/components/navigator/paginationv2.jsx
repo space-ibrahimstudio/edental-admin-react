@@ -1,6 +1,6 @@
 import React from "react";
 import { ChevronIcon } from "@ibrahimstudio/icons";
-import pgnt from "./styles/pagination.module.css";
+import styles from "./styles/pagination.module.css";
 
 export const PaginationV2 = ({ currentPage, totalPages, onPageChange }) => {
   const prevPage = () => {
@@ -43,25 +43,25 @@ export const PaginationV2 = ({ currentPage, totalPages, onPageChange }) => {
     return pagesToShow.map((pageNumber, index) => (
       <button
         key={index}
-        className={`${pgnt.paginationArrow} ${
-          pageNumber === "ellipsis" ? pgnt.ellipsis : ""
-        } ${currentPage === pageNumber ? pgnt.active : ""}`}
+        className={`${styles.paginationArrow} ${
+          pageNumber === "ellipsis" ? styles.ellipsis : ""
+        } ${currentPage === pageNumber ? styles.active : ""}`}
         onClick={() => onPageChange(pageNumber)}
       >
         {pageNumber === "ellipsis" ? (
-          <b className={pgnt.paginationNumText}>...</b>
+          <b className={styles.paginationNumText}>...</b>
         ) : (
-          <b className={pgnt.paginationNumText}>{pageNumber}</b>
+          <b className={styles.paginationNumText}>{pageNumber}</b>
         )}
       </button>
     ));
   };
 
   return (
-    <div className={pgnt.pagination}>
+    <div className={styles.pagination}>
       <button
-        className={`${pgnt.paginationArrow} ${
-          currentPage === 1 ? pgnt.disable : ""
+        className={`${styles.paginationArrow} ${
+          currentPage === 1 ? styles.disable : ""
         }`}
         onClick={prevPage}
       >
@@ -69,8 +69,8 @@ export const PaginationV2 = ({ currentPage, totalPages, onPageChange }) => {
       </button>
       {renderPageNumbers()}
       <button
-        className={`${pgnt.paginationArrow} ${
-          currentPage === totalPages ? pgnt.disable : ""
+        className={`${styles.paginationArrow} ${
+          currentPage === totalPages ? styles.disable : ""
         }`}
         onClick={nextPage}
       >

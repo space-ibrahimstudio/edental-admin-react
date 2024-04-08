@@ -1,43 +1,5 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import { Fragment } from "../tools/controller";
-import "./styles/table-data.css";
-import "../../pages/styles/new.css";
-
-export const ColumnsTitle = ({ columnsText, hasIcon, children, maxWidth }) => {
-  if (hasIcon === "yes") {
-    return (
-      <div className="user-list-head-name" style={{ maxWidth: maxWidth }}>
-        <b className="user-list-title">{columnsText}</b>
-        {children}
-      </div>
-    );
-  } else {
-    return (
-      <div className="user-list-head-name" style={{ maxWidth: maxWidth }}>
-        <b className="user-list-title">{columnsText}</b>
-      </div>
-    );
-  }
-};
-
-export const ColumnsBody = ({ columnsText, hasIcon, children, maxWidth }) => {
-  if (hasIcon === "yes") {
-    return (
-      <div className="user-list-head-name" style={{ maxWidth: maxWidth }}>
-        <div className="user-list-row-name-text">{columnsText}</div>
-        {children}
-      </div>
-    );
-  } else {
-    return (
-      <div className="user-list-head-name" style={{ maxWidth: maxWidth }}>
-        <div className="user-list-row-name-text">{columnsText}</div>
-        {children}
-      </div>
-    );
-  }
-};
+import React, { useState, Fragment } from "react";
+import styles from "./styles/tables.module.css";
 
 export const TableRow = ({
   type,
@@ -54,44 +16,30 @@ export const TableRow = ({
   };
 
   if (type === "heading") {
-    return <tr className="tabel-head-tr">{children}</tr>;
+    return (
+      <tr className={styles.tabelHeadTr} onClick={onClick}>
+        {children}
+      </tr>
+    );
   } else if (type === "expand") {
     return (
       <Fragment>
         <tr
-          className={`tabel-body-tr ${isEven ? "even" : ""} ${
-            isClickable ? "clickable" : ""
+          className={`${styles.tabelBodyTr} ${isEven ? styles.even : ""} ${
+            isClickable ? styles.clickable : ""
           }`}
           onClick={toggleExpand}
         >
           {children}
         </tr>
-        {isExpanded && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "10px",
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              borderTop: "1px solid var(--color-blue-30)",
-              borderLeft: "1px solid var(--color-blue-30)",
-              borderRight: "1px solid var(--color-blue-30)",
-              padding: "15px",
-              backgroundColor: "var(--color-foreground)",
-            }}
-          >
-            {expanded}
-          </div>
-        )}
+        {isExpanded && <tr className={styles.tabelRowExpand}>{expanded}</tr>}
       </Fragment>
     );
   } else {
     return (
       <tr
-        className={`tabel-body-tr ${isEven ? "even" : ""} ${
-          isClickable ? "clickable" : ""
+        className={`${styles.tabelBodyTr} ${isEven ? styles.even : ""} ${
+          isClickable ? styles.clickable : ""
         }`}
         onClick={onClick}
       >
@@ -105,56 +53,58 @@ export const TableHeadValue = ({ position, type, value, children }) => {
   if (position === "end") {
     if (type === "num") {
       return (
-        <th className="tabel-head-num-th">
-          <b className="tabel-head-num-th-text">{value}</b>
+        <th className={styles.tabelHeadNumTh}>
+          <b className={styles.tabelHeadNumThText}>{value}</b>
           {children}
         </th>
       );
     } else if (type === "atn") {
       return (
-        <th className="tabel-head-atn-th">
-          <b className="tabel-head-num-th-text">{value}</b>
+        <th className={styles.tabelHeadAtnTh}>
+          <b className={styles.tabelHeadNumThText}>{value}</b>
           {children}
         </th>
       );
     } else {
       return (
-        <th className="tabel-head-th">
-          <b className="tabel-head-th-text">{value}</b>
+        <th className={styles.tabelHeadTh}>
+          <b className={styles.tabelHeadThText}>{value}</b>
           {children}
         </th>
       );
     }
-  } else if (type === "num") {
-    return (
-      <Fragment>
-        <th className="tabel-head-num-th">
-          <b className="tabel-head-num-th-text">{value}</b>
-          {children}
-        </th>
-        <div className="line-divider" />
-      </Fragment>
-    );
-  } else if (type === "atn") {
-    return (
-      <Fragment>
-        <th className="tabel-head-atn-th">
-          <b className="tabel-head-num-th-text">{value}</b>
-          {children}
-        </th>
-        <div className="line-divider" />
-      </Fragment>
-    );
   } else {
-    return (
-      <Fragment>
-        <th className="tabel-head-th">
-          <b className="tabel-head-th-text">{value}</b>
-          {children}
-        </th>
-        <div className="line-divider" />
-      </Fragment>
-    );
+    if (type === "num") {
+      return (
+        <Fragment>
+          <th className={styles.tabelHeadNumTh}>
+            <b className={styles.tabelHeadNumThText}>{value}</b>
+            {children}
+          </th>
+          <div className={styles.lineDivider} />
+        </Fragment>
+      );
+    } else if (type === "atn") {
+      return (
+        <Fragment>
+          <th className={styles.tabelHeadAtnTh}>
+            <b className={styles.tabelHeadNumThText}>{value}</b>
+            {children}
+          </th>
+          <div className={styles.lineDivider} />
+        </Fragment>
+      );
+    } else {
+      return (
+        <Fragment>
+          <th className={styles.tabelHeadTh}>
+            <b className={styles.tabelHeadThText}>{value}</b>
+            {children}
+          </th>
+          <div className={styles.lineDivider} />
+        </Fragment>
+      );
+    }
   }
 };
 
@@ -162,79 +112,67 @@ export const TableBodyValue = ({ position, type, value, children }) => {
   if (position === "end") {
     if (type === "num") {
       return (
-        <td className="tabel-body-num-td">
-          <b className="tabel-body-num-td-text">{value}</b>
+        <td className={styles.tabelBodyNumTd}>
+          <b className={styles.tabelBodyNumTdText}>{value}</b>
         </td>
       );
     } else if (type === "atn") {
-      return <td className="tabel-body-atn-td">{children}</td>;
+      return <td className={styles.tabelBodyAtnTd}>{children}</td>;
     } else {
       return (
-        <td className="tabel-body-td">
-          <b className="tabel-body-td-text">{value}</b>
+        <td className={styles.tabelBodyTd}>
+          <b className={styles.tabelBodyTdText}>{value}</b>
         </td>
       );
     }
-  } else if (type === "num") {
-    return (
-      <Fragment>
-        <td className="tabel-body-num-td">
-          <b className="tabel-body-num-td-text">{value}</b>
-        </td>
-        <div className="line-divider" />
-      </Fragment>
-    );
-  } else if (type === "atn") {
-    return (
-      <Fragment>
-        <td className="tabel-body-atn-td">{children}</td>
-        <div className="line-divider" />
-      </Fragment>
-    );
   } else {
-    return (
-      <Fragment>
-        <td className="tabel-body-td">
-          <b className="tabel-body-td-text">{value}</b>
-        </td>
-        <div className="line-divider" />
-      </Fragment>
-    );
+    if (type === "num") {
+      return (
+        <Fragment>
+          <td className={styles.tabelBodyNumTd}>
+            <b className={styles.tabelBodyNumTdText}>{value}</b>
+          </td>
+          <div className={styles.lineDivider} />
+        </Fragment>
+      );
+    } else if (type === "atn") {
+      return (
+        <Fragment>
+          <td className={styles.tabelBodyAtnTd}>{children}</td>
+          <div className={styles.lineDivider} />
+        </Fragment>
+      );
+    } else {
+      return (
+        <Fragment>
+          <td className={styles.tabelBodyTd}>
+            <b className={styles.tabelBodyTdText}>{value}</b>
+          </td>
+          <div className={styles.lineDivider} />
+        </Fragment>
+      );
+    }
   }
 };
 
 export const TableData = ({ headerData, dataShown, loading, children }) => {
   return (
     <div
-      className="tabel-section-body"
-      style={
-        dataShown && !loading
-          ? {
-              alignItems: "flex-start",
-              overflowX: "auto",
-              color: "#fff",
-              justifyContent: "flex-start",
-            }
-          : {
-              alignItems: "center",
-              overflow: "hidden",
-              color: "var(--color-darkblue",
-              justifyContent: "center",
-              height: "350px",
-            }
-      }
+      className={`${styles.tabelSectionBody} ${
+        dataShown && !loading ? styles.noLoad : styles.onLoad
+      }`}
     >
       {loading ? (
-        <p className="tabel-nodata">Loading...</p>
+        <p className={styles.tabelNodata}>Loading...</p>
       ) : dataShown ? (
-        <table className="tabel-section-table">
-          <thead className="tabel-head-thead">{headerData}</thead>
-          <div className="tabel-body-vscroll">
-            <tbody className="tabel-body-tbody">{children}</tbody>
+        <table className={styles.tabelSectionTable}>
+          <thead className={styles.tabelHeadThead}>{headerData}</thead>
+          <div className={styles.tabelBodyVscroll}>
+            <tbody className={styles.tabelBodyTbody}>{children}</tbody>
           </div>
         </table>
       ) : (
-        <p className="tabel-nodata">Tidak ada data untuk ditampilkan.</p>
+        <p className={styles.tabelNodata}>Tidak ada data untuk ditampilkan.</p>
       )}
     </div>
   );

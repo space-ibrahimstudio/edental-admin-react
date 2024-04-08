@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 export function toTitleCase(str) {
@@ -21,10 +21,6 @@ export function getCurrentDate() {
   day = day < 10 ? "0" + day : day;
 
   return `${year}-${month}-${day}`;
-}
-
-export function Fragment({ children }) {
-  return <React.Fragment>{children}</React.Fragment>;
 }
 
 export function ResetScrolling() {

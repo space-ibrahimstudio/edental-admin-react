@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Fragment } from "../tools/controller";
+import React, { useState, useEffect, useRef, Fragment } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { toTitleCase } from "../tools/controller";
