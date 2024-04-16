@@ -16,6 +16,7 @@ import {
   TableHeadValue,
   TableBodyValue,
 } from "../components/layout/tables";
+import { exportToExcel } from "../components/tools/controller";
 import { SubmitForm } from "../components/user-input/forms";
 import { InputWrapper, SearchInput } from "../components/user-input/inputs";
 import {
@@ -272,6 +273,16 @@ const DetailOrder = () => {
                 <ArrowIcon direction="left" width="17px" height="100%" />
               }
               onClick={goBack}
+            />
+            <Button
+              id={`export-order-data-${noInvoice}`}
+              buttonText="Export ke Excel"
+              radius="full"
+              variant="dashed"
+              color="var(--color-semidarkblue)"
+              onClick={() =>
+                exportToExcel(filteredData, "Order Detail", "order_detail")
+              }
             />
           </InputWrapper>
           <InputWrapper>

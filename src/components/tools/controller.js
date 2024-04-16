@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
 
 export function toTitleCase(str) {
   return str.replace(/\w\S*/g, function (txt) {
@@ -31,4 +33,15 @@ export function ResetScrolling() {
   }, [pathname]);
 
   return null;
+}
+
+export function exportToExcel(jsonData, sheetName, fileName) {
+  const worksheet = XLSX.utils.json_to_sheet(jsonData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  saveAs(
+    new Blob([excelBuffer], { type: "application/octet-stream" }),
+    `${fileName}.xlsx`
+  );
 }

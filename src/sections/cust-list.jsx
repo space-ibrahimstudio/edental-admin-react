@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { exportToExcel } from "../components/tools/controller";
 import { Input } from "@ibrahimstudio/input";
+import { Button } from "@ibrahimstudio/button";
 import { formatDate } from "@ibrahimstudio/function";
 import { fetchDataList } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
@@ -110,6 +112,16 @@ export const CustList = ({ sectionId }) => {
             options={options}
             onSelect={handleLimitChange}
             isReadonly={isDataShown ? false : true}
+          />
+          <Button
+            id={`export-order-data-${sectionId}`}
+            buttonText="Export ke Excel"
+            radius="full"
+            variant="dashed"
+            color="var(--color-semidarkblue)"
+            onClick={() =>
+              exportToExcel(filteredData, "Daftar Customer", "daftar_customer")
+            }
           />
         </InputWrapper>
       </div>
