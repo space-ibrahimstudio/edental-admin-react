@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
+import { exportToExcel } from "../components/tools/controller";
 import { fetchDataList } from "../components/tools/data";
 import { handleCUDBranch } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
@@ -355,6 +356,15 @@ export const BranchList = ({ sectionId }) => {
             property="outlet_name"
             userData={branchData}
             setUserData={setFilteredData}
+          />
+          <Button
+            id={`export-data-${sectionId}`}
+            buttonText="Export ke Excel"
+            radius="full"
+            bgColor="var(--color-green)"
+            onClick={() =>
+              exportToExcel(filteredData, "Daftar Cabang", "daftar_cabang")
+            }
           />
         </InputWrapper>
         <InputWrapper>

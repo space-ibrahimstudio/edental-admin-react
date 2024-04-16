@@ -114,11 +114,10 @@ export const CustList = ({ sectionId }) => {
             isReadonly={isDataShown ? false : true}
           />
           <Button
-            id={`export-order-data-${sectionId}`}
+            id={`export-data-${sectionId}`}
             buttonText="Export ke Excel"
             radius="full"
-            variant="dashed"
-            color="var(--color-semidarkblue)"
+            bgColor="var(--color-green)"
             onClick={() =>
               exportToExcel(filteredData, "Daftar Customer", "daftar_customer")
             }

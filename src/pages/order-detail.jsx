@@ -275,11 +275,10 @@ const DetailOrder = () => {
               onClick={goBack}
             />
             <Button
-              id={`export-order-data-${noInvoice}`}
+              id={`export-data-${noInvoice}`}
               buttonText="Export ke Excel"
               radius="full"
-              variant="dashed"
-              color="var(--color-semidarkblue)"
+              bgColor="var(--color-green)"
               onClick={() =>
                 exportToExcel(filteredData, "Order Detail", "order_detail")
               }

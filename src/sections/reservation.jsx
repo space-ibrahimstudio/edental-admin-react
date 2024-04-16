@@ -8,7 +8,7 @@ import {
   fetchAllDataList,
 } from "../components/tools/data";
 import { handleCUDReserve } from "../components/tools/handler";
-import { getCurrentDate } from "../components/tools/controller";
+import { getCurrentDate, exportToExcel } from "../components/tools/controller";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import {
   TableData,
@@ -339,6 +339,15 @@ export const Reservation = ({ sectionId }) => {
             property="name"
             userData={reserveData}
             setUserData={setFilteredData}
+          />
+          <Button
+            id={`export-data-${sectionId}`}
+            buttonText="Export ke Excel"
+            radius="full"
+            bgColor="var(--color-green)"
+            onClick={() =>
+              exportToExcel(filteredData, "Data Reservasi", "data_reservasi")
+            }
           />
         </InputWrapper>
         <InputWrapper>

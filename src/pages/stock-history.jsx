@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
+import { exportToExcel } from "../components/tools/controller";
 import { formatDate, toTitleCase } from "@ibrahimstudio/function";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -112,11 +113,20 @@ const StockHistory = () => {
               }
               onClick={goBack}
             />
+            <Button
+              id={`export-data-${stockName}`}
+              buttonText="Export ke Excel"
+              radius="full"
+              bgColor="var(--color-green)"
+              onClick={() =>
+                exportToExcel(filteredData, "Histori Stok", "histori_stok")
+              }
+            />
           </InputWrapper>
           <InputWrapper>
             <Input
               id={`${stockName}-filter-start`}
-              labelText="Mulai Dari"
+              isLabeled={false}
               type="date"
               placeholder="Pilih tanggal"
               name="startDate"
@@ -125,7 +135,7 @@ const StockHistory = () => {
             />
             <Input
               id={`${stockName}-filter-end`}
-              labelText="Hingga"
+              isLabeled={false}
               type="date"
               placeholder="Pilih tanggal"
               name="endDate"

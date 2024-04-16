@@ -1,5 +1,4 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { exportToExcel } from "../components/tools/controller";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
 import { formatDate } from "@ibrahimstudio/function";
@@ -539,16 +538,6 @@ export const Services = ({ sectionId }) => {
             buttonText="Tambah Baru"
             onClick={openForm}
             startContent={<PlusIcon width="17px" height="100%" />}
-          />
-          <Button
-            id={`export-order-data-${sectionId}`}
-            buttonText="Export ke Excel"
-            radius="full"
-            variant="dashed"
-            color="var(--color-semidarkblue)"
-            onClick={() =>
-              exportToExcel(filteredData, "Daftar Layanan", "daftar_layanan")
-            }
           />
         </InputWrapper>
       </div>
