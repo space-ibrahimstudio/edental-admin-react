@@ -1,0 +1,61 @@
+.formFooter {
+  align-self: stretch;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px;
+  gap: 10px;
+}
+
+.formTitle {
+  margin: 0;
+  position: relative;
+  font-size: inherit;
+  font-weight: 700;
+  font-family: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.formHead,
+.formInputWrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.formInputWrap {
+  width: 350px;
+  max-width: 350px;
+}
+
+.formHead {
+  align-self: stretch;
+  padding: 10px;
+  gap: 20px;
+  text-align: left;
+  font-size: 25px;
+  color: var(--color-blue);
+  font-family: var(--font-jakarta);
+}
+
+.formBody,
+.onpageForm {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
+  gap: 10px;
+}
+
+.onpageForm {
+  margin: 0;
+  border-radius: 20px;
+  background-color: var(--color-white-second);
+}

@@ -14,6 +14,7 @@ import { Reservation } from "../sections/reservation";
 import { Services } from "../sections/services";
 import { Stocks } from "../sections/stocks";
 import { UserList } from "../sections/user-list";
+import { MedicRecord } from "../sections/rekam-medis";
 
 const componentMap = {
   "data-customer": CustList,
@@ -27,6 +28,7 @@ const componentMap = {
   stock: Stocks,
   reservation: Reservation,
   "order-customer": Order,
+  "rekam-medis": MedicRecord,
 };
 
 const Dashboard = () => {
@@ -55,6 +57,7 @@ const Dashboard = () => {
       stock: " - Data Stok",
       reservation: " - Reservasi",
       "order-customer": " - Data Order",
+      "rekam-medis": " - Rekam Medis",
     };
     setPageTitle(pageTitleMap[activeTab] || "");
     setPageId(activeTab || "overview");

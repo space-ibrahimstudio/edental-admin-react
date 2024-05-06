@@ -152,11 +152,18 @@ export const Services = ({ sectionId }) => {
 
   const handleRemoveRow = (index) => {
     const updatedSubService = [...inputData.subService];
+    const updatedError = [...errors.subService];
     updatedSubService.splice(index, 1);
+    updatedError.splice(index, 1);
 
     setInputData((prevState) => ({
       ...prevState,
       subService: updatedSubService,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      subService: updatedError,
     }));
   };
 
