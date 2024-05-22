@@ -72,6 +72,18 @@ const DetailOrder = () => {
     });
   };
 
+  const statusPayment = [
+    { value: 0, label: "Pending" },
+    { value: 1, label: "Selesai" },
+  ];
+
+  const typePayment = [
+    { value: "xendit", label: "Xendit" },
+    { value: "edc", label: "EDC" },
+    { value: "manual", label: "Bank Transfer" },
+    { value: "credit", label: "Credit Card" },
+  ];
+
   const goBack = () => {
     sessionStorage.removeItem("orderId");
     navigate(-1);
@@ -469,26 +481,39 @@ const DetailOrder = () => {
               )}
               <Input
                 id="edit-service-payment"
+                variant="select"
                 labelText="Tipe Pembayaran"
-                placeholder="Masukkan tipe pembayaran"
-                type="text"
+                placeholder="Pilih tipe pembayaran"
                 name="paymenttype"
                 value={inputData.paymenttype}
-                onChange={handleInputChange}
+                options={typePayment}
+                onSelect={(selectedValue) =>
+                  handleInputChange({
+                    target: { name: "paymenttype", value: selectedValue },
+                  })
+                }
                 errorContent={paymentErrors.paymenttype}
                 isRequired
               />
-              <Input
-                id="edit-service-status"
-                labelText="Status Pembayaran"
-                placeholder="Masukkan status pembayaran"
-                type="text"
-                name="paymentstatus"
-                value={inputData.paymentstatus}
-                onChange={handleInputChange}
-                errorContent={paymentErrors.paymentstatus}
-                isRequired
-              />
+              {inputData.paymenttype !== "xendit" && (
+                <Input
+                  id="edit-service-status"
+                  variant="select"
+                  labelText="Status Pembayaran"
+                  placeholder={inputData.paymenttype ? "Pilih status pembayaran" : "Mohon pilih Tipe dahulu"}
+                  name="paymentstatus"
+                  value={inputData.paymentstatus}
+                  options={statusPayment}
+                  onSelect={(selectedValue) =>
+                    handleInputChange({
+                      target: { name: "paymentstatus", value: selectedValue },
+                    })
+                  }
+                  errorContent={paymentErrors.paymentstatus}
+                  isRequired
+                  isDisabled={inputData.paymenttype ? false : true}
+                />
+              )}
             </InputWrapper>
           </SubmitForm>
         )}
