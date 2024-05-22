@@ -5,6 +5,7 @@ import { Nav } from "../components/navigator/nav";
 import { PageScreen } from "../components/layout/page-screen";
 import { Accounting } from "../sections/accounting";
 import { BranchList } from "../sections/branch-list";
+import { DentistList } from "../sections/dentist";
 import { CentralPO } from "../sections/central-po";
 import { CustList } from "../sections/cust-list";
 import { Order } from "../sections/order";
@@ -29,6 +30,7 @@ const componentMap = {
   reservation: Reservation,
   "order-customer": Order,
   "rekam-medis": MedicRecord,
+  dentist: DentistList,
 };
 
 const Dashboard = () => {
@@ -58,6 +60,7 @@ const Dashboard = () => {
       reservation: " - Reservasi",
       "order-customer": " - Data Order",
       "rekam-medis": " - Rekam Medis",
+      dentist: " - List Dokter",
     };
     setPageTitle(pageTitleMap[activeTab] || "");
     setPageId(activeTab || "overview");

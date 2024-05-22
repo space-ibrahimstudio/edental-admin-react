@@ -8,20 +8,13 @@ export async function fetchTabMenus() {
     const userLevel = sessionStorage.getItem("level");
 
     const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({ secret: userSecret, level: userLevel })
-    );
+    formData.append("data", JSON.stringify({ secret: userSecret, level: userLevel }));
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewmenu`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/viewmenu`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     if (!response.data.error) {
       console.log("Tab menus data:", response.data);
@@ -48,15 +41,11 @@ export async function fetchUserData() {
       })
     );
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/viewuser`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/viewuser`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log("User data:", response.data);
     return response.data.data;
@@ -116,15 +105,11 @@ export async function fetchLogStock(stockName) {
       })
     );
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/logstock`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/logstock`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log(`${stockName} stock log history data:`, response.data);
     return response.data;
@@ -148,15 +133,11 @@ export async function fetchDataList(page, limit, apiEndpoint) {
       })
     );
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/${apiEndpoint}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/${apiEndpoint}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log(`${apiEndpoint} list:`, response.data);
     return response.data;
@@ -178,29 +159,15 @@ export async function fetchStockPO(page, limit, status, apiEndpoint) {
         limit: limit.toString(),
         hal: page.toString(),
         status:
-          status === "open"
-            ? 0
-            : status === "pending"
-            ? 1
-            : status === "sending"
-            ? 2
-            : status === "complete"
-            ? 3
-            : status === "rejected"
-            ? 4
-            : 0,
+          status === "open" ? 0 : status === "pending" ? 1 : status === "sending" ? 2 : status === "complete" ? 3 : status === "rejected" ? 4 : 0,
       })
     );
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/${apiEndpoint}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/${apiEndpoint}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log(`${apiEndpoint} list:`, response.data);
     return response.data;
@@ -222,15 +189,37 @@ export async function fetchAllDataList(apiEndpoint) {
       })
     );
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/${apiEndpoint}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
+    const response = await axios.post(`${baseUrl}/edental_api/office/${apiEndpoint}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    console.log(`All ${apiEndpoint} list:`, response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error(`Error fetching all ${apiEndpoint} list:`, error);
+    throw error;
+  }
+}
+
+export async function fetchDentistList(apiEndpoint, outletCode) {
+  try {
+    const userSecret = sessionStorage.getItem("secret");
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        secret: userSecret,
+        kodeoutlet: outletCode,
+      })
     );
+
+    const response = await axios.post(`${baseUrl}/edental_api/office/${apiEndpoint}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log(`All ${apiEndpoint} list:`, response.data);
     return response.data.data;
@@ -253,20 +242,35 @@ export async function fetchSearchData(apiEndpoint, query) {
       })
     );
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/${apiEndpoint}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/${apiEndpoint}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log(`All ${apiEndpoint} list:`, response.data);
     return response.data.data;
   } catch (error) {
     console.error(`Error fetching all ${apiEndpoint} list:`, error);
+    throw error;
+  }
+}
+
+export async function fetchAvailableTimes(apiEndpoint, date) {
+  try {
+    const formData = new FormData();
+    formData.append("tgl", date);
+
+    const response = await axios.post(`${baseUrl}/edental_api/main/main`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    console.log(`All ${apiEndpoint} list:`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching available times:", error);
     throw error;
   }
 }

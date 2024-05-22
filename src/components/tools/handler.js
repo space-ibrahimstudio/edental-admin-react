@@ -8,15 +8,11 @@ export async function handleLogin(username, password) {
     const formData = new FormData();
     formData.append("data", JSON.stringify({ username, password }));
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/authapi/login`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/authapi/login`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log("Login response:", response.data);
 
@@ -24,20 +20,19 @@ export async function handleLogin(username, password) {
 
     if (!responseData.error) {
       const userData = responseData.data[0];
-      const { secret, level, idoutlet, outlet_name } = userData;
+      const { secret, level, idoutlet, outlet_name, cctr } = userData;
 
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("username", username);
       sessionStorage.setItem("secret", secret);
       sessionStorage.setItem("level", level);
       sessionStorage.setItem("outlet", idoutlet);
+      sessionStorage.setItem("outletCode", cctr);
       sessionStorage.setItem("outletName", outlet_name);
     } else if (!response.data.status) {
       console.log("Invalid username or password. Please try again.");
     } else {
-      console.log(
-        "An error occurred during login. Please check your internet connection and try again."
-      );
+      console.log("An error occurred during login. Please check your internet connection and try again.");
     }
   } catch (error) {
     console.error("Error during login:", error);
@@ -60,15 +55,11 @@ export async function handleLoginLog(ipAddress) {
       })
     );
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/authapi/loginlog`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/authapi/loginlog`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log("Login log response:", response.data);
   } catch (error) {
@@ -82,7 +73,9 @@ export function handleLogout() {
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("secret");
     sessionStorage.removeItem("level");
+    sessionStorage.removeItem("outlet");
     sessionStorage.removeItem("ipAddress");
+    sessionStorage.removeItem("outletCode");
     sessionStorage.removeItem("outletName");
 
     console.log("Successfully logged out.");
@@ -120,10 +113,7 @@ export async function handleAuth(showNotifications) {
   } else {
     console.log("User data or IP Address mismatch. Logging out ...");
     handleLogout();
-    showNotifications(
-      "danger",
-      "User data or IP Address mismatch. Logging out ..."
-    );
+    showNotifications("danger", "User data or IP Address mismatch. Logging out ...");
     return false;
   }
 }
@@ -183,15 +173,11 @@ export async function handleCUDReserve(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/cudreservation`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/cudreservation`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log("Reservation CUD response:", response.data);
   } catch (error) {
@@ -219,15 +205,11 @@ export async function handleCUDService(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/cudservice`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/cudservice`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log("Service CUD response:", response.data);
   } catch (error) {
@@ -261,15 +243,11 @@ export async function handleCUDBranch(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/cudoutlet`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/cudoutlet`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log("Branch CUD response:", response.data);
   } catch (error) {
@@ -296,15 +274,11 @@ export async function handleCUDOrder(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/cudorder`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/cudorder`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log("Order CUD response:", response.data);
   } catch (error) {
@@ -336,15 +310,11 @@ export async function handleCUDStock(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/cudstock`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/cudstock`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log("Stock CUD response:", response.data);
   } catch (error) {
@@ -371,15 +341,11 @@ export async function handleCUDCentralPO(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(
-      `${baseUrl}/edental_api/office/postock`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`${baseUrl}/edental_api/office/postock`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     console.log("Central PO CUD response:", response.data);
   } catch (error) {

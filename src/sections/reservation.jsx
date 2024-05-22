@@ -1,27 +1,21 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
 import { formatDate } from "@ibrahimstudio/function";
-import {
-  fetchHoursList,
-  fetchDataList,
-  fetchAllDataList,
-} from "../components/tools/data";
+import { fetchHoursList, fetchDataList, fetchAllDataList } from "../components/tools/data";
 import { handleCUDReserve } from "../components/tools/handler";
 import { getCurrentDate, exportToExcel } from "../components/tools/controller";
 import { useNotifications } from "../components/feedback/context/notifications-context";
-import {
-  TableData,
-  TableRow,
-  TableHeadValue,
-  TableBodyValue,
-} from "../components/layout/tables";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
 import { InputWrapper } from "../components/user-input/inputs";
 import { PlusIcon } from "../components/layout/icons";
 import { SearchInput } from "../components/user-input/inputs";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
+
+const baseUrl = process.env.REACT_APP_BASE_URL;
 
 export const Reservation = ({ sectionId }) => {
   const { showNotifications } = useNotifications();
@@ -30,6 +24,7 @@ export const Reservation = ({ sectionId }) => {
   const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [serviceData, setServiceData] = useState([]);
+  const [availableTimes, setAvailableTimes] = useState([]);
   // conditional context
   const [dataExist, setDataExist] = useState(false);
   const [isDataShown, setIsDataShown] = useState(true);
@@ -111,6 +106,23 @@ export const Reservation = ({ sectionId }) => {
     setIsFormOpen(false);
   };
 
+  const fetchAvailableTimes = async (date) => {
+    try {
+      const formData = new FormData();
+      formData.append("tgl", date);
+
+      const response = await axios.post(`${baseUrl}/edental_api/main/searchtime`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const data = response.data;
+      setAvailableTimes(data.data.map((item) => item.reservationtime));
+    } catch (error) {
+      console.error("error fetching available times:", error);
+      setAvailableTimes([]);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setInputData((prevState) => ({
@@ -147,9 +159,7 @@ export const Reservation = ({ sectionId }) => {
     }
 
     if (name === "service") {
-      const selectedService = serviceData.find(
-        (service) => service["Nama Layanan"].servicename === value
-      );
+      const selectedService = serviceData.find((service) => service["Nama Layanan"].servicename === value);
 
       setInputData({
         ...inputData,
@@ -157,18 +167,12 @@ export const Reservation = ({ sectionId }) => {
         [name]: value,
       });
 
-      console.log(
-        `id service set to ${selectedService["Nama Layanan"].idservice}`
-      );
+      console.log(`id service set to ${selectedService["Nama Layanan"].idservice}`);
     }
 
     if (name === "typeservice") {
-      const selectedService = serviceData.find(
-        (s) => s["Nama Layanan"].servicename === inputData.service
-      );
-      const selectedSubService = selectedService["Jenis Layanan"].find(
-        (type) => type.servicetypename === value
-      );
+      const selectedService = serviceData.find((s) => s["Nama Layanan"].servicename === inputData.service);
+      const selectedSubService = selectedService["Jenis Layanan"].find((type) => type.servicetypename === value);
 
       setInputData({
         ...inputData,
@@ -177,6 +181,10 @@ export const Reservation = ({ sectionId }) => {
       });
 
       console.log(`id servicetype set to ${selectedSubService.idservicetype}`);
+    }
+
+    if (name === "reservationdate") {
+      fetchAvailableTimes(value);
     }
   };
 
@@ -200,18 +208,13 @@ export const Reservation = ({ sectionId }) => {
       return;
     }
 
-    const isConfirmed = window.confirm(
-      "Apakah anda yakin untuk menambahkan data?"
-    );
+    const isConfirmed = window.confirm("Apakah anda yakin untuk menambahkan data?");
 
     if (isConfirmed) {
       try {
         setIsLoading(true);
         await handleCUDReserve(inputData);
-        showNotifications(
-          "success",
-          "Selamat! Data Reservasi baru berhasil ditambahkan."
-        );
+        showNotifications("success", "Selamat! Data Reservasi baru berhasil ditambahkan.");
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewreservation");
@@ -273,10 +276,7 @@ export const Reservation = ({ sectionId }) => {
         }
       } catch (error) {
         console.error("Error fetching reservation data:", error);
-        showNotifications(
-          "danger",
-          "Gagal menampilkan data Reservasi. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menampilkan data Reservasi. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsFetching(false);
       }
@@ -345,9 +345,7 @@ export const Reservation = ({ sectionId }) => {
             buttonText="Export ke Excel"
             radius="full"
             bgColor="var(--color-green)"
-            onClick={() =>
-              exportToExcel(filteredData, "Data Reservasi", "data_reservasi")
-            }
+            onClick={() => exportToExcel(filteredData, "Data Reservasi", "data_reservasi")}
           />
         </InputWrapper>
         <InputWrapper>
@@ -371,20 +369,11 @@ export const Reservation = ({ sectionId }) => {
           />
         </InputWrapper>
       </div>
-      <TableData
-        headerData={tableHeadData}
-        dataShown={isDataShown}
-        loading={isFetching}
-      >
+      <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((reserve, index) => (
           <TableRow key={index} isEven={index % 2 === 0}>
-            <TableBodyValue
-              type="num"
-              value={(currentPage - 1) * limit + index + 1}
-            />
-            <TableBodyValue
-              value={formatDate(reserve.datetimecreate, "en-gb")}
-            />
+            <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
+            <TableBodyValue value={formatDate(reserve.datetimecreate, "en-gb")} />
             <TableBodyValue value={reserve.reservationdate} />
             <TableBodyValue value={reserve.reservationtime} />
             <TableBodyValue value={reserve.rscode} />
@@ -398,13 +387,7 @@ export const Reservation = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && (
-        <PaginationV2
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
+      {isDataShown && <PaginationV2 currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
       {isFormOpen && (
         <SubmitForm
           formTitle="Tambah Data Reservasi"
@@ -424,11 +407,7 @@ export const Reservation = ({ sectionId }) => {
               value={inputData.phone}
               onChange={handleInputChange}
               errorContent={errors.phone}
-              infoContent={
-                dataExist
-                  ? "Customer sudah terdaftar. Nama dan Email otomatis terisi."
-                  : ""
-              }
+              infoContent={dataExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""}
               isRequired
             />
             <Input
@@ -485,17 +464,11 @@ export const Reservation = ({ sectionId }) => {
                 variant="select"
                 labelText="Jenis Layanan"
                 name="typeservice"
-                placeholder={
-                  inputData.service
-                    ? "Pilih jenis layanan"
-                    : "Mohon pilih layanan dahulu"
-                }
+                placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                 options={
                   inputData.service &&
                   serviceData
-                    .find(
-                      (s) => s["Nama Layanan"].servicename === inputData.service
-                    )
+                    .find((s) => s["Nama Layanan"].servicename === inputData.service)
                     ?.["Jenis Layanan"].map((type) => ({
                       value: type.servicetypename,
                       label: type.servicetypename,
@@ -532,10 +505,10 @@ export const Reservation = ({ sectionId }) => {
               variant="select"
               labelText="Jam Reservasi"
               name="reservationtime"
-              placeholder="Pilih jadwal tersedia"
-              options={hours.map((hour) => ({
-                value: hour,
-                label: hour,
+              placeholder={inputData.reservationdate ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"}
+              options={availableTimes.map((time) => ({
+                value: time,
+                label: time,
               }))}
               value={inputData.reservationtime}
               onSelect={(selectedValue) =>
@@ -546,6 +519,7 @@ export const Reservation = ({ sectionId }) => {
               errorContent={errors.reservationtime}
               isRequired
               isSearchable
+              isDisabled={inputData.reservationdate ? false : true}
             />
           </InputWrapper>
         </SubmitForm>

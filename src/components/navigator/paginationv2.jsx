@@ -43,37 +43,21 @@ export const PaginationV2 = ({ currentPage, totalPages, onPageChange }) => {
     return pagesToShow.map((pageNumber, index) => (
       <button
         key={index}
-        className={`${styles.paginationArrow} ${
-          pageNumber === "ellipsis" ? styles.ellipsis : ""
-        } ${currentPage === pageNumber ? styles.active : ""}`}
+        className={`${styles.paginationArrow} ${pageNumber === "ellipsis" ? styles.ellipsis : ""} ${currentPage === pageNumber ? styles.active : ""}`}
         onClick={() => onPageChange(pageNumber)}
       >
-        {pageNumber === "ellipsis" ? (
-          <b className={styles.paginationNumText}>...</b>
-        ) : (
-          <b className={styles.paginationNumText}>{pageNumber}</b>
-        )}
+        {pageNumber === "ellipsis" ? <b className={styles.paginationNumText}>...</b> : <b className={styles.paginationNumText}>{pageNumber}</b>}
       </button>
     ));
   };
 
   return (
     <div className={styles.pagination}>
-      <button
-        className={`${styles.paginationArrow} ${
-          currentPage === 1 ? styles.disable : ""
-        }`}
-        onClick={prevPage}
-      >
+      <button className={`${styles.paginationArrow} ${currentPage === 1 ? styles.disable : ""}`} onClick={prevPage}>
         <ChevronIcon width="7px" height="100%" direction="left" />
       </button>
       {renderPageNumbers()}
-      <button
-        className={`${styles.paginationArrow} ${
-          currentPage === totalPages ? styles.disable : ""
-        }`}
-        onClick={nextPage}
-      >
+      <button className={`${styles.paginationArrow} ${currentPage === totalPages ? styles.disable : ""}`} onClick={nextPage}>
         <ChevronIcon width="7px" height="100%" />
       </button>
     </div>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { exportToExcel } from "../components/tools/controller";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
-import { formatDate } from "@ibrahimstudio/function";
 import { fetchDataList } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
@@ -10,10 +9,10 @@ import { InputWrapper, SearchInput } from "../components/user-input/inputs";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
 
-export const CustList = ({ sectionId }) => {
+export const DentistList = ({ sectionId }) => {
   const { showNotifications } = useNotifications();
   // data state
-  const [custData, setCustData] = useState([]);
+  const [dentistData, setDentistData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   // conditional context
   const [isDataShown, setIsDataShown] = useState(true);
@@ -39,11 +38,10 @@ export const CustList = ({ sectionId }) => {
   const tableHeadData = (
     <TableRow type="heading">
       <TableHeadValue type="num" value="NO" />
-      <TableHeadValue value="Nama Pengguna" />
-      <TableHeadValue value="Alamat" />
-      <TableHeadValue value="Email" />
-      <TableHeadValue value="Telepon" />
-      <TableHeadValue value="Tanggal Bergabung" position="end" />
+      <TableHeadValue value="Nama Dokter" />
+      <TableHeadValue value="Kode Outlet" />
+      <TableHeadValue value="Nomor Telepon" />
+      <TableHeadValue value="Email" position="end" />
     </TableRow>
   );
 
@@ -52,15 +50,15 @@ export const CustList = ({ sectionId }) => {
       try {
         setIsFetching(true);
         const offset = (page - 1) * limit;
-        const data = await fetchDataList(offset, limit, "viewcustomer");
+        const data = await fetchDataList(offset, limit, "viewdentist");
 
         if (data && data.data && data.data.length > 0) {
-          setCustData(data.data);
+          setDentistData(data.data);
           setFilteredData(data.data);
           setTotalPages(data.TTLPage);
           setIsDataShown(true);
         } else {
-          setCustData([]);
+          setDentistData([]);
           setFilteredData([]);
           setTotalPages(0);
           setIsDataShown(false);
@@ -82,14 +80,14 @@ export const CustList = ({ sectionId }) => {
 
   return (
     <section id={sectionId} className={styles.tabelSection}>
-      <b className={styles.tabelSectionTitle}>Customer</b>
+      <b className={styles.tabelSectionTitle}>List Dokter</b>
       <div className={styles.tabelSectionNav}>
         <InputWrapper>
           <SearchInput
             id={`search-data-${sectionId}`}
             placeholder="Cari data ..."
             property="username"
-            userData={custData}
+            userData={dentistData}
             setUserData={setFilteredData}
           />
         </InputWrapper>
@@ -110,7 +108,7 @@ export const CustList = ({ sectionId }) => {
             buttonText="Export ke Excel"
             radius="full"
             bgColor="var(--color-green)"
-            onClick={() => exportToExcel(filteredData, "Daftar Customer", "daftar_customer")}
+            onClick={() => exportToExcel(filteredData, "Daftar Dokter", "daftar_dokter")}
           />
         </InputWrapper>
       </div>
@@ -118,11 +116,10 @@ export const CustList = ({ sectionId }) => {
         {filteredData.map((cust, index) => (
           <TableRow key={index} isEven={index % 2 === 0}>
             <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
-            <TableBodyValue value={cust.username} />
-            <TableBodyValue value={cust.address} />
-            <TableBodyValue value={cust.useremail} />
-            <TableBodyValue value={cust.userphone} />
-            <TableBodyValue value={formatDate(cust.usercreate, "en-gb")} position="end" />
+            <TableBodyValue value={cust.name_dentist} />
+            <TableBodyValue value={cust.id_branch} />
+            <TableBodyValue value={cust.phone} />
+            <TableBodyValue value={cust.email} position="end" />
           </TableRow>
         ))}
       </TableData>

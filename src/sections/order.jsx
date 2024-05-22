@@ -4,12 +4,7 @@ import { Input } from "@ibrahimstudio/input";
 import { formatDate } from "@ibrahimstudio/function";
 import { fetchDataList } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
-import {
-  TableData,
-  TableRow,
-  TableHeadValue,
-  TableBodyValue,
-} from "../components/layout/tables";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
 import { InputWrapper, SearchInput } from "../components/user-input/inputs";
 import { PaginationV2 } from "../components/navigator/paginationv2";
 import styles from "./styles/tabel-section.module.css";
@@ -52,9 +47,11 @@ export const Order = ({ sectionId }) => {
       <TableHeadValue value="Nomor Invoice" />
       <TableHeadValue value="Nama Pengguna" />
       <TableHeadValue value="Telepon" />
-      <TableHeadValue value="Cabang" />
+      <TableHeadValue value="Tipe Pembayaran" />
+      <TableHeadValue value="Status Pembayaran" />
       <TableHeadValue value="Kode Voucher" />
-      <TableHeadValue value="Status" position="end" />
+      <TableHeadValue value="Nama Dokter" />
+      <TableHeadValue value="Cabang" position="end" />
     </TableRow>
   );
 
@@ -78,10 +75,7 @@ export const Order = ({ sectionId }) => {
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
-        showNotifications(
-          "danger",
-          "Gagal menampilkan data Order. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menampilkan data Order. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsFetching(false);
       }
@@ -121,48 +115,24 @@ export const Order = ({ sectionId }) => {
           />
         </InputWrapper>
       </div>
-      <TableData
-        headerData={tableHeadData}
-        dataShown={isDataShown}
-        loading={isFetching}
-      >
+      <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((order, index) => (
-          <TableRow
-            key={index}
-            isEven={index % 2 === 0}
-            isClickable={true}
-            onClick={() => navigateOrderDetail(order["Transaction"].noinvoice)}
-          >
-            <TableBodyValue
-              type="num"
-              value={(currentPage - 1) * limit + index + 1}
-            />
-            <TableBodyValue
-              value={formatDate(
-                order["Transaction"].transactioncreate,
-                "en-gb"
-              )}
-            />
+          <TableRow key={index} isEven={index % 2 === 0} isClickable={true} onClick={() => navigateOrderDetail(order["Transaction"].noinvoice)}>
+            <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
+            <TableBodyValue value={formatDate(order["Transaction"].transactioncreate, "en-gb")} />
             <TableBodyValue value={order["Transaction"].rscode} />
             <TableBodyValue value={order["Transaction"].noinvoice} />
             <TableBodyValue value={order["Transaction"].transactionname} />
             <TableBodyValue value={order["Transaction"].transactionphone} />
-            <TableBodyValue value={order["Transaction"].outlet_name} />
+            <TableBodyValue value={order["Transaction"].payment} />
+            <TableBodyValue value={order["Transaction"].transactionstatus} />
             <TableBodyValue value={order["Transaction"].voucher} />
-            <TableBodyValue
-              value={order["Transaction"].transactionstatus}
-              position="end"
-            />
+            <TableBodyValue value={order["Transaction"].dentist} />
+            <TableBodyValue value={order["Transaction"].outlet_name} position="end" />
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && (
-        <PaginationV2
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
+      {isDataShown && <PaginationV2 currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
     </section>
   );
 };
