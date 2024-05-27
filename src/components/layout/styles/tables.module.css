@@ -1,20 +1,20 @@
 .tabelRowExpand {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--pixel-10);
   width: 100%;
   justify-content: center;
   align-items: center;
-  border-top: 1px solid var(--color-blue-30);
-  border-left: 1px solid var(--color-blue-30);
-  border-right: 1px solid var(--color-blue-30);
-  padding: 15px;
+  border-top: 1px solid var(--color-primary-30);
+  border-left: 1px solid var(--color-primary-30);
+  border-right: 1px solid var(--color-primary-30);
+  padding: var(--pixel-15);
   background-color: var(--color-foreground);
 }
 
 .tabelNodata {
-  color: var(--color-darkblue-50);
-  font-size: 25px;
+  color: var(--color-secondary-50);
+  font-size: var(--font-md);
   font-weight: 600;
 }
 
@@ -30,19 +30,19 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 15px 20px;
+  padding: var(--pixel-15) var(--pixel-20);
   box-sizing: border-box;
 }
 
 .tabelHeadAtnTh {
-  width: 200px;
+  width: var(--pixel-200);
   overflow: hidden;
   flex-shrink: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 15px 20px;
+  padding: var(--pixel-15) var(--pixel-20);
   box-sizing: border-box;
 }
 
@@ -52,13 +52,13 @@
 }
 
 .tabelHeadTh {
-  width: 250px;
+  width: var(--pixel-250);
   flex-shrink: 0;
   flex-direction: row;
   align-items: center;
-  padding: 15px 20px;
+  padding: var(--pixel-15) var(--pixel-20);
   box-sizing: border-box;
-  gap: 10px;
+  gap: var(--pixel-10);
 }
 
 .tabelHeadTh,
@@ -71,16 +71,15 @@
 
 .tabelHeadTr {
   background-color: #0f3948;
-  box-shadow: 0 37px 10px transparent, 0 24px 9px transparent,
-    0 13px 8px rgba(0, 0, 0, 0.02), 0 6px 6px rgba(0, 0, 0, 0.03),
+  box-shadow: 0 37px 10px transparent, 0 24px 9px transparent, 0 13px 8px rgba(0, 0, 0, 0.02), 0 6px 6px rgba(0, 0, 0, 0.03),
     0 1px 3px rgba(0, 0, 0, 0.03);
   flex-direction: row;
   align-items: center;
 }
 
 .tabelHeadThead {
-  border-radius: 10px;
-  box-shadow: inset 0 0 0 1px var(--color-blue-30);
+  border-radius: var(--pixel-10);
+  box-shadow: inset 0 0 0 1px var(--color-primary-30);
   flex-direction: column;
   align-items: flex-start;
 }
@@ -98,22 +97,22 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 15px 20px;
+  padding: var(--pixel-15) var(--pixel-20);
   box-sizing: border-box;
 }
 
 .tabelBodyAtnTd {
   position: relative;
-  width: 200px;
+  width: var(--pixel-200);
   overflow: hidden;
   flex-shrink: 0;
   display: flex;
   flex-direction: row;
-  gap: 5px;
+  gap: var(--pixel-5);
   align-items: center;
   justify-content: center;
   height: 55px;
-  padding: 15px 20px;
+  padding: var(--pixel-15) var(--pixel-20);
   box-sizing: border-box;
 }
 
@@ -132,19 +131,19 @@
 }
 
 .tabelBodyTd {
-  width: 250px;
+  width: var(--pixel-250);
   white-space: normal;
   flex-direction: column;
   justify-content: center;
-  padding: 15px 20px;
+  padding: var(--pixel-15) var(--pixel-20);
   box-sizing: border-box;
 }
 
 .tabelBodyTr {
   flex-direction: row;
   justify-content: flex-start;
-  border-top: 1px solid var(--color-blue-30);
-  background-color: var(--color-blue-5);
+  border-top: 1px solid var(--color-primary-30);
+  background-color: var(--color-primary-5);
   transition: all 0.3s ease-in-out;
 }
 
@@ -158,12 +157,12 @@
 
 .tabelBodyTr:hover,
 .tabelBodyTr.even:hover {
-  background-color: var(--color-blue-30);
+  background-color: var(--color-primary-30);
 }
 
 .tabelBodyTbody {
-  border-radius: 10px;
-  box-shadow: inset 0 0 0 1px var(--color-blue-30);
+  border-radius: var(--pixel-10);
+  box-shadow: inset 0 0 0 1px var(--color-primary-30);
   box-sizing: border-box;
   color: #0f3948;
   flex-shrink: 0;
@@ -188,7 +187,7 @@
 
 .tabelBodyVscroll::-webkit-scrollbar-thumb {
   background-color: #ccc;
-  border-radius: 5px;
+  border-radius: var(--pixel-5);
 }
 
 .tabelBodyTbody,
@@ -200,7 +199,7 @@
 }
 
 .tabelSectionTable {
-  gap: 10px;
+  gap: var(--pixel-10);
 }
 
 .lineDivider {
@@ -211,21 +210,20 @@
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
-  background-color: var(--color-blue-30);
+  background-color: var(--color-primary-30);
 }
 
 .tabelSectionBody {
   display: flex;
   flex-direction: column;
   align-self: stretch;
-  border-radius: 20px;
+  border-radius: var(--pixel-20);
   background-color: #fdfdfd;
-  box-shadow: 0 30px 8px transparent, 0 19px 8px transparent,
-    0 11px 6px rgba(0, 0, 0, 0.02), 0 5px 5px rgba(0, 0, 0, 0.03),
+  box-shadow: 0 30px 8px transparent, 0 19px 8px transparent, 0 11px 6px rgba(0, 0, 0, 0.02), 0 5px 5px rgba(0, 0, 0, 0.03),
     0 1px 3px rgba(0, 0, 0, 0.03);
-  padding: 10px;
+  padding: var(--pixel-10);
   text-align: left;
-  font-size: 18px;
+  font-size: var(--font-sm);
   color: #fff;
   font-family: var(--font-dm);
 }
@@ -233,9 +231,9 @@
 .tabelSectionBody.onLoad {
   align-items: center;
   overflow: hidden;
-  color: var(--color-darkblue);
+  color: var(--color-secondary);
   justify-content: center;
-  height: 350px;
+  height: var(--pixel-350);
 }
 
 .tabelSectionBody.noLoad {
@@ -255,5 +253,5 @@
 
 .tabelSectionBody::-webkit-scrollbar-thumb {
   background-color: #ccc;
-  border-radius: 5px;
+  border-radius: var(--pixel-5);
 }

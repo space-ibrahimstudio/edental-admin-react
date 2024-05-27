@@ -33,10 +33,7 @@ export function PortalForm({ type, onClose }) {
     e.preventDefault();
 
     if (!username || !password) {
-      showNotifications(
-        "danger",
-        "Mohon masukkan Username dan Kata Sandi dengan benar"
-      );
+      showNotifications("danger", "Mohon masukkan Username dan Kata Sandi dengan benar");
       return;
     }
 
@@ -50,10 +47,7 @@ export function PortalForm({ type, onClose }) {
 
       setIsClosing(true);
       navigate("/dashboard");
-      showNotifications(
-        "success",
-        `Kamu berhasil login. Selamat datang kembali, ${username}!`
-      );
+      showNotifications("success", `Kamu berhasil login. Selamat datang kembali, ${username}!`);
     } catch (error) {
       console.error("Error occurred during login:", error);
       showNotifications("danger", "Login gagal. Mohon coba lagi.");
@@ -87,8 +81,7 @@ export function PortalForm({ type, onClose }) {
         modalCount++;
       }
     });
-    document.documentElement.style.overflow =
-      modalCount > 0 ? "hidden" : "auto";
+    document.documentElement.style.overflow = modalCount > 0 ? "hidden" : "auto";
     return () => {
       document.documentElement.style.overflow = "auto";
     };
@@ -97,23 +90,13 @@ export function PortalForm({ type, onClose }) {
   const modalElement =
     type === "login" ? (
       <div className={`form-modal ${isClosing ? "fade-out" : "fade-in"}`}>
-        <form
-          className={`form ${isClosing ? "move-down" : "move-up"}`}
-          onSubmit={submitLogin}
-          ref={ref}
-        >
+        <form className={`form ${isClosing ? "move-down" : "move-up"}`} onSubmit={submitLogin} ref={ref}>
           <header className="form-heading">
             <LogoPrimary width="96px" height="100%" />
             <h4 className="form-title">Welcome Back!</h4>
           </header>
           <main className="form-heading">
-            <FieldInput
-              id="input-your-username"
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+            <FieldInput id="input-your-username" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
             <FieldInput
               id="input-your-password"
               type="password"
@@ -127,17 +110,8 @@ export function PortalForm({ type, onClose }) {
             />
           </main>
           <footer className="form-footer">
-            <button
-              className={`form-footer-button ${
-                !username || !password || loading ? "off" : ""
-              }`}
-              type="submit"
-            >
-              {loading ? (
-                <h5 className="form-footer-button-text">Mohon Tunggu ...</h5>
-              ) : (
-                <h5 className="form-footer-button-text">LOGIN</h5>
-              )}
+            <button className={`form-footer-button ${!username || !password || loading ? "off" : ""}`} type="submit">
+              {loading ? <h5 className="form-footer-button-text">Mohon Tunggu ...</h5> : <h5 className="form-footer-button-text">LOGIN</h5>}
             </button>
             <h6 className="form-footer-ctaother">
               <span>{`Belum punya akun? `}</span>
@@ -154,13 +128,7 @@ export function PortalForm({ type, onClose }) {
             <h4 className="form-title">Welcome!</h4>
           </header>
           <main className="form-heading">
-            <FieldInput
-              id="input-your-username"
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+            <FieldInput id="input-your-username" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
             <FieldInput
               id="input-your-password"
               type="password"
@@ -189,16 +157,7 @@ export function PortalForm({ type, onClose }) {
   return createPortal(modalElement, modalRoot);
 }
 
-export function SubmitForm({
-  formTitle,
-  formSubtitle,
-  loading,
-  onSubmit,
-  saveText,
-  cancelText,
-  children,
-  onClose,
-}) {
+export function SubmitForm({ formTitle, formSubtitle, loading, onSubmit, saveText, cancelText, children, onClose }) {
   const [isClosing, setIsClosing] = useState(false);
   const ref = useRef(null);
 
@@ -234,8 +193,7 @@ export function SubmitForm({
         modalCount++;
       }
     });
-    document.documentElement.style.overflow =
-      modalCount > 0 ? "hidden" : "auto";
+    document.documentElement.style.overflow = modalCount > 0 ? "hidden" : "auto";
     return () => {
       document.documentElement.style.overflow = "auto";
     };
@@ -244,22 +202,13 @@ export function SubmitForm({
   const modalElement = (
     <div className={styles.formScroll}>
       <div className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
-        <form
-          className={`${styles.form} ${isClosing ? styles.close : ""}`}
-          ref={ref}
-          onSubmit={onSubmit}
-        >
+        <form className={`${styles.form} ${isClosing ? styles.close : ""}`} ref={ref} onSubmit={onSubmit}>
           <header className={styles.formHead}>
-            <LogoPrimary width="96px" height="100%" color="var(--color-blue)" />
+            <LogoPrimary width="96px" height="100%" color="var(--color-primary)" />
             <b className={styles.formTitle}>{formTitle}</b>
-            {formSubtitle && (
-              <div className={styles.formSubtitle}>{formSubtitle}</div>
-            )}
+            {formSubtitle && <div className={styles.formSubtitle}>{formSubtitle}</div>}
           </header>
-          <main
-            className={styles.formBody}
-            style={loading ? { opacity: "0.5" } : { opacity: "1" }}
-          >
+          <main className={styles.formBody} style={loading ? { opacity: "0.5" } : { opacity: "1" }}>
             {children}
           </main>
           <footer className={styles.formFooter}>
@@ -267,7 +216,7 @@ export function SubmitForm({
               id="cancel-form-submit"
               variant="dashed"
               radius="full"
-              color="var(--color-semidarkblue)"
+              color="var(--color-hint)"
               buttonText={cancelText}
               onClick={handleClose}
               startContent={<CloseIcon width="12px" height="100%" />}

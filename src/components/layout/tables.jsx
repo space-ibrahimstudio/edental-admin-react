@@ -1,14 +1,7 @@
 import React, { useState, Fragment } from "react";
 import styles from "./styles/tables.module.css";
 
-export const TableRow = ({
-  type,
-  isClickable,
-  onClick,
-  isEven,
-  expanded,
-  children,
-}) => {
+export const TableRow = ({ type, isClickable, onClick, isEven, expanded, children }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -24,12 +17,7 @@ export const TableRow = ({
   } else if (type === "expand") {
     return (
       <Fragment>
-        <tr
-          className={`${styles.tabelBodyTr} ${isEven ? styles.even : ""} ${
-            isClickable ? styles.clickable : ""
-          }`}
-          onClick={toggleExpand}
-        >
+        <tr className={`${styles.tabelBodyTr} ${isEven ? styles.even : ""} ${isClickable ? styles.clickable : ""}`} onClick={toggleExpand}>
           {children}
         </tr>
         {isExpanded && <tr className={styles.tabelRowExpand}>{expanded}</tr>}
@@ -37,12 +25,7 @@ export const TableRow = ({
     );
   } else {
     return (
-      <tr
-        className={`${styles.tabelBodyTr} ${isEven ? styles.even : ""} ${
-          isClickable ? styles.clickable : ""
-        }`}
-        onClick={onClick}
-      >
+      <tr className={`${styles.tabelBodyTr} ${isEven ? styles.even : ""} ${isClickable ? styles.clickable : ""}`} onClick={onClick}>
         {children}
       </tr>
     );
@@ -157,11 +140,7 @@ export const TableBodyValue = ({ position, type, value, children }) => {
 
 export const TableData = ({ headerData, dataShown, loading, children }) => {
   return (
-    <div
-      className={`${styles.tabelSectionBody} ${
-        dataShown && !loading ? styles.noLoad : styles.onLoad
-      }`}
-    >
+    <div className={`${styles.tabelSectionBody} ${dataShown && !loading ? styles.noLoad : styles.onLoad}`}>
       {loading ? (
         <p className={styles.tabelNodata}>Loading...</p>
       ) : dataShown ? (

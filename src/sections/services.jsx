@@ -5,12 +5,7 @@ import { formatDate } from "@ibrahimstudio/function";
 import { fetchDataList, fetchAllDataList } from "../components/tools/data";
 import { handleCUDService } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
-import {
-  TableData,
-  TableRow,
-  TableHeadValue,
-  TableBodyValue,
-} from "../components/layout/tables";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
 import { InputWrapper } from "../components/user-input/inputs";
 import { PlusIcon, EditIcon, TrashIcon } from "../components/layout/icons";
@@ -98,9 +93,7 @@ export const Services = ({ sectionId }) => {
       const lowercaseValue = value.toLowerCase();
 
       let serviceExists = allData.some((item) => {
-        const lowercaseServiceName = (
-          item["Nama Layanan"] && item["Nama Layanan"].servicename
-        ).toLowerCase();
+        const lowercaseServiceName = (item["Nama Layanan"] && item["Nama Layanan"].servicename).toLowerCase();
         return lowercaseServiceName === lowercaseValue;
       });
 
@@ -119,34 +112,24 @@ export const Services = ({ sectionId }) => {
     const { name, value } = e.target;
     setInputData((prevState) => ({
       ...prevState,
-      subService: prevState.subService.map((item, idx) =>
-        idx === index ? { ...item, [name]: value } : item
-      ),
+      subService: prevState.subService.map((item, idx) => (idx === index ? { ...item, [name]: value } : item)),
     }));
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      subService: prevErrors.subService.map((error, idx) =>
-        idx === index ? { ...error, [name]: "" } : error
-      ),
+      subService: prevErrors.subService.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)),
     }));
   };
 
   const handleAddRow = () => {
     setInputData((prevState) => ({
       ...prevState,
-      subService: [
-        ...prevState.subService,
-        { id: "", servicetype: "", price: "" },
-      ],
+      subService: [...prevState.subService, { id: "", servicetype: "", price: "" }],
     }));
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      subService: [
-        ...prevErrors.subService,
-        { id: "", servicetype: "", price: "" },
-      ],
+      subService: [...prevErrors.subService, { id: "", servicetype: "", price: "" }],
     }));
   };
 
@@ -174,44 +157,27 @@ export const Services = ({ sectionId }) => {
       return;
     }
 
-    const isSubServiceEmpty = inputData.subService.some(
-      (subService) =>
-        subService.servicetype.trim() === "" || subService.price.trim() === ""
-    );
+    const isSubServiceEmpty = inputData.subService.some((subService) => subService.servicetype.trim() === "" || subService.price.trim() === "");
 
     if (inputData.service.trim() === "" || isSubServiceEmpty) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        service:
-          inputData.service.trim() === ""
-            ? "Nama Layanan tidak boleh kosong"
-            : "",
+        service: inputData.service.trim() === "" ? "Nama Layanan tidak boleh kosong" : "",
         subService: inputData.subService.map((subService) => ({
-          servicetype:
-            subService.servicetype.trim() === ""
-              ? "Jenis Layanan tidak boleh kosong"
-              : "",
-          price:
-            subService.price.trim() === ""
-              ? "Harga Layanan tidak boleh kosong"
-              : "",
+          servicetype: subService.servicetype.trim() === "" ? "Jenis Layanan tidak boleh kosong" : "",
+          price: subService.price.trim() === "" ? "Harga Layanan tidak boleh kosong" : "",
         })),
       }));
       return;
     }
 
-    const isConfirmed = window.confirm(
-      "Apakah anda yakin untuk menambahkan data?"
-    );
+    const isConfirmed = window.confirm("Apakah anda yakin untuk menambahkan data?");
 
     if (isConfirmed) {
       try {
         setIsLoading(true);
         await handleCUDService(inputData);
-        showNotifications(
-          "success",
-          "Selamat! Data Layanan baru berhasil ditambahkan."
-        );
+        showNotifications("success", "Selamat! Data Layanan baru berhasil ditambahkan.");
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewservice");
@@ -230,10 +196,7 @@ export const Services = ({ sectionId }) => {
         closeForm();
       } catch (error) {
         console.error("Error occurred during submit service:", error);
-        showNotifications(
-          "danger",
-          "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsLoading(false);
       }
@@ -245,13 +208,11 @@ export const Services = ({ sectionId }) => {
     setSelectedData(id);
     setCurrentData({
       service,
-      subService: jenisLayanan.map(
-        ({ idservicetype, servicetypename, serviceprice }) => ({
-          id: idservicetype,
-          servicetype: servicetypename,
-          price: serviceprice,
-        })
-      ),
+      subService: jenisLayanan.map(({ idservicetype, servicetypename, serviceprice }) => ({
+        id: idservicetype,
+        servicetype: servicetypename,
+        price: serviceprice,
+      })),
     });
     setIsEditOpen(true);
   };
@@ -276,14 +237,8 @@ export const Services = ({ sectionId }) => {
       const lowercaseValue = value.toLowerCase();
 
       let serviceExists = allData.some((item) => {
-        const lowercaseServiceName = (
-          (item["Nama Layanan"] && item["Nama Layanan"].servicename) ||
-          ""
-        ).toLowerCase();
-        return (
-          lowercaseServiceName === lowercaseValue &&
-          item["Nama Layanan"].idservice !== selectedData
-        );
+        const lowercaseServiceName = ((item["Nama Layanan"] && item["Nama Layanan"].servicename) || "").toLowerCase();
+        return lowercaseServiceName === lowercaseValue && item["Nama Layanan"].idservice !== selectedData;
       });
 
       if (serviceExists) {
@@ -320,10 +275,7 @@ export const Services = ({ sectionId }) => {
   const handleAddEditRow = () => {
     setCurrentData((prevState) => ({
       ...prevState,
-      subService: [
-        ...prevState.subService,
-        { id: "", servicetype: "", price: "" },
-      ],
+      subService: [...prevState.subService, { id: "", servicetype: "", price: "" }],
     }));
 
     setErrors((prevErrors) => ({
@@ -349,43 +301,26 @@ export const Services = ({ sectionId }) => {
       return;
     }
 
-    const isSubServiceEmpty = currentData.subService.some(
-      (subService) =>
-        subService.servicetype.trim() === "" || subService.price.trim() === ""
-    );
+    const isSubServiceEmpty = currentData.subService.some((subService) => subService.servicetype.trim() === "" || subService.price.trim() === "");
     if (currentData.service.trim() === "" || isSubServiceEmpty) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        service:
-          currentData.service.trim() === ""
-            ? "Nama Layanan tidak boleh kosong"
-            : "",
+        service: currentData.service.trim() === "" ? "Nama Layanan tidak boleh kosong" : "",
         subService: currentData.subService.map((subService) => ({
-          servicetype:
-            subService.servicetype.trim() === ""
-              ? "Jenis Layanan tidak boleh kosong"
-              : "",
-          price:
-            subService.price.trim() === ""
-              ? "Harga Layanan tidak boleh kosong"
-              : "",
+          servicetype: subService.servicetype.trim() === "" ? "Jenis Layanan tidak boleh kosong" : "",
+          price: subService.price.trim() === "" ? "Harga Layanan tidak boleh kosong" : "",
         })),
       }));
       return;
     }
 
-    const isConfirmed = window.confirm(
-      "Apakah anda yakin untuk menyimpan perubahan data?"
-    );
+    const isConfirmed = window.confirm("Apakah anda yakin untuk menyimpan perubahan data?");
 
     if (isConfirmed) {
       try {
         setIsLoading(true);
         await handleCUDService(currentData, "edit", selectedData);
-        showNotifications(
-          "success",
-          "Selamat! Data Layanan berhasil diperbarui."
-        );
+        showNotifications("success", "Selamat! Data Layanan berhasil diperbarui.");
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewservice");
@@ -404,10 +339,7 @@ export const Services = ({ sectionId }) => {
         closeEdit();
       } catch (error) {
         console.error("Error editing service data:", error);
-        showNotifications(
-          "danger",
-          "Gagal menyimpan perubahan. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menyimpan perubahan. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsLoading(false);
       }
@@ -415,16 +347,11 @@ export const Services = ({ sectionId }) => {
   };
 
   const handleSubmitDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Apakah anda yakin untuk menghapus data?"
-    );
+    const confirmDelete = window.confirm("Apakah anda yakin untuk menghapus data?");
     if (confirmDelete) {
       try {
         await handleCUDService("", "delete", id);
-        showNotifications(
-          "success",
-          "Selamat! Data yang anda pilih berhasil dihapus."
-        );
+        showNotifications("success", "Selamat! Data yang anda pilih berhasil dihapus.");
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewservice");
@@ -441,15 +368,10 @@ export const Services = ({ sectionId }) => {
           setIsDataShown(false);
         }
 
-        setServiceData(
-          serviceData.filter((service) => service.idservice !== id)
-        );
+        setServiceData(serviceData.filter((service) => service.idservice !== id));
       } catch (error) {
         console.error("Error deleting service:", error);
-        showNotifications(
-          "danger",
-          "Gagal menghapus data. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menghapus data. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       }
     }
   };
@@ -485,10 +407,7 @@ export const Services = ({ sectionId }) => {
         }
       } catch (error) {
         console.error("Error fetching service data:", error);
-        showNotifications(
-          "danger",
-          "Gagal menampilkan data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menampilkan data Layanan. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsFetching(false);
       }
@@ -548,11 +467,7 @@ export const Services = ({ sectionId }) => {
           />
         </InputWrapper>
       </div>
-      <TableData
-        headerData={tableHeadData}
-        dataShown={isDataShown}
-        loading={isFetching}
-      >
+      <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((service, index) => (
           <TableRow
             type="expand"
@@ -563,24 +478,9 @@ export const Services = ({ sectionId }) => {
               <Fragment>
                 {service["Jenis Layanan"].map((subService, index) => (
                   <InputWrapper width="100%" key={index}>
-                    <Input
-                      id={`service-type-name-${index}`}
-                      labelText="Jenis Layanan"
-                      value={subService.servicetypename}
-                      isReadonly
-                    />
-                    <Input
-                      id={`service-type-price-${index}`}
-                      labelText="Harga"
-                      value={subService.serviceprice}
-                      isReadonly
-                    />
-                    <Input
-                      id={`service-type-status-${index}`}
-                      labelText="Status"
-                      value={subService.servicetypestatus}
-                      isReadonly
-                    />
+                    <Input id={`service-type-name-${index}`} labelText="Jenis Layanan" value={subService.servicetypename} isReadonly />
+                    <Input id={`service-type-price-${index}`} labelText="Harga" value={subService.serviceprice} isReadonly />
+                    <Input id={`service-type-status-${index}`} labelText="Status" value={subService.servicetypestatus} isReadonly />
                   </InputWrapper>
                 ))}
                 <div
@@ -589,7 +489,7 @@ export const Services = ({ sectionId }) => {
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "10px",
+                    gap: "var(--pixel-10)",
                   }}
                 >
                   <Button
@@ -598,13 +498,7 @@ export const Services = ({ sectionId }) => {
                     radius="full"
                     buttonText="Edit"
                     startContent={<EditIcon width="12px" height="100%" />}
-                    onClick={() =>
-                      openEdit(
-                        service["Nama Layanan"].idservice,
-                        service["Nama Layanan"].servicename,
-                        service["Jenis Layanan"]
-                      )
-                    }
+                    onClick={() => openEdit(service["Nama Layanan"].idservice, service["Nama Layanan"].servicename, service["Jenis Layanan"])}
                   />
                   <Button
                     id={`delete-data-${index}`}
@@ -614,40 +508,22 @@ export const Services = ({ sectionId }) => {
                     variant="dashed"
                     buttonText="Hapus"
                     startContent={<TrashIcon width="12px" height="100%" />}
-                    onClick={() =>
-                      handleSubmitDelete(service["Nama Layanan"].idservice)
-                    }
+                    onClick={() => handleSubmitDelete(service["Nama Layanan"].idservice)}
                   />
                 </div>
               </Fragment>
             }
           >
-            <TableBodyValue
-              type="num"
-              value={(currentPage - 1) * limit + index + 1}
-            />
+            <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
             <TableBodyValue value={service["Nama Layanan"].servicename} />
             <TableBodyValue value={service["Nama Layanan"].idservice} />
-            <TableBodyValue
-              value={formatDate(service["Nama Layanan"].servicecreate, "en-gb")}
-            />
-            <TableBodyValue
-              value={formatDate(service["Nama Layanan"].serviceupdate, "en-gb")}
-            />
-            <TableBodyValue
-              value={service["Nama Layanan"].servicestatus}
-              position="end"
-            />
+            <TableBodyValue value={formatDate(service["Nama Layanan"].servicecreate, "en-gb")} />
+            <TableBodyValue value={formatDate(service["Nama Layanan"].serviceupdate, "en-gb")} />
+            <TableBodyValue value={service["Nama Layanan"].servicestatus} position="end" />
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && (
-        <PaginationV2
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
+      {isDataShown && <PaginationV2 currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
       {isFormOpen && (
         <SubmitForm
           formTitle="Tambah Data Layanan"
@@ -728,7 +604,7 @@ export const Services = ({ sectionId }) => {
             variant="hollow"
             size="sm"
             radius="full"
-            color="var(--color-semidarkblue)"
+            color="var(--color-hint)"
             buttonText="Tambah Jenis Layanan"
             startContent={<PlusIcon width="15px" height="100%" />}
             onClick={handleAddRow}
@@ -767,11 +643,7 @@ export const Services = ({ sectionId }) => {
                 name="servicetype"
                 value={subService.servicetype}
                 onChange={(e) => handleRowEditChange(index, e)}
-                errorContent={
-                  errors.subService[index]
-                    ? errors.subService[index].servicetype
-                    : ""
-                }
+                errorContent={errors.subService[index] ? errors.subService[index].servicetype : ""}
                 isRequired
               />
               <Input
@@ -782,9 +654,7 @@ export const Services = ({ sectionId }) => {
                 name="price"
                 value={subService.price}
                 onChange={(e) => handleRowEditChange(index, e)}
-                errorContent={
-                  errors.subService[index] ? errors.subService[index].price : ""
-                }
+                errorContent={errors.subService[index] ? errors.subService[index].price : ""}
                 isRequired
               />
               {index <= 0 ? (
@@ -821,7 +691,7 @@ export const Services = ({ sectionId }) => {
             variant="hollow"
             size="sm"
             radius="full"
-            color="var(--color-semidarkblue)"
+            color="var(--color-hint)"
             buttonText="Tambah Jenis Layanan"
             startContent={<PlusIcon width="15px" height="100%" />}
             onClick={handleAddEditRow}

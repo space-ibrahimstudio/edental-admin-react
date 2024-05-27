@@ -7,11 +7,11 @@ export const ButtonGroup = ({ children }) => {
     flexWrap: "wrap",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: "15px",
-    backgroundColor: "var(--color-white-second)",
+    borderRadius: "var(--pixel-15)",
+    backgroundColor: "var(--color-light)",
     overflow: "hidden",
-    padding: "5px",
-    gap: "5px",
+    padding: "var(--pixel-5)",
+    gap: "var(--pixel-5)",
   };
 
   return <section style={groupstyle}>{children}</section>;

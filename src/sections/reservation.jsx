@@ -24,7 +24,8 @@ export const Reservation = ({ sectionId }) => {
   const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [serviceData, setServiceData] = useState([]);
-  const [availableTimes, setAvailableTimes] = useState([]);
+  const [availableHours, setAvailableHours] = useState([]);
+  const [bookedHours, setBookedHours] = useState([]);
   // conditional context
   const [dataExist, setDataExist] = useState(false);
   const [isDataShown, setIsDataShown] = useState(true);
@@ -106,7 +107,7 @@ export const Reservation = ({ sectionId }) => {
     setIsFormOpen(false);
   };
 
-  const fetchAvailableTimes = async (date) => {
+  const fetchavailableHours = async (date) => {
     try {
       const formData = new FormData();
       formData.append("tgl", date);
@@ -116,10 +117,10 @@ export const Reservation = ({ sectionId }) => {
       });
 
       const data = response.data;
-      setAvailableTimes(data.data.map((item) => item.reservationtime));
+      setBookedHours(data.data.map((item) => item.reservationtime));
     } catch (error) {
-      console.error("error fetching available times:", error);
-      setAvailableTimes([]);
+      console.error("error fetching booked hours:", error);
+      setBookedHours([]);
     }
   };
 
@@ -184,7 +185,7 @@ export const Reservation = ({ sectionId }) => {
     }
 
     if (name === "reservationdate") {
-      fetchAvailableTimes(value);
+      fetchavailableHours(value);
     }
   };
 
@@ -323,6 +324,10 @@ export const Reservation = ({ sectionId }) => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    setAvailableHours(hours.filter((hour) => !bookedHours.includes(hour)));
+  }, [bookedHours]);
 
   useEffect(() => {
     setIsDataShown(filteredData.length > 0);
@@ -506,9 +511,9 @@ export const Reservation = ({ sectionId }) => {
               labelText="Jam Reservasi"
               name="reservationtime"
               placeholder={inputData.reservationdate ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"}
-              options={availableTimes.map((time) => ({
-                value: time,
-                label: time,
+              options={availableHours.map((hour) => ({
+                value: hour,
+                label: hour,
               }))}
               value={inputData.reservationtime}
               onSelect={(selectedValue) =>

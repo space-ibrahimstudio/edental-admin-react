@@ -33,10 +33,7 @@ export function LoadingScreen() {
 export function LoadingElement() {
   return (
     <div className={styles.loadingCircle}>
-      <div
-        className={styles.loadingCircleBody}
-        style={{ padding: "0", gap: "4px" }}
-      >
+      <div className={styles.loadingCircleBody} style={{ padding: "0", gap: "4px" }}>
         <div className={styles.circleBodySm} />
         <div className={styles.circleBodySm} />
         <div className={styles.circleBodySm} />

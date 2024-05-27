@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
-import { Nav } from "../components/navigator/nav";
+import Navbar from "../components/navigator/navbar";
 import { PageScreen } from "../components/layout/page-screen";
 import { Accounting } from "../sections/accounting";
 import { BranchList } from "../sections/branch-list";
@@ -73,7 +73,7 @@ const Dashboard = () => {
       <Helmet>
         <title>Dashboard{pageTitle}</title>
       </Helmet>
-      <Nav />
+      <Navbar />
       <PageScreen pageId={`dashboard-${pageId}`} variant="section">
         <RenderSectionContent sectionId={activeTab || "overview"} />
       </PageScreen>

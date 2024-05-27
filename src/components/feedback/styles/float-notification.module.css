@@ -18,13 +18,13 @@
 
 .notifFloatContent {
   flex: 1;
-  border-radius: 10px;
-  background-color: var(--color-blue);
-  padding: 20px;
+  border-radius: var(--pixel-10);
+  background-color: var(--color-primary);
+  padding: var(--pixel-20);
   max-width: 600px;
   text-align: center;
-  font-size: var(--font-graph);
-  color: var(--color-white);
+  font-size: var(--font-sm);
+  color: var(--color-secondlight);
   font-family: var(--font-dm);
 }
 
@@ -34,7 +34,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  padding: 10px 60px;
+  padding: var(--pixel-10) var(--pixel-60);
   z-index: 10000;
   animation-name: slideFromTop;
   animation-duration: 0.3s;
@@ -52,7 +52,7 @@
 @keyframes slideFromTop {
   from {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(var(--pixel-min-30));
   }
   to {
     opacity: 1;
@@ -67,6 +67,6 @@
   }
   to {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(var(--pixel-min-30));
   }
 }

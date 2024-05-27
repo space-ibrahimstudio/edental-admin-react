@@ -1,9 +1,28 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./styles/float-notification.module.css";
 
-export function FloatNotification({ type, message, onClose }) {
+export const FloatNotification = ({ type, message, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const ref = useRef(null);
+
+  const notifStyles = () => {
+    let backgroundColor;
+    switch (type) {
+      case "danger":
+        backgroundColor = "var(--color-red)";
+        break;
+      case "warning":
+        backgroundColor = "var(--color-yellow)";
+        break;
+      case "success":
+        backgroundColor = "var(--color-primary)";
+        break;
+      default:
+        break;
+    }
+
+    return { backgroundColor };
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -14,63 +33,24 @@ export function FloatNotification({ type, message, onClose }) {
     return () => clearTimeout(timer);
   }, [isClosing, onClose]);
 
-  const handleClickOutside = (event) => {
-    if (ref.current && !ref.current.contains(event.target)) {
-      setIsClosing(true);
-      onClose();
-    }
-  };
-
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setIsClosing(true);
+        onClose();
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  if (type === "danger") {
-    return (
-      <section
-        className={`${styles.notifFloat} ${isClosing ? styles.out : styles.in}`}
-        ref={ref}
-      >
-        <main
-          className={styles.notifFloatContent}
-          style={{ backgroundColor: "var(--color-red)" }}
-        >
-          <p className={styles.notifFloatContentText}>{message}</p>
-        </main>
-      </section>
-    );
-  } else if (type === "warning") {
-    return (
-      <section
-        className={`${styles.notifFloat} ${isClosing ? styles.out : styles.in}`}
-        ref={ref}
-      >
-        <main
-          className={styles.notifFloatContent}
-          style={{ backgroundColor: "var(--color-yellow)" }}
-        >
-          <p className={styles.notifFloatContentText}>{message}</p>
-        </main>
-      </section>
-    );
-  } else if (type === "success") {
-    return (
-      <section
-        className={`${styles.notifFloat} ${isClosing ? styles.out : styles.in}`}
-        ref={ref}
-      >
-        <main
-          className={styles.notifFloatContent}
-          style={{ backgroundColor: "var(--color-blue)" }}
-        >
-          <p className={styles.notifFloatContentText}>{message}</p>
-        </main>
-      </section>
-    );
-  } else {
-    return null;
-  }
-}
+  return (
+    <section className={`${styles.notifFloat} ${isClosing ? styles.out : styles.in}`} ref={ref}>
+      <main className={styles.notifFloatContent} style={notifStyles()}>
+        <p className={styles.notifFloatContentText}>{message}</p>
+      </main>
+    </section>
+  );
+};

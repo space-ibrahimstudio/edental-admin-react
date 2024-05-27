@@ -5,8 +5,8 @@
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  padding: 10px;
-  gap: 10px;
+  padding: var(--pixel-10);
+  gap: var(--pixel-10);
 }
 
 .formTitle {
@@ -29,17 +29,17 @@
 }
 
 .formInputWrap {
-  width: 350px;
-  max-width: 350px;
+  width: var(--pixel-350);
+  max-width: var(--pixel-350);
 }
 
 .formHead {
   align-self: stretch;
-  padding: 10px;
-  gap: 20px;
+  padding: var(--pixel-10);
+  gap: var(--pixel-20);
   text-align: left;
-  font-size: 25px;
-  color: var(--color-blue);
+  font-size: var(--font-md);
+  color: var(--color-primary);
   font-family: var(--font-jakarta);
 }
 
@@ -50,12 +50,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 10px;
-  gap: 10px;
+  padding: var(--pixel-10);
+  gap: var(--pixel-10);
 }
 
 .onpageForm {
   margin: 0;
-  border-radius: 20px;
-  background-color: var(--color-white-second);
+  border-radius: var(--pixel-20);
+  background-color: var(--color-light);
 }

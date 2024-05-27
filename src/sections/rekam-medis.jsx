@@ -5,21 +5,9 @@ import { Button } from "@ibrahimstudio/button";
 import { formatDate } from "@ibrahimstudio/function";
 import { fetchAllDataList, fetchDataList } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
-import {
-  OnpageForm,
-  FormHead,
-  FormTitle,
-  FormTitleWrap,
-  FormBody,
-  FormFooter,
-} from "../components/user-input/onpage-form";
+import { OnpageForm, FormHead, FormTitle, FormTitleWrap, FormBody, FormFooter } from "../components/user-input/onpage-form";
 import { PlusIcon, CheckIcon } from "../components/layout/icons";
-import {
-  TableData,
-  TableRow,
-  TableHeadValue,
-  TableBodyValue,
-} from "../components/layout/tables";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
 import { InputWrapper } from "../components/user-input/inputs";
 import styles from "./styles/tabel-section.module.css";
 
@@ -79,8 +67,16 @@ export const MedicRecord = ({ sectionId }) => {
     { id: "4", label: "Pemakaian Alkes" },
   ];
 
+  const subTab3Button = [
+    { id: "1", label: "Profil" },
+    { id: "2", label: "Histori Reservasi" },
+    { id: "3", label: "Histori Order" },
+  ];
+
   const subTabButton = (id) => {
-    if (id === "2") {
+    if (id === "1") {
+      setSubTab(subTab3Button);
+    } else if (id === "2") {
       setSubTab(subTab1Button);
     } else if (id === "3") {
       setSubTab(subTab2Button);
@@ -145,69 +141,91 @@ export const MedicRecord = ({ sectionId }) => {
   const renderOnpageForm = () => {
     switch (tabId) {
       case "1":
-        return (
-          <OnpageForm>
-            <FormHead>
-              <FormTitle text="Update Informasi Pribadi" />
-            </FormHead>
-            <FormBody>
-              <InputWrapper>
-                <Input
-                  id="reservation-user-name"
-                  labelText="Nama Pelanggan"
-                  placeholder="e.g. John Doe"
-                  type="text"
-                  name="name"
-                  value={inputData.name}
-                  onChange={handleInputChange}
-                  errorContent={errors.name}
-                  isRequired
-                />
-                <Input
-                  id="reservation-user-phone"
-                  labelText="Nomor Telepon"
-                  placeholder="0882xxx"
-                  type="tel"
-                  name="phone"
-                  value={inputData.phone}
-                  onChange={handleInputChange}
-                  errorContent={errors.phone}
-                />
-                <Input
-                  id="reservation-user-email"
-                  labelText="Email"
-                  placeholder="customer@gmail.com"
-                  type="email"
-                  name="email"
-                  value={inputData.email}
-                  onChange={handleInputChange}
-                  errorContent={errors.email}
-                />
-              </InputWrapper>
-              <InputWrapper>
-                <Input
-                  id="reservation-user-address"
-                  labelText="Alamat"
-                  placeholder="123 Main Street"
-                  type="text"
-                  name="address"
-                  value={inputData.address}
-                  onChange={handleInputChange}
-                  errorContent={errors.address}
-                />
-              </InputWrapper>
-            </FormBody>
-            <FormFooter>
-              <Button
-                id="handle-form-submit"
-                radius="full"
-                type="submit"
-                buttonText="Simpan Perubahan"
-                startContent={<CheckIcon width="12px" height="100%" />}
-              />
-            </FormFooter>
-          </OnpageForm>
-        );
+        switch (subTabId) {
+          case "1":
+            return (
+              <Fragment>
+                {subTab.length > 0 && (
+                  <FormHead>
+                    <ButtonGroup>
+                      {subTab.map((button, index) => (
+                        <Button
+                          key={index}
+                          id={button.id}
+                          size="sm"
+                          color={subTabId === button.id ? "var(--color-foreground)" : "var(--color-secondary)"}
+                          variant={subTabId === button.id ? "fill" : "hollow"}
+                          buttonText={button.label}
+                          onClick={() => handleSubTabChange(button.id)}
+                        />
+                      ))}
+                    </ButtonGroup>
+                  </FormHead>
+                )}
+                <OnpageForm>
+                  <FormHead>
+                    <FormTitle text="Update Informasi Pribadi" />
+                  </FormHead>
+                  <FormBody>
+                    <InputWrapper>
+                      <Input
+                        id="reservation-user-name"
+                        labelText="Nama Pelanggan"
+                        placeholder="e.g. John Doe"
+                        type="text"
+                        name="name"
+                        value={inputData.name}
+                        onChange={handleInputChange}
+                        errorContent={errors.name}
+                        isRequired
+                      />
+                      <Input
+                        id="reservation-user-phone"
+                        labelText="Nomor Telepon"
+                        placeholder="0882xxx"
+                        type="tel"
+                        name="phone"
+                        value={inputData.phone}
+                        onChange={handleInputChange}
+                        errorContent={errors.phone}
+                      />
+                      <Input
+                        id="reservation-user-email"
+                        labelText="Email"
+                        placeholder="customer@gmail.com"
+                        type="email"
+                        name="email"
+                        value={inputData.email}
+                        onChange={handleInputChange}
+                        errorContent={errors.email}
+                      />
+                    </InputWrapper>
+                    <InputWrapper>
+                      <Input
+                        id="reservation-user-address"
+                        labelText="Alamat"
+                        placeholder="123 Main Street"
+                        type="text"
+                        name="address"
+                        value={inputData.address}
+                        onChange={handleInputChange}
+                        errorContent={errors.address}
+                      />
+                    </InputWrapper>
+                  </FormBody>
+                  <FormFooter>
+                    <Button
+                      id="handle-form-submit"
+                      radius="full"
+                      type="submit"
+                      buttonText="Simpan Perubahan"
+                      startContent={<CheckIcon width="12px" height="100%" />}
+                    />
+                  </FormFooter>
+                </OnpageForm>
+              </Fragment>
+            );
+        }
       case "2":
         switch (subTabId) {
           case "1":
@@ -221,11 +239,7 @@ export const MedicRecord = ({ sectionId }) => {
                           key={index}
                           id={button.id}
                           size="sm"
-                          color={
-                            subTabId === button.id
-                              ? "var(--color-foreground)"
-                              : "var(--color-darkblue)"
-                          }
+                          color={subTabId === button.id ? "var(--color-foreground)" : "var(--color-secondary)"}
                           variant={subTabId === button.id ? "fill" : "hollow"}
                           buttonText={button.label}
                           onClick={() => handleSubTabChange(button.id)}
@@ -234,20 +248,11 @@ export const MedicRecord = ({ sectionId }) => {
                     </ButtonGroup>
                   </FormHead>
                 )}
-                <TableData
-                  headerData={tableHeadData}
-                  dataShown={isDataShown}
-                  loading={isFetching}
-                >
+                <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
                   {filteredData.map((reserve, index) => (
                     <TableRow key={index} isEven={index % 2 === 0}>
-                      <TableBodyValue
-                        type="num"
-                        value={(currentPage - 1) * limit + index + 1}
-                      />
-                      <TableBodyValue
-                        value={formatDate(reserve.datetimecreate, "en-gb")}
-                      />
+                      <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
+                      <TableBodyValue value={formatDate(reserve.datetimecreate, "en-gb")} />
                       <TableBodyValue value={reserve.reservationdate} />
                       <TableBodyValue value={reserve.reservationtime} />
                       <TableBodyValue value={reserve.rscode} />
@@ -257,10 +262,7 @@ export const MedicRecord = ({ sectionId }) => {
                       <TableBodyValue value={reserve.service} />
                       <TableBodyValue value={reserve.typeservice} />
                       <TableBodyValue value={reserve.voucher} />
-                      <TableBodyValue
-                        value={reserve.outlet_name}
-                        position="end"
-                      />
+                      <TableBodyValue value={reserve.outlet_name} position="end" />
                     </TableRow>
                   ))}
                 </TableData>
@@ -295,11 +297,7 @@ export const MedicRecord = ({ sectionId }) => {
                           key={index}
                           id={button.id}
                           size="sm"
-                          color={
-                            subTabId === button.id
-                              ? "var(--color-foreground)"
-                              : "var(--color-darkblue)"
-                          }
+                          color={subTabId === button.id ? "var(--color-foreground)" : "var(--color-secondary)"}
                           variant={subTabId === button.id ? "fill" : "hollow"}
                           buttonText={button.label}
                           onClick={() => handleSubTabChange(button.id)}
@@ -308,20 +306,11 @@ export const MedicRecord = ({ sectionId }) => {
                     </ButtonGroup>
                   </FormHead>
                 )}
-                <TableData
-                  headerData={tableHeadData}
-                  dataShown={isDataShown}
-                  loading={isFetching}
-                >
+                <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
                   {filteredData.map((reserve, index) => (
                     <TableRow key={index} isEven={index % 2 === 0}>
-                      <TableBodyValue
-                        type="num"
-                        value={(currentPage - 1) * limit + index + 1}
-                      />
-                      <TableBodyValue
-                        value={formatDate(reserve.datetimecreate, "en-gb")}
-                      />
+                      <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
+                      <TableBodyValue value={formatDate(reserve.datetimecreate, "en-gb")} />
                       <TableBodyValue value={reserve.reservationdate} />
                       <TableBodyValue value={reserve.reservationtime} />
                       <TableBodyValue value={reserve.rscode} />
@@ -331,10 +320,7 @@ export const MedicRecord = ({ sectionId }) => {
                       <TableBodyValue value={reserve.service} />
                       <TableBodyValue value={reserve.typeservice} />
                       <TableBodyValue value={reserve.voucher} />
-                      <TableBodyValue
-                        value={reserve.outlet_name}
-                        position="end"
-                      />
+                      <TableBodyValue value={reserve.outlet_name} position="end" />
                     </TableRow>
                   ))}
                 </TableData>
@@ -378,11 +364,7 @@ export const MedicRecord = ({ sectionId }) => {
                           key={index}
                           id={button.id}
                           size="sm"
-                          color={
-                            subTabId === button.id
-                              ? "var(--color-foreground)"
-                              : "var(--color-darkblue)"
-                          }
+                          color={subTabId === button.id ? "var(--color-foreground)" : "var(--color-secondary)"}
                           variant={subTabId === button.id ? "fill" : "hollow"}
                           buttonText={button.label}
                           onClick={() => handleSubTabChange(button.id)}
@@ -391,20 +373,11 @@ export const MedicRecord = ({ sectionId }) => {
                     </ButtonGroup>
                   </FormHead>
                 )}
-                <TableData
-                  headerData={tableHeadData}
-                  dataShown={isDataShown}
-                  loading={isFetching}
-                >
+                <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
                   {filteredData.map((reserve, index) => (
                     <TableRow key={index} isEven={index % 2 === 0}>
-                      <TableBodyValue
-                        type="num"
-                        value={(currentPage - 1) * limit + index + 1}
-                      />
-                      <TableBodyValue
-                        value={formatDate(reserve.datetimecreate, "en-gb")}
-                      />
+                      <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
+                      <TableBodyValue value={formatDate(reserve.datetimecreate, "en-gb")} />
                       <TableBodyValue value={reserve.reservationdate} />
                       <TableBodyValue value={reserve.reservationtime} />
                       <TableBodyValue value={reserve.rscode} />
@@ -414,10 +387,7 @@ export const MedicRecord = ({ sectionId }) => {
                       <TableBodyValue value={reserve.service} />
                       <TableBodyValue value={reserve.typeservice} />
                       <TableBodyValue value={reserve.voucher} />
-                      <TableBodyValue
-                        value={reserve.outlet_name}
-                        position="end"
-                      />
+                      <TableBodyValue value={reserve.outlet_name} position="end" />
                     </TableRow>
                   ))}
                 </TableData>
@@ -435,11 +405,7 @@ export const MedicRecord = ({ sectionId }) => {
                       key={index}
                       id={button.id}
                       size="sm"
-                      color={
-                        subTabId === button.id
-                          ? "var(--color-foreground)"
-                          : "var(--color-darkblue)"
-                      }
+                      color={subTabId === button.id ? "var(--color-foreground)" : "var(--color-secondary)"}
                       variant={subTabId === button.id ? "fill" : "hollow"}
                       buttonText={button.label}
                       onClick={() => handleSubTabChange(button.id)}
@@ -448,20 +414,11 @@ export const MedicRecord = ({ sectionId }) => {
                 </ButtonGroup>
               </FormHead>
             )}
-            <TableData
-              headerData={tableHeadData}
-              dataShown={isDataShown}
-              loading={isFetching}
-            >
+            <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
               {filteredData.map((reserve, index) => (
                 <TableRow key={index} isEven={index % 2 === 0}>
-                  <TableBodyValue
-                    type="num"
-                    value={(currentPage - 1) * limit + index + 1}
-                  />
-                  <TableBodyValue
-                    value={formatDate(reserve.datetimecreate, "en-gb")}
-                  />
+                  <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
+                  <TableBodyValue value={formatDate(reserve.datetimecreate, "en-gb")} />
                   <TableBodyValue value={reserve.reservationdate} />
                   <TableBodyValue value={reserve.reservationtime} />
                   <TableBodyValue value={reserve.rscode} />
@@ -559,11 +516,7 @@ export const MedicRecord = ({ sectionId }) => {
                 key={index}
                 id={button.id}
                 size="sm"
-                color={
-                  tabId === button.id
-                    ? "var(--color-foreground)"
-                    : "var(--color-darkblue)"
-                }
+                color={tabId === button.id ? "var(--color-foreground)" : "var(--color-secondary)"}
                 variant={tabId === button.id ? "fill" : "hollow"}
                 buttonText={button.label}
                 onClick={() => handleTabChange(button.id)}
@@ -571,12 +524,7 @@ export const MedicRecord = ({ sectionId }) => {
             ))}
           </ButtonGroup>
           {tabId !== "1" && (
-            <Button
-              id="add-new-data"
-              radius="full"
-              buttonText="Tambah Baru"
-              startContent={<PlusIcon width="17px" height="100%" />}
-            />
+            <Button id="add-new-data" radius="full" buttonText="Tambah Baru" startContent={<PlusIcon width="17px" height="100%" />} />
           )}
         </InputWrapper>
       </div>

@@ -1,6 +1,6 @@
 .navMenuTabText {
   position: relative;
-  font-size: 14px;
+  font-size: var(--font-mini);
   font-family: var(--font-dm);
   font-weight: 600;
   color: inherit;
@@ -14,19 +14,19 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  gap: 10px;
+  gap: var(--pixel-10);
   border: 1px solid transparent;
-  padding: 10px 15px;
+  padding: var(--pixel-10) var(--pixel-15);
   background-color: transparent;
-  color: var(--color-darkblue);
-  border-radius: 100px;
+  color: var(--color-secondary);
+  border-radius: var(--pixel-100);
   box-sizing: border-box;
-  height: 40px;
+  height: var(--pixel-40);
   transition: all 0.3s ease-in-out;
 }
 
 .navMenuTab:hover {
-  color: var(--color-blue);
+  color: var(--color-primary);
 }
 
 .navMenuTab:focus {
@@ -34,14 +34,14 @@
 }
 
 .active {
-  border: 1px dashed var(--color-blue);
-  color: var(--color-blue);
+  border: 1px dashed var(--color-primary);
+  color: var(--color-primary);
 }
 
 .dropdownButtonText {
   flex: 1;
   position: relative;
-  font-size: 14px;
+  font-size: var(--font-mini);
   font-family: var(--font-dm);
   font-weight: 600;
   color: inherit;
@@ -54,7 +54,7 @@
   color: inherit;
   flex-direction: row;
   justify-content: center;
-  transform: translateX(-10px);
+  transform: translateX(var(--pixel-min-10));
   transition: all 0.3s ease-in-out;
 }
 
@@ -73,32 +73,31 @@
 .dropdownButton {
   cursor: pointer;
   border: 1px solid transparent;
-  padding: 10px 15px;
+  padding: var(--pixel-10) var(--pixel-15);
   background-color: transparent;
   align-self: stretch;
   box-sizing: border-box;
-  height: 40px;
-  color: var(--color-semidarkblue);
+  height: var(--pixel-40);
+  color: var(--color-hint);
   flex-direction: row;
   justify-content: center;
-  gap: 10px;
+  gap: var(--pixel-10);
   transition: all 0.3s ease-in-out;
 }
 
 .dropdownButton:hover {
-  background-color: var(--color-blue-5);
+  background-color: var(--color-primary-5);
 }
 
 .dropdown {
   position: absolute;
   top: 45px;
   left: 0;
-  border-radius: 10px;
-  background-color: var(--color-white-second);
-  box-shadow: 0 10px 3px transparent, 0 7px 3px transparent,
-    0 4px 2px rgba(0, 0, 0, 0.02), 0 2px 2px rgba(0, 0, 0, 0.03),
+  border-radius: var(--pixel-10);
+  background-color: var(--color-light);
+  box-shadow: 0 var(--pixel-10) 3px transparent, 0 7px 3px transparent, 0 4px 2px rgba(0, 0, 0, 0.02), 0 2px 2px rgba(0, 0, 0, 0.03),
     0 0 1px rgba(0, 0, 0, 0.03);
-  width: 200px;
+  width: var(--pixel-200);
   overflow: hidden;
   flex-direction: column;
   justify-content: flex-start;
@@ -121,7 +120,7 @@
 @keyframes instantReveal {
   from {
     opacity: 0;
-    transform: translateY(-15px);
+    transform: translateY(var(--pixel-min-15));
   }
   to {
     opacity: 1;
@@ -136,6 +135,6 @@
   }
   to {
     opacity: 0;
-    transform: translateY(-15px);
+    transform: translateY(var(--pixel-min-15));
   }
 }

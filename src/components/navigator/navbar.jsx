@@ -3,18 +3,13 @@ import { Button } from "@ibrahimstudio/button";
 import { useNavigate } from "react-router-dom";
 import { fetchTabMenus } from "../tools/data";
 import { handleLogout } from "../tools/handler";
-import {
-  LogoPrimary,
-  UserAvatar,
-  BellNotification,
-  ExitIcon,
-} from "../layout/icons";
+import { LogoPrimary, UserAvatar, BellNotification, ExitIcon } from "../layout/icons";
 import { TabButton, DropDownButton } from "../user-input/buttons";
 import { useNotifications } from "../feedback/context/notifications-context";
 import { toPathname, toTitleCase } from "../tools/controller";
 import styles from "./styles/nav.module.css";
 
-export function Nav() {
+const Navbar = () => {
   const [tabMenus, setTabMenus] = useState([]);
 
   const navigate = useNavigate();
@@ -70,12 +65,7 @@ export function Nav() {
                     <DropDownButton
                       key={submenu.idsubmenu}
                       buttonText={toTitleCase(submenu.submenu_name)}
-                      onClick={() =>
-                        SubTabClick(
-                          menu["Menu Utama"].menu_name,
-                          submenu.submenu_name
-                        )
-                      }
+                      onClick={() => SubTabClick(menu["Menu Utama"].menu_name, submenu.submenu_name)}
                     />
                   ))}
               </TabButton>
@@ -95,7 +85,7 @@ export function Nav() {
             id="logout"
             size="sm"
             radius="full"
-            bgColor="var(--color-semidarkblue)"
+            bgColor="var(--color-hint)"
             buttonText="Log out"
             endContent={<ExitIcon width="14px" height="100%" />}
             onClick={logoutClick}
@@ -104,4 +94,6 @@ export function Nav() {
       </div>
     </nav>
   );
-}
+};
+
+export default Navbar;

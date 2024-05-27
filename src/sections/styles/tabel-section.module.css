@@ -17,10 +17,10 @@
   align-items: center;
   justify-content: flex-start;
   align-self: stretch;
-  padding: 30px 40px;
-  gap: 20px;
+  padding: var(--pixel-30) var(--pixel-40);
+  gap: var(--pixel-20);
   text-align: center;
-  font-size: 35px;
+  font-size: var(--font-lg);
   color: #045e83;
   font-family: var(--font-jakarta);
 }

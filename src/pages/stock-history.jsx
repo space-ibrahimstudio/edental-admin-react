@@ -7,15 +7,10 @@ import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 import { PageScreen } from "../components/layout/page-screen";
-import { Nav } from "../components/navigator/nav";
+import Navbar from "../components/navigator/navbar";
 import { fetchLogStock } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
-import {
-  TableData,
-  TableRow,
-  TableHeadValue,
-  TableBodyValue,
-} from "../components/layout/tables";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
 import { InputWrapper } from "../components/user-input/inputs";
 import { ArrowIcon } from "../components/layout/icons";
 import styles from "../sections/styles/tabel-section.module.css";
@@ -97,20 +92,16 @@ const StockHistory = () => {
       <Helmet>
         <title>{toTitleCase(stockName)} Stock History</title>
       </Helmet>
-      <Nav />
+      <Navbar />
       <section className={styles.tabelSection}>
-        <b className={styles.tabelSectionTitle}>
-          History Stock for {toTitleCase(stockName)}
-        </b>
+        <b className={styles.tabelSectionTitle}>History Stock for {toTitleCase(stockName)}</b>
         <div className={styles.tabelSectionNav}>
           <InputWrapper>
             <Button
               id={`${stockName}-back-previous-page`}
               buttonText="Kembali"
               radius="full"
-              startContent={
-                <ArrowIcon direction="left" width="17px" height="100%" />
-              }
+              startContent={<ArrowIcon direction="left" width="17px" height="100%" />}
               onClick={goBack}
             />
             <Button
@@ -118,9 +109,7 @@ const StockHistory = () => {
               buttonText="Export ke Excel"
               radius="full"
               bgColor="var(--color-green)"
-              onClick={() =>
-                exportToExcel(filteredData, "Histori Stok", "histori_stok")
-              }
+              onClick={() => exportToExcel(filteredData, "Histori Stok", "histori_stok")}
             />
           </InputWrapper>
           <InputWrapper>
@@ -144,18 +133,12 @@ const StockHistory = () => {
             />
           </InputWrapper>
         </div>
-        <TableData
-          headerData={tableHeadData}
-          loading={isFetching}
-          dataShown={isDataShown}
-        >
+        <TableData headerData={tableHeadData} loading={isFetching} dataShown={isDataShown}>
           {filteredData.map((history, index) => (
             <TableRow key={index} isEven={index % 2 === 0}>
               <TableBodyValue type="num" value={index + 1} />
               <TableBodyValue value={history.sku} />
-              <TableBodyValue
-                value={formatDate(history.logstockcreate, "en-gb")}
-              />
+              <TableBodyValue value={formatDate(history.logstockcreate, "en-gb")} />
               <TableBodyValue value={history.status} />
               <TableBodyValue value={history.value} />
               <TableBodyValue value={history.qty} />

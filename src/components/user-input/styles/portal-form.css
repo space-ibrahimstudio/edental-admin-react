@@ -2,10 +2,10 @@
   margin: 0;
   align-self: stretch;
   position: relative;
-  font-size: var(--font-subtitle);
+  font-size: var(--font-md);
   font-weight: 600;
   font-family: var(--font-jakarta);
-  color: var(--color-semidarkblue);
+  color: var(--color-hint);
   text-align: center;
 }
 
@@ -16,14 +16,14 @@
   justify-content: flex-start;
   overflow: hidden;
   flex-direction: column;
-  color: var(--color-blue);
-  gap: 10px;
+  color: var(--color-primary);
+  gap: var(--pixel-10);
 }
 
 .form-footer-button-text {
-  font-size: var(--font-graph);
+  font-size: var(--font-sm);
   font-weight: 600;
-  color: var(--color-white);
+  color: var(--color-secondlight);
   text-align: left;
   margin: 0;
   position: relative;
@@ -33,10 +33,10 @@
 .form-footer-button {
   cursor: pointer;
   border: 0;
-  padding: 15px;
-  background-color: var(--color-blue);
+  padding: var(--pixel-15);
+  background-color: var(--color-primary);
   align-self: stretch;
-  border-radius: 10px;
+  border-radius: var(--pixel-10);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -46,12 +46,12 @@
 
 .form-footer-button.off {
   pointer-events: none;
-  background-color: var(--color-darkblue-50);
+  background-color: var(--color-secondary-50);
 }
 
 .form-footer-link {
   cursor: pointer;
-  color: var(--color-blue);
+  color: var(--color-primary);
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease-in-out;
@@ -65,11 +65,11 @@
   margin: 0;
   align-self: stretch;
   position: relative;
-  font-size: var(--font-small);
+  font-size: var(--font-mini);
   font-weight: 600;
   font-family: var(--font-dm);
   text-align: center;
-  color: var(--color-darkblue);
+  color: var(--color-secondary);
 }
 
 .form,
@@ -83,7 +83,7 @@
 .form-footer {
   align-self: stretch;
   justify-content: flex-start;
-  gap: 10px;
+  gap: var(--pixel-10);
 }
 
 .form,
@@ -94,12 +94,12 @@
 .form {
   margin: 0;
   width: 352px;
-  border-radius: 20px;
-  background-color: var(--color-white-second);
+  border-radius: var(--pixel-20);
+  background-color: var(--color-light);
   overflow: hidden;
-  padding: 40px 25px;
+  padding: var(--pixel-40) var(--pixel-25);
   box-sizing: border-box;
-  gap: 25px;
+  gap: var(--pixel-25);
   z-index: 0;
   animation-name: slideFromBottom;
   animation-duration: 0.3s;
@@ -157,7 +157,7 @@
 @keyframes slideFromBottom {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(var(--pixel-30));
   }
   to {
     opacity: 1;
@@ -172,6 +172,6 @@
   }
   to {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(var(--pixel-30));
   }
 }

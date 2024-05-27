@@ -7,7 +7,7 @@ import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 import { handleCUDOrder } from "../components/tools/handler";
 import { PageScreen } from "../components/layout/page-screen";
-import { Nav } from "../components/navigator/nav";
+import Navbar from "../components/navigator/navbar";
 import { fetchDataList, fetchAllDataList, fetchDentistList } from "../components/tools/data";
 import { useNotifications } from "../components/feedback/context/notifications-context";
 import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
@@ -287,7 +287,7 @@ const DetailOrder = () => {
       <Helmet>
         <title>Order Detail no.{noInvoice}</title>
       </Helmet>
-      <Nav />
+      <Navbar />
       <section className={styles.tabelSection}>
         <b className={styles.tabelSectionTitle}>Order Detail for #{noInvoice}</b>
         <div className={styles.tabelSectionNav}>
@@ -447,7 +447,7 @@ const DetailOrder = () => {
               variant="hollow"
               size="sm"
               radius="full"
-              color="var(--color-semidarkblue)"
+              color="var(--color-hint)"
               buttonText="Tambah Order Item"
               startContent={<PlusIcon width="15px" height="100%" />}
               onClick={handleAddEditRow}

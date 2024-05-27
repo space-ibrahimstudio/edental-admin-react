@@ -1,0 +1,101 @@
+.loginBannerIcon {
+  align-self: stretch;
+  flex: 1;
+  border-radius: var(--pixel-20);
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.formLogoIcon {
+  width: 96px;
+  position: relative;
+  height: 25.8px;
+}
+
+.formTitle {
+  margin: 0;
+  align-self: stretch;
+  position: relative;
+  font-size: var(--font-md);
+  font-weight: 700;
+  font-family: "Plus Jakarta Sans";
+  color: #045e83;
+  text-align: center;
+}
+
+.formDesc {
+  margin: 0;
+  align-self: stretch;
+  position: relative;
+  font-size: var(--font-sm);
+  color: #0f3948;
+  text-align: center;
+}
+
+.formHead {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--pixel-15);
+}
+
+.formForgot {
+  margin: 0;
+  position: relative;
+  font-size: var(--font-xsm);
+  font-weight: 600;
+  font-family: Quicksand;
+  color: #3880eb;
+  text-align: center;
+}
+
+.formFoot {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.loginForm {
+  margin: 0;
+  flex: 1;
+  box-shadow: 0 19px 5px transparent, 0 12px 5px transparent, 0 7px 4px rgba(0, 0, 0, 0.01), 0 3px 3px rgba(0, 0, 0, 0.02),
+    0 1px 2px rgba(0, 0, 0, 0.02);
+  border-radius: var(--pixel-20);
+  background-color: #fdfdfd;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: var(--pixel-20);
+  box-sizing: border-box;
+  gap: var(--pixel-20);
+  max-width: var(--pixel-450);
+}
+
+.loginForm,
+.loginPage,
+.loginSection {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.loginSection {
+  align-self: stretch;
+  flex-direction: row;
+  justify-content: center;
+  padding: var(--pixel-40) var(--pixel-60);
+  gap: var(--pixel-20);
+}
+
+.loginPage {
+  width: 100%;
+  position: relative;
+  background-color: #f5f5f7;
+  flex-direction: column;
+  justify-content: flex-start;
+}

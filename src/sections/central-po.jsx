@@ -5,12 +5,7 @@ import { formatDate } from "@ibrahimstudio/function";
 import { fetchStockPO, fetchSearchData } from "../components/tools/data";
 import { handleCUDCentralPO } from "../components/tools/handler";
 import { useNotifications } from "../components/feedback/context/notifications-context";
-import {
-  TableData,
-  TableRow,
-  TableHeadValue,
-  TableBodyValue,
-} from "../components/layout/tables";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
 import { SubmitForm } from "../components/user-input/forms";
 import { InputWrapper, SearchInput } from "../components/user-input/inputs";
 import { PlusIcon, TrashIcon } from "../components/layout/icons";
@@ -85,16 +80,12 @@ export const CentralPO = ({ sectionId }) => {
     const { name, value } = e.target;
     setInputData((prevState) => ({
       ...prevState,
-      item: prevState.item.map((item, idx) =>
-        idx === index ? { ...item, [name]: value } : item
-      ),
+      item: prevState.item.map((item, idx) => (idx === index ? { ...item, [name]: value } : item)),
     }));
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      item: prevErrors.item.map((error, idx) =>
-        idx === index ? { ...error, [name]: "" } : error
-      ),
+      item: prevErrors.item.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)),
     }));
   };
 
@@ -124,42 +115,28 @@ export const CentralPO = ({ sectionId }) => {
     e.preventDefault();
 
     const isFieldEmpty = inputData.item.some(
-      (itemDetail) =>
-        itemDetail.itemname.trim() === "" ||
-        itemDetail.sku.trim() === "" ||
-        itemDetail.stockin.trim() === ""
+      (itemDetail) => itemDetail.itemname.trim() === "" || itemDetail.sku.trim() === "" || itemDetail.stockin.trim() === ""
     );
 
     if (isFieldEmpty) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         item: inputData.item.map((itemDetal) => ({
-          itemname:
-            itemDetal.itemname.trim() === ""
-              ? "Nama Item tidak boleh kosong"
-              : "",
+          itemname: itemDetal.itemname.trim() === "" ? "Nama Item tidak boleh kosong" : "",
           sku: itemDetal.sku.trim() === "" ? "SKU Item tidak boleh kosong" : "",
-          stockin:
-            itemDetal.stockin.trim() === ""
-              ? "Jumlah item tidak boleh kosong"
-              : "",
+          stockin: itemDetal.stockin.trim() === "" ? "Jumlah item tidak boleh kosong" : "",
         })),
       }));
       return;
     }
 
-    const isConfirmed = window.confirm(
-      "Apakah anda yakin untuk menambahkan data?"
-    );
+    const isConfirmed = window.confirm("Apakah anda yakin untuk menambahkan data?");
 
     if (isConfirmed) {
       try {
         setIsLoading(true);
         await handleCUDCentralPO(inputData);
-        showNotifications(
-          "success",
-          "Selamat! Permintaan PO Pusat baru berhasil ditambahkan."
-        );
+        showNotifications("success", "Selamat! Permintaan PO Pusat baru berhasil ditambahkan.");
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchStockPO(offset, limit, status, "viewpostock");
@@ -178,10 +155,7 @@ export const CentralPO = ({ sectionId }) => {
         closeForm();
       } catch (error) {
         console.error("Error occurred during submit central PO:", error);
-        showNotifications(
-          "danger",
-          "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsLoading(false);
       }
@@ -217,10 +191,7 @@ export const CentralPO = ({ sectionId }) => {
         }
       } catch (error) {
         console.error("Error fetching central PO data:", error);
-        showNotifications(
-          "danger",
-          "Gagal menampilkan data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menampilkan data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsFetching(false);
       }
@@ -290,11 +261,7 @@ export const CentralPO = ({ sectionId }) => {
           />
         </InputWrapper>
       </div>
-      <TableData
-        headerData={tableHeadData}
-        dataShown={isDataShown}
-        loading={isFetching}
-      >
+      <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((po, index) => (
           <TableRow
             type="expand"
@@ -306,24 +273,9 @@ export const CentralPO = ({ sectionId }) => {
                 {po["Detail PO"].map((detailPO, index) => (
                   <Fragment key={index}>
                     <InputWrapper width="100%">
-                      <Input
-                        id={`item-name-${index}`}
-                        labelText="Nama Item"
-                        value={detailPO.itemname}
-                        isReadonly
-                      />
-                      <Input
-                        id={`item-sku-${index}`}
-                        labelText="SKU Item"
-                        value={detailPO.sku}
-                        isReadonly
-                      />
-                      <Input
-                        id={`item-qty-${index}`}
-                        labelText="Jumlah Item"
-                        value={detailPO.qty}
-                        isReadonly
-                      />
+                      <Input id={`item-name-${index}`} labelText="Nama Item" value={detailPO.itemname} isReadonly />
+                      <Input id={`item-sku-${index}`} labelText="SKU Item" value={detailPO.sku} isReadonly />
+                      <Input id={`item-qty-${index}`} labelText="Jumlah Item" value={detailPO.qty} isReadonly />
                     </InputWrapper>
                     <InputWrapper width="100%">
                       <Input
@@ -340,25 +292,14 @@ export const CentralPO = ({ sectionId }) => {
               </Fragment>
             }
           >
-            <TableBodyValue
-              type="num"
-              value={(currentPage - 1) * limit + index + 1}
-            />
-            <TableBodyValue
-              value={formatDate(po["PO Stock"].postockcreate, "en-gb")}
-            />
+            <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
+            <TableBodyValue value={formatDate(po["PO Stock"].postockcreate, "en-gb")} />
             <TableBodyValue value={po["PO Stock"].postockcode} />
             <TableBodyValue value={po["PO Stock"].username} position="end" />
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && (
-        <PaginationV2
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
+      {isDataShown && <PaginationV2 currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
       {isFormOpen && (
         <SubmitForm
           formTitle="Form Permintaan PO Pusat"
@@ -462,7 +403,7 @@ export const CentralPO = ({ sectionId }) => {
             variant="hollow"
             size="sm"
             radius="full"
-            color="var(--color-semidarkblue)"
+            color="var(--color-hint)"
             buttonText="Tambah Data Item"
             startContent={<PlusIcon width="15px" height="100%" />}
             onClick={handleAddRow}

@@ -1,20 +1,20 @@
 .scnd-button-text {
   position: relative;
-  font-size: 14px;
+  font-size: var(--font-mini);
   font-family: var(--font-dm);
-  color: var(--color-white);
+  color: var(--color-secondlight);
   text-align: left;
 }
 
 .scnd-button {
   cursor: pointer;
-  border: 1px solid var(--color-semidarkblue);
-  padding: 10px 15px;
-  gap: 10px;
-  background-color: var(--color-semidarkblue);
-  border-radius: 100px;
+  border: 1px solid var(--color-hint);
+  padding: var(--pixel-10) var(--pixel-15);
+  gap: var(--pixel-10);
+  background-color: var(--color-hint);
+  border-radius: var(--pixel-100);
   box-sizing: border-box;
-  height: 40px;
+  height: var(--pixel-40);
   flex-direction: row;
   justify-content: center;
 }

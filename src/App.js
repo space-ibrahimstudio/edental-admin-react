@@ -63,39 +63,23 @@ function App() {
           <Routes>
             <Route path="/" element={<HomeReplace />} />
             <Route path="*" element={<ErrorScreen />} />
-            <Route
-              path="/dashboard"
-              element={<PrivateRoute element={<Dashboard />} />}
-            />
+            <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
             {Array.isArray(tabMenus) &&
               tabMenus.map((menu) => (
                 <Fragment key={menu["Menu Utama"].idmenu}>
-                  <Route
-                    path={`/dashboard/${toPathname(
-                      menu["Menu Utama"].menu_name
-                    )}`}
-                    element={<PrivateRoute element={<Dashboard />} />}
-                  />
+                  <Route path={`/dashboard/${toPathname(menu["Menu Utama"].menu_name)}`} element={<PrivateRoute element={<Dashboard />} />} />
                   {menu["Sub Menu"] &&
                     menu["Sub Menu"].map((submenu) => (
                       <Route
                         key={submenu.idsubmenu}
-                        path={`/dashboard/${toPathname(
-                          menu["Menu Utama"].menu_name
-                        )}/${toPathname(submenu.submenu_name)}`}
+                        path={`/dashboard/${toPathname(menu["Menu Utama"].menu_name)}/${toPathname(submenu.submenu_name)}`}
                         element={<PrivateRoute element={<Dashboard />} />}
                       />
                     ))}
                 </Fragment>
               ))}
-            <Route
-              path="/dashboard/warehouse/stock/:stockName"
-              element={<StockHistory />}
-            />
-            <Route
-              path="/dashboard/order/order-customer/:noInvoice"
-              element={<DetailOrder />}
-            />
+            <Route path="/dashboard/warehouse/stock/:stockName" element={<StockHistory />} />
+            <Route path="/dashboard/order/order-customer/:noInvoice" element={<DetailOrder />} />
           </Routes>
         </Fragment>
       )}

@@ -5,15 +5,15 @@
 }
 
 .circleBody {
-  width: 20px;
-  background-color: var(--color-blue);
-  height: 20px;
+  width: var(--pixel-20);
+  background-color: var(--color-primary);
+  height: var(--pixel-20);
   animation: circleBounce 0.3s alternate infinite ease;
 }
 
 .circleBodySm {
   width: 7px;
-  background-color: var(--color-white);
+  background-color: var(--color-secondlight);
   height: 7px;
   animation: circleBounceSm 0.3s alternate infinite ease;
 }
@@ -24,11 +24,11 @@
   }
 
   40% {
-    transform: translateY(-10px);
+    transform: translateY(var(--pixel-min-10));
   }
 
   100% {
-    transform: translateY(-20px);
+    transform: translateY(var(--pixel-min-20));
   }
 }
 
@@ -38,11 +38,11 @@
   }
 
   40% {
-    transform: translateY(-2px);
+    transform: translateY(var(--pixel-min-2));
   }
 
   100% {
-    transform: translateY(-6px);
+    transform: translateY(var(--pixel-min-5));
   }
 }
 
@@ -61,15 +61,15 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 10px 10px 0;
-  gap: 10px;
+  padding: var(--pixel-10) var(--pixel-10) 0;
+  gap: var(--pixel-10);
 }
 
 .circleShadow {
   position: relative;
   border-radius: 50%;
-  width: 20px;
-  background-color: var(--color-blue-30);
+  width: var(--pixel-20);
+  background-color: var(--color-primary-30);
   height: 4px;
   animation: shadowEase 0.3s alternate infinite ease;
 }
@@ -108,8 +108,8 @@
 .loadingCircleShadow {
   margin-top: -2px;
   flex-direction: row;
-  padding: 0 10px 10px;
-  gap: 10px;
+  padding: 0 var(--pixel-10) var(--pixel-10);
+  gap: var(--pixel-10);
 }
 
 .loadingCircle {
@@ -125,9 +125,9 @@
 }
 
 .loadingWrapper {
-  gap: 10px;
+  gap: var(--pixel-10);
   z-index: 0;
-  color: var(--color-semidarkblue);
+  color: var(--color-hint);
 }
 
 .loadingScreen {

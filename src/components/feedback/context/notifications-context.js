@@ -10,15 +10,6 @@ export function useNotifications() {
 export function NotificationsProvider({ children }) {
   const [notifications, setNotifications] = useState(null);
 
-  useEffect(() => {
-    const savedNotifications = JSON.parse(
-      sessionStorage.getItem("notifications")
-    );
-    if (savedNotifications) {
-      setNotifications(savedNotifications);
-    }
-  }, []);
-
   const showNotifications = (type, message, onClose) => {
     const newNotification = { type, message, onClose };
     setNotifications(newNotification);
@@ -30,10 +21,15 @@ export function NotificationsProvider({ children }) {
     sessionStorage.removeItem("notifications");
   };
 
+  useEffect(() => {
+    const savedNotifications = JSON.parse(sessionStorage.getItem("notifications"));
+    if (savedNotifications) {
+      setNotifications(savedNotifications);
+    }
+  }, []);
+
   return (
-    <NotificationsContext.Provider
-      value={{ showNotifications, hideNotifications }}
-    >
+    <NotificationsContext.Provider value={{ showNotifications, hideNotifications }}>
       {children}
       {notifications && (
         <FloatNotification
