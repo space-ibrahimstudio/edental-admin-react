@@ -3,7 +3,7 @@ import { Button } from "@ibrahimstudio/button";
 import { useNavigate } from "react-router-dom";
 import { fetchTabMenus } from "../../libs/sources/data";
 import { handleLogout } from "../../libs/plugins/handler";
-import { LogoPrimary, UserAvatar, BellNotification, ExitIcon } from "../layouts/icons";
+import { LogoPrimary, ExitIcon } from "../layouts/icons";
 import { TabButton, DropDownButton } from "../input-controls/buttons";
 import { useNotifications } from "../feedbacks/context/notifications-context";
 import { toPathname, toTitleCase } from "../../libs/plugins/controller";
@@ -71,7 +71,16 @@ const Navbar = () => {
               </TabButton>
             ))}
         </div>
-        <div className={styles.navOption}>
+        <Button
+          id="logout"
+          size="sm"
+          radius="full"
+          bgColor="var(--color-hint)"
+          buttonText="Log out"
+          endContent={<ExitIcon width="14px" height="100%" />}
+          onClick={logoutClick}
+        />
+        {/* <div className={styles.navOption}>
           <div className={styles.navNotif}>
             <BellNotification width="100%" height="25px" />
             <div className={styles.navNotifCounter}>
@@ -81,16 +90,7 @@ const Navbar = () => {
           <div className={styles.navUser}>
             <UserAvatar width="37.6px" height="100%" />
           </div>
-          <Button
-            id="logout"
-            size="sm"
-            radius="full"
-            bgColor="var(--color-hint)"
-            buttonText="Log out"
-            endContent={<ExitIcon width="14px" height="100%" />}
-            onClick={logoutClick}
-          />
-        </div>
+        </div> */}
       </div>
     </nav>
   );

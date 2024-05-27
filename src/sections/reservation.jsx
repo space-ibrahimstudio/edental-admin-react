@@ -499,7 +499,7 @@ export const Reservation = ({ sectionId }) => {
               type="date"
               placeholder="Atur tanggal"
               name="reservationdate"
-              min={getCurrentDate()}
+              // min={getCurrentDate()}
               value={inputData.reservationdate}
               onChange={handleInputChange}
               errorContent={errors.reservationdate}
