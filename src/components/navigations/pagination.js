@@ -2,7 +2,7 @@ import React from "react";
 import { ChevronIcon } from "@ibrahimstudio/icons";
 import styles from "./styles/pagination.module.css";
 
-export const PaginationV2 = ({ currentPage, totalPages, onPageChange }) => {
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const prevPage = () => {
     if (currentPage > 1) {
       onPageChange(currentPage - 1);
@@ -63,3 +63,5 @@ export const PaginationV2 = ({ currentPage, totalPages, onPageChange }) => {
     </div>
   );
 };
+
+export default Pagination;

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { FloatNotification } from "../float-notification";
+import Notification from "../notifications";
 
 const NotificationsContext = createContext();
 
@@ -32,7 +32,7 @@ export function NotificationsProvider({ children }) {
     <NotificationsContext.Provider value={{ showNotifications, hideNotifications }}>
       {children}
       {notifications && (
-        <FloatNotification
+        <Notification
           type={notifications.type}
           message={notifications.message}
           onClose={() => {

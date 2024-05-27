@@ -2,17 +2,17 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@ibrahimstudio/button";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { handleLogin, handleLoginLog } from "../tools/handler";
-import { fetchIPAddress } from "../tools/data";
-import { useNotifications } from "../feedback/context/notifications-context";
+import { handleLogin, handleLoginLog } from "../../libs/plugins/handler";
+import { fetchIPAddress } from "../../libs/sources/data";
+import { useNotifications } from "../feedbacks/context/notifications-context";
 import { FieldInput } from "./inputs";
-import { LogoPrimary, CheckIcon, CloseIcon } from "../layout/icons";
+import { LogoPrimary, CheckIcon, CloseIcon } from "../layouts/icons";
 import styles from "./styles/data-form.module.css";
 import "./styles/portal-form.css";
 
 const modalRoot = document.getElementById("modal-root") || document.body;
 
-export function PortalForm({ type, onClose }) {
+export const PortalForm = ({ type, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState("");
@@ -155,14 +155,13 @@ export function PortalForm({ type, onClose }) {
     );
 
   return createPortal(modalElement, modalRoot);
-}
+};
 
-export function SubmitForm({ formTitle, formSubtitle, loading, onSubmit, saveText, cancelText, children, onClose }) {
+export const SubmitForm = ({ formTitle, formSubtitle, loading, onSubmit, saveText, cancelText, children, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const ref = useRef(null);
 
   const handleClose = () => setIsClosing(true);
-
   const handleClickOutside = (e) => {
     if (ref.current && !ref.current.contains(e.target)) {
       setIsClosing(true);
@@ -208,9 +207,9 @@ export function SubmitForm({ formTitle, formSubtitle, loading, onSubmit, saveTex
             <b className={styles.formTitle}>{formTitle}</b>
             {formSubtitle && <div className={styles.formSubtitle}>{formSubtitle}</div>}
           </header>
-          <main className={styles.formBody} style={loading ? { opacity: "0.5" } : { opacity: "1" }}>
+          <div className={styles.formBody} style={loading ? { opacity: "0.5" } : { opacity: "1" }}>
             {children}
-          </main>
+          </div>
           <footer className={styles.formFooter}>
             <Button
               id="cancel-form-submit"
@@ -236,4 +235,4 @@ export function SubmitForm({ formTitle, formSubtitle, loading, onSubmit, saveTex
   );
 
   return createPortal(modalElement, modalRoot);
-}
+};

@@ -1,21 +1,10 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 import { Input } from "@ibrahimstudio/input";
-import { EyeOpen, EyeSlash, SearchIcon } from "../layout/icons";
+import { EyeOpen, EyeSlash, SearchIcon } from "../layouts/icons";
 import "./styles/field-input.css";
 import styles from "./styles/user-input.module.css";
 
-export function FieldInput({
-  id,
-  type,
-  name,
-  placeholder,
-  autoComplete,
-  value,
-  onChange,
-  errorMssg,
-  forgotFunction,
-}) {
+export const FieldInput = ({ id, type, name, placeholder, autoComplete, value, onChange, errorMssg, forgotFunction }) => {
   const [passwordSeen, setPasswordSeen] = useState(false);
   const togglePasswordSeen = () => {
     setPasswordSeen(!passwordSeen);
@@ -39,11 +28,7 @@ export function FieldInput({
             autoComplete={autoComplete}
           />
           <div className="input-field-toggle" onClick={togglePasswordSeen}>
-            {passwordSeen ? (
-              <EyeSlash width="19px" height="100%" color="#3880EB" />
-            ) : (
-              <EyeOpen width="19px" height="100%" color="#3880EB" />
-            )}
+            {passwordSeen ? <EyeSlash width="19px" height="100%" color="#3880EB" /> : <EyeOpen width="19px" height="100%" color="#3880EB" />}
           </div>
         </div>
         {errorMssg && (
@@ -82,28 +67,9 @@ export function FieldInput({
       </div>
     );
   }
-}
-
-FieldInput.propTypes = {
-  id: PropTypes.string.isRequired,
-  type: PropTypes.string,
-  name: PropTypes.string,
-  placeholder: PropTypes.string,
-  autoComplete: PropTypes.string,
-  value: PropTypes.string,
-  onChange: PropTypes.func,
-  errorMssg: PropTypes.string,
-  forgotFunction: PropTypes.func,
 };
 
-export function SearchInput({
-  id,
-  placeholder,
-  property,
-  userData,
-  setUserData,
-  isReadonly,
-}) {
+export const SearchInput = ({ id, placeholder, property, userData, setUserData, isReadonly }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = (e) => {
@@ -149,29 +115,13 @@ export function SearchInput({
       startContent={<SearchIcon width="17px" height="100%" />}
     />
   );
-}
-
-SearchInput.propTypes = {
-  id: PropTypes.string.isRequired,
-  placeholder: PropTypes.string,
-  property: PropTypes.string.isRequired,
-  userData: PropTypes.array,
-  setUserData: PropTypes.func,
-  isReadonly: PropTypes.bool,
 };
 
-export function InputWrapper({ width, isExpanded, expanded, children }) {
+export const InputWrap = ({ width, isExpanded, expanded, children }) => {
   return (
     <div className={styles.inputWrap} style={{ width: width }}>
       {children}
       {isExpanded && <div className={styles.inputExpand}>{expanded}</div>}
     </div>
   );
-}
-
-InputWrapper.propTypes = {
-  width: PropTypes.string,
-  isExpanded: PropTypes.bool,
-  expanded: PropTypes.node,
-  children: PropTypes.node.isRequired,
 };

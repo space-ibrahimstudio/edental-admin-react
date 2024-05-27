@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
-import { TableData } from "../components/layout/tables";
-import { PlusIcon } from "../components/layout/icons";
-import { InputWrapper } from "../components/user-input/inputs";
-import { SearchInput } from "../components/user-input/inputs";
+import { TableData } from "../components/layouts/tables";
+import { PlusIcon } from "../components/layouts/icons";
+import { InputWrap } from "../components/input-controls/inputs";
+import { SearchInput } from "../components/input-controls/inputs";
 import styles from "./styles/tabel-section.module.css";
 
 export const UserList = ({ sectionId }) => {
@@ -24,15 +24,10 @@ export const UserList = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Manajemen User</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper>
-          <SearchInput
-            id={`search-data-${sectionId}`}
-            placeholder="Cari data ..."
-            property="username"
-            isReadonly={true}
-          />
-        </InputWrapper>
-        <InputWrapper>
+        <InputWrap>
+          <SearchInput id={`search-data-${sectionId}`} placeholder="Cari data ..." property="username" isReadonly={true} />
+        </InputWrap>
+        <InputWrap>
           <Input
             id={`limit-data-${sectionId}`}
             variant="select"
@@ -51,7 +46,7 @@ export const UserList = ({ sectionId }) => {
             startContent={<PlusIcon width="17px" height="100%" />}
             isDisabled
           />
-        </InputWrapper>
+        </InputWrap>
       </div>
       <TableData dataShown={false}></TableData>
     </section>

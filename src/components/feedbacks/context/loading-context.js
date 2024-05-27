@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from "react";
-import { LoadingScreen } from "../loading-screen";
+import LoadingScreen from "../screens";
 
 const LoadingContext = createContext();
 

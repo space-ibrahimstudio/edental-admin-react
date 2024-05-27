@@ -1,20 +1,12 @@
 import React, { useState, useEffect, useRef, Fragment } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import PropTypes from "prop-types";
-import { toTitleCase } from "../tools/controller";
-import { LoadingElement } from "../feedback/loading-screen";
-import { ChevronDown, ArrowIcon } from "../layout/icons";
+import { toTitleCase } from "../../libs/plugins/controller";
+import { LoadingContent } from "../feedbacks/screens";
+import { ChevronDown, ArrowIcon } from "../layouts/icons";
 import prim from "./styles/prim-button.module.css";
 import tab from "./styles/tab-button.module.css";
 
-export function PrimButton({
-  variant,
-  buttonText,
-  onClick,
-  iconPosition,
-  children,
-  loading,
-}) {
+export const PrimButton = ({ variant, buttonText, onClick, iconPosition, children, loading }) => {
   if (iconPosition === "start") {
     if (variant === "hollow") {
       return (
@@ -29,7 +21,7 @@ export function PrimButton({
           {loading ? (
             <Fragment>
               <b className={prim.primButtonHollowText}>Loading</b>
-              <LoadingElement />
+              <LoadingContent />
             </Fragment>
           ) : (
             <Fragment>
@@ -54,7 +46,7 @@ export function PrimButton({
           {loading ? (
             <Fragment>
               <b className={prim.primButtonHollowText}>Loading</b>
-              <LoadingElement />
+              <LoadingContent />
             </Fragment>
           ) : (
             <Fragment>
@@ -66,17 +58,9 @@ export function PrimButton({
       );
     }
   }
-}
-
-PrimButton.propTypes = {
-  onClick: PropTypes.func,
-  buttonText: PropTypes.string,
-  iconPosition: PropTypes.string,
-  children: PropTypes.node,
-  variant: PropTypes.string,
 };
 
-export function DropDownButton({ buttonText, onClick }) {
+export const DropDownButton = ({ buttonText, onClick }) => {
   return (
     <div className={tab.dropdownButton} onClick={onClick}>
       <b className={tab.dropdownButtonText}>{buttonText}</b>
@@ -85,14 +69,9 @@ export function DropDownButton({ buttonText, onClick }) {
       </div>
     </div>
   );
-}
-
-DropDownButton.propTypes = {
-  onClick: PropTypes.func,
-  buttonText: PropTypes.string.isRequired,
 };
 
-export function TabButton({ isActive, hasSubMenu, buttonText, children }) {
+export const TabButton = ({ isActive, hasSubMenu, buttonText, children }) => {
   const [activeTab, setActiveTab] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -139,33 +118,31 @@ export function TabButton({ isActive, hasSubMenu, buttonText, children }) {
   }, []);
 
   return (
-    <button
-      className={`${tab.navMenuTab} ${
-        activeTab === isActive ? tab.active : ""
-      }`}
-      onClick={handleClick}
-    >
+    <button className={`${tab.navMenuTab} ${activeTab === isActive ? tab.active : ""}`} onClick={handleClick}>
       <b className={tab.navMenuTabText}>{titleCaseText}</b>
-      {hasSubMenu && (
-        <ChevronDown width="10px" height="100%" flipped={dropdownOpen} />
-      )}
+      {hasSubMenu && <ChevronDown width="10px" height="100%" flipped={dropdownOpen} />}
       {dropdownOpen && (
-        <section
-          ref={ref}
-          className={`${tab.dropdown} ${
-            dropdownOpen ? tab.opened : tab.closed
-          }`}
-        >
+        <section ref={ref} className={`${tab.dropdown} ${dropdownOpen ? tab.opened : tab.closed}`}>
           {children}
         </section>
       )}
     </button>
   );
-}
+};
 
-TabButton.propTypes = {
-  isActive: PropTypes.string.isRequired,
-  hasSubMenu: PropTypes.bool.isRequired,
-  buttonText: PropTypes.string.isRequired,
-  children: PropTypes.node,
+export const ButtonGroup = ({ children }) => {
+  const groupstyles = {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "var(--pixel-15)",
+    backgroundColor: "var(--color-light)",
+    overflow: "hidden",
+    padding: "var(--pixel-5)",
+    gap: "var(--pixel-5)",
+  };
+
+  return <section style={groupstyles}>{children}</section>;
 };

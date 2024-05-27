@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
-import { exportToExcel } from "../components/tools/controller";
+import { exportToExcel } from "../libs/plugins/controller";
 import { formatDate, toTitleCase } from "@ibrahimstudio/function";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
-import { PageScreen } from "../components/layout/page-screen";
-import Navbar from "../components/navigator/navbar";
-import { fetchLogStock } from "../components/tools/data";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
-import { InputWrapper } from "../components/user-input/inputs";
-import { ArrowIcon } from "../components/layout/icons";
+import { PageScreen } from "../components/layouts/page-screen";
+import Navbar from "../components/navigations/navbar";
+import { fetchLogStock } from "../libs/sources/data";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
+import { InputWrap } from "../components/input-controls/inputs";
+import { ArrowIcon } from "../components/layouts/icons";
 import styles from "../sections/styles/tabel-section.module.css";
 
 const StockHistory = () => {
@@ -96,7 +96,7 @@ const StockHistory = () => {
       <section className={styles.tabelSection}>
         <b className={styles.tabelSectionTitle}>History Stock for {toTitleCase(stockName)}</b>
         <div className={styles.tabelSectionNav}>
-          <InputWrapper>
+          <InputWrap>
             <Button
               id={`${stockName}-back-previous-page`}
               buttonText="Kembali"
@@ -111,8 +111,8 @@ const StockHistory = () => {
               bgColor="var(--color-green)"
               onClick={() => exportToExcel(filteredData, "Histori Stok", "histori_stok")}
             />
-          </InputWrapper>
-          <InputWrapper>
+          </InputWrap>
+          <InputWrap>
             <Input
               id={`${stockName}-filter-start`}
               isLabeled={false}
@@ -131,7 +131,7 @@ const StockHistory = () => {
               value={endDate}
               onChange={handleEndDateChange}
             />
-          </InputWrapper>
+          </InputWrap>
         </div>
         <TableData headerData={tableHeadData} loading={isFetching} dataShown={isDataShown}>
           {filteredData.map((history, index) => (

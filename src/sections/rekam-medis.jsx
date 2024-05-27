@@ -1,14 +1,14 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { Input } from "@ibrahimstudio/input";
-import { ButtonGroup } from "../components/user-input/button-group";
 import { Button } from "@ibrahimstudio/button";
 import { formatDate } from "@ibrahimstudio/function";
-import { fetchAllDataList, fetchDataList } from "../components/tools/data";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import { OnpageForm, FormHead, FormTitle, FormTitleWrap, FormBody, FormFooter } from "../components/user-input/onpage-form";
-import { PlusIcon, CheckIcon } from "../components/layout/icons";
-import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
-import { InputWrapper } from "../components/user-input/inputs";
+import { fetchAllDataList, fetchDataList } from "../libs/sources/data";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { ButtonGroup } from "../components/input-controls/buttons";
+import { OnpageForm, FormHead, FormTitle, FormTitleWrap, FormBody, FormFooter } from "../components/input-controls/onpage-form";
+import { PlusIcon, CheckIcon } from "../components/layouts/icons";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
+import { InputWrap } from "../components/input-controls/inputs";
 import styles from "./styles/tabel-section.module.css";
 
 export const MedicRecord = ({ sectionId }) => {
@@ -167,7 +167,7 @@ export const MedicRecord = ({ sectionId }) => {
                     <FormTitle text="Update Informasi Pribadi" />
                   </FormHead>
                   <FormBody>
-                    <InputWrapper>
+                    <InputWrap>
                       <Input
                         id="reservation-user-name"
                         labelText="Nama Pelanggan"
@@ -199,8 +199,8 @@ export const MedicRecord = ({ sectionId }) => {
                         onChange={handleInputChange}
                         errorContent={errors.email}
                       />
-                    </InputWrapper>
-                    <InputWrapper>
+                    </InputWrap>
+                    <InputWrap>
                       <Input
                         id="reservation-user-address"
                         labelText="Alamat"
@@ -211,7 +211,7 @@ export const MedicRecord = ({ sectionId }) => {
                         onChange={handleInputChange}
                         errorContent={errors.address}
                       />
-                    </InputWrapper>
+                    </InputWrap>
                   </FormBody>
                   <FormFooter>
                     <Button
@@ -486,7 +486,7 @@ export const MedicRecord = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Data Rekam Medis</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper>
+        <InputWrap>
           <Input
             id="search-customer"
             variant="select"
@@ -508,8 +508,8 @@ export const MedicRecord = ({ sectionId }) => {
             isRequired
             isSearchable
           />
-        </InputWrapper>
-        <InputWrapper>
+        </InputWrap>
+        <InputWrap>
           <ButtonGroup>
             {tabButton.map((button, index) => (
               <Button
@@ -526,7 +526,7 @@ export const MedicRecord = ({ sectionId }) => {
           {tabId !== "1" && (
             <Button id="add-new-data" radius="full" buttonText="Tambah Baru" startContent={<PlusIcon width="17px" height="100%" />} />
           )}
-        </InputWrapper>
+        </InputWrap>
       </div>
       {renderOnpageForm()}
       {/* <TableData

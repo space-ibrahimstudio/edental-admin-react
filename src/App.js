@@ -1,15 +1,14 @@
 import React, { useEffect, useState, Fragment } from "react";
 import { Route, Routes } from "react-router-dom";
-import { useLoading } from "./components/feedback/context/loading-context";
-import { PrivateRoute } from "./components/routing/private-route";
+import { useLoading } from "./components/feedbacks/context/loading-context";
 import HomeReplace from "./pages/home-replace";
 import Dashboard from "./pages/dashboard";
 import StockHistory from "./pages/stock-history";
 import DetailOrder from "./pages/order-detail";
-import WarningScreen from "./components/feedback/warning-screen";
+import WarningScreen from "./components/feedbacks/screens";
 import ErrorScreen from "./pages/error404";
-import { fetchTabMenus } from "./components/tools/data";
-import { toPathname, ResetScrolling } from "./components/tools/controller";
+import { fetchTabMenus } from "./libs/sources/data";
+import { toPathname, ResetScrolling } from "./libs/plugins/controller";
 
 function App() {
   const [tabMenus, setTabMenus] = useState([]);
@@ -63,17 +62,17 @@ function App() {
           <Routes>
             <Route path="/" element={<HomeReplace />} />
             <Route path="*" element={<ErrorScreen />} />
-            <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             {Array.isArray(tabMenus) &&
               tabMenus.map((menu) => (
                 <Fragment key={menu["Menu Utama"].idmenu}>
-                  <Route path={`/dashboard/${toPathname(menu["Menu Utama"].menu_name)}`} element={<PrivateRoute element={<Dashboard />} />} />
+                  <Route path={`/dashboard/${toPathname(menu["Menu Utama"].menu_name)}`} element={<Dashboard />} />
                   {menu["Sub Menu"] &&
                     menu["Sub Menu"].map((submenu) => (
                       <Route
                         key={submenu.idsubmenu}
                         path={`/dashboard/${toPathname(menu["Menu Utama"].menu_name)}/${toPathname(submenu.submenu_name)}`}
-                        element={<PrivateRoute element={<Dashboard />} />}
+                        element={<Dashboard />}
                       />
                     ))}
                 </Fragment>

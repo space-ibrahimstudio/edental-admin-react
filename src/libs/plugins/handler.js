@@ -1,5 +1,5 @@
 import axios from "axios";
-import { fetchIPAddress } from "./data";
+import { fetchIPAddress } from "../sources/data";
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 

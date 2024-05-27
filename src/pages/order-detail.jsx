@@ -5,15 +5,15 @@ import { formatDate } from "@ibrahimstudio/function";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
-import { handleCUDOrder } from "../components/tools/handler";
-import { PageScreen } from "../components/layout/page-screen";
-import Navbar from "../components/navigator/navbar";
-import { fetchDataList, fetchAllDataList, fetchDentistList } from "../components/tools/data";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
-import { SubmitForm } from "../components/user-input/forms";
-import { InputWrapper, SearchInput } from "../components/user-input/inputs";
-import { ArrowIcon, TrashIcon, PlusIcon, EditIcon } from "../components/layout/icons";
+import { handleCUDOrder } from "../libs/plugins/handler";
+import { PageScreen } from "../components/layouts/page-screen";
+import Navbar from "../components/navigations/navbar";
+import { fetchDataList, fetchAllDataList, fetchDentistList } from "../libs/sources/data";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
+import { SubmitForm } from "../components/input-controls/forms";
+import { InputWrap, SearchInput } from "../components/input-controls/inputs";
+import { ArrowIcon, TrashIcon, PlusIcon, EditIcon } from "../components/layouts/icons";
 import styles from "../sections/styles/tabel-section.module.css";
 
 const DetailOrder = () => {
@@ -291,7 +291,7 @@ const DetailOrder = () => {
       <section className={styles.tabelSection}>
         <b className={styles.tabelSectionTitle}>Order Detail for #{noInvoice}</b>
         <div className={styles.tabelSectionNav}>
-          <InputWrapper>
+          <InputWrap>
             <Button
               id={`${noInvoice}-back-previous-page`}
               buttonText="Kembali"
@@ -306,8 +306,8 @@ const DetailOrder = () => {
               userData={orderDetail}
               setUserData={setFilteredData}
             />
-          </InputWrapper>
-          <InputWrapper>
+          </InputWrap>
+          <InputWrap>
             <Button
               id={`edit-order-data-${noInvoice}`}
               buttonText="Edit Data"
@@ -322,7 +322,7 @@ const DetailOrder = () => {
               bgColor="var(--color-green)"
               onClick={openPayment}
             />
-          </InputWrapper>
+          </InputWrap>
         </div>
         <TableData headerData={tableHeadData} loading={isFetching} dataShown={isDataShown}>
           {orderDetail.map((detail, index) => (
@@ -347,7 +347,7 @@ const DetailOrder = () => {
           >
             {currentData.layanan.map((detail, index) => (
               <Fragment key={index}>
-                <InputWrapper>
+                <InputWrap>
                   {Array.isArray(serviceData) && (
                     <Input
                       id={`edit-service-name-${index}`}
@@ -439,7 +439,7 @@ const DetailOrder = () => {
                       onClick={() => handleRemoveEditRow(index)}
                     />
                   )}
-                </InputWrapper>
+                </InputWrap>
               </Fragment>
             ))}
             <Button
@@ -456,7 +456,7 @@ const DetailOrder = () => {
         )}
         {isPaymentOpen && (
           <SubmitForm formTitle="Pembayaran" onClose={closePayment} saveText="Proses Pembayaran" cancelText="Batal" loading={isLoading}>
-            <InputWrapper>
+            <InputWrap>
               {Array.isArray(dentistData) && (
                 <Input
                   id="edit-service-dentist"
@@ -514,7 +514,7 @@ const DetailOrder = () => {
                   isDisabled={inputData.paymenttype ? false : true}
                 />
               )}
-            </InputWrapper>
+            </InputWrap>
           </SubmitForm>
         )}
       </section>

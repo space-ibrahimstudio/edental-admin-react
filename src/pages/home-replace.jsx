@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useLoading } from "../components/feedback/context/loading-context";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import { PortalForm } from "../components/user-input/forms";
-import { PrimButton } from "../components/user-input/buttons";
-import { LogoPrimary } from "../components/layout/icons";
-import { checkLoginStatus, handleLogout } from "../components/tools/handler";
+import { useLoading } from "../components/feedbacks/context/loading-context";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { PortalForm } from "../components/input-controls/forms";
+import { PrimButton } from "../components/input-controls/buttons";
+import { LogoPrimary } from "../components/layouts/icons";
+import { checkLoginStatus, handleLogout } from "../libs/plugins/handler";
 import styles from "./styles/home-replace.module.css";
 
 const HomeReplace = () => {
@@ -51,14 +51,8 @@ const HomeReplace = () => {
       <section className={styles.homeReplaceContent}>
         <LogoPrimary width="150px" height="100%" />
         <h1 className={styles.homeReplaceTitle}>Welcome to Edental.id</h1>
-        <h4 className={styles.homeReplaceBody}>
-          This is the Homepage replacement.
-        </h4>
-        {loggedIn ? (
-          <PrimButton buttonText="Logout" onClick={logoutClick} />
-        ) : (
-          <PrimButton buttonText="Masuk/Daftar" onClick={openLogin} />
-        )}
+        <h4 className={styles.homeReplaceBody}>This is the Homepage replacement.</h4>
+        {loggedIn ? <PrimButton buttonText="Logout" onClick={logoutClick} /> : <PrimButton buttonText="Masuk/Daftar" onClick={openLogin} />}
       </section>
       {loginFormOpen && <PortalForm type="login" onClose={closeLogin} />}
     </div>

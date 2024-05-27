@@ -3,16 +3,16 @@ import axios from "axios";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
 import { formatDate } from "@ibrahimstudio/function";
-import { fetchHoursList, fetchDataList, fetchAllDataList } from "../components/tools/data";
-import { handleCUDReserve } from "../components/tools/handler";
-import { getCurrentDate, exportToExcel } from "../components/tools/controller";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
-import { SubmitForm } from "../components/user-input/forms";
-import { InputWrapper } from "../components/user-input/inputs";
-import { PlusIcon } from "../components/layout/icons";
-import { SearchInput } from "../components/user-input/inputs";
-import { PaginationV2 } from "../components/navigator/paginationv2";
+import { fetchHoursList, fetchDataList, fetchAllDataList } from "../libs/sources/data";
+import { handleCUDReserve } from "../libs/plugins/handler";
+import { getCurrentDate, exportToExcel } from "../libs/plugins/controller";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
+import { SubmitForm } from "../components/input-controls/forms";
+import { InputWrap } from "../components/input-controls/inputs";
+import { PlusIcon } from "../components/layouts/icons";
+import { SearchInput } from "../components/input-controls/inputs";
+import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -337,7 +337,7 @@ export const Reservation = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Reservasi</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper>
+        <InputWrap>
           <SearchInput
             id={`search-data-${sectionId}`}
             placeholder="Cari data ..."
@@ -352,8 +352,8 @@ export const Reservation = ({ sectionId }) => {
             bgColor="var(--color-green)"
             onClick={() => exportToExcel(filteredData, "Data Reservasi", "data_reservasi")}
           />
-        </InputWrapper>
-        <InputWrapper>
+        </InputWrap>
+        <InputWrap>
           <Input
             id={`limit-data-${sectionId}`}
             variant="select"
@@ -372,7 +372,7 @@ export const Reservation = ({ sectionId }) => {
             onClick={openForm}
             startContent={<PlusIcon width="17px" height="100%" />}
           />
-        </InputWrapper>
+        </InputWrap>
       </div>
       <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((reserve, index) => (
@@ -392,7 +392,7 @@ export const Reservation = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && <PaginationV2 currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+      {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
       {isFormOpen && (
         <SubmitForm
           formTitle="Tambah Data Reservasi"
@@ -402,7 +402,7 @@ export const Reservation = ({ sectionId }) => {
           cancelText="Batal"
           loading={isLoading}
         >
-          <InputWrapper>
+          <InputWrap>
             <Input
               id="reservation-user-phone"
               labelText="Nomor Telepon"
@@ -439,8 +439,8 @@ export const Reservation = ({ sectionId }) => {
               isReadonly={dataExist ? true : false}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
+          </InputWrap>
+          <InputWrap>
             {Array.isArray(serviceData) && (
               <Input
                 id="reservation-service"
@@ -491,8 +491,8 @@ export const Reservation = ({ sectionId }) => {
                 isDisabled={inputData.service ? false : true}
               />
             )}
-          </InputWrapper>
-          <InputWrapper>
+          </InputWrap>
+          <InputWrap>
             <Input
               id="reservation-date"
               labelText="Tanggal Reservasi"
@@ -526,7 +526,7 @@ export const Reservation = ({ sectionId }) => {
               isSearchable
               isDisabled={inputData.reservationdate ? false : true}
             />
-          </InputWrapper>
+          </InputWrap>
         </SubmitForm>
       )}
     </section>

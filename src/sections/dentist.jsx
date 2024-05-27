@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { exportToExcel } from "../components/tools/controller";
+import { exportToExcel } from "../libs/plugins/controller";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
-import { fetchDataList } from "../components/tools/data";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
-import { InputWrapper, SearchInput } from "../components/user-input/inputs";
-import { PaginationV2 } from "../components/navigator/paginationv2";
+import { fetchDataList } from "../libs/sources/data";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
+import { InputWrap, SearchInput } from "../components/input-controls/inputs";
+import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const DentistList = ({ sectionId }) => {
@@ -82,7 +82,7 @@ export const DentistList = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>List Dokter</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper>
+        <InputWrap>
           <SearchInput
             id={`search-data-${sectionId}`}
             placeholder="Cari data ..."
@@ -90,8 +90,8 @@ export const DentistList = ({ sectionId }) => {
             userData={dentistData}
             setUserData={setFilteredData}
           />
-        </InputWrapper>
-        <InputWrapper>
+        </InputWrap>
+        <InputWrap>
           <Input
             id={`limit-data-${sectionId}`}
             variant="select"
@@ -110,7 +110,7 @@ export const DentistList = ({ sectionId }) => {
             bgColor="var(--color-green)"
             onClick={() => exportToExcel(filteredData, "Daftar Dokter", "daftar_dokter")}
           />
-        </InputWrapper>
+        </InputWrap>
       </div>
       <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((cust, index) => (
@@ -123,7 +123,7 @@ export const DentistList = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && <PaginationV2 currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+      {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
     </section>
   );
 };

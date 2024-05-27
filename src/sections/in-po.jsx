@@ -1,16 +1,11 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { Input } from "@ibrahimstudio/input";
 import { formatDate } from "@ibrahimstudio/function";
-import { fetchStockPO } from "../components/tools/data";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import {
-  TableData,
-  TableRow,
-  TableHeadValue,
-  TableBodyValue,
-} from "../components/layout/tables";
-import { InputWrapper, SearchInput } from "../components/user-input/inputs";
-import { PaginationV2 } from "../components/navigator/paginationv2";
+import { fetchStockPO } from "../libs/sources/data";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
+import { InputWrap, SearchInput } from "../components/input-controls/inputs";
+import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const InPO = ({ sectionId }) => {
@@ -82,10 +77,7 @@ export const InPO = ({ sectionId }) => {
         }
       } catch (error) {
         console.error("Error fetching central PO data:", error);
-        showNotifications(
-          "danger",
-          "Gagal menampilkan data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menampilkan data PO Pusat. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsFetching(false);
       }
@@ -102,7 +94,7 @@ export const InPO = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Data PO Masuk</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper>
+        <InputWrap>
           <SearchInput
             id={`search-data-${sectionId}`}
             placeholder="Cari data ..."
@@ -120,8 +112,8 @@ export const InPO = ({ sectionId }) => {
             options={statusList}
             onSelect={handleStatusChange}
           />
-        </InputWrapper>
-        <InputWrapper>
+        </InputWrap>
+        <InputWrap>
           <Input
             id={`limit-data-${sectionId}`}
             variant="select"
@@ -133,13 +125,9 @@ export const InPO = ({ sectionId }) => {
             onSelect={handleLimitChange}
             isReadonly={isDataShown ? false : true}
           />
-        </InputWrapper>
+        </InputWrap>
       </div>
-      <TableData
-        headerData={tableHeadData}
-        dataShown={isDataShown}
-        loading={isFetching}
-      >
+      <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((po, index) => (
           <TableRow
             type="expand"
@@ -150,27 +138,12 @@ export const InPO = ({ sectionId }) => {
               <Fragment>
                 {po["Detail PO"].map((detailPO, index) => (
                   <Fragment key={index}>
-                    <InputWrapper width="100%">
-                      <Input
-                        id={`item-name-${index}`}
-                        labelText="Nama Item"
-                        value={detailPO.itemname}
-                        isReadonly
-                      />
-                      <Input
-                        id={`item-sku-${index}`}
-                        labelText="SKU Item"
-                        value={detailPO.sku}
-                        isReadonly
-                      />
-                      <Input
-                        id={`item-qty-${index}`}
-                        labelText="Jumlah Item"
-                        value={detailPO.qty}
-                        isReadonly
-                      />
-                    </InputWrapper>
-                    <InputWrapper width="100%">
+                    <InputWrap width="100%">
+                      <Input id={`item-name-${index}`} labelText="Nama Item" value={detailPO.itemname} isReadonly />
+                      <Input id={`item-sku-${index}`} labelText="SKU Item" value={detailPO.sku} isReadonly />
+                      <Input id={`item-qty-${index}`} labelText="Jumlah Item" value={detailPO.qty} isReadonly />
+                    </InputWrap>
+                    <InputWrap width="100%">
                       <Input
                         id={`item-note-${index}`}
                         variant="textarea"
@@ -179,32 +152,21 @@ export const InPO = ({ sectionId }) => {
                         value={detailPO.note}
                         isReadonly
                       />
-                    </InputWrapper>
+                    </InputWrap>
                   </Fragment>
                 ))}
               </Fragment>
             }
           >
-            <TableBodyValue
-              type="num"
-              value={(currentPage - 1) * limit + index + 1}
-            />
-            <TableBodyValue
-              value={formatDate(po["PO Stock"].postockcreate, "en-gb")}
-            />
+            <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
+            <TableBodyValue value={formatDate(po["PO Stock"].postockcreate, "en-gb")} />
             <TableBodyValue value={po["PO Stock"].postockcode} />
             <TableBodyValue value={po["PO Stock"].username} />
             <TableBodyValue value={po["PO Stock"].outletname} position="end" />
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && (
-        <PaginationV2
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
+      {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
     </section>
   );
 };

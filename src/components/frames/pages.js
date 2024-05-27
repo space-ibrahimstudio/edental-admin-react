@@ -1,7 +1,7 @@
 import React from "react";
-import Navbar from "../navigator/navbar";
+import Navbar from "../navigations/navbar";
 
-const PageLayout = ({ pageid, children }) => {
+const Pages = ({ pageid, children }) => {
   return (
     <main id={`edentail-admin-${pageid}`}>
       <Navbar />
@@ -10,4 +10,4 @@ const PageLayout = ({ pageid, children }) => {
   );
 };
 
-export default PageLayout;
+export default Pages;

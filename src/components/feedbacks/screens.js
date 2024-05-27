@@ -1,0 +1,64 @@
+import React, { Fragment } from "react";
+import { Helmet } from "react-helmet-async";
+import { LogoText } from "../layouts/icons";
+import styles from "./styles/loading-screen.module.css";
+
+export const WarningScreen = () => {
+  return (
+    <Fragment>
+      <Helmet>
+        <title>Version on Build</title>
+      </Helmet>
+      <div className={styles.homeReplace}>
+        <section className={styles.homeReplaceContent}>
+          <h1 className={styles.homeReplaceTitle}>Version on Build</h1>
+          <h4 className={styles.homeReplaceBody}>Dimensi perangkat anda saat ini belum didukung oleh web versi ini (v0.1.0).</h4>
+          <h4 className={styles.homeReplaceBody}>
+            Mohon gunakan perangkat dengan dimensi yang lebih besar (tablet atau desktop) untuk pengalaman yang lebih baik.
+          </h4>
+        </section>
+      </div>
+    </Fragment>
+  );
+};
+
+export const LoadingContent = () => {
+  return (
+    <div className={styles.loadingCircle}>
+      <div className={styles.loadingCircleBody} style={{ padding: "0", gap: "4px" }}>
+        <div className={styles.circleBodySm} />
+        <div className={styles.circleBodySm} />
+        <div className={styles.circleBodySm} />
+      </div>
+    </div>
+  );
+};
+
+const LoadingScreen = () => {
+  return (
+    <Fragment>
+      <Helmet>
+        <title>Loading ...</title>
+      </Helmet>
+      <div className={styles.loadingScreen}>
+        <div className={styles.loadingWrapper}>
+          <div className={styles.loadingCircle}>
+            <div className={styles.loadingCircleBody}>
+              <div className={styles.circleBody} />
+              <div className={styles.circleBody} />
+              <div className={styles.circleBody} />
+            </div>
+            <div className={styles.loadingCircleShadow}>
+              <div className={styles.circleShadow} />
+              <div className={styles.circleShadow} />
+              <div className={styles.circleShadow} />
+            </div>
+          </div>
+          <LogoText width="100%" height="18px" />
+        </div>
+      </div>
+    </Fragment>
+  );
+};
+
+export default LoadingScreen;

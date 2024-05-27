@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { PrimButton } from "../components/user-input/buttons";
+import { PrimButton } from "../components/input-controls/buttons";
 import styles from "./styles/home-replace.module.css";
 
 const ErrorScreen = () => {

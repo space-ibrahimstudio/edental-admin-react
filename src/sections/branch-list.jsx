@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
-import { exportToExcel } from "../components/tools/controller";
-import { fetchDataList } from "../components/tools/data";
-import { handleCUDBranch } from "../components/tools/handler";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import {
-  TableData,
-  TableHeadValue,
-  TableBodyValue,
-  TableRow,
-} from "../components/layout/tables";
-import { SubmitForm } from "../components/user-input/forms";
-import { PlusIcon } from "../components/layout/icons";
-import { InputWrapper } from "../components/user-input/inputs";
-import { SearchInput } from "../components/user-input/inputs";
-import { PaginationV2 } from "../components/navigator/paginationv2";
+import { exportToExcel } from "../libs/plugins/controller";
+import { fetchDataList } from "../libs/sources/data";
+import { handleCUDBranch } from "../libs/plugins/handler";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { TableData, TableHeadValue, TableBodyValue, TableRow } from "../components/layouts/tables";
+import { SubmitForm } from "../components/input-controls/forms";
+import { PlusIcon } from "../components/layouts/icons";
+import { InputWrap } from "../components/input-controls/inputs";
+import { SearchInput } from "../components/input-controls/inputs";
+import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const BranchList = ({ sectionId }) => {
@@ -147,18 +142,13 @@ export const BranchList = ({ sectionId }) => {
       return;
     }
 
-    const isConfirmed = window.confirm(
-      "Apakah anda yakin untuk menambahkan data?"
-    );
+    const isConfirmed = window.confirm("Apakah anda yakin untuk menambahkan data?");
 
     if (isConfirmed) {
       try {
         setIsLoading(true);
         await handleCUDBranch(inputData);
-        showNotifications(
-          "success",
-          "Selamat! Data Cabang baru berhasil ditambahkan."
-        );
+        showNotifications("success", "Selamat! Data Cabang baru berhasil ditambahkan.");
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewoutlet");
@@ -177,10 +167,7 @@ export const BranchList = ({ sectionId }) => {
         closeForm();
       } catch (error) {
         console.error("Error occurred during submit branch:", error);
-        showNotifications(
-          "danger",
-          "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsLoading(false);
       }
@@ -188,18 +175,7 @@ export const BranchList = ({ sectionId }) => {
   };
   // end add data function
   // start edit/delete data function
-  const openEdit = (
-    id,
-    region,
-    name,
-    address,
-    phone,
-    mainregion,
-    postcode,
-    cctrGroup,
-    cctr,
-    coordinate
-  ) => {
+  const openEdit = (id, region, name, address, phone, mainregion, postcode, cctrGroup, cctr, coordinate) => {
     setSelectedData(id);
     setCurrentData({
       region,
@@ -254,18 +230,13 @@ export const BranchList = ({ sectionId }) => {
       return;
     }
 
-    const isConfirmed = window.confirm(
-      "Apakah anda yakin untuk menyimpan perubahan data?"
-    );
+    const isConfirmed = window.confirm("Apakah anda yakin untuk menyimpan perubahan data?");
 
     if (isConfirmed) {
       try {
         setIsLoading(true);
         await handleCUDBranch(currentData, "edit", selectedData);
-        showNotifications(
-          "success",
-          "Selamat! Data Cabang berhasil diperbarui."
-        );
+        showNotifications("success", "Selamat! Data Cabang berhasil diperbarui.");
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewoutlet");
@@ -284,10 +255,7 @@ export const BranchList = ({ sectionId }) => {
         closeEdit();
       } catch (error) {
         console.error("Error editing branch data:", error);
-        showNotifications(
-          "danger",
-          "Gagal menyimpan perubahan. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menyimpan perubahan. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsLoading(false);
       }
@@ -329,10 +297,7 @@ export const BranchList = ({ sectionId }) => {
         }
       } catch (error) {
         console.error("Error fetching branch data:", error);
-        showNotifications(
-          "danger",
-          "Gagal menampilkan data Cabang. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menampilkan data Cabang. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsFetching(false);
       }
@@ -349,7 +314,7 @@ export const BranchList = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Cabang Edental</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper>
+        <InputWrap>
           <SearchInput
             id={`search-data-${sectionId}`}
             placeholder="Cari data ..."
@@ -362,12 +327,10 @@ export const BranchList = ({ sectionId }) => {
             buttonText="Export ke Excel"
             radius="full"
             bgColor="var(--color-green)"
-            onClick={() =>
-              exportToExcel(filteredData, "Daftar Cabang", "daftar_cabang")
-            }
+            onClick={() => exportToExcel(filteredData, "Daftar Cabang", "daftar_cabang")}
           />
-        </InputWrapper>
-        <InputWrapper>
+        </InputWrap>
+        <InputWrap>
           <Input
             id={`limit-data-${sectionId}`}
             variant="select"
@@ -386,13 +349,9 @@ export const BranchList = ({ sectionId }) => {
             onClick={openForm}
             startContent={<PlusIcon width="17px" height="100%" />}
           />
-        </InputWrapper>
+        </InputWrap>
       </div>
-      <TableData
-        headerData={tableHeadData}
-        dataShown={isDataShown}
-        loading={isFetching}
-      >
+      <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((branch, index) => (
           <TableRow
             key={index}
@@ -413,10 +372,7 @@ export const BranchList = ({ sectionId }) => {
               )
             }
           >
-            <TableBodyValue
-              type="num"
-              value={(currentPage - 1) * limit + index + 1}
-            />
+            <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
             <TableBodyValue value={branch.outlet_name} />
             <TableBodyValue value={branch.outlet_address} />
             <TableBodyValue value={branch.mainregion} />
@@ -429,13 +385,7 @@ export const BranchList = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && (
-        <PaginationV2
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
+      {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
       {isFormOpen && (
         <SubmitForm
           formTitle="Tambah Data Cabang"
@@ -445,7 +395,7 @@ export const BranchList = ({ sectionId }) => {
           cancelText="Batal"
           loading={isLoading}
         >
-          <InputWrapper>
+          <InputWrap>
             <Input
               id="outlet-name"
               labelText="Nama Cabang"
@@ -479,8 +429,8 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.mainregion}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
+          </InputWrap>
+          <InputWrap>
             <Input
               id="outlet-region"
               labelText="Region"
@@ -514,8 +464,8 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.postcode}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
+          </InputWrap>
+          <InputWrap>
             <Input
               id="outlet-coordinate"
               labelText="Titik Koordinat"
@@ -549,7 +499,7 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.cctr}
               isRequired
             />
-          </InputWrapper>
+          </InputWrap>
         </SubmitForm>
       )}
       {isEditOpen && (
@@ -561,7 +511,7 @@ export const BranchList = ({ sectionId }) => {
           cancelText="Batal"
           loading={isLoading}
         >
-          <InputWrapper>
+          <InputWrap>
             <Input
               id="edit-outlet-name"
               labelText="Nama Cabang"
@@ -595,8 +545,8 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.mainregion}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
+          </InputWrap>
+          <InputWrap>
             <Input
               id="edit-outlet-region"
               labelText="Region"
@@ -630,8 +580,8 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.postcode}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
+          </InputWrap>
+          <InputWrap>
             <Input
               id="edit-outlet-coordinate"
               labelText="Titik Koordinat"
@@ -665,7 +615,7 @@ export const BranchList = ({ sectionId }) => {
               errorContent={errors.cctr}
               isRequired
             />
-          </InputWrapper>
+          </InputWrap>
         </SubmitForm>
       )}
     </section>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import styles from "./styles/float-notification.module.css";
+import styles from "./styles/notifications.module.css";
 
-export const FloatNotification = ({ type, message, onClose }) => {
+const Notification = ({ type, message, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const ref = useRef(null);
 
@@ -54,3 +54,5 @@ export const FloatNotification = ({ type, message, onClose }) => {
     </section>
   );
 };
+
+export default Notification;

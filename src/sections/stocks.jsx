@@ -2,20 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
 import { useNavigate } from "react-router-dom";
-import { fetchDataList, fetchAllDataList } from "../components/tools/data";
-import { handleCUDStock } from "../components/tools/handler";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import {
-  TableData,
-  TableRow,
-  TableHeadValue,
-  TableBodyValue,
-} from "../components/layout/tables";
-import { SubmitForm } from "../components/user-input/forms";
-import { InputWrapper } from "../components/user-input/inputs";
-import { PlusIcon } from "../components/layout/icons";
-import { SearchInput } from "../components/user-input/inputs";
-import { PaginationV2 } from "../components/navigator/paginationv2";
+import { fetchDataList, fetchAllDataList } from "../libs/sources/data";
+import { handleCUDStock } from "../libs/plugins/handler";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
+import { SubmitForm } from "../components/input-controls/forms";
+import { InputWrap } from "../components/input-controls/inputs";
+import { PlusIcon } from "../components/layouts/icons";
+import { SearchInput } from "../components/input-controls/inputs";
+import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const Stocks = ({ sectionId }) => {
@@ -136,18 +131,13 @@ export const Stocks = ({ sectionId }) => {
       return;
     }
 
-    const isConfirmed = window.confirm(
-      "Apakah anda yakin untuk menambahkan data?"
-    );
+    const isConfirmed = window.confirm("Apakah anda yakin untuk menambahkan data?");
 
     if (isConfirmed) {
       try {
         setIsLoading(true);
         await handleCUDStock(inputData);
-        showNotifications(
-          "success",
-          "Selamat! Data Stok baru berhasil ditambahkan."
-        );
+        showNotifications("success", "Selamat! Data Stok baru berhasil ditambahkan.");
 
         const offset = (currentPage - 1) * limit;
         const data = await fetchDataList(offset, limit, "viewstock");
@@ -166,10 +156,7 @@ export const Stocks = ({ sectionId }) => {
         closeForm();
       } catch (error) {
         console.error("Error occurred during submit stock:", error);
-        showNotifications(
-          "danger",
-          "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menambahkan data. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsLoading(false);
       }
@@ -211,10 +198,7 @@ export const Stocks = ({ sectionId }) => {
         }
       } catch (error) {
         console.error("Error fetching stock data:", error);
-        showNotifications(
-          "danger",
-          "Gagal menampilkan data Stok. Mohon periksa koneksi internet anda dan muat ulang halaman."
-        );
+        showNotifications("danger", "Gagal menampilkan data Stok. Mohon periksa koneksi internet anda dan muat ulang halaman.");
       } finally {
         setIsFetching(false);
       }
@@ -244,7 +228,7 @@ export const Stocks = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Stock</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper>
+        <InputWrap>
           <SearchInput
             id={`search-data-${sectionId}`}
             placeholder="Cari data ..."
@@ -252,8 +236,8 @@ export const Stocks = ({ sectionId }) => {
             userData={stockData}
             setUserData={setFilteredData}
           />
-        </InputWrapper>
-        <InputWrapper>
+        </InputWrap>
+        <InputWrap>
           <Input
             id={`limit-data-${sectionId}`}
             variant="select"
@@ -272,24 +256,12 @@ export const Stocks = ({ sectionId }) => {
             onClick={openForm}
             startContent={<PlusIcon width="17px" height="100%" />}
           />
-        </InputWrapper>
+        </InputWrap>
       </div>
-      <TableData
-        headerData={tableHeadData}
-        dataShown={isDataShown}
-        loading={isFetching}
-      >
+      <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((stock, index) => (
-          <TableRow
-            key={index}
-            isEven={index % 2 === 0}
-            isClickable={true}
-            onClick={() => navigateStockHistory(stock.itemname)}
-          >
-            <TableBodyValue
-              type="num"
-              value={(currentPage - 1) * limit + index + 1}
-            />
+          <TableRow key={index} isEven={index % 2 === 0} isClickable={true} onClick={() => navigateStockHistory(stock.itemname)}>
+            <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
             <TableBodyValue value={stock.categorystock} />
             <TableBodyValue value={stock.subcategorystock} />
             <TableBodyValue value={stock.sku} />
@@ -302,13 +274,7 @@ export const Stocks = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && (
-        <PaginationV2
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
+      {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
       {isFormOpen && (
         <SubmitForm
           formTitle="Tambah Data Stock"
@@ -318,7 +284,7 @@ export const Stocks = ({ sectionId }) => {
           cancelText="Batal"
           loading={isLoading}
         >
-          <InputWrapper>
+          <InputWrap>
             {Array.isArray(catData) && (
               <Input
                 id="stock-category"
@@ -347,18 +313,11 @@ export const Stocks = ({ sectionId }) => {
                 variant="select"
                 labelText="Sub Kategori"
                 name="subCat"
-                placeholder={
-                  inputData.cat
-                    ? "Pilih sub kategori"
-                    : "Mohon pilih kategori dahulu"
-                }
+                placeholder={inputData.cat ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
                 options={
                   inputData.cat &&
                   catData
-                    .find(
-                      (cat) =>
-                        cat["category_stok"].categorystockname === inputData.cat
-                    )
+                    .find((cat) => cat["category_stok"].categorystockname === inputData.cat)
                     ?.["subcategory_stok"].map((subCat) => ({
                       value: subCat.subcategorystock,
                       label: subCat.subcategorystock,
@@ -387,8 +346,8 @@ export const Stocks = ({ sectionId }) => {
               errorContent={errors.item}
               isRequired
             />
-          </InputWrapper>
-          <InputWrapper>
+          </InputWrap>
+          <InputWrap>
             <Input
               id="stock-item-unit"
               variant="select"
@@ -427,7 +386,7 @@ export const Stocks = ({ sectionId }) => {
               errorContent={errors.nilai}
               isRequired
             />
-          </InputWrapper>
+          </InputWrap>
         </SubmitForm>
       )}
     </section>

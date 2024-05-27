@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { exportToExcel } from "../components/tools/controller";
+import { exportToExcel } from "../libs/plugins/controller";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
 import { formatDate } from "@ibrahimstudio/function";
-import { fetchDataList } from "../components/tools/data";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
-import { InputWrapper, SearchInput } from "../components/user-input/inputs";
-import { PaginationV2 } from "../components/navigator/paginationv2";
+import { fetchDataList } from "../libs/sources/data";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
+import { InputWrap, SearchInput } from "../components/input-controls/inputs";
+import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const CustList = ({ sectionId }) => {
@@ -84,7 +84,7 @@ export const CustList = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Customer</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper>
+        <InputWrap>
           <SearchInput
             id={`search-data-${sectionId}`}
             placeholder="Cari data ..."
@@ -92,8 +92,8 @@ export const CustList = ({ sectionId }) => {
             userData={custData}
             setUserData={setFilteredData}
           />
-        </InputWrapper>
-        <InputWrapper>
+        </InputWrap>
+        <InputWrap>
           <Input
             id={`limit-data-${sectionId}`}
             variant="select"
@@ -112,7 +112,7 @@ export const CustList = ({ sectionId }) => {
             bgColor="var(--color-green)"
             onClick={() => exportToExcel(filteredData, "Daftar Customer", "daftar_customer")}
           />
-        </InputWrapper>
+        </InputWrap>
       </div>
       <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((cust, index) => (
@@ -126,7 +126,7 @@ export const CustList = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && <PaginationV2 currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+      {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
     </section>
   );
 };

@@ -2,15 +2,15 @@ import React, { useState, useEffect, Fragment } from "react";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
 import { formatDate } from "@ibrahimstudio/function";
-import { fetchDataList, fetchAllDataList } from "../components/tools/data";
-import { handleCUDService } from "../components/tools/handler";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
-import { SubmitForm } from "../components/user-input/forms";
-import { InputWrapper } from "../components/user-input/inputs";
-import { PlusIcon, EditIcon, TrashIcon } from "../components/layout/icons";
-import { SearchInput } from "../components/user-input/inputs";
-import { PaginationV2 } from "../components/navigator/paginationv2";
+import { fetchDataList, fetchAllDataList } from "../libs/sources/data";
+import { handleCUDService } from "../libs/plugins/handler";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
+import { SubmitForm } from "../components/input-controls/forms";
+import { InputWrap } from "../components/input-controls/inputs";
+import { PlusIcon, EditIcon, TrashIcon } from "../components/layouts/icons";
+import { SearchInput } from "../components/input-controls/inputs";
+import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const Services = ({ sectionId }) => {
@@ -437,7 +437,7 @@ export const Services = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>Layanan</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper>
+        <InputWrap>
           <SearchInput
             id={`search-data-${sectionId}`}
             placeholder="Cari data ..."
@@ -445,8 +445,8 @@ export const Services = ({ sectionId }) => {
             userData={serviceData}
             setUserData={setFilteredData}
           />
-        </InputWrapper>
-        <InputWrapper>
+        </InputWrap>
+        <InputWrap>
           <Input
             id={`limit-data-${sectionId}`}
             variant="select"
@@ -465,7 +465,7 @@ export const Services = ({ sectionId }) => {
             onClick={openForm}
             startContent={<PlusIcon width="17px" height="100%" />}
           />
-        </InputWrapper>
+        </InputWrap>
       </div>
       <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((service, index) => (
@@ -477,11 +477,11 @@ export const Services = ({ sectionId }) => {
             expanded={
               <Fragment>
                 {service["Jenis Layanan"].map((subService, index) => (
-                  <InputWrapper width="100%" key={index}>
+                  <InputWrap width="100%" key={index}>
                     <Input id={`service-type-name-${index}`} labelText="Jenis Layanan" value={subService.servicetypename} isReadonly />
                     <Input id={`service-type-price-${index}`} labelText="Harga" value={subService.serviceprice} isReadonly />
                     <Input id={`service-type-status-${index}`} labelText="Status" value={subService.servicetypestatus} isReadonly />
-                  </InputWrapper>
+                  </InputWrap>
                 ))}
                 <div
                   style={{
@@ -523,7 +523,7 @@ export const Services = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && <PaginationV2 currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+      {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
       {isFormOpen && (
         <SubmitForm
           formTitle="Tambah Data Layanan"
@@ -533,7 +533,7 @@ export const Services = ({ sectionId }) => {
           cancelText="Batal"
           loading={isLoading}
         >
-          <InputWrapper>
+          <InputWrap>
             <Input
               id="service-name"
               labelText="Nama Layanan"
@@ -545,9 +545,9 @@ export const Services = ({ sectionId }) => {
               errorContent={errors.service}
               isRequired
             />
-          </InputWrapper>
+          </InputWrap>
           {inputData.subService.map((subService, index) => (
-            <InputWrapper key={index}>
+            <InputWrap key={index}>
               <Input
                 id={`service-type-name-${index}`}
                 labelText="Jenis Layanan"
@@ -597,7 +597,7 @@ export const Services = ({ sectionId }) => {
                   onClick={() => handleRemoveRow(index)}
                 />
               )}
-            </InputWrapper>
+            </InputWrap>
           ))}
           <Button
             id="add-new-row"
@@ -620,7 +620,7 @@ export const Services = ({ sectionId }) => {
           cancelText="Batal"
           loading={isLoading}
         >
-          <InputWrapper>
+          <InputWrap>
             <Input
               id="edit-service-name"
               labelText="Nama Layanan"
@@ -632,9 +632,9 @@ export const Services = ({ sectionId }) => {
               errorContent={errors.service}
               isRequired
             />
-          </InputWrapper>
+          </InputWrap>
           {currentData.subService.map((subService, index) => (
-            <InputWrapper key={index}>
+            <InputWrap key={index}>
               <Input
                 id={`edit-service-type-name-${index}`}
                 labelText="Jenis Layanan"
@@ -684,7 +684,7 @@ export const Services = ({ sectionId }) => {
                   onClick={() => handleRemoveEditRow(index)}
                 />
               )}
-            </InputWrapper>
+            </InputWrap>
           ))}
           <Button
             id="edit-add-new-row"

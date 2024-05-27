@@ -2,14 +2,14 @@ import React, { useState, useEffect, Fragment } from "react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
 import { formatDate } from "@ibrahimstudio/function";
-import { fetchStockPO, fetchSearchData } from "../components/tools/data";
-import { handleCUDCentralPO } from "../components/tools/handler";
-import { useNotifications } from "../components/feedback/context/notifications-context";
-import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layout/tables";
-import { SubmitForm } from "../components/user-input/forms";
-import { InputWrapper, SearchInput } from "../components/user-input/inputs";
-import { PlusIcon, TrashIcon } from "../components/layout/icons";
-import { PaginationV2 } from "../components/navigator/paginationv2";
+import { fetchStockPO, fetchSearchData } from "../libs/sources/data";
+import { handleCUDCentralPO } from "../libs/plugins/handler";
+import { useNotifications } from "../components/feedbacks/context/notifications-context";
+import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
+import { SubmitForm } from "../components/input-controls/forms";
+import { InputWrap, SearchInput } from "../components/input-controls/inputs";
+import { PlusIcon, TrashIcon } from "../components/layouts/icons";
+import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const CentralPO = ({ sectionId }) => {
@@ -221,7 +221,7 @@ export const CentralPO = ({ sectionId }) => {
     <section id={sectionId} className={styles.tabelSection}>
       <b className={styles.tabelSectionTitle}>PO Pusat</b>
       <div className={styles.tabelSectionNav}>
-        <InputWrapper>
+        <InputWrap>
           <SearchInput
             id={`search-data-${sectionId}`}
             placeholder="Cari data ..."
@@ -239,8 +239,8 @@ export const CentralPO = ({ sectionId }) => {
             options={statusList}
             onSelect={handleStatusChange}
           />
-        </InputWrapper>
-        <InputWrapper>
+        </InputWrap>
+        <InputWrap>
           <Input
             id={`limit-data-${sectionId}`}
             variant="select"
@@ -259,7 +259,7 @@ export const CentralPO = ({ sectionId }) => {
             onClick={openForm}
             startContent={<PlusIcon width="17px" height="100%" />}
           />
-        </InputWrapper>
+        </InputWrap>
       </div>
       <TableData headerData={tableHeadData} dataShown={isDataShown} loading={isFetching}>
         {filteredData.map((po, index) => (
@@ -272,12 +272,12 @@ export const CentralPO = ({ sectionId }) => {
               <Fragment>
                 {po["Detail PO"].map((detailPO, index) => (
                   <Fragment key={index}>
-                    <InputWrapper width="100%">
+                    <InputWrap width="100%">
                       <Input id={`item-name-${index}`} labelText="Nama Item" value={detailPO.itemname} isReadonly />
                       <Input id={`item-sku-${index}`} labelText="SKU Item" value={detailPO.sku} isReadonly />
                       <Input id={`item-qty-${index}`} labelText="Jumlah Item" value={detailPO.qty} isReadonly />
-                    </InputWrapper>
-                    <InputWrapper width="100%">
+                    </InputWrap>
+                    <InputWrap width="100%">
                       <Input
                         id={`item-note-${index}`}
                         variant="textarea"
@@ -286,7 +286,7 @@ export const CentralPO = ({ sectionId }) => {
                         value={detailPO.note}
                         isReadonly
                       />
-                    </InputWrapper>
+                    </InputWrap>
                   </Fragment>
                 ))}
               </Fragment>
@@ -299,7 +299,7 @@ export const CentralPO = ({ sectionId }) => {
           </TableRow>
         ))}
       </TableData>
-      {isDataShown && <PaginationV2 currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+      {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
       {isFormOpen && (
         <SubmitForm
           formTitle="Form Permintaan PO Pusat"
@@ -311,7 +311,7 @@ export const CentralPO = ({ sectionId }) => {
         >
           {inputData.item.map((item, index) => (
             <Fragment key={index}>
-              <InputWrapper>
+              <InputWrap>
                 {Array.isArray(stockData) && (
                   <Input
                     id={`item-name-${index}`}
@@ -356,8 +356,8 @@ export const CentralPO = ({ sectionId }) => {
                   errorContent={errors.item[index].stockin}
                   isRequired
                 />
-              </InputWrapper>
-              <InputWrapper>
+              </InputWrap>
+              <InputWrap>
                 <Input
                   id={`item-note-${index}`}
                   variant="textarea"
@@ -395,7 +395,7 @@ export const CentralPO = ({ sectionId }) => {
                     onClick={() => handleRemoveRow(index)}
                   />
                 )}
-              </InputWrapper>
+              </InputWrap>
             </Fragment>
           ))}
           <Button

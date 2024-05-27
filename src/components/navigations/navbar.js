@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@ibrahimstudio/button";
 import { useNavigate } from "react-router-dom";
-import { fetchTabMenus } from "../tools/data";
-import { handleLogout } from "../tools/handler";
-import { LogoPrimary, UserAvatar, BellNotification, ExitIcon } from "../layout/icons";
-import { TabButton, DropDownButton } from "../user-input/buttons";
-import { useNotifications } from "../feedback/context/notifications-context";
-import { toPathname, toTitleCase } from "../tools/controller";
+import { fetchTabMenus } from "../../libs/sources/data";
+import { handleLogout } from "../../libs/plugins/handler";
+import { LogoPrimary, UserAvatar, BellNotification, ExitIcon } from "../layouts/icons";
+import { TabButton, DropDownButton } from "../input-controls/buttons";
+import { useNotifications } from "../feedbacks/context/notifications-context";
+import { toPathname, toTitleCase } from "../../libs/plugins/controller";
 import styles from "./styles/nav.module.css";
 
 const Navbar = () => {
