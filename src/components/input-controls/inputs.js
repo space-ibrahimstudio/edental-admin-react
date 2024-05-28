@@ -1,73 +1,7 @@
 import React, { useState } from "react";
 import { Input } from "@ibrahimstudio/input";
-import { EyeOpen, EyeSlash, SearchIcon } from "../layouts/icons";
-import "./styles/field-input.css";
+import { SearchIcon } from "../layouts/icons";
 import styles from "./styles/user-input.module.css";
-
-export const FieldInput = ({ id, type, name, placeholder, autoComplete, value, onChange, errorMssg, forgotFunction }) => {
-  const [passwordSeen, setPasswordSeen] = useState(false);
-  const togglePasswordSeen = () => {
-    setPasswordSeen(!passwordSeen);
-  };
-
-  if (type === "password") {
-    return (
-      <div className="input-field">
-        <label htmlFor={id} style={{ display: "none" }}>
-          {placeholder}
-        </label>
-        <div className="input-field-input">
-          <input
-            id={id}
-            className="input-field-value"
-            placeholder={placeholder}
-            type={passwordSeen ? "text" : "password"}
-            name={name}
-            value={value}
-            onChange={onChange}
-            autoComplete={autoComplete}
-          />
-          <div className="input-field-toggle" onClick={togglePasswordSeen}>
-            {passwordSeen ? <EyeSlash width="19px" height="100%" color="#3880EB" /> : <EyeOpen width="19px" height="100%" color="#3880EB" />}
-          </div>
-        </div>
-        {errorMssg && (
-          <div className="input-field-mssg">
-            <h6 className="input-field-mssg-text">{errorMssg}</h6>
-          </div>
-        )}
-        <div className="input-field-mssg" onClick={forgotFunction}>
-          <h6 className="input-field-help-text">Lupa Password?</h6>
-        </div>
-      </div>
-    );
-  } else {
-    return (
-      <div className="input-field">
-        <label htmlFor={id} style={{ display: "none" }}>
-          {placeholder}
-        </label>
-        <div className="input-field-input">
-          <input
-            id={id}
-            className="input-field-value"
-            placeholder={placeholder}
-            type={type}
-            name={name}
-            value={value}
-            onChange={onChange}
-            autoComplete={autoComplete}
-          />
-        </div>
-        {errorMssg && (
-          <div className="input-field-mssg">
-            <h6 className="input-field-mssg-text">{errorMssg}</h6>
-          </div>
-        )}
-      </div>
-    );
-  }
-};
 
 export const SearchInput = ({ id, placeholder, property, userData, setUserData, isReadonly }) => {
   const [searchTerm, setSearchTerm] = useState("");

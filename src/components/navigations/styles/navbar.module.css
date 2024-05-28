@@ -12,6 +12,13 @@
   justify-content: center;
 }
 
+.navLogo {
+  cursor: pointer;
+  position: relative;
+  width: var(--pixel-150);
+  height: auto;
+}
+
 .navNotifCounter {
   border-radius: 3px;
   color: var(--color-secondlight);
@@ -69,6 +76,7 @@
   flex-direction: row;
   justify-content: center;
   gap: var(--pixel-10);
+  border-bottom: 1px solid var(--color-secondary-10);
 }
 
 .nav {
@@ -80,6 +88,6 @@
   background-color: var(--color-foreground);
   flex-direction: column;
   justify-content: flex-start;
-  padding: 0 var(--pixel-40);
-  z-index: 99;
+  padding: 0 var(--pixel-60);
+  z-index: 999;
 }

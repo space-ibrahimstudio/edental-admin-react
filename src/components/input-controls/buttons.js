@@ -1,64 +1,8 @@
-import React, { useState, useEffect, useRef, Fragment } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toTitleCase } from "../../libs/plugins/controller";
-import { LoadingContent } from "../feedbacks/screens";
+import { useContent } from "@ibrahimstudio/react";
 import { ChevronDown, ArrowIcon } from "../layouts/icons";
-import prim from "./styles/prim-button.module.css";
 import tab from "./styles/tab-button.module.css";
-
-export const PrimButton = ({ variant, buttonText, onClick, iconPosition, children, loading }) => {
-  if (iconPosition === "start") {
-    if (variant === "hollow") {
-      return (
-        <button className={prim.primButtonHollow} onClick={onClick}>
-          {children}
-          <b className={prim.primButtonHollowText}>{buttonText}</b>
-        </button>
-      );
-    } else {
-      return (
-        <button className={prim.primButton} onClick={onClick}>
-          {loading ? (
-            <Fragment>
-              <b className={prim.primButtonHollowText}>Loading</b>
-              <LoadingContent />
-            </Fragment>
-          ) : (
-            <Fragment>
-              {children}
-              <b className={prim.primButtonText}>{buttonText}</b>
-            </Fragment>
-          )}
-        </button>
-      );
-    }
-  } else {
-    if (variant === "hollow") {
-      return (
-        <button className={prim.primButtonHollow} onClick={onClick}>
-          <b className={prim.primButtonHollowText}>{buttonText}</b>
-          {children}
-        </button>
-      );
-    } else {
-      return (
-        <button className={prim.primButton} onClick={onClick}>
-          {loading ? (
-            <Fragment>
-              <b className={prim.primButtonHollowText}>Loading</b>
-              <LoadingContent />
-            </Fragment>
-          ) : (
-            <Fragment>
-              <b className={prim.primButtonText}>{buttonText}</b>
-              {children}
-            </Fragment>
-          )}
-        </button>
-      );
-    }
-  }
-};
 
 export const DropDownButton = ({ buttonText, onClick }) => {
   return (
@@ -72,13 +16,12 @@ export const DropDownButton = ({ buttonText, onClick }) => {
 };
 
 export const TabButton = ({ isActive, hasSubMenu, buttonText, children }) => {
-  const [activeTab, setActiveTab] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const titleCaseText = toTitleCase(buttonText);
+  const { toTitleCase } = useContent();
   const navigate = useNavigate();
   const location = useLocation();
   const ref = useRef(null);
+  const [activeTab, setActiveTab] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
     setDropdownOpen((prevOpen) => !prevOpen);
@@ -119,7 +62,7 @@ export const TabButton = ({ isActive, hasSubMenu, buttonText, children }) => {
 
   return (
     <button className={`${tab.navMenuTab} ${activeTab === isActive ? tab.active : ""}`} onClick={handleClick}>
-      <b className={tab.navMenuTabText}>{titleCaseText}</b>
+      <b className={tab.navMenuTabText}>{toTitleCase(buttonText)}</b>
       {hasSubMenu && <ChevronDown width="10px" height="100%" flipped={dropdownOpen} />}
       {dropdownOpen && (
         <section ref={ref} className={`${tab.dropdown} ${dropdownOpen ? tab.opened : tab.closed}`}>

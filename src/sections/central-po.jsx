@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
+import { useFormat } from "@ibrahimstudio/react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
-import { formatDate } from "@ibrahimstudio/function";
 import { fetchStockPO, fetchSearchData } from "../libs/sources/data";
 import { handleCUDCentralPO } from "../libs/plugins/handler";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
@@ -13,6 +13,7 @@ import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const CentralPO = ({ sectionId }) => {
+  const { newDate } = useFormat();
   const { showNotifications } = useNotifications();
   // data state
   const [poData, setPoData] = useState([]);
@@ -293,7 +294,7 @@ export const CentralPO = ({ sectionId }) => {
             }
           >
             <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
-            <TableBodyValue value={formatDate(po["PO Stock"].postockcreate, "en-gb")} />
+            <TableBodyValue value={newDate(po["PO Stock"].postockcreate, "en-gb")} />
             <TableBodyValue value={po["PO Stock"].postockcode} />
             <TableBodyValue value={po["PO Stock"].username} position="end" />
           </TableRow>

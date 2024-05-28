@@ -8,39 +8,35 @@
   width: var(--pixel-20);
   background-color: var(--color-primary);
   height: var(--pixel-20);
-  animation: circleBounce 0.3s alternate infinite ease;
+  animation: bounce 0.3s alternate infinite ease;
 }
 
 .circleBodySm {
   width: 7px;
   background-color: var(--color-secondlight);
   height: 7px;
-  animation: circleBounceSm 0.3s alternate infinite ease;
+  animation: smallbounce 0.3s alternate infinite ease;
 }
 
-@keyframes circleBounce {
+@keyframes bounce {
   0% {
     transform: translateY(0);
   }
-
   40% {
     transform: translateY(var(--pixel-min-10));
   }
-
   100% {
     transform: translateY(var(--pixel-min-20));
   }
 }
 
-@keyframes circleBounceSm {
+@keyframes smallbounce {
   0% {
     transform: translateY(0);
   }
-
   40% {
     transform: translateY(var(--pixel-min-2));
   }
-
   100% {
     transform: translateY(var(--pixel-min-5));
   }
@@ -71,19 +67,17 @@
   width: var(--pixel-20);
   background-color: var(--color-primary-30);
   height: 4px;
-  animation: shadowEase 0.3s alternate infinite ease;
+  animation: shadows 0.3s alternate infinite ease;
 }
 
-@keyframes shadowEase {
+@keyframes shadows {
   0% {
     transform: scaleX(1);
   }
-
   40% {
     transform: scaleX(0.3);
     opacity: 0.7;
   }
-
   100% {
     transform: scaleX(0.2);
     opacity: 0.4;

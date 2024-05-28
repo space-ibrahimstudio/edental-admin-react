@@ -13,7 +13,7 @@
   color: var(--color-secondary);
   justify-content: center;
   box-sizing: border-box;
-  transition: all 0.3s ease-in-out;
+  transition: var(--transit);
 }
 
 .paginationArrow:hover {

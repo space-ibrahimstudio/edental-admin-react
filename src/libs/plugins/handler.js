@@ -1,14 +1,14 @@
 import axios from "axios";
 import { fetchIPAddress } from "../sources/data";
 
-const baseUrl = process.env.REACT_APP_BASE_URL;
+const baseUrl = process.env.REACT_APP_API_URL;
 
 export async function handleLogin(username, password) {
   try {
     const formData = new FormData();
     formData.append("data", JSON.stringify({ username, password }));
 
-    const response = await axios.post(`${baseUrl}/edental_api/authapi/login`, formData, {
+    const response = await axios.post(`${baseUrl}/authapi/login`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -55,7 +55,7 @@ export async function handleLoginLog(ipAddress) {
       })
     );
 
-    const response = await axios.post(`${baseUrl}/edental_api/authapi/loginlog`, formData, {
+    const response = await axios.post(`${baseUrl}/authapi/loginlog`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -173,7 +173,7 @@ export async function handleCUDReserve(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/cudreservation`, formData, {
+    const response = await axios.post(`${baseUrl}/office/cudreservation`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -205,7 +205,7 @@ export async function handleCUDService(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/cudservice`, formData, {
+    const response = await axios.post(`${baseUrl}/office/cudservice`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -243,7 +243,7 @@ export async function handleCUDBranch(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/cudoutlet`, formData, {
+    const response = await axios.post(`${baseUrl}/office/cudoutlet`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -274,7 +274,7 @@ export async function handleCUDOrder(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/cudorder`, formData, {
+    const response = await axios.post(`${baseUrl}/office/cudorder`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -310,7 +310,7 @@ export async function handleCUDStock(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/cudstock`, formData, {
+    const response = await axios.post(`${baseUrl}/office/cudstock`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -341,7 +341,7 @@ export async function handleCUDCentralPO(inputData, operation, id) {
       formData.append("iddelete", id);
     }
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/postock`, formData, {
+    const response = await axios.post(`${baseUrl}/office/postock`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

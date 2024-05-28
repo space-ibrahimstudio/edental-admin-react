@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useContent, useFormat } from "@ibrahimstudio/react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
 import { exportToExcel } from "../libs/plugins/controller";
-import { formatDate, toTitleCase } from "@ibrahimstudio/function";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
@@ -17,6 +17,8 @@ import styles from "../sections/styles/tabel-section.module.css";
 
 const StockHistory = () => {
   const navigate = useNavigate();
+  const { toTitleCase } = useContent();
+  const { newDate } = useFormat();
   const { showNotifications } = useNotifications();
   const { stockName } = useParams();
   const [stockData, setStockData] = useState([]);
@@ -138,7 +140,7 @@ const StockHistory = () => {
             <TableRow key={index} isEven={index % 2 === 0}>
               <TableBodyValue type="num" value={index + 1} />
               <TableBodyValue value={history.sku} />
-              <TableBodyValue value={formatDate(history.logstockcreate, "en-gb")} />
+              <TableBodyValue value={newDate(history.logstockcreate, "en-gb")} />
               <TableBodyValue value={history.status} />
               <TableBodyValue value={history.value} />
               <TableBodyValue value={history.qty} />

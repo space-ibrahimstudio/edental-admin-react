@@ -33,31 +33,31 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
     switch (type) {
       case "num":
         width = "var(--pixel-100)";
-        color = "var(--color-primary)";
+        color = "var(--color-secondary)";
         justifyContent = "center";
         fontWeight = "600";
         break;
       case "atn":
         width = "var(--pixel-120)";
-        color = "var(--color-secondary)";
+        color = "var(--color-primary)";
         justifyContent = "center";
         fontWeight = "600";
         break;
       case "link":
         width = "var(--pixel-300)";
-        color = "var(--color-secondary)";
+        color = "var(--color-primary)";
         justifyContent = "space-between";
         fontWeight = "600";
         break;
       case "reg":
         width = "var(--pixel-300)";
-        color = "var(--color-primary)";
+        color = "var(--color-secondary)";
         justifyContent = "space-between";
         fontWeight = "600";
         break;
       default:
         width = "var(--pixel-300)";
-        color = "var(--color-primary)";
+        color = "var(--color-secondary)";
         justifyContent = "space-between";
         fontWeight = "600";
         break;
@@ -98,7 +98,7 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
                   {copied ? "Link Copied!" : children}
                 </a>
                 <AtnIcon onClick={copyToClipboard}>
-                  <Copy color="var(--color-primary-20)" />
+                  <Copy color="var(--color-secondary-20)" />
                 </AtnIcon>
               </Fragment>
             ) : (
@@ -108,7 +108,7 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
                 </h5>
                 {isCopy && (
                   <AtnIcon onClick={copyToClipboard}>
-                    <Copy color="var(--color-primary-20)" />
+                    <Copy color="var(--color-secondary-20)" />
                   </AtnIcon>
                 )}
               </Fragment>
@@ -276,11 +276,12 @@ export const TR = ({
   );
 };
 
-export const TBody = ({ children, byNumber, isDeletable, isEditable, isExpandable }) => {
+export const TBody = ({ children, byNumber, page, limit, isDeletable, isEditable, isExpandable }) => {
   return (
     <main className={styles.tableBody}>
       {React.Children.map(children, (child, index) => {
-        return React.cloneElement(child, { byNumber, rowIndex: index + 1, isDeletable, isEditable, isExpandable });
+        const rowIndex = (page - 1) * limit + index + 1;
+        return React.cloneElement(child, { byNumber, rowIndex, isDeletable, isEditable, isExpandable });
       })}
     </main>
   );
@@ -299,6 +300,8 @@ export const THead = ({ children, byNumber, isDeletable, isEditable, isExpandabl
 const Table = ({
   id,
   byNumber,
+  page,
+  limit,
   isLoading,
   loadingPlacholder,
   isNoData,
@@ -324,7 +327,7 @@ const Table = ({
       ) : (
         <div className={styles.table}>
           {React.Children.map(children, (child) => {
-            return React.cloneElement(child, { byNumber, isDeletable, isEditable, isExpandable, isClickable });
+            return React.cloneElement(child, { byNumber, page, limit, isDeletable, isEditable, isExpandable, isClickable });
           })}
         </div>
       )}

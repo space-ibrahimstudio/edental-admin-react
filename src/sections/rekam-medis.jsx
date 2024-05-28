@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
+import { useFormat } from "@ibrahimstudio/react";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
-import { formatDate } from "@ibrahimstudio/function";
 import { fetchAllDataList, fetchDataList } from "../libs/sources/data";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { ButtonGroup } from "../components/input-controls/buttons";
@@ -12,6 +12,7 @@ import { InputWrap } from "../components/input-controls/inputs";
 import styles from "./styles/tabel-section.module.css";
 
 export const MedicRecord = ({ sectionId }) => {
+  const { newDate } = useFormat();
   const { showNotifications } = useNotifications();
   const [custList, setCustList] = useState([]);
   const [tabId, setTabId] = useState("1");
@@ -252,7 +253,7 @@ export const MedicRecord = ({ sectionId }) => {
                   {filteredData.map((reserve, index) => (
                     <TableRow key={index} isEven={index % 2 === 0}>
                       <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
-                      <TableBodyValue value={formatDate(reserve.datetimecreate, "en-gb")} />
+                      <TableBodyValue value={newDate(reserve.datetimecreate, "en-gb")} />
                       <TableBodyValue value={reserve.reservationdate} />
                       <TableBodyValue value={reserve.reservationtime} />
                       <TableBodyValue value={reserve.rscode} />
@@ -310,7 +311,7 @@ export const MedicRecord = ({ sectionId }) => {
                   {filteredData.map((reserve, index) => (
                     <TableRow key={index} isEven={index % 2 === 0}>
                       <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
-                      <TableBodyValue value={formatDate(reserve.datetimecreate, "en-gb")} />
+                      <TableBodyValue value={newDate(reserve.datetimecreate, "en-gb")} />
                       <TableBodyValue value={reserve.reservationdate} />
                       <TableBodyValue value={reserve.reservationtime} />
                       <TableBodyValue value={reserve.rscode} />
@@ -377,7 +378,7 @@ export const MedicRecord = ({ sectionId }) => {
                   {filteredData.map((reserve, index) => (
                     <TableRow key={index} isEven={index % 2 === 0}>
                       <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
-                      <TableBodyValue value={formatDate(reserve.datetimecreate, "en-gb")} />
+                      <TableBodyValue value={newDate(reserve.datetimecreate, "en-gb")} />
                       <TableBodyValue value={reserve.reservationdate} />
                       <TableBodyValue value={reserve.reservationtime} />
                       <TableBodyValue value={reserve.rscode} />
@@ -418,7 +419,7 @@ export const MedicRecord = ({ sectionId }) => {
               {filteredData.map((reserve, index) => (
                 <TableRow key={index} isEven={index % 2 === 0}>
                   <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
-                  <TableBodyValue value={formatDate(reserve.datetimecreate, "en-gb")} />
+                  <TableBodyValue value={newDate(reserve.datetimecreate, "en-gb")} />
                   <TableBodyValue value={reserve.reservationdate} />
                   <TableBodyValue value={reserve.reservationtime} />
                   <TableBodyValue value={reserve.rscode} />
@@ -545,7 +546,7 @@ export const MedicRecord = ({ sectionId }) => {
             <TableBodyValue value={cust.useremail} />
             <TableBodyValue value={cust.userphone} />
             <TableBodyValue
-              value={formatDate(cust.usercreate, "en-gb")}
+              value={newDate(cust.usercreate, "en-gb")}
               position="end"
             />
           </TableRow>

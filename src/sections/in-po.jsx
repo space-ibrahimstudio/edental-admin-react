@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from "react";
+import { useFormat } from "@ibrahimstudio/react";
 import { Input } from "@ibrahimstudio/input";
-import { formatDate } from "@ibrahimstudio/function";
 import { fetchStockPO } from "../libs/sources/data";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
@@ -9,6 +9,7 @@ import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const InPO = ({ sectionId }) => {
+  const { newDate } = useFormat();
   const { showNotifications } = useNotifications();
   // data state
   const [poData, setPoData] = useState([]);
@@ -159,7 +160,7 @@ export const InPO = ({ sectionId }) => {
             }
           >
             <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
-            <TableBodyValue value={formatDate(po["PO Stock"].postockcreate, "en-gb")} />
+            <TableBodyValue value={newDate(po["PO Stock"].postockcreate, "en-gb")} />
             <TableBodyValue value={po["PO Stock"].postockcode} />
             <TableBodyValue value={po["PO Stock"].username} />
             <TableBodyValue value={po["PO Stock"].outletname} position="end" />

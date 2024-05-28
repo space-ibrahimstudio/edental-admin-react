@@ -1,29 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@ibrahimstudio/button";
 import { useNavigate } from "react-router-dom";
+import { useContent } from "@ibrahimstudio/react";
+import { useAuth } from "../../libs/securities/auth";
+import { Button } from "@ibrahimstudio/button";
 import { fetchTabMenus } from "../../libs/sources/data";
-import { handleLogout } from "../../libs/plugins/handler";
-import { LogoPrimary, ExitIcon } from "../layouts/icons";
+import { ExitIcon } from "../layouts/icons";
 import { TabButton, DropDownButton } from "../input-controls/buttons";
 import { useNotifications } from "../feedbacks/context/notifications-context";
-import { toPathname, toTitleCase } from "../../libs/plugins/controller";
-import styles from "./styles/nav.module.css";
+import styles from "./styles/navbar.module.css";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const { toPathname, toTitleCase } = useContent();
+  const { logout } = useAuth();
+  const { showNotifications } = useNotifications();
   const [tabMenus, setTabMenus] = useState([]);
 
-  const navigate = useNavigate();
-  const { showNotifications } = useNotifications();
-
-  const logoutClick = () => {
-    handleLogout();
-    showNotifications("success", "Kamu berhasil logout. Mohon login kembali.");
-  };
-
-  const logoClick = () => {
-    navigate("/dashboard");
-  };
-
+  const logoutClick = () => logout();
   const SubTabClick = (menuName, submenuName) => {
     const formattedMenuName = toPathname(menuName);
     const formattedSubmenuName = toPathname(submenuName);
@@ -41,57 +34,34 @@ const Navbar = () => {
         showNotifications("danger", "Error fetching tab menus.");
       }
     };
-
     fetchMenus();
   }, []);
 
   return (
     <nav className={styles.nav}>
-      <div className={styles.navBody}>
-        <div style={{ cursor: "pointer" }} onClick={logoClick}>
-          <LogoPrimary width="140px" height="100%" />
-        </div>
+      <section className={styles.navBody}>
+        <img className={styles.navLogo} loading="lazy" alt="Navbar Logo" src="/svg/logo-primary.svg" onClick={() => navigate("/")} />
+        {/* prettier-ignore */}
         <div className={styles.navMenu}>
-          {Array.isArray(tabMenus) &&
-            tabMenus.map((menu) => (
-              <TabButton
-                key={menu["Menu Utama"].idmenu}
-                isActive={menu["Menu Utama"].menu_name}
-                hasSubMenu={menu["Sub Menu"] && menu["Sub Menu"].length > 0}
-                buttonText={menu["Menu Utama"].menu_name}
-              >
-                {menu["Sub Menu"] &&
-                  menu["Sub Menu"].map((submenu) => (
-                    <DropDownButton
-                      key={submenu.idsubmenu}
-                      buttonText={toTitleCase(submenu.submenu_name)}
-                      onClick={() => SubTabClick(menu["Menu Utama"].menu_name, submenu.submenu_name)}
-                    />
-                  ))}
-              </TabButton>
-            ))}
+          {Array.isArray(tabMenus) && tabMenus.map((menu, index) => (
+            <TabButton
+              key={index}
+              isActive={menu["Menu Utama"].menu_name}
+              hasSubMenu={menu["Sub Menu"] && menu["Sub Menu"].length > 0}
+              buttonText={menu["Menu Utama"].menu_name}
+            >
+              {menu["Sub Menu"] && menu["Sub Menu"].map((submenu, index) => (
+                <DropDownButton
+                  key={index}
+                  buttonText={toTitleCase(submenu.submenu_name)}
+                  onClick={() => SubTabClick(menu["Menu Utama"].menu_name, submenu.submenu_name)}
+                />
+              ))}
+            </TabButton>
+          ))}
         </div>
-        <Button
-          id="logout"
-          size="sm"
-          radius="full"
-          bgColor="var(--color-hint)"
-          buttonText="Log out"
-          endContent={<ExitIcon width="14px" height="100%" />}
-          onClick={logoutClick}
-        />
-        {/* <div className={styles.navOption}>
-          <div className={styles.navNotif}>
-            <BellNotification width="100%" height="25px" />
-            <div className={styles.navNotifCounter}>
-              <div className={styles.navNotifCounterText}>3</div>
-            </div>
-          </div>
-          <div className={styles.navUser}>
-            <UserAvatar width="37.6px" height="100%" />
-          </div>
-        </div> */}
-      </div>
+        <Button id="logout" size="sm" radius="full" buttonText="Logout" endContent={<ExitIcon width="14px" height="100%" />} onClick={logoutClick} />
+      </section>
     </nav>
   );
 };

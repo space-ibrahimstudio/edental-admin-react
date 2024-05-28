@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = process.env.REACT_APP_BASE_URL;
+const baseUrl = process.env.REACT_APP_API_URL;
 
 export async function fetchTabMenus() {
   try {
@@ -10,7 +10,7 @@ export async function fetchTabMenus() {
     const formData = new FormData();
     formData.append("data", JSON.stringify({ secret: userSecret, level: userLevel }));
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/viewmenu`, formData, {
+    const response = await axios.post(`${baseUrl}/office/viewmenu`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -41,7 +41,7 @@ export async function fetchUserData() {
       })
     );
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/viewuser`, formData, {
+    const response = await axios.post(`${baseUrl}/office/viewuser`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -105,7 +105,7 @@ export async function fetchLogStock(stockName) {
       })
     );
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/logstock`, formData, {
+    const response = await axios.post(`${baseUrl}/office/logstock`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -133,7 +133,7 @@ export async function fetchDataList(page, limit, apiEndpoint) {
       })
     );
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/${apiEndpoint}`, formData, {
+    const response = await axios.post(`${baseUrl}/office/${apiEndpoint}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -163,7 +163,7 @@ export async function fetchStockPO(page, limit, status, apiEndpoint) {
       })
     );
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/${apiEndpoint}`, formData, {
+    const response = await axios.post(`${baseUrl}/office/${apiEndpoint}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -189,7 +189,7 @@ export async function fetchAllDataList(apiEndpoint) {
       })
     );
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/${apiEndpoint}`, formData, {
+    const response = await axios.post(`${baseUrl}/office/${apiEndpoint}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -215,7 +215,7 @@ export async function fetchDentistList(apiEndpoint, outletCode) {
       })
     );
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/${apiEndpoint}`, formData, {
+    const response = await axios.post(`${baseUrl}/office/${apiEndpoint}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -242,7 +242,7 @@ export async function fetchSearchData(apiEndpoint, query) {
       })
     );
 
-    const response = await axios.post(`${baseUrl}/edental_api/office/${apiEndpoint}`, formData, {
+    const response = await axios.post(`${baseUrl}/office/${apiEndpoint}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -261,7 +261,7 @@ export async function fetchAvailableTimes(apiEndpoint, date) {
     const formData = new FormData();
     formData.append("tgl", date);
 
-    const response = await axios.post(`${baseUrl}/edental_api/main/main`, formData, {
+    const response = await axios.post(`${baseUrl}/main/main`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

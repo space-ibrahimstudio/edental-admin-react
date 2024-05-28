@@ -1,5 +1,5 @@
 .chevron-down {
-  transition: all 0.3s ease-in-out;
+  transition: var(--transit);
 }
 
 .flipped {

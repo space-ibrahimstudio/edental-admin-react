@@ -1,160 +1,66 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button } from "@ibrahimstudio/button";
-import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { handleLogin, handleLoginLog } from "../../libs/plugins/handler";
-import { fetchIPAddress } from "../../libs/sources/data";
-import { useNotifications } from "../feedbacks/context/notifications-context";
-import { FieldInput } from "./inputs";
+import { useAuth } from "../../libs/securities/auth";
+import { Button } from "@ibrahimstudio/button";
+import { Input } from "@ibrahimstudio/input";
 import { LogoPrimary, CheckIcon, CloseIcon } from "../layouts/icons";
+import loginstyles from "./styles/login-form.module.css";
 import styles from "./styles/data-form.module.css";
-import "./styles/portal-form.css";
 
 const modalRoot = document.getElementById("modal-root") || document.body;
 
-export const PortalForm = ({ type, onClose }) => {
-  const [isClosing, setIsClosing] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+export const LoginForm = () => {
+  const { login } = useAuth();
+  const [inputData, setInputData] = useState({ username: "", password: "" });
 
-  const ref = useRef(null);
-  const navigate = useNavigate();
-  const { showNotifications } = useNotifications();
-
-  const handleClickOutside = (e) => {
-    if (ref.current && !ref.current.contains(e.target)) {
-      setIsClosing(true);
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setInputData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
-  const submitLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!username || !password) {
-      showNotifications("danger", "Mohon masukkan Username dan Kata Sandi dengan benar");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await handleLogin(username, password);
-
-      const ipAddress = await fetchIPAddress();
-      await handleLoginLog(ipAddress);
-
-      setIsClosing(true);
-      navigate("/dashboard");
-      showNotifications("success", `Kamu berhasil login. Selamat datang kembali, ${username}!`);
-    } catch (error) {
-      console.error("Error occurred during login:", error);
-      showNotifications("danger", "Login gagal. Mohon coba lagi.");
-    } finally {
-      setLoading(false);
-      window.location.reload();
-    }
+    await login(inputData);
   };
 
-  useEffect(() => {
-    if (isClosing) {
-      const animationDuration = 500;
-      setTimeout(() => {
-        onClose();
-      }, animationDuration);
-    }
-  }, [isClosing, onClose]);
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
-    let modalCount = 0;
-    const popupModals = document.querySelectorAll(".form-modal");
-    popupModals.forEach((modal) => {
-      if (!modal.classList.contains("fade-out")) {
-        modalCount++;
-      }
-    });
-    document.documentElement.style.overflow = modalCount > 0 ? "hidden" : "auto";
-    return () => {
-      document.documentElement.style.overflow = "auto";
-    };
-  }, [isClosing]);
-
-  const modalElement =
-    type === "login" ? (
-      <div className={`form-modal ${isClosing ? "fade-out" : "fade-in"}`}>
-        <form className={`form ${isClosing ? "move-down" : "move-up"}`} onSubmit={submitLogin} ref={ref}>
-          <header className="form-heading">
-            <LogoPrimary width="96px" height="100%" />
-            <h4 className="form-title">Welcome Back!</h4>
-          </header>
-          <main className="form-heading">
-            <FieldInput id="input-your-username" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-            <FieldInput
-              id="input-your-password"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setPasswordError("");
-              }}
-              errorMssg={passwordError}
-            />
-          </main>
-          <footer className="form-footer">
-            <button className={`form-footer-button ${!username || !password || loading ? "off" : ""}`} type="submit">
-              {loading ? <h5 className="form-footer-button-text">Mohon Tunggu ...</h5> : <h5 className="form-footer-button-text">LOGIN</h5>}
-            </button>
-            <h6 className="form-footer-ctaother">
-              <span>{`Belum punya akun? `}</span>
-              <span className="form-footer-link">Daftar Sekarang</span>
-            </h6>
-          </footer>
-        </form>
+  return (
+    <form className={loginstyles.loginForm} onSubmit={handleSubmit}>
+      <header className={loginstyles.formHead}>
+        <img className={loginstyles.formLogoIcon} loading="lazy" alt="Admin Login" src="/svg/logo-primary.svg" />
+        <h1 className={loginstyles.formTitle}>Admin Portal</h1>
+        <p className={loginstyles.formDesc}>Masukkan Username dan Password untuk mengakses Dashboard.</p>
+      </header>
+      <div className={loginstyles.formHead}>
+        <Input
+          id="login-username"
+          isLabeled={false}
+          placeholder="e.g. edental_admin"
+          type="text"
+          name="username"
+          value={inputData.username}
+          onChange={handleChange}
+          isRequired
+        />
+        <Input
+          id="login-password"
+          isLabeled={false}
+          placeholder="Masukkan kata sandi"
+          type="password"
+          name="password"
+          value={inputData.password}
+          onChange={handleChange}
+          isRequired
+        />
       </div>
-    ) : (
-      <div className={`form-modal ${isClosing ? "fade-out" : "fade-in"}`}>
-        <form className="form" onSubmit={submitLogin} ref={ref}>
-          <header className="form-heading">
-            <LogoPrimary width="96px" height="100%" />
-            <h4 className="form-title">Welcome!</h4>
-          </header>
-          <main className="form-heading">
-            <FieldInput id="input-your-username" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-            <FieldInput
-              id="input-your-password"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setPasswordError("");
-              }}
-              errorMssg={passwordError}
-            />
-          </main>
-          <footer className="form-footer">
-            <button className="form-footer-button" type="submit">
-              <h5 className="form-footer-button-text">LOGIN</h5>
-            </button>
-            <h6 className="form-footer-ctaother">
-              <span>{`Belum punya akun? `}</span>
-              <span className="form-footer-link">Daftar Sekarang</span>
-            </h6>
-          </footer>
-        </form>
-      </div>
-    );
-
-  return createPortal(modalElement, modalRoot);
+      <footer className={loginstyles.formFoot}>
+        <Button id="submit-login" isFullwidth type="submit" buttonText="Masuk ke Dashboard" />
+        <h6 className={loginstyles.formForgot}>Lupa Password?</h6>
+      </footer>
+    </form>
+  );
 };
 
 export const SubmitForm = ({ formTitle, formSubtitle, loading, onSubmit, saveText, cancelText, children, onClose }) => {

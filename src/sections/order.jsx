@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useFormat } from "@ibrahimstudio/react";
 import { Input } from "@ibrahimstudio/input";
-import { formatDate } from "@ibrahimstudio/function";
 import { fetchDataList } from "../libs/sources/data";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
@@ -11,6 +11,7 @@ import styles from "./styles/tabel-section.module.css";
 
 export const Order = ({ sectionId }) => {
   const navigate = useNavigate();
+  const { newDate } = useFormat();
   const { showNotifications } = useNotifications();
   // data state
   const [orderData, setOrderData] = useState([]);
@@ -119,7 +120,7 @@ export const Order = ({ sectionId }) => {
         {filteredData.map((order, index) => (
           <TableRow key={index} isEven={index % 2 === 0} isClickable={true} onClick={() => navigateOrderDetail(order["Transaction"].noinvoice)}>
             <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
-            <TableBodyValue value={formatDate(order["Transaction"].transactioncreate, "en-gb")} />
+            <TableBodyValue value={newDate(order["Transaction"].transactioncreate, "en-gb")} />
             <TableBodyValue value={order["Transaction"].rscode} />
             <TableBodyValue value={order["Transaction"].noinvoice} />
             <TableBodyValue value={order["Transaction"].transactionname} />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
+import { useFormat } from "@ibrahimstudio/react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
-import { formatDate } from "@ibrahimstudio/function";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
@@ -18,6 +18,7 @@ import styles from "../sections/styles/tabel-section.module.css";
 
 const DetailOrder = () => {
   const navigate = useNavigate();
+  const { newDate } = useFormat();
   const { showNotifications } = useNotifications();
   const { noInvoice } = useParams();
   const [orderDetail, setOrderDetail] = useState([]);
@@ -328,7 +329,7 @@ const DetailOrder = () => {
           {orderDetail.map((detail, index) => (
             <TableRow key={index} isEven={index % 2 === 0}>
               <TableBodyValue type="num" value={index + 1} />
-              <TableBodyValue value={formatDate(detail.transactiondetailcreate, "en-gb")} />
+              <TableBodyValue value={newDate(detail.transactiondetailcreate, "en-gb")} />
               <TableBodyValue value={detail.service} />
               <TableBodyValue value={detail.servicetype} />
               <TableBodyValue value={detail.price} />

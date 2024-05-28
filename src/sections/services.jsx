@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
+import { useFormat } from "@ibrahimstudio/react";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
-import { formatDate } from "@ibrahimstudio/function";
 import { fetchDataList, fetchAllDataList } from "../libs/sources/data";
 import { handleCUDService } from "../libs/plugins/handler";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
@@ -14,6 +14,7 @@ import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const Services = ({ sectionId }) => {
+  const { newDate } = useFormat();
   const { showNotifications } = useNotifications();
   // data state
   const [serviceData, setServiceData] = useState([]);
@@ -517,8 +518,8 @@ export const Services = ({ sectionId }) => {
             <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
             <TableBodyValue value={service["Nama Layanan"].servicename} />
             <TableBodyValue value={service["Nama Layanan"].idservice} />
-            <TableBodyValue value={formatDate(service["Nama Layanan"].servicecreate, "en-gb")} />
-            <TableBodyValue value={formatDate(service["Nama Layanan"].serviceupdate, "en-gb")} />
+            <TableBodyValue value={newDate(service["Nama Layanan"].servicecreate, "en-gb")} />
+            <TableBodyValue value={newDate(service["Nama Layanan"].serviceupdate, "en-gb")} />
             <TableBodyValue value={service["Nama Layanan"].servicestatus} position="end" />
           </TableRow>
         ))}

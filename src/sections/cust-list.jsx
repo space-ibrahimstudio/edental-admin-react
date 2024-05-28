@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useFormat } from "@ibrahimstudio/react";
 import { exportToExcel } from "../libs/plugins/controller";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
-import { formatDate } from "@ibrahimstudio/function";
 import { fetchDataList } from "../libs/sources/data";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { TableData, TableRow, TableHeadValue, TableBodyValue } from "../components/layouts/tables";
@@ -11,6 +11,7 @@ import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
 export const CustList = ({ sectionId }) => {
+  const { newDate } = useFormat();
   const { showNotifications } = useNotifications();
   // data state
   const [custData, setCustData] = useState([]);
@@ -122,7 +123,7 @@ export const CustList = ({ sectionId }) => {
             <TableBodyValue value={cust.address} />
             <TableBodyValue value={cust.useremail} />
             <TableBodyValue value={cust.userphone} />
-            <TableBodyValue value={formatDate(cust.usercreate, "en-gb")} position="end" />
+            <TableBodyValue value={newDate(cust.usercreate, "en-gb")} position="end" />
           </TableRow>
         ))}
       </TableData>

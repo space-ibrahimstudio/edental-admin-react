@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useFormat } from "@ibrahimstudio/react";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
-import { formatDate } from "@ibrahimstudio/function";
 import { fetchHoursList, fetchDataList, fetchAllDataList } from "../libs/sources/data";
 import { handleCUDReserve } from "../libs/plugins/handler";
 import { getCurrentDate, exportToExcel } from "../libs/plugins/controller";
@@ -15,9 +15,10 @@ import { SearchInput } from "../components/input-controls/inputs";
 import Pagination from "../components/navigations/pagination";
 import styles from "./styles/tabel-section.module.css";
 
-const baseUrl = process.env.REACT_APP_BASE_URL;
+const baseUrl = process.env.REACT_APP_API_URL;
 
 export const Reservation = ({ sectionId }) => {
+  const { newDate } = useFormat();
   const { showNotifications } = useNotifications();
   // data state
   const [reserveData, setReserveData] = useState([]);
@@ -112,7 +113,7 @@ export const Reservation = ({ sectionId }) => {
       const formData = new FormData();
       formData.append("tgl", date);
 
-      const response = await axios.post(`${baseUrl}/edental_api/main/searchtime`, formData, {
+      const response = await axios.post(`${baseUrl}/main/searchtime`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -378,7 +379,7 @@ export const Reservation = ({ sectionId }) => {
         {filteredData.map((reserve, index) => (
           <TableRow key={index} isEven={index % 2 === 0}>
             <TableBodyValue type="num" value={(currentPage - 1) * limit + index + 1} />
-            <TableBodyValue value={formatDate(reserve.datetimecreate, "en-gb")} />
+            <TableBodyValue value={newDate(reserve.datetimecreate, "en-gb")} />
             <TableBodyValue value={reserve.reservationdate} />
             <TableBodyValue value={reserve.reservationtime} />
             <TableBodyValue value={reserve.rscode} />

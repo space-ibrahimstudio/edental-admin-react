@@ -4,7 +4,7 @@
   position: relative;
   font-size: var(--font-lg);
   font-family: var(--font-jakarta);
-  color: #045e83;
+  color: var(--color-hint);
   text-align: center;
 }
 
@@ -12,7 +12,7 @@
   font-size: var(--font-sm);
   font-weight: 600;
   font-family: var(--font-dm);
-  color: #0f3948;
+  color: var(--color-secondary);
 }
 
 .formHead {
@@ -21,7 +21,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 1px;
   gap: var(--pixel-5);
 }
 
@@ -31,7 +30,6 @@
   justify-content: flex-start;
   align-self: stretch;
   flex-direction: column;
-  padding: 1px;
   gap: var(--pixel-10) 0;
   box-sizing: border-box;
 }
@@ -48,7 +46,6 @@
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: flex-end;
-  padding: 1px;
   gap: var(--pixel-10);
 }
 
@@ -64,20 +61,20 @@
   margin: 0;
   width: 100%;
   border-radius: var(--pixel-20);
-  background-color: #f5f5f7;
+  background-color: var(--color-foreground);
   justify-content: flex-start;
   padding: var(--pixel-40);
   box-sizing: border-box;
   gap: var(--pixel-20) 0;
-  max-width: 950px;
-  animation-name: slideFromBottom;
+  max-width: var(--pixel-950);
+  animation-name: slideup;
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
   animation-fill-mode: forwards;
 }
 
 .form.close {
-  animation-name: slideToBottom;
+  animation-name: slidedown;
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
   animation-fill-mode: forwards;
@@ -92,15 +89,14 @@
   justify-content: center;
   padding: var(--pixel-40);
   box-sizing: border-box;
-  /* height: 100vh; */
-  animation-name: fadeIn;
+  animation-name: fadein;
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
   animation-fill-mode: forwards;
 }
 
 .formScreen.close {
-  animation-name: fadeOut;
+  animation-name: fadeout;
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
   animation-fill-mode: forwards;
@@ -117,7 +113,7 @@
   justify-content: flex-start;
 }
 
-@keyframes fadeIn {
+@keyframes fadein {
   from {
     opacity: 0;
   }
@@ -126,7 +122,7 @@
   }
 }
 
-@keyframes fadeOut {
+@keyframes fadeout {
   from {
     opacity: 1;
   }
@@ -135,7 +131,7 @@
   }
 }
 
-@keyframes slideFromBottom {
+@keyframes slideup {
   from {
     opacity: 0;
     transform: translateY(var(--pixel-30));
@@ -146,7 +142,7 @@
   }
 }
 
-@keyframes slideToBottom {
+@keyframes slidedown {
   from {
     opacity: 1;
     transform: translateY(0);
