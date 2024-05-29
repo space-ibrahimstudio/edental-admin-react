@@ -101,6 +101,7 @@ export const AuthProvider = ({ children }) => {
 
   const secret = sessionStorage.getItem("secret");
   const level = sessionStorage.getItem("level");
+  const cctr = sessionStorage.getItem("outlet-code");
 
   useEffect(() => {
     auth();
@@ -110,7 +111,7 @@ export const AuthProvider = ({ children }) => {
     return <LoadingScreen />;
   }
 
-  return <AuthContext.Provider value={{ loading, isLoggedin, login, logout, secret, level }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ loading, isLoggedin, login, logout, secret, level, cctr }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

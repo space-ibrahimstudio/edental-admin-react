@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import { useContent, useFormat, useDevmode } from "@ibrahimstudio/react";
 import { ISTrash } from "@ibrahimstudio/icons";
 import { useAuth } from "../libs/securities/auth";
@@ -18,7 +19,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { newDate } = useFormat();
   const { log } = useDevmode();
   const { toTitleCase, toPathname } = useContent();
-  const { secret } = useAuth();
+  const { isLoggedin, secret, level, cctr } = useAuth();
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
 
@@ -42,6 +43,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [allServiceData, setAllServiceData] = useState([]);
   const [serviceData, setServiceData] = useState([]);
   const [branchData, setBranchData] = useState([]);
+  const [branchDentistData, setBranchDentistData] = useState([]);
+  const [dentistData, setDentistData] = useState([]);
 
   const inputSchema = {
     name: "",
@@ -120,10 +123,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setIsFetching(true);
     try {
       const formData = new FormData();
+      const addtFormData = new FormData();
       const offset = (currentPage - 1) * limit;
       formData.append("data", JSON.stringify({ secret, limit, hal: offset }));
       let data;
-      let alldata;
+      let addtdata;
       switch (slug) {
         case "DATA CUSTOMER":
           data = await apiRead(formData, "office", "viewcustomer");
@@ -148,11 +152,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
             setIsDataShown(false);
           }
-          const addFormData = new FormData();
-          addFormData.append("data", JSON.stringify({ secret }));
-          alldata = await apiRead(addFormData, "office", "searchservice");
-          if (alldata && alldata.data && alldata.data.length > 0) {
-            setAllServiceData(alldata.data);
+          addtFormData.append("data", JSON.stringify({ secret }));
+          addtdata = await apiRead(addtFormData, "office", "searchservice");
+          if (addtdata && addtdata.data && addtdata.data.length > 0) {
+            setAllServiceData(addtdata.data);
           } else {
             setAllServiceData([]);
           }
@@ -167,6 +170,25 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setBranchData([]);
             setTotalPages(0);
             setIsDataShown(false);
+          }
+          break;
+        case "DENTIST":
+          data = await apiRead(formData, "office", "viewdentist");
+          if (data && data.data && data.data.length > 0) {
+            setDentistData(data.data);
+            setTotalPages(data.TTLPage);
+            setIsDataShown(true);
+          } else {
+            setDentistData([]);
+            setTotalPages(0);
+            setIsDataShown(false);
+          }
+          addtFormData.append("data", JSON.stringify({ secret, kodeoutlet: cctr }));
+          addtdata = await apiRead(addtFormData, "office", "viewdentistoutlet");
+          if (addtdata && addtdata.data && addtdata.data.length > 0) {
+            setBranchDentistData(addtdata.data);
+          } else {
+            setBranchDentistData([]);
           }
           break;
         default:
@@ -398,13 +420,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
-                  id={`search-data-${pageid}`}
-                  placeholder="Cari data ..."
-                  property="username"
-                  userData={custData}
-                  setUserData={setFilteredData}
-                />
+                <SearchInput id={`search-data-${pageid}`} placeholder="Cari data ..." isReadonly />
               </DashboardTool>
               <DashboardTool>
                 <Input
@@ -708,7 +724,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "CABANG EDENTAL":
         return (
           <Fragment>
-            <DashboardHead title={pagetitle} />
+            <DashboardHead title={pagetitle} desc="Daftar Cabang Edental. Klik opsi ikon pada kolom Action untuk memperbarui, atau menghapus data." />
             <DashboardToolbar>
               <DashboardTool>
                 <SearchInput
@@ -736,7 +752,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   buttonText="Export ke Excel"
                   radius="full"
                   bgColor="var(--color-green)"
-                  onClick={() => exportToExcel(branchData, "Daftar Customer", "daftar_customer")}
+                  onClick={() => exportToExcel(branchData, "Daftar Cabang", "daftar_cabang")}
                 />
                 <Button id={`add-new-data-${pageid}`} buttonText="Tambah Baru" radius="full" onClick={openForm} />
               </DashboardTool>
@@ -1011,6 +1027,93 @@ const DashboardSlugPage = ({ parent, slug }) => {
             )}
           </Fragment>
         );
+      case "DENTIST":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Daftar Dokter yang bertugas di Edental." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <SearchInput
+                  id={`search-data-${pageid}`}
+                  placeholder="Cari data ..."
+                  property="username"
+                  userData={dentistData}
+                  setUserData={setFilteredData}
+                />
+              </DashboardTool>
+              <DashboardTool>
+                <Input
+                  id={`limit-data-${pageid}`}
+                  variant="select"
+                  radius="full"
+                  isLabeled={false}
+                  placeholder="Baris per Halaman"
+                  value={limit}
+                  options={options}
+                  onSelect={handleLimitChange}
+                  isReadonly={isDataShown ? false : true}
+                />
+                <Button
+                  id={`export-data-${pageid}`}
+                  buttonText="Export ke Excel"
+                  radius="full"
+                  bgColor="var(--color-green)"
+                  onClick={() => exportToExcel(dentistData, "Daftar Dokter", "daftar_dokter")}
+                />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH>Nama Dokter</TH>
+                    <TH>Kode Cabang</TH>
+                    <TH>Nomor Telepon</TH>
+                    <TH>Alamat</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {dentistData.map((data, index) => (
+                    <TR key={index}>
+                      <TD>{toTitleCase(data.name_dentist)}</TD>
+                      <TD type="code">{data.id_branch}</TD>
+                      <TD type="code">{data.phone}</TD>
+                      <TD>{data.email}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+          </Fragment>
+        );
+      case "KAS":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} />
+            <DashboardToolbar>
+              <DashboardTool>
+                <SearchInput id={`search-data-${pageid}`} placeholder="Cari data ..." isReadonly />
+              </DashboardTool>
+              <DashboardTool>
+                <Input
+                  id={`limit-data-${pageid}`}
+                  variant="select"
+                  radius="full"
+                  isLabeled={false}
+                  placeholder="Baris per Halaman"
+                  value={limit}
+                  options={options}
+                  onSelect={handleLimitChange}
+                  isReadonly={isDataShown ? false : true}
+                />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table isNoData={true}></Table>
+            </DashboardBody>
+          </Fragment>
+        );
       default:
         return <DashboardHead title={`Halaman Dashboard ${pagetitle} akan segera hadir.`} />;
     }
@@ -1023,6 +1126,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
   useEffect(() => {
     fetchData();
   }, [slug, currentPage, limit]);
+
+  if (!isLoggedin) {
+    return <Navigate to="/login" />;
+  }
 
   return (
     <Pages title={`${pagetitle} - Dashboard`}>
