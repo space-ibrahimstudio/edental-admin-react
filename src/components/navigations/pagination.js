@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronIcon } from "@ibrahimstudio/icons";
+import { ISChevron } from "@ibrahimstudio/icons";
 import styles from "./styles/pagination.module.css";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
@@ -54,11 +54,11 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   return (
     <div className={styles.pagination}>
       <button className={`${styles.paginationArrow} ${currentPage === 1 ? styles.disable : ""}`} onClick={prevPage}>
-        <ChevronIcon width="7px" height="100%" direction="left" />
+        <ISChevron width="7px" height="100%" direction="left" />
       </button>
       {renderPageNumbers()}
       <button className={`${styles.paginationArrow} ${currentPage === totalPages ? styles.disable : ""}`} onClick={nextPage}>
-        <ChevronIcon width="7px" height="100%" />
+        <ISChevron width="7px" height="100%" />
       </button>
     </div>
   );

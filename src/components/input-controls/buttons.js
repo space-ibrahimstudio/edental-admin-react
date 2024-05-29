@@ -29,7 +29,7 @@ export const TabButton = ({ isActive, hasSubMenu, buttonText, children }) => {
 
   const TabClick = (tabName) => {
     setActiveTab(tabName);
-    navigate(`/dashboard/${tabName.toLowerCase()}`);
+    navigate(`/${tabName.toLowerCase()}`);
   };
 
   const handleClick = () => {
@@ -49,7 +49,7 @@ export const TabButton = ({ isActive, hasSubMenu, buttonText, children }) => {
   useEffect(() => {
     const pathname = location.pathname;
     const paths = pathname.split("/");
-    const parentTabName = paths[2]?.toUpperCase();
+    const parentTabName = paths[1]?.toUpperCase();
     setActiveTab(parentTabName);
   }, [location.pathname]);
 

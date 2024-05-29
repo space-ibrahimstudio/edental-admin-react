@@ -46,7 +46,7 @@
 
 .sectionTool {
   justify-content: center;
-  gap: var(--pixel-15);
+  gap: var(--pixel-10);
 }
 
 .sectionNav {

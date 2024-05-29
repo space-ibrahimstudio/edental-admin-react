@@ -101,6 +101,18 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
                   <Copy color="var(--color-secondary-20)" />
                 </AtnIcon>
               </Fragment>
+            ) : type === "code" ? (
+              <Fragment>
+                <code
+                  className={`${styles.regText} ${styles.code} ${copied ? styles.copied : ""}`}
+                  style={copied ? { opacity: "0.5" } : { opacity: "1" }}
+                >
+                  {copied ? "Copied!" : children}
+                </code>
+                <AtnIcon onClick={copyToClipboard}>
+                  <Copy color="var(--color-primary-20)" />
+                </AtnIcon>
+              </Fragment>
             ) : (
               <Fragment>
                 <h5 className={styles.regText} style={copied ? { opacity: "0.5" } : { opacity: "1" }}>
@@ -188,7 +200,7 @@ export const TR = ({
   isEditable,
   onEdit,
   isExpandable,
-  onExpand,
+  onExpand = () => {},
   expandContent,
   isClickable,
   onClick,
@@ -312,18 +324,12 @@ const Table = ({
   isClickable,
   children,
 }) => {
-  const loadingtext = loadingPlacholder ? loadingPlacholder : "Loading ...";
-  const nodatatext = noDataPlaceholder ? noDataPlaceholder : "Tidak ada data.";
-
   return (
     <section id={id} className={styles.tableWrapper}>
-      {isLoading || isNoData ? (
-        <div className={styles.tableNodata}>
-          <b className={styles.nodataText}>
-            {isLoading && loadingtext}
-            {isNoData && nodatatext}
-          </b>
-        </div>
+      {isLoading ? (
+        <div className={styles.tableNodata}>{loadingPlacholder ? loadingPlacholder : <b className={styles.nodataText}>Loading ...</b>}</div>
+      ) : isNoData ? (
+        <div className={styles.tableNodata}>{noDataPlaceholder ? noDataPlaceholder : <b className={styles.nodataText}>Tidak ada Data.</b>}</div>
       ) : (
         <div className={styles.table}>
           {React.Children.map(children, (child) => {

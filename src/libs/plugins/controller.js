@@ -30,3 +30,7 @@ export function inputValidator(inputData, requiredFields) {
   });
   return errors;
 }
+
+export function getNestedValue(obj, path) {
+  return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+}

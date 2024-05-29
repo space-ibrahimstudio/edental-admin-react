@@ -60,6 +60,14 @@
   font-family: inherit;
 }
 
+.regText.code {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.regText.code.copied {
+  font-family: inherit;
+}
+
 .linkText {
   opacity: 1;
   text-decoration: underline;
@@ -177,7 +185,6 @@
 
 .table {
   overflow-x: auto;
-  min-height: var(--pixel-400);
   align-items: flex-start;
   border-radius: var(--pixel-10);
   gap: var(--pixel-10);

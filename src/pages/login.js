@@ -13,9 +13,8 @@ const LoginPage = () => {
   }
 
   return (
-    <Pages title="Login" access="public" topmargin="unset" justify="center">
+    <Pages title="Login" access="public" topmargin="unset" justify="center" bgImage="/img/img-02.jpg">
       <section className={styles.loginSection}>
-        <img className={styles.loginBannerIcon} loading="lazy" alt="Admin Login Portal" src="/img/img-02.jpg" />
         <LoginForm />
       </section>
     </Pages>

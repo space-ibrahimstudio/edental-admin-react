@@ -63,7 +63,17 @@ export const LoginForm = () => {
   );
 };
 
-export const SubmitForm = ({ formTitle, formSubtitle, loading, onSubmit, saveText, cancelText, children, onClose }) => {
+export const SubmitForm = ({
+  formTitle,
+  formSubtitle,
+  loading,
+  operation = "add",
+  onSubmit,
+  saveText = "Simpan",
+  cancelText = "Batal",
+  children,
+  onClose,
+}) => {
   const [isClosing, setIsClosing] = useState(false);
   const ref = useRef(null);
 
@@ -105,8 +115,8 @@ export const SubmitForm = ({ formTitle, formSubtitle, loading, onSubmit, saveTex
   }, [isClosing]);
 
   const modalElement = (
-    <div className={styles.formScroll}>
-      <div className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
+    <main className={styles.formScroll}>
+      <section className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
         <form className={`${styles.form} ${isClosing ? styles.close : ""}`} ref={ref} onSubmit={onSubmit}>
           <header className={styles.formHead}>
             <LogoPrimary width="96px" height="100%" color="var(--color-primary)" />
@@ -130,14 +140,15 @@ export const SubmitForm = ({ formTitle, formSubtitle, loading, onSubmit, saveTex
               id="handle-form-submit"
               radius="full"
               type="submit"
+              action={operation}
               buttonText={saveText}
               startContent={<CheckIcon width="12px" height="100%" />}
               isLoading={loading}
             />
           </footer>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 
   return createPortal(modalElement, modalRoot);

@@ -1,18 +1,6 @@
-.loginBannerIcon,
 .loginSection {
   align-self: stretch;
   overflow: hidden;
-}
-
-.loginBannerIcon {
-  flex: 1;
-  border-radius: var(--pixel-20);
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: cover;
-}
-
-.loginSection {
   display: flex;
   flex-direction: row;
   align-items: center;
