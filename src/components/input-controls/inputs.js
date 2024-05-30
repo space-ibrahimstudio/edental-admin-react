@@ -3,7 +3,7 @@ import { Input } from "@ibrahimstudio/input";
 import { SearchIcon } from "../layouts/icons";
 import styles from "./styles/user-input.module.css";
 
-export const SearchInput = ({ id, placeholder, property, userData, setUserData, isReadonly }) => {
+export const SearchInput = ({ id, placeholder, fallbackValue, property, userData, setUserData, isReadonly }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = (e) => {
@@ -46,6 +46,7 @@ export const SearchInput = ({ id, placeholder, property, userData, setUserData, 
       value={searchTerm}
       onChange={handleSearch}
       isReadonly={isReadonly}
+      fallbackValue={fallbackValue}
       startContent={<SearchIcon width="17px" height="100%" />}
     />
   );

@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
+
 .expandContent,
 .tdExpand {
   align-self: stretch;
@@ -64,7 +67,12 @@
   font-family: "JetBrains Mono", monospace;
 }
 
-.regText.code.copied {
+.regText.number {
+  font-family: "Roboto Mono", monospace;
+}
+
+.regText.code.copied,
+.regText.number.copied {
   font-family: inherit;
 }
 

@@ -113,6 +113,20 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
                   <Copy color="var(--color-primary-20)" />
                 </AtnIcon>
               </Fragment>
+            ) : type === "number" ? (
+              <Fragment>
+                <h5
+                  className={`${styles.regText} ${styles.number} ${copied ? styles.copied : ""}`}
+                  style={copied ? { opacity: "0.5" } : { opacity: "1" }}
+                >
+                  {copied ? "Copied!" : children}
+                </h5>
+                {isCopy && (
+                  <AtnIcon onClick={copyToClipboard}>
+                    <Copy color="var(--color-secondary-20)" />
+                  </AtnIcon>
+                )}
+              </Fragment>
             ) : (
               <Fragment>
                 <h5 className={styles.regText} style={copied ? { opacity: "0.5" } : { opacity: "1" }}>
