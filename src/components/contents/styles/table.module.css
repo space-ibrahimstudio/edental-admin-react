@@ -105,7 +105,11 @@
   text-align: left;
   gap: var(--pixel-5);
   font-size: var(--font-sm);
-  font-family: var(--font-dm);
+  font-family: var(--font-inter);
+}
+
+.thReg.custom {
+  padding: var(--pixel-5);
 }
 
 .thReg.click {
@@ -223,7 +227,7 @@
   text-align: left;
   font-size: var(--font-sm);
   color: var(--color-secondary);
-  font-family: var(--font-dm);
+  font-family: var(--font-inter);
 }
 
 .nodataText {

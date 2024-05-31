@@ -57,6 +57,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [bookedHoursData, setBookedHoursData] = useState([]);
   const [availHoursData, setAvailHoursData] = useState([]);
   const [fvaListData, setFvaListData] = useState([]);
+  const [orderData, setOrderData] = useState([]);
 
   const inputSchema = {
     name: "",
@@ -114,6 +115,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
+
+  const restoreInputState = () => {
+    setInputData({ ...inputSchema });
+    setErrors({ ...errorSchema });
+  };
 
   const options = [
     { value: 5, label: "Baris per Halaman: 5" },
@@ -190,11 +196,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   const openDetail = (params) => {
     navigate(`${pagepath}/${toPathname(params)}`);
-  };
-
-  const restoreInputState = () => {
-    setInputData({ ...inputSchema });
-    setErrors({ ...errorSchema });
   };
 
   const handleInputChange = (e) => {
@@ -280,13 +281,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
             setIsDataShown(false);
           }
-          addtFormData.append("data", JSON.stringify({ secret, kodeoutlet: cctr }));
-          addtdata = await apiRead(addtFormData, "office", "viewdentistoutlet");
-          if (addtdata && addtdata.data && addtdata.data.length > 0) {
-            setBranchDentistData(addtdata.data);
-          } else {
-            setBranchDentistData([]);
-          }
           break;
         case "STOCK":
           data = await apiRead(formData, "office", "viewstock");
@@ -351,6 +345,25 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setAllCustData(allcustdata.data);
           } else {
             setAllCustData([]);
+          }
+          break;
+        case "ORDER CUSTOMER":
+          data = await apiRead(formData, "office", "vieworder");
+          if (data && data.data && data.data.length > 0) {
+            setOrderData(data.data);
+            setTotalPages(data.TTLPage);
+            setIsDataShown(true);
+          } else {
+            setOrderData([]);
+            setTotalPages(0);
+            setIsDataShown(false);
+          }
+          addtFormData.append("data", JSON.stringify({ secret, kodeoutlet: cctr }));
+          addtdata = await apiRead(addtFormData, "office", "viewdentistoutlet");
+          if (addtdata && addtdata.data && addtdata.data.length > 0) {
+            setBranchDentistData(addtdata.data);
+          } else {
+            setBranchDentistData([]);
           }
           break;
         default:
@@ -562,7 +575,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "DATA CUSTOMER":
         return (
           <Fragment>
-            <DashboardHead title={pagetitle} desc="Daftar Customer yang memiliki riwayat Reservasi." />
+            <DashboardHead
+              title={pagetitle}
+              desc="Daftar Customer yang memiliki riwayat Reservasi. Data ini dibuat otomatis saat proses reservasi dilakukan."
+            />
             <DashboardToolbar>
               <DashboardTool>
                 <SearchInput
@@ -774,9 +790,27 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Fragment>
                           {data["Jenis Layanan"].map((subdata, idx) => (
                             <InputWrap key={idx}>
-                              <Input id={`service-type-name-${index}-${idx}`} labelText="Jenis Layanan" value={subdata.servicetypename} isReadonly />
-                              <Input id={`service-type-price-${index}-${idx}`} labelText="Harga" value={newPrice(subdata.serviceprice)} isReadonly />
-                              <Input id={`service-type-status-${index}-${idx}`} labelText="Status" value={subdata.servicetypestatus} isReadonly />
+                              <Input
+                                id={`${pageid}-name-${index}-${idx}`}
+                                radius="full"
+                                labelText="Jenis Layanan"
+                                value={subdata.servicetypename}
+                                isReadonly
+                              />
+                              <Input
+                                id={`${pageid}-price-${index}-${idx}`}
+                                radius="full"
+                                labelText="Harga"
+                                value={newPrice(subdata.serviceprice)}
+                                isReadonly
+                              />
+                              <Input
+                                id={`${pageid}-status-${index}-${idx}`}
+                                radius="full"
+                                labelText="Status"
+                                value={subdata.servicetypestatus}
+                                isReadonly
+                              />
                             </InputWrap>
                           ))}
                         </Fragment>
@@ -807,6 +841,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   id={`${pageid}-name`}
                   labelText="Nama Layanan"
                   placeholder="Masukkan nama layanan"
+                  radius="full"
                   type="text"
                   name="service"
                   value={inputData.service}
@@ -820,6 +855,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       id={`${pageid}-type-name-${index}`}
                       labelText="Jenis Layanan"
                       placeholder="e.g. Scaling gigi"
+                      radius="full"
                       type="text"
                       name="servicetype"
                       value={subservice.servicetype}
@@ -831,6 +867,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       id={`${pageid}-type-price-${index}`}
                       labelText="Atur Harga"
                       placeholder="Masukkan harga"
+                      radius="full"
                       type="number"
                       name="price"
                       value={subservice.price}
@@ -843,6 +880,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       variant="dashed"
                       subVariant="icon"
                       size="sm"
+                      radius="full"
                       color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"}
                       isTooltip
                       tooltipText="Hapus"
@@ -856,6 +894,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   id={`${pageid}-add-row`}
                   variant="hollow"
                   size="sm"
+                  radius="full"
                   color="var(--color-hint)"
                   buttonText="Tambah Jenis Layanan"
                   onClick={handleAddRow}
@@ -875,6 +914,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   id={`edit-${pageid}-name`}
                   labelText="Nama Layanan"
                   placeholder="Masukkan nama layanan"
+                  radius="full"
                   type="text"
                   name="service"
                   value={inputData.service}
@@ -888,6 +928,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       id={`edit-${pageid}-type-name-${index}`}
                       labelText="Jenis Layanan"
                       placeholder="e.g. Scaling gigi"
+                      radius="full"
                       type="text"
                       name="servicetype"
                       value={subservice.servicetype}
@@ -899,6 +940,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       id={`edit-${pageid}-type-price-${index}`}
                       labelText="Atur Harga"
                       placeholder="Masukkan harga"
+                      radius="full"
                       type="number"
                       name="price"
                       value={subservice.price}
@@ -911,6 +953,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       variant="dashed"
                       subVariant="icon"
                       size="sm"
+                      radius="full"
                       color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"}
                       isTooltip
                       tooltipText="Hapus"
@@ -924,6 +967,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   id={`edit-${pageid}-add-row`}
                   variant="hollow"
                   size="sm"
+                  radius="full"
                   color="var(--color-hint)"
                   buttonText="Tambah Jenis Layanan"
                   onClick={handleAddRow}
@@ -1015,9 +1059,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
               >
                 <InputWrap>
                   <Input
-                    id="outlet-name"
+                    id={`${pageid}-name`}
                     labelText="Nama Outlet"
                     placeholder="Edental Jakarta Pusat"
+                    radius="full"
                     type="text"
                     name="name"
                     value={inputData.name}
@@ -1026,9 +1071,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-phone"
+                    id={`${pageid}-phone`}
                     labelText="Nomor Kontak Cabang"
                     placeholder="0882xxx"
+                    radius="full"
                     type="tel"
                     name="phone"
                     value={inputData.phone}
@@ -1037,9 +1083,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-mainregion"
+                    id={`${pageid}-mainregion`}
                     labelText="Main Region"
                     placeholder="Jawa"
+                    radius="full"
                     type="text"
                     name="main_region"
                     value={inputData.main_region}
@@ -1050,9 +1097,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </InputWrap>
                 <InputWrap>
                   <Input
-                    id="outlet-region"
+                    id={`${pageid}-region`}
                     labelText="Region"
                     placeholder="DKI Jakarta"
+                    radius="full"
                     type="text"
                     name="region"
                     value={inputData.region}
@@ -1061,9 +1109,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-address"
+                    id={`${pageid}-address`}
                     labelText="Alamat Cabang"
                     placeholder="123 Main Street"
+                    radius="full"
                     type="text"
                     name="address"
                     value={inputData.address}
@@ -1072,9 +1121,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-postcode"
+                    id={`${pageid}-postcode`}
                     labelText="Kode Pos"
                     placeholder="40282"
+                    radius="full"
                     type="number"
                     name="postcode"
                     value={inputData.postcode}
@@ -1085,9 +1135,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </InputWrap>
                 <InputWrap>
                   <Input
-                    id="outlet-coordinate"
+                    id={`${pageid}-coords`}
                     labelText="Titik Koordinat"
                     placeholder="Masukkan titik koordinat"
+                    radius="full"
                     type="text"
                     name="coordinate"
                     value={inputData.coordinate}
@@ -1096,9 +1147,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-cctrgroup"
+                    id={`${pageid}-cctrgroup`}
                     labelText="CCTR Group"
                     placeholder="Masukkan CCTR group"
+                    radius="full"
                     type="text"
                     name="cctr_group"
                     value={inputData.cctr_group}
@@ -1107,9 +1159,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-cctr"
+                    id={`${pageid}-cctr`}
                     labelText="CCTR"
                     placeholder="Masukkan CCTR"
+                    radius="full"
                     type="text"
                     name="cctr"
                     value={inputData.cctr}
@@ -1131,9 +1184,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
               >
                 <InputWrap>
                   <Input
-                    id="outlet-name"
+                    id={`edit-${pageid}-name`}
                     labelText="Nama Outlet"
                     placeholder="Edental Jakarta Pusat"
+                    radius="full"
                     type="text"
                     name="name"
                     value={inputData.name}
@@ -1142,9 +1196,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-phone"
+                    id={`edit-${pageid}-phone`}
                     labelText="Nomor Kontak Cabang"
                     placeholder="0882xxx"
+                    radius="full"
                     type="tel"
                     name="phone"
                     value={inputData.phone}
@@ -1153,9 +1208,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-mainregion"
+                    id={`edit-${pageid}-mainregion`}
                     labelText="Main Region"
                     placeholder="Jawa"
+                    radius="full"
                     type="text"
                     name="main_region"
                     value={inputData.main_region}
@@ -1166,9 +1222,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </InputWrap>
                 <InputWrap>
                   <Input
-                    id="outlet-region"
+                    id={`edit-${pageid}-region`}
                     labelText="Region"
                     placeholder="DKI Jakarta"
+                    radius="full"
                     type="text"
                     name="region"
                     value={inputData.region}
@@ -1177,9 +1234,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-address"
+                    id={`edit-${pageid}-address`}
                     labelText="Alamat Cabang"
                     placeholder="123 Main Street"
+                    radius="full"
                     type="text"
                     name="address"
                     value={inputData.address}
@@ -1188,9 +1246,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-postcode"
+                    id={`edit-${pageid}-postcode`}
                     labelText="Kode Pos"
                     placeholder="40282"
+                    radius="full"
                     type="number"
                     name="postcode"
                     value={inputData.postcode}
@@ -1201,9 +1260,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </InputWrap>
                 <InputWrap>
                   <Input
-                    id="outlet-coordinate"
+                    id={`edit-${pageid}-coords`}
                     labelText="Titik Koordinat"
                     placeholder="Masukkan titik koordinat"
+                    radius="full"
                     type="text"
                     name="coordinate"
                     value={inputData.coordinate}
@@ -1212,9 +1272,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-cctrgroup"
+                    id={`edit-${pageid}-cctrgroup`}
                     labelText="CCTR Group"
                     placeholder="Masukkan CCTR group"
+                    radius="full"
                     type="text"
                     name="cctr_group"
                     value={inputData.cctr_group}
@@ -1223,9 +1284,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="outlet-cctr"
+                    id={`edit-${pageid}-cctr`}
                     labelText="CCTR"
                     placeholder="Masukkan CCTR"
+                    radius="full"
                     type="text"
                     name="cctr"
                     value={inputData.cctr}
@@ -1411,9 +1473,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
               >
                 <InputWrap>
                   <Input
-                    id="stock-category"
+                    id={`${pageid}-category`}
                     variant="select"
                     labelText="Kategori"
+                    radius="full"
                     name="category"
                     placeholder="Pilih kategori"
                     options={categoryStockData.map((cat) => ({
@@ -1427,9 +1490,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isSearchable
                   />
                   <Input
-                    id="stock-subcategory"
+                    id={`${pageid}-subcategory`}
                     variant="select"
                     labelText="Sub Kategori"
+                    radius="full"
                     name="sub_category"
                     placeholder={inputData.category ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
                     options={
@@ -1449,9 +1513,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isDisabled={inputData.category ? false : true}
                   />
                   <Input
-                    id="stock-item-name"
+                    id={`${pageid}-name`}
                     labelText="Nama Item"
                     placeholder="STERILISATOR"
+                    radius="full"
                     type="text"
                     name="item"
                     value={inputData.name}
@@ -1462,10 +1527,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </InputWrap>
                 <InputWrap>
                   <Input
-                    id="stock-item-unit"
+                    id={`${pageid}-unit`}
                     variant="select"
                     labelText="Unit/satuan"
                     placeholder="Pilih satuan/unit"
+                    radius="full"
                     name="unit"
                     value={inputData.unit}
                     options={units}
@@ -1474,9 +1540,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="stock-item-qty"
+                    id={`${pageid}-qty`}
                     labelText="Jumlah"
                     placeholder="40"
+                    radius="full"
                     type="number"
                     name="count"
                     value={inputData.count}
@@ -1485,9 +1552,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                   />
                   <Input
-                    id="stock-item-price"
+                    id={`${pageid}-price`}
                     labelText="Harga Item Satuan"
                     placeholder="100000"
+                    radius="full"
                     type="number"
                     name="value"
                     value={inputData.value}
@@ -1512,7 +1580,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               desc="Daftar permintaan PO item dari semua cabang. Filter status PO melalui tombol tab, atau klik ikon pada kolom Action untuk memperbarui status PO."
             />
             <DashboardToolbar>
-              <DashboardTool>
+              {/* <DashboardTool>
                 <SearchInput
                   id={`search-data-${pageid}`}
                   placeholder="Cari data ..."
@@ -1520,7 +1588,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   userData={inPOData}
                   setUserData={setFilteredData}
                 />
-              </DashboardTool>
+              </DashboardTool> */}
+              <ButtonGroup
+                size="sm"
+                radius="full"
+                buttons={postatus}
+                baseColor="var(--theme-color-base)"
+                primaryColor="var(--theme-color-primary)"
+                secondaryColor="var(--theme-color-secondary)"
+              />
               <DashboardTool>
                 <Input
                   id={`limit-data-${pageid}`}
@@ -1535,7 +1611,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 />
               </DashboardTool>
             </DashboardToolbar>
-            <DashboardToolbar>
+            {/* <DashboardToolbar>
               <ButtonGroup
                 size="sm"
                 radius="full"
@@ -1544,7 +1620,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 primaryColor="var(--theme-color-primary)"
                 secondaryColor="var(--theme-color-secondary)"
               />
-            </DashboardToolbar>
+            </DashboardToolbar> */}
             <DashboardBody>
               <Table byNumber isExpandable page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
                 <THead>
@@ -1627,6 +1703,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "RESERVATION":
+        const reservStatusAlias = (status) => {
+          return status === "1" ? "Completed" : status === "2" ? "Reschedule" : status === "3" ? "Canceled" : "Pending";
+        };
+
+        const dpStatusAlias = (status) => {
+          return status === "1" ? "Exist" : status === "2" ? "Paid" : status === "3" ? "Canceled" : "Pending";
+        };
+
         const getAvailHours = async (date) => {
           try {
             const formData = new FormData();
@@ -1680,7 +1764,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
         return (
           <Fragment>
-            <DashboardHead title={pagetitle} />
+            <DashboardHead
+              title={pagetitle}
+              desc="Data Reservasi customer. Klik Tambah Baru untuk membuat data reservasi baru, atau klik ikon di kolom Action untuk memperbarui data."
+            />
             <DashboardToolbar>
               <DashboardTool>
                 <SearchInput
@@ -1720,28 +1807,25 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimeupdate")}>
-                      Tanggal Diperbarui
-                    </TH>
                     <TH>Tanggal Reservasi</TH>
                     <TH>Jam Reservasi</TH>
                     <TH>Kode Reservasi</TH>
                     <TH>Nama Customer</TH>
                     <TH>Nomor Telepon</TH>
                     <TH>Alamat Email</TH>
+                    <TH>Status Reservasi</TH>
+                    <TH>Status DP</TH>
                     <TH>Layanan</TH>
                     <TH>Jenis Layanan</TH>
                     <TH>Harga Layanan</TH>
                     <TH>Kode Voucher</TH>
                     <TH>Nama Cabang</TH>
-                    <TH>Status Reservasi</TH>
                   </TR>
                 </THead>
                 <TBody>
                   {reservData.map((data, index) => (
-                    <TR key={index} onEdit={() => openEdit(data.idreservation)}>
+                    <TR key={index} onEdit={() => openEdit(data.idreservation)} isWarning={data.status_reservation === "0"}>
                       <TD>{newDate(data.datetimecreate, "en-gb")}</TD>
-                      <TD>{newDate(data.datetimeupdate, "en-gb")}</TD>
                       <TD>{data.reservationdate}</TD>
                       <TD>{data.reservationtime}</TD>
                       <TD type="code">{data.rscode}</TD>
@@ -1750,12 +1834,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         {data.phone}
                       </TD>
                       <TD isCopy>{data.email}</TD>
+                      <TD>{reservStatusAlias(data.status_reservation)}</TD>
+                      <TD>{dpStatusAlias(data.status_dp)}</TD>
                       <TD>{toTitleCase(data.service)}</TD>
                       <TD>{toTitleCase(data.typeservice)}</TD>
                       <TD>{newPrice(data.price_reservation)}</TD>
                       <TD type="code">{data.voucher}</TD>
                       <TD>{toTitleCase(data.outlet_name)}</TD>
-                      <TD>{data.status_reservation}</TD>
                     </TR>
                   ))}
                 </TBody>
@@ -1775,6 +1860,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     id={`${pageid}-phone`}
                     labelText="Nomor Telepon"
                     placeholder="0882xxx"
+                    radius="full"
                     type="tel"
                     name="phone"
                     value={inputData.phone}
@@ -1787,6 +1873,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     id={`${pageid}-name`}
                     labelText="Nama Pelanggan"
                     placeholder="e.g. John Doe"
+                    radius="full"
                     type="text"
                     name="name"
                     value={inputData.name}
@@ -1799,6 +1886,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     id={`${pageid}-email`}
                     labelText="Email"
                     placeholder="customer@gmail.com"
+                    radius="full"
                     type="email"
                     name="email"
                     value={inputData.email}
@@ -1813,6 +1901,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     id={`${pageid}-service`}
                     variant="select"
                     labelText="Nama Layanan"
+                    radius="full"
                     name="service"
                     placeholder="Pilih layanan"
                     options={allServiceData.map((service) => ({
@@ -1829,6 +1918,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     id={`${pageid}-subservice`}
                     variant="select"
                     labelText="Jenis Layanan"
+                    radius="full"
                     name="sub_service"
                     placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                     options={
@@ -1854,6 +1944,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       id={`${pageid}-price`}
                       labelText="Biaya Layanan"
                       placeholder="Masukkan biaya layanan"
+                      radius="full"
                       type="number"
                       name="price"
                       value={inputData.price}
@@ -1864,6 +1955,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       id={`${pageid}-payments`}
                       variant="select"
                       labelText="Metode Pembayaran"
+                      radius="full"
                       name="bank_code"
                       placeholder="Pilih metode pembayaran"
                       options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
@@ -1879,6 +1971,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     id={`${pageid}-voucher`}
                     labelText="Kode Voucher"
                     placeholder="e.g 598RE3"
+                    radius="full"
                     type="text"
                     name="voucher"
                     value={inputData.vouchercode}
@@ -1890,6 +1983,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     labelText="Tanggal Reservasi"
                     type="date"
                     placeholder="Atur tanggal"
+                    radius="full"
                     name="date"
                     min={getCurrentDate()}
                     value={inputData.date}
@@ -1901,6 +1995,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     id={`${pageid}-time`}
                     variant="select"
                     labelText="Jam Reservasi"
+                    radius="full"
                     name="time"
                     placeholder={inputData.date ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"}
                     options={availHoursData.map((hour) => ({ value: hour, label: hour }))}
@@ -2077,6 +2172,80 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </InputWrap>
               </SubmitForm>
             )}
+          </Fragment>
+        );
+      case "ORDER CUSTOMER":
+        return (
+          <Fragment>
+            <DashboardHead
+              title={pagetitle}
+              desc="Data order customer ini dibuat otomatis saat proses reservasi dilakukan. Klik baris data untuk melihat masing-masing detail layanan & produk terpakai."
+            />
+            <DashboardToolbar>
+              <DashboardTool>
+                <SearchInput
+                  id={`search-data-${pageid}`}
+                  placeholder="Cari data ..."
+                  property="username"
+                  userData={orderData}
+                  setUserData={setFilteredData}
+                />
+              </DashboardTool>
+              <DashboardTool>
+                <Input
+                  id={`limit-data-${pageid}`}
+                  variant="select"
+                  radius="full"
+                  isLabeled={false}
+                  placeholder="Baris per Halaman"
+                  value={limit}
+                  options={options}
+                  onSelect={handleLimitChange}
+                  isReadonly={isDataShown ? false : true}
+                />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(orderData, setOrderData, "transactioncreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Nama Pengguna</TH>
+                    <TH>Kode Reservasi</TH>
+                    <TH>Nomor Invoice</TH>
+                    <TH>Nomor Telepon</TH>
+                    <TH>Metode Pembayaran</TH>
+                    <TH>Status Pembayaran</TH>
+                    <TH>Kode Voucher</TH>
+                    <TH>Nama Dokter</TH>
+                    <TH>Nama Outlet</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {orderData.map((data, index) => (
+                    <TR key={index} isClickable onClick={() => openDetail(data.idtransaction)}>
+                      <TD>{newDate(data.transactioncreate, "en-gb")}</TD>
+                      <TD>{toTitleCase(data.transactionname)}</TD>
+                      <TD type="code">{data.rscode}</TD>
+                      <TD type="number" isCopy>
+                        {data.noinvoice}
+                      </TD>
+                      <TD type="number" isCopy>
+                        {data.transactionphone}
+                      </TD>
+                      <TD>{data.payment}</TD>
+                      <TD>{data.transactionstatus}</TD>
+                      <TD type="code">{data.voucher}</TD>
+                      <TD>{toTitleCase(data.dentist)}</TD>
+                      <TD>{toTitleCase(data.outlet_name)}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
           </Fragment>
         );
       default:

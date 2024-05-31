@@ -228,7 +228,7 @@
   text-align: left;
   font-size: var(--font-sm);
   color: var(--color-secondary);
-  font-family: var(--font-dm);
+  font-family: var(--font-inter);
 }
 
 .dashboard {

@@ -2,65 +2,79 @@ import React, { useEffect, useState, Fragment } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { useContent } from "@ibrahimstudio/react";
 import { useAuth } from "./libs/securities/auth";
-import { PrivateRoute } from "./libs/securities/routes";
+import { useApi } from "./libs/apis/office";
+import { useNotifications } from "./components/feedbacks/context/notifications-context";
+import { useLoading } from "./components/feedbacks/context/loading-context";
 import LoginPage from "./pages/login";
 import DashboardOverviewPage from "./pages/overview-dashboard";
 import DashboardSlugPage from "./pages/slug-dashboard";
-import Dashboard from "./pages/dashboard";
-import StockHistory from "./pages/stock-history";
-import DetailOrder from "./pages/order-detail";
-import { fetchTabMenus } from "./libs/sources/data";
+import DashboardParamsPage from "./pages/params-dashboard";
 
 function App() {
   const { pathname } = useLocation();
   const { toPathname } = useContent();
-  const { isLoggedin } = useAuth();
+  const { isLoggedin, secret, level } = useAuth();
+  const { apiRead } = useApi();
+  const { setLoading } = useLoading();
+  const { showNotifications } = useNotifications();
   const [tabMenus, setTabMenus] = useState([]);
+  const [orderParams, setOrderParams] = useState([]);
+
+  const fetchData = async () => {
+    const errormsg = `Terjadi kesalahan saat memuat Dashboard. Mohon periksa koneksi internet anda dan coba lagi.`;
+    setLoading(true);
+    const menuFormData = new FormData();
+    const orderFormData = new FormData();
+    try {
+      menuFormData.append("data", JSON.stringify({ secret, level }));
+      const menudata = await apiRead(menuFormData, "office", "viewmenu");
+      const menuparams = menudata.data;
+      if (menuparams && menuparams.length > 0) {
+        setTabMenus(menuparams);
+      } else {
+        setTabMenus([]);
+      }
+    } catch (error) {
+      showNotifications("danger", errormsg);
+      console.error(errormsg, error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedin) {
+      fetchData();
+    }
+  }, [isLoggedin]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
-  useEffect(() => {
-    const fetchMenus = async () => {
-      try {
-        const menus = await fetchTabMenus();
-        setTabMenus(menus);
-      } catch (error) {
-        console.error("Error fetching tab menus:", error);
-      }
-    };
-    if (isLoggedin) {
-      fetchMenus();
-    }
-  }, [isLoggedin]);
-
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<DashboardOverviewPage />} />
-      <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
       {/* prettier-ignore */}
       <Fragment>
-        {Array.isArray(tabMenus) && tabMenus.map((menu, index) => (
+        {tabMenus.map((menu, index) => (
           <Fragment key={index}>
-            <Route path={`/dashboard/${toPathname(menu["Menu Utama"].menu_name)}`} element={<PrivateRoute element={<Dashboard />} />} />
-            {menu["Sub Menu"] && menu["Sub Menu"].map((submenu, index) => (
-              <Fragment key={index}>
-                <Route
-                  path={`/dashboard/${toPathname(menu["Menu Utama"].menu_name)}/${toPathname(submenu.submenu_name)}`}
-                  element={<PrivateRoute element={<Dashboard />} />}
-                />
+            {menu["Sub Menu"] && menu["Sub Menu"].map((submenu, idx) => (
+              <Fragment key={idx}>
                 <Route
                   path={`/${toPathname(menu["Menu Utama"].menu_name)}/${toPathname(submenu.submenu_name)}`}
-                  element={<DashboardSlugPage parent={menu["Menu Utama"].menu_name} slug={submenu.submenu_name} />} />
+                  element={<DashboardSlugPage parent={menu["Menu Utama"].menu_name} slug={submenu.submenu_name} />}
+                />
+                <Route
+                  path={`/${toPathname(menu["Menu Utama"].menu_name)}/${toPathname(submenu.submenu_name)}/:params`}
+                  element={<DashboardParamsPage parent={menu["Menu Utama"].menu_name} slug={submenu.submenu_name} />}
+                />
               </Fragment>
             ))}
           </Fragment>
         ))}
       </Fragment>
-      <Route path="/dashboard/warehouse/stock/:stockName" element={<StockHistory />} />
-      <Route path="/dashboard/order/order-customer/:noInvoice" element={<DetailOrder />} />
     </Routes>
   );
 }

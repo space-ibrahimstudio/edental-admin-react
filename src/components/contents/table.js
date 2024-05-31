@@ -87,8 +87,12 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
 
   return (
     <Fragment>
-      <div className={`${styles.thReg} ${isClickable ? (type === "atn" ? "" : styles.click) : ""}`} style={tdstyle()} onClick={handleClick}>
-        {type === "atn" ? (
+      <div
+        className={`${styles.thReg} ${type === "custom" ? styles.custom : ""} ${isClickable ? (type === "atn" ? "" : styles.click) : ""}`}
+        style={tdstyle()}
+        onClick={handleClick}
+      >
+        {type === "atn" || type === "custom" ? (
           children
         ) : (
           <Fragment>
@@ -306,7 +310,7 @@ export const TBody = ({ children, byNumber, page, limit, isDeletable, isEditable
   return (
     <main className={styles.tableBody}>
       {React.Children.map(children, (child, index) => {
-        const rowIndex = (page - 1) * limit + index + 1;
+        const rowIndex = page !== undefined && limit !== undefined ? (page - 1) * limit + index + 1 : index + 1;
         return React.cloneElement(child, { byNumber, rowIndex, isDeletable, isEditable, isExpandable });
       })}
     </main>
@@ -338,6 +342,8 @@ const Table = ({
   isClickable,
   children,
 }) => {
+  const isDataPaging = page !== undefined && limit !== undefined;
+
   return (
     <section id={id} className={styles.tableWrapper}>
       {isLoading ? (
@@ -347,7 +353,15 @@ const Table = ({
       ) : (
         <div className={styles.table}>
           {React.Children.map(children, (child) => {
-            return React.cloneElement(child, { byNumber, page, limit, isDeletable, isEditable, isExpandable, isClickable });
+            return React.cloneElement(child, {
+              byNumber,
+              page: isDataPaging ? page : undefined,
+              limit: isDataPaging ? limit : undefined,
+              isDeletable,
+              isEditable,
+              isExpandable,
+              isClickable,
+            });
           })}
         </div>
       )}

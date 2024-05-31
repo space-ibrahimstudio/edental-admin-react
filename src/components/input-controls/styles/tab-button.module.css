@@ -1,7 +1,7 @@
 .navMenuTabText {
   position: relative;
-  font-size: var(--font-mini);
-  font-family: var(--font-dm);
+  font-size: var(--font-xsm);
+  font-family: var(--font-inter);
   font-weight: 600;
   color: inherit;
   text-align: left;
@@ -42,7 +42,7 @@
   flex: 1;
   position: relative;
   font-size: var(--font-mini);
-  font-family: var(--font-dm);
+  font-family: var(--font-inter);
   font-weight: 600;
   color: inherit;
   text-align: left;

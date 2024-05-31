@@ -10,7 +10,7 @@
   position: relative;
   font-size: var(--font-mini);
   font-weight: 600;
-  font-family: var(--font-dm);
+  font-family: var(--font-inter);
   margin-left: var(--pixel-15);
   color: #0f3948;
   text-align: left;
@@ -28,7 +28,7 @@
   border: 0;
   outline: 0;
   font-weight: 600;
-  font-family: var(--font-dm);
+  font-family: var(--font-inter);
   font-size: var(--font-xsm);
   background-color: transparent;
   flex: 1;
