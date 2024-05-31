@@ -6,7 +6,7 @@
     "@ibrahimstudio/button": "^1.3.0",
     "@ibrahimstudio/function": "^1.0.3",
     "@ibrahimstudio/icons": "^1.0.8",
-    "@ibrahimstudio/input": "^1.4.0",
+    "@ibrahimstudio/input": "^1.4.2",
     "@ibrahimstudio/react": "^1.0.3",
     "axios": "^1.6.7",
     "file-saver": "^2.0.5",

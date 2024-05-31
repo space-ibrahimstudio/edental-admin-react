@@ -12,9 +12,8 @@
 }
 
 .circleBodySm {
-  width: 7px;
-  background-color: var(--color-secondlight);
-  height: 7px;
+  width: var(--pixel-5);
+  height: var(--pixel-5);
   animation: smallbounce 0.3s alternate infinite ease;
 }
 
@@ -66,7 +65,7 @@
   border-radius: 50%;
   width: var(--pixel-20);
   background-color: var(--color-primary-30);
-  height: 4px;
+  height: var(--pixel-5);
   animation: shadows 0.3s alternate infinite ease;
 }
 

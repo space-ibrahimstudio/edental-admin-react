@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useAuth } from "../../libs/securities/auth";
 import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
+import { useAuth } from "../../libs/securities/auth";
+import { LoadingContent } from "../feedbacks/screens";
 import { LogoPrimary, CheckIcon, CloseIcon } from "../layouts/icons";
 import loginstyles from "./styles/login-form.module.css";
 import styles from "./styles/data-form.module.css";
@@ -66,6 +67,7 @@ export const LoginForm = () => {
 export const SubmitForm = ({
   formTitle,
   formSubtitle,
+  fetching = false,
   loading,
   operation = "add",
   onSubmit,
@@ -123,9 +125,15 @@ export const SubmitForm = ({
             <b className={styles.formTitle}>{formTitle}</b>
             {formSubtitle && <div className={styles.formSubtitle}>{formSubtitle}</div>}
           </header>
-          <div className={styles.formBody} style={loading ? { opacity: "0.5" } : { opacity: "1" }}>
-            {children}
-          </div>
+          {fetching ? (
+            <div className={`${styles.formBody} ${styles.fetching}`}>
+              <LoadingContent color="var(--color-primary)" />
+            </div>
+          ) : (
+            <div className={styles.formBody} style={loading ? { opacity: "0.5" } : { opacity: "1" }}>
+              {children}
+            </div>
+          )}
           <footer className={styles.formFooter}>
             <Button
               id="cancel-form-submit"
@@ -144,6 +152,7 @@ export const SubmitForm = ({
               buttonText={saveText}
               startContent={<CheckIcon width="12px" height="100%" />}
               isLoading={loading}
+              loadingContent={<LoadingContent />}
             />
           </footer>
         </form>

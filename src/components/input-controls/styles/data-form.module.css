@@ -34,6 +34,11 @@
   box-sizing: border-box;
 }
 
+.formBody.fetching {
+  justify-content: center;
+  min-height: var(--pixel-200);
+}
+
 .form,
 .formFooter,
 .formScreen {

@@ -22,13 +22,15 @@ export const WarningScreen = () => {
   );
 };
 
-export const LoadingContent = () => {
+export const LoadingContent = ({ color = "var(--color-secondlight)" }) => {
+  const circlestyles = { backgroundColor: color };
+
   return (
     <div className={styles.loadingCircle}>
       <div className={styles.loadingCircleBody} style={{ padding: "0", gap: "var(--pixel-5)" }}>
-        <div className={styles.circleBodySm} />
-        <div className={styles.circleBodySm} />
-        <div className={styles.circleBodySm} />
+        <div className={styles.circleBodySm} style={circlestyles} />
+        <div className={styles.circleBodySm} style={circlestyles} />
+        <div className={styles.circleBodySm} style={circlestyles} />
       </div>
     </div>
   );
