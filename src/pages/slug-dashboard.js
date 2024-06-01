@@ -8,12 +8,13 @@ import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { getCurrentDate } from "../libs/plugins/controller";
+import { useSearch } from "../libs/plugins/handler";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
 import { SubmitForm } from "../components/input-controls/forms";
 import { exportToExcel, getNestedValue } from "../libs/plugins/controller";
-import { SearchInput, InputWrap } from "../components/input-controls/inputs";
+import { InputWrap } from "../components/input-controls/inputs";
 import Pagination from "../components/navigations/pagination";
 
 const DashboardSlugPage = ({ parent, slug }) => {
@@ -37,8 +38,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [selectedMode, setSelectedMode] = useState("add");
-  const [filteredData, setFilteredData] = useState([]);
-  const [isDataShown, setIsDataShown] = useState(true);
   const [sortOrder, setSortOrder] = useState("asc");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [status, setStatus] = useState(0);
@@ -253,11 +252,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (data && data.data && data.data.length > 0) {
             setCustData(data.data);
             setTotalPages(data.TTLPage);
-            setIsDataShown(true);
           } else {
             setCustData([]);
             setTotalPages(0);
-            setIsDataShown(false);
           }
           break;
         case "LAYANAN":
@@ -265,11 +262,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (data && data.data && data.data.length > 0) {
             setServiceData(data.data);
             setTotalPages(data.TTLPage);
-            setIsDataShown(true);
           } else {
             setServiceData([]);
             setTotalPages(0);
-            setIsDataShown(false);
           }
           break;
         case "CABANG EDENTAL":
@@ -277,11 +272,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (data && data.data && data.data.length > 0) {
             setBranchData(data.data);
             setTotalPages(data.TTLPage);
-            setIsDataShown(true);
           } else {
             setBranchData([]);
             setTotalPages(0);
-            setIsDataShown(false);
           }
           break;
         case "DENTIST":
@@ -289,11 +282,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (data && data.data && data.data.length > 0) {
             setDentistData(data.data);
             setTotalPages(data.TTLPage);
-            setIsDataShown(true);
           } else {
             setDentistData([]);
             setTotalPages(0);
-            setIsDataShown(false);
           }
           break;
         case "STOCK":
@@ -301,11 +292,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (data && data.data && data.data.length > 0) {
             setStockData(data.data);
             setTotalPages(data.TTLPage);
-            setIsDataShown(true);
           } else {
             setStockData([]);
             setTotalPages(0);
-            setIsDataShown(false);
           }
           break;
         case "PO MASUK":
@@ -314,11 +303,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (addtdata && addtdata.data && addtdata.data.length > 0) {
             setInPOData(addtdata.data);
             setTotalPages(addtdata.TTLPage);
-            setIsDataShown(true);
           } else {
             setInPOData([]);
             setTotalPages(0);
-            setIsDataShown(false);
           }
           break;
         case "RESERVATION":
@@ -326,11 +313,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (data && data.data && data.data.length > 0) {
             setReservData(data.data);
             setTotalPages(data.TTLPage);
-            setIsDataShown(true);
           } else {
             setReservData([]);
             setTotalPages(0);
-            setIsDataShown(false);
           }
           break;
         case "ORDER CUSTOMER":
@@ -338,16 +323,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (data && data.data && data.data.length > 0) {
             setOrderData(data.data);
             setTotalPages(data.TTLPage);
-            setIsDataShown(true);
           } else {
             setOrderData([]);
             setTotalPages(0);
-            setIsDataShown(false);
           }
           break;
         default:
           setTotalPages(0);
-          setIsDataShown(false);
           break;
       }
     } catch (error) {
@@ -611,6 +593,55 @@ const DashboardSlugPage = ({ parent, slug }) => {
     }
   };
 
+  const {
+    searchTerm: custSearch,
+    handleSearch: handleCustSearch,
+    filteredData: filteredCustData,
+    isDataShown: isCustShown,
+  } = useSearch(custData, ["username", "userphone"]);
+  const {
+    searchTerm: serviceSearch,
+    handleSearch: handleServiceSearch,
+    filteredData: filteredServiceData,
+    isDataShown: isServiceShown,
+  } = useSearch(serviceData, ["Nama Layanan.servicename"]);
+  const {
+    searchTerm: branchSearch,
+    handleSearch: handleBranchSearch,
+    filteredData: filteredBranchData,
+    isDataShown: isBranchShown,
+  } = useSearch(branchData, ["outlet_name", "mainregion", "outlet_region", "cctr_group", "cctr"]);
+  const {
+    searchTerm: dentistSearch,
+    handleSearch: handleDentistSearch,
+    filteredData: filteredDentistData,
+    isDataShown: isDentistShown,
+  } = useSearch(dentistData, ["name_dentist", "id_branch"]);
+  const {
+    searchTerm: stockSearch,
+    handleSearch: handleStockSearch,
+    filteredData: filteredStockData,
+    isDataShown: isStockShown,
+  } = useSearch(stockData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
+  const {
+    searchTerm: inPOSearch,
+    handleSearch: handleInPOSearch,
+    filteredData: filteredInPOData,
+    isDataShown: isInPOShown,
+  } = useSearch(inPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
+  const {
+    searchTerm: reservSearch,
+    handleSearch: handleReservSearch,
+    filteredData: filteredReservData,
+    isDataShown: isReservShown,
+  } = useSearch(reservData, ["rscode", "name", "phone", "outlet_name"]);
+  const {
+    searchTerm: orderSearch,
+    handleSearch: handleOrderSearch,
+    filteredData: filteredOrderData,
+    isDataShown: isOrderShown,
+  } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
+
   const renderContent = () => {
     switch (slug) {
       case "DATA CUSTOMER":
@@ -620,13 +651,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Customer yang memiliki riwayat Reservasi. Data ini dibuat otomatis saat proses reservasi dilakukan." />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
+                <Input
                   id={`search-data-${pageid}`}
+                  radius="full"
+                  isLabeled={false}
                   placeholder="Cari data ..."
-                  property=""
-                  userData={filteredData}
-                  setUserData={setFilteredData}
-                  isReadonly={isDataShown ? false : true}
+                  type="text"
+                  value={custSearch}
+                  onChange={(e) => handleCustSearch(e.target.value)}
                 />
               </DashboardTool>
               <DashboardTool>
@@ -640,20 +672,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={isCustShown ? false : true}
                 />
                 <Button
                   id={`export-data-${pageid}`}
                   radius="full"
                   bgColor="var(--color-green)"
                   buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(custData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)}
-                  isDisabled={isDataShown ? false : true}
+                  onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)}
+                  isDisabled={isCustShown ? false : true}
                 />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isCustShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(custData, setCustData, "usercreate")}>
@@ -666,7 +698,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {custData.map((data, index) => (
+                  {filteredCustData.map((data, index) => (
                     <TR key={index}>
                       <TD>{newDate(data.usercreate, "en-gb")}</TD>
                       <TD>{toTitleCase(data.username)}</TD>
@@ -680,7 +712,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isCustShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
           </Fragment>
         );
       case "MANAJEMEN USER":
@@ -689,14 +721,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
-                  id={`search-data-${pageid}`}
-                  placeholder="Cari data ..."
-                  property=""
-                  userData={filteredData}
-                  setUserData={setFilteredData}
-                  isReadonly={isDataShown ? false : true}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" />
               </DashboardTool>
               <DashboardTool>
                 <Input
@@ -709,7 +734,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={true}
                 />
               </DashboardTool>
             </DashboardToolbar>
@@ -778,13 +803,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar layanan yang tersedia saat ini. Klik opsi ikon pada kolom Action untuk melihat detail, memperbarui, atau menghapus data." />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
+                <Input
                   id={`search-data-${pageid}`}
+                  radius="full"
+                  isLabeled={false}
                   placeholder="Cari data ..."
-                  property=""
-                  userData={filteredData}
-                  setUserData={setFilteredData}
-                  isReadonly={isDataShown ? false : true}
+                  type="text"
+                  value={serviceSearch}
+                  onChange={(e) => handleServiceSearch(e.target.value)}
                 />
               </DashboardTool>
               <DashboardTool>
@@ -798,19 +824,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={isServiceShown ? false : true}
                 />
-                <Button
-                  id={`add-new-data-${pageid}`}
-                  radius="full"
-                  buttonText="Tambah Baru"
-                  onClick={openForm}
-                  isDisabled={isDataShown ? false : true}
-                />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isExpandable isEditable isDeletable page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
+              <Table byNumber isExpandable isEditable isDeletable page={currentPage} limit={limit} isNoData={!isServiceShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(serviceData, setServiceData, "Nama Layanan.servicecreate")}>
@@ -825,7 +845,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {serviceData.map((data, index) => (
+                  {filteredServiceData.map((data, index) => (
                     <TR
                       key={index}
                       expandContent={
@@ -870,7 +890,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isServiceShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm
                 formTitle={selectedMode === "update" ? "Perbarui Data Layanan" : "Tambah Data Layanan"}
@@ -952,13 +972,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Cabang Edental. Klik opsi ikon pada kolom Action untuk memperbarui, atau menghapus data." />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
+                <Input
                   id={`search-data-${pageid}`}
+                  radius="full"
+                  isLabeled={false}
                   placeholder="Cari data ..."
-                  property=""
-                  userData={filteredData}
-                  setUserData={setFilteredData}
-                  isReadonly={isDataShown ? false : true}
+                  type="text"
+                  value={branchSearch}
+                  onChange={(e) => handleBranchSearch(e.target.value)}
                 />
               </DashboardTool>
               <DashboardTool>
@@ -972,27 +993,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={isBranchShown ? false : true}
                 />
-                <Button
-                  id={`add-new-data-${pageid}`}
-                  radius="full"
-                  buttonText="Tambah Baru"
-                  onClick={openForm}
-                  isDisabled={isDataShown ? false : true}
-                />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
                 <Button
                   id={`export-data-${pageid}`}
                   radius="full"
                   bgColor="var(--color-green)"
                   buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(branchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)}
-                  isDisabled={isDataShown ? false : true}
+                  onClick={() => exportToExcel(filteredBranchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)}
+                  isDisabled={isBranchShown ? false : true}
                 />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isEditable isDeletable page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
+              <Table byNumber isEditable isDeletable page={currentPage} limit={limit} isNoData={!isBranchShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(branchData, setBranchData, "outletcreate")}>
@@ -1010,7 +1025,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {branchData.map((data, index) => (
+                  {filteredBranchData.map((data, index) => (
                     <TR key={index} onEdit={() => openEdit(data.idoutlet)} onDelete={() => handleDelete(data.idoutlet)}>
                       <TD>{newDate(data.outletcreate, "en-gb")}</TD>
                       <TD>{toTitleCase(data.outlet_name)}</TD>
@@ -1027,7 +1042,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isBranchShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm
                 formTitle={selectedMode === "update" ? "Perbarui Data Cabang" : "Tambah Data Cabang"}
@@ -1161,13 +1176,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Dokter yang bertugas di Edental." />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
+                <Input
                   id={`search-data-${pageid}`}
+                  radius="full"
+                  isLabeled={false}
                   placeholder="Cari data ..."
-                  property=""
-                  userData={filteredData}
-                  setUserData={setFilteredData}
-                  isReadonly={isDataShown ? false : true}
+                  type="text"
+                  value={dentistSearch}
+                  onChange={(e) => handleDentistSearch(e.target.value)}
                 />
               </DashboardTool>
               <DashboardTool>
@@ -1181,20 +1197,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={isDentistShown ? false : true}
                 />
                 <Button
                   id={`export-data-${pageid}`}
                   radius="full"
                   bgColor="var(--color-green)"
                   buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(dentistData, "Daftar Dokter", `daftar_dokter_${getCurrentDate()}`)}
-                  isDisabled={isDataShown ? false : true}
+                  onClick={() => exportToExcel(filteredDentistData, "Daftar Dokter", `daftar_dokter_${getCurrentDate()}`)}
+                  isDisabled={isDentistShown ? false : true}
                 />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isDentistShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH>Nama Dokter</TH>
@@ -1204,7 +1220,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {dentistData.map((data, index) => (
+                  {filteredDentistData.map((data, index) => (
                     <TR key={index}>
                       <TD>{toTitleCase(data.name_dentist.replace(`${data.id_branch} -`, ""))}</TD>
                       <TD type="code">{data.id_branch}</TD>
@@ -1215,7 +1231,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isDentistShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
           </Fragment>
         );
       case "KAS":
@@ -1224,14 +1240,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
-                  id={`search-data-${pageid}`}
-                  placeholder="Cari data ..."
-                  property=""
-                  userData={filteredData}
-                  setUserData={setFilteredData}
-                  isReadonly={isDataShown ? false : true}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" />
               </DashboardTool>
               <DashboardTool>
                 <Input
@@ -1244,7 +1253,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={true}
                 />
               </DashboardTool>
             </DashboardToolbar>
@@ -1260,13 +1269,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data Stok berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
+                <Input
                   id={`search-data-${pageid}`}
+                  radius="full"
+                  isLabeled={false}
                   placeholder="Cari data ..."
-                  property=""
-                  userData={filteredData}
-                  setUserData={setFilteredData}
-                  isReadonly={isDataShown ? false : true}
+                  type="text"
+                  value={stockSearch}
+                  onChange={(e) => handleStockSearch(e.target.value)}
                 />
               </DashboardTool>
               <DashboardTool>
@@ -1280,27 +1290,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={isStockShown ? false : true}
                 />
-                <Button
-                  id={`add-new-data-${pageid}`}
-                  radius="full"
-                  buttonText="Tambah Baru"
-                  onClick={openForm}
-                  isDisabled={isDataShown ? false : true}
-                />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
                 <Button
                   id={`export-data-${pageid}`}
                   radius="full"
                   bgColor="var(--color-green)"
                   buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(stockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)}
-                  isDisabled={isDataShown ? false : true}
+                  onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)}
+                  isDisabled={isStockShown ? false : true}
                 />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isStockShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(stockData, setStockData, "stockcreate")}>
@@ -1318,7 +1322,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {stockData.map((data, index) => (
+                  {filteredStockData.map((data, index) => (
                     <TR key={index} isClickable onClick={() => openDetail(data.itemname)}>
                       <TD>{newDate(data.stockcreate, "en-gb")}</TD>
                       <TD>{toTitleCase(data.categorystock)}</TD>
@@ -1335,7 +1339,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isStockShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm
                 formTitle={selectedMode === "update" ? "Perbarui Data Stok" : "Tambah Data Stok"}
@@ -1448,6 +1452,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
             {/* prettier-ignore */}
             <DashboardHead title={pagetitle} desc="Daftar permintaan PO item dari semua cabang. Filter status PO melalui tombol tab, atau klik ikon pada kolom Action untuk memperbarui status PO." />
             <DashboardToolbar>
+              <Input
+                id={`search-data-${pageid}`}
+                radius="full"
+                isLabeled={false}
+                placeholder="Cari data ..."
+                type="text"
+                value={inPOSearch}
+                onChange={(e) => handleInPOSearch(e.target.value)}
+              />
               <ButtonGroup
                 size="sm"
                 radius="full"
@@ -1467,12 +1480,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={isInPOShown ? false : true}
                 />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isExpandable page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
+              <Table byNumber isExpandable page={currentPage} limit={limit} isNoData={!isInPOShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(inPOData, setInPOData, "PO Stock.postockcreate")}>
@@ -1485,7 +1498,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {inPOData.map((data, index) => (
+                  {filteredInPOData.map((data, index) => (
                     <TR
                       key={index}
                       expandContent={
@@ -1522,7 +1535,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isInPOShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
           </Fragment>
         );
       case "PO KELUAR":
@@ -1531,14 +1544,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
-                  id={`search-data-${pageid}`}
-                  placeholder="Cari data ..."
-                  property=""
-                  userData={filteredData}
-                  setUserData={setFilteredData}
-                  isReadonly={isDataShown ? false : true}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" />
               </DashboardTool>
               <DashboardTool>
                 <Input
@@ -1551,7 +1557,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={true}
                 />
               </DashboardTool>
             </DashboardToolbar>
@@ -1626,13 +1632,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data Reservasi customer. Klik Tambah Baru untuk membuat data reservasi baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
+                <Input
                   id={`search-data-${pageid}`}
+                  radius="full"
+                  isLabeled={false}
                   placeholder="Cari data ..."
-                  property=""
-                  userData={filteredData}
-                  setUserData={setFilteredData}
-                  isReadonly={isDataShown ? false : true}
+                  type="text"
+                  value={reservSearch}
+                  onChange={(e) => handleReservSearch(e.target.value)}
                 />
               </DashboardTool>
               <DashboardTool>
@@ -1646,27 +1653,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={isReservShown ? false : true}
                 />
-                <Button
-                  id={`add-new-data-${pageid}`}
-                  radius="full"
-                  buttonText="Tambah Baru"
-                  onClick={openForm}
-                  isDisabled={isDataShown ? false : true}
-                />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
                 <Button
                   id={`export-data-${pageid}`}
                   radius="full"
                   bgColor="var(--color-green)"
                   buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(reservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)}
-                  isDisabled={isDataShown ? false : true}
+                  onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)}
+                  isDisabled={isReservShown ? false : true}
                 />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isDeletable page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
+              <Table byNumber isDeletable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
@@ -1688,7 +1689,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {reservData.map((data, index) => (
+                  {filteredReservData.map((data, index) => (
                     <TR key={index} isWarning={data.status_reservation === "0"}>
                       <TD>{newDate(data.datetimecreate, "en-gb")}</TD>
                       <TD>{data.reservationdate}</TD>
@@ -1711,7 +1712,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isReservShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm
                 formTitle={selectedMode === "update" ? "Perbarui Data Reservasi" : "Tambah Data Reservasi"}
@@ -1920,13 +1921,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data order customer ini dibuat otomatis saat proses reservasi dilakukan. Klik baris data untuk melihat masing-masing detail layanan & produk terpakai." />
             <DashboardToolbar>
               <DashboardTool>
-                <SearchInput
+                <Input
                   id={`search-data-${pageid}`}
+                  radius="full"
+                  isLabeled={false}
                   placeholder="Cari data ..."
-                  property=""
-                  userData={filteredData}
-                  setUserData={setFilteredData}
-                  isReadonly={isDataShown ? false : true}
+                  type="text"
+                  value={orderSearch}
+                  onChange={(e) => handleOrderSearch(e.target.value)}
                 />
               </DashboardTool>
               <DashboardTool>
@@ -1940,20 +1942,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   value={limit}
                   options={options}
                   onSelect={handleLimitChange}
-                  isReadonly={isDataShown ? false : true}
+                  isReadonly={isOrderShown ? false : true}
                 />
                 <Button
                   id={`export-data-${pageid}`}
                   radius="full"
                   bgColor="var(--color-green)"
                   buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(orderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)}
-                  isDisabled={isDataShown ? false : true}
+                  onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)}
+                  isDisabled={isOrderShown ? false : true}
                 />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
+              <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(orderData, setOrderData, "transactioncreate")}>
@@ -1971,7 +1973,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {orderData.map((data, index) => (
+                  {filteredOrderData.map((data, index) => (
                     <TR
                       key={index}
                       isWarning={data.transactionstatus === "0"}
@@ -1998,7 +2000,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isOrderShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm
                 formTitle={selectedMode === "update" ? "Perbarui Data Order" : "Tambah Data Order"}
@@ -2170,10 +2172,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
       setAvailHoursData(hours.filter((hour) => !bookedHoursData.includes(hour)));
     }
   }, [slug, bookedHoursData]);
-
-  useEffect(() => {
-    setIsDataShown(filteredData.length > 0);
-  }, [filteredData]);
 
   useEffect(() => {
     fetchData();

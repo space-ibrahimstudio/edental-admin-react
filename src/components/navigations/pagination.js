@@ -26,7 +26,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     } else {
       const leftBound = Math.max(2, currentPage - 2);
       const rightBound = Math.min(currentPage + 2, totalPages - 1);
-
       pagesToShow.push(1);
       if (leftBound > 2) {
         pagesToShow.push("ellipsis");

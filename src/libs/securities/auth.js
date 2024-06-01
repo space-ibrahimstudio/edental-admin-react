@@ -18,13 +18,25 @@ export const AuthProvider = ({ children }) => {
   const login = async (reqdata) => {
     try {
       const formData = new FormData();
+      const logFormData = new FormData();
       formData.append("data", JSON.stringify({ username: reqdata.username, password: reqdata.password }));
       const url = `${apiURL}/authapi/login`;
+      const logurl = `${apiURL}/authapi/loginlog`;
+      const ipurl = "https://api.ipify.org?format=json";
       const response = await axios.post(url, formData, { headers: { "Content-Type": "multipart/form-data" } });
       const loginresponse = response.data;
       if (!loginresponse.error) {
         const userdata = loginresponse.data[0];
         const { username, secret, level, idoutlet, outlet_name, cctr } = userdata;
+        const ipresponse = await axios.get(ipurl);
+        let ip_address;
+        if (!ipresponse.data.error) {
+          ip_address = ipresponse.data.ip;
+        } else {
+          ip_address = "0.0.0.0";
+        }
+        logFormData.append("data", JSON.stringify({ username, level, activity: "login", ip: ip_address }));
+        const logresponse = await axios.post(logurl, logFormData, { headers: { "Content-Type": "multipart/form-data" } });
         sessionStorage.setItem("logged-in", "true");
         sessionStorage.setItem("username", username);
         sessionStorage.setItem("secret", secret);
@@ -32,7 +44,10 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.setItem("outlet-id", idoutlet);
         sessionStorage.setItem("outlet-name", outlet_name);
         sessionStorage.setItem("outlet-code", cctr);
+        sessionStorage.setItem("ip-address", ip_address);
         log("successfully logged in:", loginresponse);
+        log("your current ip address:", ip_address);
+        log("logging your current activity:", logresponse.data);
         showNotifications("success", `Kamu berhasil login. Selamat datang kembali, ${username}!`);
         setIsLoggedin(true);
       } else if (!loginresponse.status) {
@@ -62,6 +77,7 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.removeItem("outlet-id");
       sessionStorage.removeItem("outlet-name");
       sessionStorage.removeItem("outlet-code");
+      sessionStorage.removeItem("ip-address");
       setIsLoggedin(false);
       log("successfully logged out");
       showNotifications("success", "Kamu berhasil logout. Mohon login ulang untuk mengakses Dashboard.");
@@ -78,9 +94,32 @@ export const AuthProvider = ({ children }) => {
       const loggedin = sessionStorage.getItem("logged-in");
       const secret = sessionStorage.getItem("secret");
       const level = sessionStorage.getItem("level");
+      const currentip = sessionStorage.getItem("ip-address");
+      const ipurl = "https://api.ipify.org?format=json";
+      const ipresponse = await axios.get(ipurl);
+      let ip_address;
+      if (!ipresponse.data.error) {
+        ip_address = ipresponse.data.ip;
+      } else {
+        ip_address = "0.0.0.0";
+      }
       if (loggedin === "true" && secret && level) {
-        log("user logged in");
-        setIsLoggedin(true);
+        if (currentip === ip_address) {
+          log("user logged in and ip-address matched");
+          setIsLoggedin(true);
+        } else {
+          sessionStorage.removeItem("logged-in");
+          sessionStorage.removeItem("username");
+          sessionStorage.removeItem("secret");
+          sessionStorage.removeItem("level");
+          sessionStorage.removeItem("outlet-id");
+          sessionStorage.removeItem("outlet-name");
+          sessionStorage.removeItem("outlet-code");
+          sessionStorage.removeItem("ip-address");
+          log("ip address not match, logging out ...");
+          showNotifications("danger", "Alamat IP berubah. Mohon login ulang.");
+          setIsLoggedin(false);
+        }
       } else {
         sessionStorage.removeItem("logged-in");
         sessionStorage.removeItem("username");
@@ -89,6 +128,7 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.removeItem("outlet-id");
         sessionStorage.removeItem("outlet-name");
         sessionStorage.removeItem("outlet-code");
+        sessionStorage.removeItem("ip-address");
         log("user is not logged in");
         setIsLoggedin(false);
       }

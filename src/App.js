@@ -18,13 +18,11 @@ function App() {
   const { setLoading } = useLoading();
   const { showNotifications } = useNotifications();
   const [tabMenus, setTabMenus] = useState([]);
-  const [orderParams, setOrderParams] = useState([]);
 
   const fetchData = async () => {
     const errormsg = `Terjadi kesalahan saat memuat Dashboard. Mohon periksa koneksi internet anda dan coba lagi.`;
     setLoading(true);
     const menuFormData = new FormData();
-    const orderFormData = new FormData();
     try {
       menuFormData.append("data", JSON.stringify({ secret, level }));
       const menudata = await apiRead(menuFormData, "office", "viewmenu");
