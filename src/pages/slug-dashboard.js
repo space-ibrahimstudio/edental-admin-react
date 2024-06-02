@@ -18,6 +18,7 @@ import { InputWrap } from "../components/input-controls/inputs";
 import Pagination from "../components/navigations/pagination";
 
 const DashboardSlugPage = ({ parent, slug }) => {
+  // context api
   const navigate = useNavigate();
   const { newDate, newPrice } = useFormat();
   const { log } = useDevmode();
@@ -25,11 +26,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { isLoggedin, secret, cctr } = useAuth();
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
-
+  // dynamic content
   const pageid = parent && slug ? `slug-${toPathname(parent)}-${toPathname(slug)}` : "slug-dashboard";
   const pagetitle = slug ? `${toTitleCase(slug)}` : "Slug Dashboard";
   const pagepath = parent && slug ? `/${toPathname(parent)}/${toPathname(slug)}` : "/";
-
+  // global statements
   const [limit, setLimit] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -42,11 +43,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [status, setStatus] = useState(0);
   const [custExist, setCustExist] = useState(false);
-
+  // specific statements
   const [allCustData, setAllCustData] = useState([]);
   const [custData, setCustData] = useState([]);
-  const [allServiceData, setAllServiceData] = useState([]);
-  const [serviceData, setServiceData] = useState([]);
+  const [allservicedata, setAllservicedata] = useState([]);
+  const [servicedata, setservicedata] = useState([]);
   const [branchData, setBranchData] = useState([]);
   const [branchDentistData, setBranchDentistData] = useState([]);
   const [dentistData, setDentistData] = useState([]);
@@ -58,7 +59,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [availHoursData, setAvailHoursData] = useState([]);
   const [fvaListData, setFvaListData] = useState([]);
   const [orderData, setOrderData] = useState([]);
-
+  // global input chema
   const inputSchema = {
     name: "",
     phone: "",
@@ -90,7 +91,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
     layanan: [{ servicetype: "", price: "" }],
     order: [{ service: "", servicetype: "", price: "" }],
   };
-
   const errorSchema = {
     name: "",
     phone: "",
@@ -122,23 +122,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
     layanan: [{ servicetype: "", price: "" }],
     order: [{ service: "", servicetype: "", price: "" }],
   };
-
+  // global input statements
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
-
   const restoreInputState = () => {
     setInputData({ ...inputSchema });
     setErrors({ ...errorSchema });
     setCustExist(false);
   };
-
+  // static array data
   const options = [
     { value: 5, label: "Baris per Halaman: 5" },
     { value: 10, label: "Baris per Halaman: 10" },
     { value: 20, label: "Baris per Halaman: 20" },
     { value: 50, label: "Baris per Halaman: 50" },
   ];
-
   const units = [
     { value: "PCS", label: "pcs" },
     { value: "PACK", label: "pack" },
@@ -147,7 +145,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
     { value: "BOX", label: "box" },
     { value: "SET", label: "set" },
   ];
-
   const postatus = [
     { buttonText: "Open", onClick: () => handleStatusChange(0), isActive: status === 0 },
     { buttonText: "Tertunda", onClick: () => handleStatusChange(1), isActive: status === 1 },
@@ -155,7 +152,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
     { buttonText: "Selesai", onClick: () => handleStatusChange(3), isActive: status === 3 },
     { buttonText: "Ditolak", onClick: () => handleStatusChange(4), isActive: status === 4 },
   ];
-
   const hours = [
     "10:00",
     "10:30",
@@ -174,56 +170,25 @@ const DashboardSlugPage = ({ parent, slug }) => {
     "18:30",
     "19:00",
   ];
-
+  // additional data aliased
   const dpStatusAlias = (status) => {
     return status === "1" ? "Exist" : status === "2" ? "Paid" : status === "3" ? "Canceled" : "Pending";
   };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
+  // global change events handler
+  const handlePageChange = (page) => setCurrentPage(page);
   const handleLimitChange = (value) => {
     setLimit(value);
     setCurrentPage(1);
   };
-
   const handleStatusChange = (value) => {
     setStatus(value);
     setCurrentPage(1);
   };
-
-  const openForm = () => {
-    setSelectedMode("add");
-    setIsFormOpen(true);
-  };
-
-  const closeForm = () => {
-    restoreInputState();
-    setIsFormOpen(false);
-  };
-
-  const openEdit = (params) => {
-    switchData(params);
-    setSelectedMode("update");
-    setIsFormOpen(true);
-  };
-
-  const closeEdit = () => {
-    restoreInputState();
-    setIsFormOpen(false);
-  };
-
-  const openDetail = (params) => {
-    navigate(`${pagepath}/${toPathname(params)}`);
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setInputData((prevState) => ({ ...prevState, [name]: value }));
     setErrors({ ...errors, [name]: "" });
   };
-
   const handleSortDate = (data, setData, params) => {
     const newData = [...data];
     if (!sortOrder || sortOrder === "desc") {
@@ -235,7 +200,26 @@ const DashboardSlugPage = ({ parent, slug }) => {
     }
     setData(newData);
   };
-
+  // global data action handler
+  const openDetail = (params) => navigate(`${pagepath}/${toPathname(params)}`);
+  const openForm = () => {
+    setSelectedMode("add");
+    setIsFormOpen(true);
+  };
+  const closeForm = () => {
+    restoreInputState();
+    setIsFormOpen(false);
+  };
+  const openEdit = (params) => {
+    switchData(params);
+    setSelectedMode("update");
+    setIsFormOpen(true);
+  };
+  const closeEdit = () => {
+    restoreInputState();
+    setIsFormOpen(false);
+  };
+  // fetch primary datas on slug changed
   const fetchData = async () => {
     const errormsg = `Terjadi kesalahan saat memuat halaman ${toTitleCase(slug)}. Mohon periksa koneksi internet anda dan coba lagi.`;
     setIsFetching(true);
@@ -260,10 +244,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "LAYANAN":
           data = await apiRead(formData, "office", "viewservice");
           if (data && data.data && data.data.length > 0) {
-            setServiceData(data.data);
+            setservicedata(data.data);
             setTotalPages(data.TTLPage);
           } else {
-            setServiceData([]);
+            setservicedata([]);
             setTotalPages(0);
           }
           break;
@@ -339,7 +323,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       setIsFetching(false);
     }
   };
-
+  // fetch additional datas on page rendered
   const fetchAdditionalData = async () => {
     const errormsg = "Terjadi kesalahan saat memuat data tambahan. Mohon periksa koneksi internet anda dan coba lagi.";
     const formData = new FormData();
@@ -348,18 +332,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
     try {
       const servicedata = await apiRead(formData, "office", "searchservice");
       if (servicedata && servicedata.data && servicedata.data.length > 0) {
-        setAllServiceData(servicedata.data);
+        setAllservicedata(servicedata.data);
       } else {
-        setAllServiceData([]);
+        setAllservicedata([]);
       }
-
       const catstockdata = await apiRead(formData, "office", "searchcategorystock");
       if (catstockdata && catstockdata.data && catstockdata.data.length > 0) {
         setCategoryStockData(catstockdata.data);
       } else {
         setCategoryStockData([]);
       }
-
       const fvadata = await apiRead(formData, "office", "viewlistva");
       const allfvadata = fvadata.data;
       const filteredfvadata = allfvadata.filter((va) => va.is_activated === true);
@@ -368,14 +350,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
       } else {
         setFvaListData([]);
       }
-
       const allcustdata = await apiRead(formData, "office", "searchcustomer");
       if (allcustdata && allcustdata.data && allcustdata.data.length > 0) {
         setAllCustData(allcustdata.data);
       } else {
         setAllCustData([]);
       }
-
       addtFormData.append("data", JSON.stringify({ secret, kodeoutlet: cctr }));
       const dentistdata = await apiRead(addtFormData, "office", "viewdentistoutlet");
       if (dentistdata && dentistdata.data && dentistdata.data.length > 0) {
@@ -388,7 +368,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       console.error(errormsg, error);
     }
   };
-
+  // global input value settings
   const switchData = async (params) => {
     setSelectedData(params);
     const currentData = (arraydata, identifier) => {
@@ -406,7 +386,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     try {
       switch (slug) {
         case "LAYANAN":
-          switchedData = currentData(serviceData, "Nama Layanan.idservice");
+          switchedData = currentData(servicedata, "Nama Layanan.idservice");
           log(`id ${slug} data switched:`, switchedData["Nama Layanan"].idservice);
           setInputData({
             service: switchedData["Nama Layanan"].servicename,
@@ -435,17 +415,33 @@ const DashboardSlugPage = ({ parent, slug }) => {
           data = await apiRead(formData, "office", "viewdetailorder");
           const orderdetaildata = data.data;
           if (data && orderdetaildata && orderdetaildata.length > 0) {
-            setInputData({
-              id: switchedData.idtransaction,
-              dentist: "",
-              status: "",
-              typepayment: "",
-              order: orderdetaildata.map((order) => ({
-                service: order.service,
-                servicetype: order.servicetype,
-                price: order.price,
-              })),
-            });
+            if (switchedData.payment === "CASH") {
+              setInputData({
+                id: switchedData.idtransaction,
+                dentist: switchedData.dentist,
+                typepayment: "cash",
+                bank_code: "CASH",
+                status: switchedData.transactionstatus,
+                order: orderdetaildata.map((order) => ({
+                  service: order.service,
+                  servicetype: order.servicetype,
+                  price: order.price,
+                })),
+              });
+            } else {
+              setInputData({
+                id: switchedData.idtransaction,
+                dentist: switchedData.dentist,
+                typepayment: "cashless",
+                bank_code: switchedData.payment,
+                status: switchedData.transactionstatus,
+                order: orderdetaildata.map((order) => ({
+                  service: order.service,
+                  servicetype: order.servicetype,
+                  price: order.price,
+                })),
+              });
+            }
           }
           break;
         default:
@@ -459,7 +455,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       setIsFormFetching(false);
     }
   };
-
+  // form submission handler
   const handleSubmit = async (e, endpoint) => {
     e.preventDefault();
     const action = e.nativeEvent.submitter.getAttribute("data-action");
@@ -524,6 +520,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
               price: inputData.price,
               bank_code: inputData.bank_code,
             };
+            break;
+          case "ORDER CUSTOMER":
+            submittedData = {
+              secret,
+              bank_code: inputData.bank_code,
+              dentist: inputData.dentist,
+              transactionstatus: inputData.status,
+              layanan: inputData.order,
+            };
+            break;
           default:
             break;
         }
@@ -549,7 +555,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       }
     }
   };
-
+  // data deletions handler
   const handleDelete = async (params, endpoint) => {
     const confirmmsg = `Apakah anda yakin untuk menghapus data terpilih dari ${toTitleCase(slug)}?`;
     const successmsg = `Selamat! Data terpilih dari ${toTitleCase(slug)} berhasil dihapus.`;
@@ -592,7 +598,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       }
     }
   };
-
+  // search tool and filtering each datas
   const {
     searchTerm: custSearch,
     handleSearch: handleCustSearch,
@@ -602,9 +608,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const {
     searchTerm: serviceSearch,
     handleSearch: handleServiceSearch,
-    filteredData: filteredServiceData,
+    filteredData: filteredservicedata,
     isDataShown: isServiceShown,
-  } = useSearch(serviceData, ["Nama Layanan.servicename"]);
+  } = useSearch(servicedata, ["Nama Layanan.servicename"]);
   const {
     searchTerm: branchSearch,
     handleSearch: handleBranchSearch,
@@ -641,7 +647,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     filteredData: filteredOrderData,
     isDataShown: isOrderShown,
   } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
-
+  // JSX render dynamic content on slug changed
   const renderContent = () => {
     switch (slug) {
       case "DATA CUSTOMER":
@@ -756,7 +762,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
           if (name === "service") {
             const newvalue = value.toLowerCase();
-            let serviceexists = allServiceData.some((item) => {
+            let serviceexists = allservicedata.some((item) => {
               const servicename = (item["Nama Layanan"] && item["Nama Layanan"].servicename).toLowerCase();
               return servicename === newvalue;
             });
@@ -833,19 +839,19 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isExpandable isEditable isDeletable page={currentPage} limit={limit} isNoData={!isServiceShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(serviceData, setServiceData, "Nama Layanan.servicecreate")}>
+                    <TH isSorted onSort={() => handleSortDate(servicedata, setservicedata, "Nama Layanan.servicecreate")}>
                       Tanggal Dibuat
                     </TH>
                     <TH>Nama Layanan</TH>
                     <TH>Nomor ID Layanan</TH>
-                    <TH isSorted onSort={() => handleSortDate(serviceData, setServiceData, "Nama Layanan.serviceupdate")}>
+                    <TH isSorted onSort={() => handleSortDate(servicedata, setservicedata, "Nama Layanan.serviceupdate")}>
                       Terakhir Diperbarui
                     </TH>
                     <TH>Status Layanan</TH>
                   </TR>
                 </THead>
                 <TBody>
-                  {filteredServiceData.map((data, index) => (
+                  {filteredservicedata.map((data, index) => (
                     <TR
                       key={index}
                       expandContent={
@@ -1611,7 +1617,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
 
           if (name === "sub_service") {
-            const selectedservice = allServiceData.find((s) => s["Nama Layanan"].servicename === inputData.service);
+            const selectedservice = allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service);
             const selectedsubservice = selectedservice["Jenis Layanan"].find((type) => type.servicetypename === value);
             if (value === "RESERVATION") {
               setInputData((prevState) => ({ ...prevState, id: selectedsubservice.idservicetype, price: 100000 }));
@@ -1773,7 +1779,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     placeholder="Pilih layanan"
                     name="service"
                     value={inputData.service}
-                    options={allServiceData.map((service) => ({
+                    options={allservicedata.map((service) => ({
                       value: service["Nama Layanan"].servicename,
                       label: service["Nama Layanan"].servicename,
                     }))}
@@ -1791,7 +1797,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                     name="sub_service"
                     value={inputData.sub_service}
-                    options={inputData.service && allServiceData.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({
+                    options={inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({
                       value: type.servicetypename,
                       label: type.servicetypename,
                     }))}
@@ -1887,12 +1893,43 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "ORDER CUSTOMER":
+        const handleOrderInputChange = (e) => {
+          const { name, value } = e.target;
+          setInputData((prevState) => ({ ...prevState, [name]: value }));
+          setErrors({ ...errors, [name]: "" });
+
+          if (name === "typepayment") {
+            if (value === "cash") {
+              setInputData((prevState) => ({ ...prevState, bank_code: "CASH" }));
+            } else {
+              setInputData((prevState) => ({ ...prevState, status: "0" }));
+            }
+          }
+        };
+
         const handleOrderRowChange = (index, e) => {
           const { name, value } = e.target;
-          setInputData((prevState) => ({
-            ...prevState,
-            order: prevState.order.map((item, idx) => (idx === index ? { ...item, [name]: value } : item)),
-          }));
+          setInputData((prevState) => {
+            const updatedorder = prevState.order.map((item, idx) => {
+              if (idx === index) {
+                let updateditem = { ...item, [name]: value };
+                if (name === "servicetype") {
+                  const selectedservice = prevState.order[index].service;
+                  const servicedata = allservicedata.find((service) => service["Nama Layanan"].servicename === selectedservice);
+                  if (servicedata) {
+                    const selectedtype = servicedata["Jenis Layanan"].find((type) => type.servicetypename === value);
+                    if (selectedtype) {
+                      updateditem.price = selectedtype.serviceprice || "";
+                    }
+                  }
+                }
+                return updateditem;
+              } else {
+                return item;
+              }
+            });
+            return { ...prevState, order: updatedorder };
+          });
 
           setErrors((prevErrors) => ({
             ...prevErrors,
@@ -1962,6 +1999,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       Tanggal Dibuat
                     </TH>
                     <TH>Nama Pengguna</TH>
+                    <TH>Total Pembayaran</TH>
                     <TH>Kode Reservasi</TH>
                     <TH>Nomor Invoice</TH>
                     <TH>Nomor Telepon</TH>
@@ -1983,6 +2021,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     >
                       <TD>{newDate(data.transactioncreate, "en-gb")}</TD>
                       <TD>{toTitleCase(data.transactionname)}</TD>
+                      <TD>{newPrice(data.totalpay)}</TD>
                       <TD type="code">{data.rscode}</TD>
                       <TD type="number" isCopy>
                         {data.noinvoice}
@@ -2006,7 +2045,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 formTitle={selectedMode === "update" ? "Perbarui Data Order" : "Tambah Data Order"}
                 operation={selectedMode}
                 fetching={isFormFetching}
-                // onSubmit={(e) => handleSubmit(e, "cudstock")}
+                onSubmit={(e) => handleSubmit(e, "cudorder")}
                 loading={isSubmitting}
                 onClose={closeForm}
               >
@@ -2024,7 +2063,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       value: dentist.name_dentist,
                       label: dentist.name_dentist.replace(`${dentist.id_branch} -`, ""),
                     }))}
-                    onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })}
+                    onSelect={(selectedValue) => handleOrderInputChange({ target: { name: "dentist", value: selectedValue } })}
                     errorContent={errors.dentist}
                     isRequired
                   />
@@ -2040,7 +2079,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       { value: "cash", label: "Cash in Store" },
                       { value: "cashless", label: "Cashless (via Xendit)" },
                     ]}
-                    onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })}
+                    onSelect={(selectedValue) => handleOrderInputChange({ target: { name: "typepayment", value: selectedValue } })}
                     errorContent={errors.typepayment}
                     isRequired
                   />
@@ -2057,7 +2096,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           name="bank_code"
                           value={inputData.bank_code}
                           options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
-                          onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })}
+                          onSelect={(selectedValue) => handleOrderInputChange({ target: { name: "bank_code", value: selectedValue } })}
                           errorContent={errors.bank_code}
                           isRequired
                           isDisabled={inputData.typepayment ? false : true}
@@ -2075,7 +2114,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                             { value: "0", label: "Pending" },
                             { value: "2", label: "Lunas" },
                           ]}
-                          onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })}
+                          onSelect={(selectedValue) => handleOrderInputChange({ target: { name: "status", value: selectedValue } })}
                           errorContent={errors.status}
                           isRequired
                           isDisabled={inputData.typepayment ? false : true}
@@ -2095,7 +2134,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       placeholder="Pilih Layanan"
                       name="service"
                       value={subservice.service}
-                      options={allServiceData.map((service) => ({
+                      options={allservicedata.map((service) => ({
                         value: service["Nama Layanan"].servicename,
                         label: service["Nama Layanan"].servicename,
                       }))}
@@ -2113,7 +2152,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                       name="servicetype"
                       value={subservice.servicetype}
-                      options={inputData.order[index].service && allServiceData.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({
+                      options={inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({
                         value: type.servicetypename,
                         label: type.servicetypename,
                       }))}
@@ -2166,25 +2205,25 @@ const DashboardSlugPage = ({ parent, slug }) => {
         return <DashboardHead title={`Halaman Dashboard ${pagetitle} akan segera hadir.`} />;
     }
   };
-
+  // filter (operational hours - booked hours = available hours)
   useEffect(() => {
     if (slug === "RESERVATION") {
       setAvailHoursData(hours.filter((hour) => !bookedHoursData.includes(hour)));
     }
   }, [slug, bookedHoursData]);
-
+  // run fetch when page rendered on demand and every slug, data page, data limit, and status changed
   useEffect(() => {
     fetchData();
   }, [slug, currentPage, limit, status]);
-
+  // run fetch when page rendered once on demand
   useEffect(() => {
     fetchAdditionalData();
   }, []);
-
+  // authentication guards
   if (!isLoggedin) {
     return <Navigate to="/login" />;
   }
-
+  // main JSX as dynamic content wrapper
   return (
     <Pages title={`${pagetitle} - Dashboard`}>
       <DashboardContainer>{renderContent()}</DashboardContainer>

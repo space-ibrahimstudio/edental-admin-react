@@ -98,7 +98,7 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
           <Fragment>
             {type === "link" ? (
               <Fragment>
-                <a className={`${styles.linkText} ${copied ? styles.copied : ""}`} href={children} target="_blank">
+                <a className={`${styles.linkText} ${copied ? styles.copied : ""}`} href={children} target="_blank" rel="noreferrer">
                   {copied ? "Link Copied!" : children}
                 </a>
                 <AtnIcon onClick={copyToClipboard}>
