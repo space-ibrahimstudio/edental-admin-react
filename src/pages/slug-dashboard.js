@@ -8,7 +8,7 @@ import { Button, ButtonGroup } from "@ibrahimstudio/button";
 import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
-import { getCurrentDate } from "../libs/plugins/controller";
+import { getCurrentDate, getNormalPhoneNumber } from "../libs/plugins/controller";
 import { useSearch } from "../libs/plugins/handler";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
@@ -89,6 +89,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     note: "",
     dentist: "",
     status: "",
+    statuspayment: "",
     typepayment: "",
     layanan: [{ servicetype: "", price: "" }],
     order: [{ service: "", servicetype: "", price: "" }],
@@ -120,6 +121,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     note: "",
     dentist: "",
     status: "",
+    statuspayment: "",
     typepayment: "",
     layanan: [{ servicetype: "", price: "" }],
     order: [{ service: "", servicetype: "", price: "" }],
@@ -446,6 +448,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
             }
           }
           break;
+        case "RESERVATION":
+          switchedData = currentData(reservData, "idreservation");
+          log(`id ${slug} data switched:`, switchedData.idreservation);
+          setInputData({
+            status: switchedData.status_reservation,
+            statuspayment: switchedData.status_dp,
+          });
+          break;
         default:
           setSelectedData(null);
           break;
@@ -510,17 +520,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
           case "RESERVATION":
             submittedData = {
               secret,
-              idservicetype: inputData.id,
-              name: inputData.name,
-              phone: inputData.phone,
-              email: inputData.email,
-              voucher: inputData.vouchercode,
-              service: inputData.service,
-              typeservice: inputData.sub_service,
-              reservationdate: inputData.date,
-              reservationtime: inputData.time,
-              price: inputData.price,
-              bank_code: inputData.bank_code,
+              status_reservation: inputData.status,
+              status_dp: inputData.statuspayment,
             };
             break;
           case "ORDER CUSTOMER":
@@ -714,7 +715,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD type="number" isCopy>
                         {data.userphone}
                       </TD>
-                      <TD>{data.address}</TD>
+                      <TD>{toTitleCase(data.address)}</TD>
                     </TR>
                   ))}
                 </TBody>
@@ -1339,8 +1340,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD>{toTitleCase(data.itemname)}</TD>
                       <TD>{data.unit}</TD>
                       <TD type="number">{data.lastqty}</TD>
-                      <TD type="number">{newPrice(data.value)}</TD>
-                      <TD type="number">{newPrice(data.totalvalue)}</TD>
+                      <TD>{newPrice(data.value)}</TD>
+                      <TD>{newPrice(data.totalvalue)}</TD>
                       <TD>{toTitleCase(data.outletname)}</TD>
                     </TR>
                   ))}
@@ -1460,23 +1461,27 @@ const DashboardSlugPage = ({ parent, slug }) => {
             {/* prettier-ignore */}
             <DashboardHead title={pagetitle} desc="Daftar permintaan PO item dari semua cabang. Filter status PO melalui tombol tab, atau klik ikon pada kolom Action untuk memperbarui status PO." />
             <DashboardToolbar>
-              <Input
-                id={`search-data-${pageid}`}
-                radius="full"
-                isLabeled={false}
-                placeholder="Cari data ..."
-                type="text"
-                value={inPOSearch}
-                onChange={(e) => handleInPOSearch(e.target.value)}
-              />
-              <ButtonGroup
-                size="sm"
-                radius="full"
-                baseColor="var(--theme-color-base)"
-                primaryColor="var(--theme-color-primary)"
-                secondaryColor="var(--theme-color-secondary)"
-                buttons={postatus}
-              />
+              <DashboardTool>
+                <Input
+                  id={`search-data-${pageid}`}
+                  radius="full"
+                  isLabeled={false}
+                  placeholder="Cari data ..."
+                  type="text"
+                  value={inPOSearch}
+                  onChange={(e) => handleInPOSearch(e.target.value)}
+                />
+              </DashboardTool>
+              <DashboardTool>
+                <ButtonGroup
+                  size="sm"
+                  radius="full"
+                  baseColor="var(--theme-color-base)"
+                  primaryColor="var(--theme-color-primary)"
+                  secondaryColor="var(--theme-color-secondary)"
+                  buttons={postatus}
+                />
+              </DashboardTool>
               <DashboardTool>
                 <Input
                   id={`limit-data-${pageid}`}
@@ -1675,7 +1680,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isCancelable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
+              <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
@@ -1698,7 +1703,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredReservData.map((data, index) => (
-                    <TR key={index} isWarning={data.status_reservation === "0"}>
+                    <TR key={index} onEdit={() => openEdit(data.idreservation)} isWarning={data.status_reservation === "0"}>
                       <TD>{newDate(data.datetimecreate, "en-gb")}</TD>
                       <TD>{data.reservationdate}</TD>
                       <TD>{data.reservationtime}</TD>
@@ -1707,7 +1712,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD type="number" isCopy>
                         {data.phone}
                       </TD>
-                      <TD isCopy>{data.email}</TD>
+                      <TD>{data.email}</TD>
                       <TD>{reservStatusAlias(data.status_reservation)}</TD>
                       <TD>{dpStatusAlias(data.status_dp)}</TD>
                       <TD>{toTitleCase(data.service)}</TD>
@@ -1723,74 +1728,112 @@ const DashboardSlugPage = ({ parent, slug }) => {
             {isReservShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm
-                formTitle={selectedMode === "update" ? "Perbarui Data Reservasi" : "Tambah Data Reservasi"}
+                formTitle={selectedMode === "update" ? "Ubah Status Reservasi" : "Tambah Data Reservasi"}
                 operation={selectedMode}
                 fetching={isFormFetching}
                 onSubmit={(e) => handleSubmit(e, "cudreservation")}
                 loading={isSubmitting}
                 onClose={closeForm}
               >
-                <InputWrap>
-                  <Input
-                    id={`${pageid}-phone`}
-                    radius="full"
-                    labelText="Nomor Telepon"
-                    placeholder="0882xxx"
-                    type="tel"
-                    name="phone"
-                    value={inputData.phone}
-                    onChange={handleReservInputChange}
-                    infoContent={custExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""}
-                    errorContent={errors.phone}
-                    isRequired
-                  />
-                  <Input
-                    id={`${pageid}-name`}
-                    radius="full"
-                    labelText="Nama Pelanggan"
-                    placeholder="e.g. John Doe"
-                    type="text"
-                    name="name"
-                    value={inputData.name}
-                    onChange={handleReservInputChange}
-                    errorContent={errors.name}
-                    isRequired
-                    isReadonly={custExist ? true : false}
-                  />
-                  <Input
-                    id={`${pageid}-email`}
-                    radius="full"
-                    labelText="Email"
-                    placeholder="customer@gmail.com"
-                    type="email"
-                    name="email"
-                    value={inputData.email}
-                    onChange={handleReservInputChange}
-                    errorContent={errors.email}
-                    isRequired
-                    isReadonly={custExist ? true : false}
-                  />
-                </InputWrap>
-                <InputWrap>
-                  <Input
-                    id={`${pageid}-service`}
-                    variant="select"
-                    isSearchable
-                    radius="full"
-                    labelText="Nama Layanan"
-                    placeholder="Pilih layanan"
-                    name="service"
-                    value={inputData.service}
-                    options={allservicedata.map((service) => ({
-                      value: service["Nama Layanan"].servicename,
-                      label: service["Nama Layanan"].servicename,
-                    }))}
-                    onSelect={(selectedValue) => handleReservInputChange({ target: { name: "service", value: selectedValue } })}
-                    errorContent={errors.service}
-                    isRequired
-                  />
-                  {/* prettier-ignore */}
-                  <Input
+                {selectedMode === "update" ? (
+                  <InputWrap>
+                    <Input
+                      id={`${pageid}-reserv-status`}
+                      variant="select"
+                      noEmptyValue
+                      radius="full"
+                      labelText="Status Reservasi"
+                      placeholder="Set status"
+                      name="status"
+                      value={inputData.status}
+                      options={[
+                        { value: "0", label: "Pending" },
+                        { value: "2", label: "Reschedule" },
+                        { value: "3", label: "Batal" },
+                      ]}
+                      onSelect={(selectedValue) => handleReservInputChange({ target: { name: "status", value: selectedValue } })}
+                    />
+                    {inputData.statuspayment !== "1" && (
+                      <Input
+                        id={`${pageid}-dp-status`}
+                        variant="select"
+                        noEmptyValue
+                        radius="full"
+                        labelText="Status DP"
+                        placeholder="Set status"
+                        name="statuspayment"
+                        value={inputData.statuspayment}
+                        options={[
+                          { value: "0", label: "Pending" },
+                          { value: "3", label: "Batal" },
+                        ]}
+                        onSelect={(selectedValue) => handleReservInputChange({ target: { name: "statuspayment", value: selectedValue } })}
+                      />
+                    )}
+                  </InputWrap>
+                ) : (
+                  <Fragment>
+                    <InputWrap>
+                      <Input
+                        id={`${pageid}-phone`}
+                        radius="full"
+                        labelText="Nomor Telepon"
+                        placeholder="0882xxx"
+                        type="tel"
+                        name="phone"
+                        value={inputData.phone}
+                        onChange={handleReservInputChange}
+                        infoContent={custExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""}
+                        errorContent={errors.phone}
+                        isRequired
+                      />
+                      <Input
+                        id={`${pageid}-name`}
+                        radius="full"
+                        labelText="Nama Pelanggan"
+                        placeholder="e.g. John Doe"
+                        type="text"
+                        name="name"
+                        value={inputData.name}
+                        onChange={handleReservInputChange}
+                        errorContent={errors.name}
+                        isRequired
+                        isReadonly={custExist ? true : false}
+                      />
+                      <Input
+                        id={`${pageid}-email`}
+                        radius="full"
+                        labelText="Email"
+                        placeholder="customer@gmail.com"
+                        type="email"
+                        name="email"
+                        value={inputData.email}
+                        onChange={handleReservInputChange}
+                        errorContent={errors.email}
+                        isRequired
+                        isReadonly={custExist ? true : false}
+                      />
+                    </InputWrap>
+                    <InputWrap>
+                      <Input
+                        id={`${pageid}-service`}
+                        variant="select"
+                        isSearchable
+                        radius="full"
+                        labelText="Nama Layanan"
+                        placeholder="Pilih layanan"
+                        name="service"
+                        value={inputData.service}
+                        options={allservicedata.map((service) => ({
+                          value: service["Nama Layanan"].servicename,
+                          label: service["Nama Layanan"].servicename,
+                        }))}
+                        onSelect={(selectedValue) => handleReservInputChange({ target: { name: "service", value: selectedValue } })}
+                        errorContent={errors.service}
+                        isRequired
+                      />
+                      {/* prettier-ignore */}
+                      <Input
                     id={`${pageid}-subservice`}
                     variant="select"
                     isSearchable
@@ -1808,87 +1851,89 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                     isDisabled={inputData.service ? false : true}
                   />
-                  <Input
-                    id={`${pageid}-voucher`}
-                    radius="full"
-                    labelText="Kode Voucher"
-                    placeholder="e.g 598RE3"
-                    type="text"
-                    name="voucher"
-                    value={inputData.vouchercode}
-                    onChange={handleReservInputChange}
-                    errorContent={errors.vouchercode}
-                  />
-                </InputWrap>
-                <InputWrap>
-                  <Input
-                    id={`${pageid}-date`}
-                    radius="full"
-                    labelText="Tanggal Reservasi"
-                    placeholder="Atur tanggal"
-                    type="date"
-                    name="date"
-                    min={getCurrentDate()}
-                    value={inputData.date}
-                    onChange={handleReservInputChange}
-                    errorContent={errors.date}
-                    isRequired
-                  />
-                  <Input
-                    id={`${pageid}-time`}
-                    variant="select"
-                    isSearchable
-                    radius="full"
-                    labelText="Jam Reservasi"
-                    placeholder={inputData.date ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"}
-                    name="time"
-                    value={inputData.time}
-                    options={availHoursData.map((hour) => ({ value: hour, label: hour }))}
-                    onSelect={(selectedValue) => handleReservInputChange({ target: { name: "time", value: selectedValue } })}
-                    errorContent={errors.time}
-                    isRequired
-                    isDisabled={inputData.date ? false : true}
-                  />
-                </InputWrap>
-                <Input
-                  id={`${pageid}-note`}
-                  variant="textarea"
-                  radius="full"
-                  labelText="Catatan"
-                  placeholder="Masukkan catatan/keterangan ..."
-                  name="note"
-                  rows={4}
-                  value={inputData.note}
-                  onChange={handleReservInputChange}
-                  errorContent={errors.note}
-                />
-                {inputData.service === "RESERVATION" && inputData.sub_service === "RESERVATION" && (
-                  <InputWrap>
+                      <Input
+                        id={`${pageid}-voucher`}
+                        radius="full"
+                        labelText="Kode Voucher"
+                        placeholder="e.g 598RE3"
+                        type="text"
+                        name="voucher"
+                        value={inputData.vouchercode}
+                        onChange={handleReservInputChange}
+                        errorContent={errors.vouchercode}
+                      />
+                    </InputWrap>
+                    <InputWrap>
+                      <Input
+                        id={`${pageid}-date`}
+                        radius="full"
+                        labelText="Tanggal Reservasi"
+                        placeholder="Atur tanggal"
+                        type="date"
+                        name="date"
+                        min={getCurrentDate()}
+                        value={inputData.date}
+                        onChange={handleReservInputChange}
+                        errorContent={errors.date}
+                        isRequired
+                      />
+                      <Input
+                        id={`${pageid}-time`}
+                        variant="select"
+                        isSearchable
+                        radius="full"
+                        labelText="Jam Reservasi"
+                        placeholder={inputData.date ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"}
+                        name="time"
+                        value={inputData.time}
+                        options={availHoursData.map((hour) => ({ value: hour, label: hour }))}
+                        onSelect={(selectedValue) => handleReservInputChange({ target: { name: "time", value: selectedValue } })}
+                        errorContent={errors.time}
+                        isRequired
+                        isDisabled={inputData.date ? false : true}
+                      />
+                    </InputWrap>
                     <Input
-                      id={`${pageid}-price`}
+                      id={`${pageid}-note`}
+                      variant="textarea"
                       radius="full"
-                      labelText="Biaya Layanan"
-                      placeholder="Masukkan biaya layanan"
-                      type="number"
-                      name="price"
-                      value={inputData.price}
+                      labelText="Catatan"
+                      placeholder="Masukkan catatan/keterangan ..."
+                      name="note"
+                      rows={4}
+                      value={inputData.note}
                       onChange={handleReservInputChange}
-                      errorContent={errors.price}
+                      errorContent={errors.note}
                     />
-                    <Input
-                      id={`${pageid}-payments`}
-                      variant="select"
-                      isSearchable
-                      radius="full"
-                      labelText="Metode Pembayaran"
-                      placeholder="Pilih metode pembayaran"
-                      name="bank_code"
-                      value={inputData.bank_code}
-                      options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
-                      onSelect={(selectedValue) => handleReservInputChange({ target: { name: "bank_code", value: selectedValue } })}
-                      errorContent={errors.bank_code}
-                    />
-                  </InputWrap>
+                    {inputData.service === "RESERVATION" && inputData.sub_service === "RESERVATION" && (
+                      <InputWrap>
+                        <Input
+                          id={`${pageid}-price`}
+                          radius="full"
+                          labelText="Biaya Layanan"
+                          placeholder="Masukkan biaya layanan"
+                          type="number"
+                          name="price"
+                          value={inputData.price}
+                          onChange={handleReservInputChange}
+                          errorContent={errors.price}
+                        />
+                        <Input
+                          id={`${pageid}-payments`}
+                          variant="select"
+                          isSearchable
+                          radius="full"
+                          labelText="Metode Pembayaran"
+                          placeholder="Pilih metode pembayaran"
+                          name="bank_code"
+                          value={inputData.bank_code}
+                          options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
+                          onSelect={(selectedValue) => handleReservInputChange({ target: { name: "bank_code", value: selectedValue } })}
+                          errorContent={errors.bank_code}
+                        />
+                      </InputWrap>
+                    )}
+                  </Fragment>
                 )}
               </SubmitForm>
             )}
@@ -1908,7 +1953,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             const orderdetaildata = data.data;
             const doc = new jsPDF();
             if (selectedOrder && data && orderdetaildata && orderdetaildata.length > 0) {
-              doc.text(`Edental Reservasi Invoice no.${selectedOrder.rscode}`, 20, 20);
+              doc.text(`Edental Invoice - Reservasi no.${selectedOrder.rscode}`, 20, 20);
               doc.text(`Tanggal: ${selectedOrder.transactioncreate}`, 20, 30);
               doc.text(`Nomor Invoice: ${selectedOrder.noinvoice}`, 20, 40);
               doc.text(`Nama Customer: ${selectedOrder.transactionname}`, 20, 50);
@@ -1929,6 +1974,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           } catch (error) {
             console.error("Error generating PDF:", error);
           }
+        };
+
+        const contactWhatsApp = (number) => {
+          const wanumber = getNormalPhoneNumber(number);
+          window.open(`https://wa.me/${wanumber}`, "_blank");
         };
 
         const handleOrderInputChange = (e) => {
@@ -2030,7 +2080,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isEditable isPrintable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
+              <Table byNumber isEditable isPrintable isContactable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(orderData, setOrderData, "transactioncreate")}>
@@ -2057,13 +2107,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       onEdit={() => openEdit(data.idtransaction)}
                       onClick={() => openDetail(data.idtransaction)}
                       onPrint={() => exportToPDF(data.idtransaction)}
+                      onContact={() => contactWhatsApp(data.transactionphone)}
                     >
                       <TD>{newDate(data.transactioncreate, "en-gb")}</TD>
                       <TD>{toTitleCase(data.transactionname)}</TD>
                       <TD type="code">{data.rscode}</TD>
-                      <TD type="number" isCopy>
-                        {data.noinvoice}
-                      </TD>
+                      <TD type="code">{data.noinvoice}</TD>
                       <TD type="number" isCopy>
                         {data.transactionphone}
                       </TD>
@@ -2238,6 +2287,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 />
               </SubmitForm>
             )}
+          </Fragment>
+        );
+      case "PO PUSAT":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} />
           </Fragment>
         );
       default:

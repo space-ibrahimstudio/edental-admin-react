@@ -1,11 +1,12 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { useNavigate, Navigate, useParams } from "react-router-dom";
-import { useFormat, useContent, useDevmode } from "@ibrahimstudio/react";
+import { useFormat, useContent } from "@ibrahimstudio/react";
 import { Button } from "@ibrahimstudio/button";
+import { Input } from "@ibrahimstudio/input";
 import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
-import { getCurrentDate, getNestedValue, exportToExcel } from "../libs/plugins/controller";
+import { getNestedValue, exportToExcel } from "../libs/plugins/controller";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
@@ -14,7 +15,6 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const { params } = useParams();
   const navigate = useNavigate();
   const { toPathname, toTitleCase } = useContent();
-  const { log } = useDevmode();
   const { newDate, newPrice } = useFormat();
   const { isLoggedin, secret } = useAuth();
   const { apiRead } = useApi();
@@ -27,21 +27,13 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const [isFetching, setIsFetching] = useState(false);
   const [isDataShown, setIsDataShown] = useState(true);
   const [sortOrder, setSortOrder] = useState("asc");
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1)));
+  const [endDate, setEndDate] = useState(new Date());
 
   const [stockHistoryData, setStockHistoryData] = useState([]);
   const [orderDetailData, setOrderDetailData] = useState([]);
 
   const goBack = () => navigate(-1);
-
-  const handleStartDateChange = (event) => {
-    setStartDate(event.target.value);
-  };
-
-  const handleEndDateChange = (event) => {
-    setEndDate(event.target.value);
-  };
 
   const handleSortDate = (data, setData, params) => {
     const newData = [...data];
@@ -76,6 +68,19 @@ const DashboardParamsPage = ({ parent, slug }) => {
             setIsDataShown(false);
           }
           break;
+        case "STOCK":
+          formData.append("data", JSON.stringify({ secret, stockname: params }));
+          data = await apiRead(formData, "office", "logstock");
+          if (data && data.data && data.data.length > 0) {
+            setStockHistoryData(data.data);
+            setPageTitle(`${toTitleCase(params)} Stock History`);
+            setIsDataShown(true);
+          } else {
+            setStockHistoryData([]);
+            setPageTitle("");
+            setIsDataShown(false);
+          }
+          break;
         default:
           setIsDataShown(false);
           break;
@@ -88,6 +93,13 @@ const DashboardParamsPage = ({ parent, slug }) => {
     }
   };
 
+  const filterData = () => {
+    return stockHistoryData.filter((item) => {
+      const itemDate = new Date(item.logstockcreate);
+      return itemDate >= startDate && itemDate <= endDate;
+    });
+  };
+
   const renderContent = () => {
     switch (slug) {
       case "ORDER CUSTOMER":
@@ -97,15 +109,6 @@ const DashboardParamsPage = ({ parent, slug }) => {
             <DashboardToolbar>
               <DashboardTool>
                 <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} />
-              </DashboardTool>
-              <DashboardTool>
-                <Button
-                  id={`export-data-${pageid}`}
-                  buttonText="Cetak PDF Invoice"
-                  radius="full"
-                  bgColor="var(--color-green)"
-                  onClick={() => exportToExcel(orderDetailData, "Order Detail", `order_detail_${params}`)}
-                />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -134,6 +137,70 @@ const DashboardParamsPage = ({ parent, slug }) => {
             </DashboardBody>
           </Fragment>
         );
+      case "STOCK":
+        return (
+          <Fragment>
+            <DashboardHead title={isFetching ? "Memuat data ..." : isDataShown ? pageTitle : "Tidak ada data."} />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} />
+                <Button
+                  id={`export-data-${pageid}`}
+                  buttonText="Export ke Excel"
+                  radius="full"
+                  bgColor="var(--color-green)"
+                  onClick={() => exportToExcel(filterData(), pageTitle, `${toPathname(pageTitle)}`)}
+                />
+              </DashboardTool>
+              <DashboardTool>
+                <Input
+                  id={`${pageid}-filter-startdate`}
+                  radius="full"
+                  labelText="Filter dari:"
+                  type="date"
+                  value={startDate.toISOString().split("T")[0]}
+                  onChange={(e) => setStartDate(new Date(e.target.value))}
+                />
+                <Input
+                  id={`${pageid}-filter-enddate`}
+                  radius="full"
+                  labelText="Hingga:"
+                  type="date"
+                  value={endDate.toISOString().split("T")[0]}
+                  onChange={(e) => setEndDate(new Date(e.target.value))}
+                />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isNoData={!isDataShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(stockHistoryData, setStockHistoryData, "logstockcreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Status</TH>
+                    <TH>Harga Satuan</TH>
+                    <TH>Jumlah</TH>
+                    <TH>Total Harga</TH>
+                    <TH>Cabang</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filterData().map((data, index) => (
+                    <TR key={index}>
+                      <TD>{newDate(data.logstockcreate, "en-gb")}</TD>
+                      <TD>{data.status}</TD>
+                      <TD>{newPrice(data.value)}</TD>
+                      <TD type="number">{data.qty}</TD>
+                      <TD>{newPrice(data.totalvalue)}</TD>
+                      <TD>{toTitleCase(data.outletname)}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+          </Fragment>
+        );
       default:
         return;
     }
@@ -141,7 +208,13 @@ const DashboardParamsPage = ({ parent, slug }) => {
 
   useEffect(() => {
     fetchData();
-  }, [slug, params]);
+  }, [slug, params, slug === "STOCK" ? startDate : null, slug === "STOCK" ? endDate : null]);
+
+  useEffect(() => {
+    if (slug === "STOCK") {
+      setIsDataShown(filterData().length > 0);
+    }
+  }, [slug === "STOCK" ? stockHistoryData : null, slug === "STOCK" ? startDate : null, slug === "STOCK" ? endDate : null]);
 
   if (!isLoggedin) {
     return <Navigate to="/login" />;

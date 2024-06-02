@@ -34,3 +34,14 @@ export function inputValidator(inputData, requiredFields) {
 export function getNestedValue(obj, path) {
   return path.split(".").reduce((acc, part) => acc && acc[part], obj);
 }
+
+export function getNormalPhoneNumber(number) {
+  let normalizedNumber = number.replace(/[\s-]/g, "");
+  if (normalizedNumber.startsWith("+")) {
+    normalizedNumber = normalizedNumber.slice(1);
+  }
+  if (!normalizedNumber.startsWith("62")) {
+    normalizedNumber = `62${normalizedNumber}`;
+  }
+  return normalizedNumber;
+}
