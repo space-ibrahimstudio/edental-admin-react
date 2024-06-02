@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import jsPDF from "jspdf";
 import { useContent, useFormat, useDevmode } from "@ibrahimstudio/react";
 import { ISTrash } from "@ibrahimstudio/icons";
 import { Input } from "@ibrahimstudio/input";
@@ -59,6 +60,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [availHoursData, setAvailHoursData] = useState([]);
   const [fvaListData, setFvaListData] = useState([]);
   const [orderData, setOrderData] = useState([]);
+  const [orderDetailData, setOrderDetailData] = useState([]);
   // global input chema
   const inputSchema = {
     name: "",
@@ -1673,7 +1675,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isDeletable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
+              <Table byNumber isCancelable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
@@ -1893,6 +1895,42 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "ORDER CUSTOMER":
+        const exportToPDF = async (id) => {
+          try {
+            const selectedOrder = orderData.find((item) => item.idtransaction === id);
+            if (!selectedOrder) {
+              console.error(`Order with id ${id} not found`);
+              return;
+            }
+            const formData = new FormData();
+            formData.append("data", JSON.stringify({ secret, idtransaction: id }));
+            const data = await apiRead(formData, "office", "viewdetailorder");
+            const orderdetaildata = data.data;
+            const doc = new jsPDF();
+            if (selectedOrder && data && orderdetaildata && orderdetaildata.length > 0) {
+              doc.text(`Edental Reservasi Invoice no.${selectedOrder.rscode}`, 20, 20);
+              doc.text(`Tanggal: ${selectedOrder.transactioncreate}`, 20, 30);
+              doc.text(`Nomor Invoice: ${selectedOrder.noinvoice}`, 20, 40);
+              doc.text(`Nama Customer: ${selectedOrder.transactionname}`, 20, 50);
+              doc.text(`Nomor Telepon: ${selectedOrder.transactionphone}`, 20, 60);
+              doc.text(`Dokter Penangan: ${selectedOrder.dentist}`, 20, 70);
+              doc.text(`Cabang: ${selectedOrder.outlet_name}`, 20, 80);
+              doc.text(`Total Pembayaran: ${selectedOrder.totalpay}`, 20, 90);
+              doc.text(`Voucher: ${selectedOrder.voucher}`, 20, 100);
+              doc.text(`Metode Pembayaran: ${selectedOrder.payment}`, 20, 110);
+              orderdetaildata.forEach((item, index) => {
+                doc.text(`Item ${index + 1}: ${item.service} - ${item.servicetype} - ${item.price}`, 20, 120 + index * 10);
+              });
+              const filename = `invoice-${toPathname(selectedOrder.transactionname)}-${selectedOrder.rscode}.pdf`;
+              doc.save(filename);
+            } else {
+              console.error("Order details not found or empty.");
+            }
+          } catch (error) {
+            console.error("Error generating PDF:", error);
+          }
+        };
+
         const handleOrderInputChange = (e) => {
           const { name, value } = e.target;
           setInputData((prevState) => ({ ...prevState, [name]: value }));
@@ -1992,18 +2030,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
+              <Table byNumber isEditable isPrintable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(orderData, setOrderData, "transactioncreate")}>
                       Tanggal Dibuat
                     </TH>
                     <TH>Nama Pengguna</TH>
-                    <TH>Total Pembayaran</TH>
                     <TH>Kode Reservasi</TH>
                     <TH>Nomor Invoice</TH>
                     <TH>Nomor Telepon</TH>
                     <TH>Metode Pembayaran</TH>
+                    <TH>Total Pembayaran</TH>
                     <TH>Status Pembayaran</TH>
                     <TH>Kode Voucher</TH>
                     <TH>Nama Dokter</TH>
@@ -2018,10 +2056,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       isClickable
                       onEdit={() => openEdit(data.idtransaction)}
                       onClick={() => openDetail(data.idtransaction)}
+                      onPrint={() => exportToPDF(data.idtransaction)}
                     >
                       <TD>{newDate(data.transactioncreate, "en-gb")}</TD>
                       <TD>{toTitleCase(data.transactionname)}</TD>
-                      <TD>{newPrice(data.totalpay)}</TD>
                       <TD type="code">{data.rscode}</TD>
                       <TD type="number" isCopy>
                         {data.noinvoice}
@@ -2030,6 +2068,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         {data.transactionphone}
                       </TD>
                       <TD>{data.payment}</TD>
+                      <TD>{newPrice(data.totalpay)}</TD>
                       <TD>{dpStatusAlias(data.transactionstatus)}</TD>
                       <TD type="code">{data.voucher}</TD>
                       <TD>{toTitleCase(data.dentist)}</TD>
