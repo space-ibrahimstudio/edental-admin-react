@@ -73,7 +73,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
           data = await apiRead(formData, "office", "logstock");
           if (data && data.data && data.data.length > 0) {
             setStockHistoryData(data.data);
-            setPageTitle(`${toTitleCase(params)} Stock History`);
+            setPageTitle(`Histori Stok ${toTitleCase(params)}`);
             setIsDataShown(true);
           } else {
             setStockHistoryData([]);
@@ -98,6 +98,10 @@ const DashboardParamsPage = ({ parent, slug }) => {
       const itemDate = new Date(item.logstockcreate);
       return itemDate >= startDate && itemDate <= endDate;
     });
+  };
+
+  const formatDate = (date) => {
+    return date.toISOString().slice(0, 16);
   };
 
   const renderContent = () => {
@@ -126,7 +130,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                 <TBody>
                   {orderDetailData.map((data, index) => (
                     <TR key={index} isWarning={data.transactionstatus === "0"}>
-                      <TD>{newDate(data.transactiondetailcreate, "en-gb")}</TD>
+                      <TD>{newDate(data.transactiondetailcreate, "id")}</TD>
                       <TD>{toTitleCase(data.service)}</TD>
                       <TD>{toTitleCase(data.servicetype)}</TD>
                       <TD>{newPrice(data.price)}</TD>
@@ -140,7 +144,14 @@ const DashboardParamsPage = ({ parent, slug }) => {
       case "STOCK":
         return (
           <Fragment>
-            <DashboardHead title={isFetching ? "Memuat data ..." : isDataShown ? pageTitle : "Tidak ada data."} />
+            <DashboardHead
+              title={isFetching ? "Memuat data ..." : pageTitle}
+              // prettier-ignore
+              desc={isFetching ? "Memuat detail ..." : isDataShown
+                ? `Menampilkan histori stok ${newDate(formatDate(startDate), "id")} hingga ${newDate(formatDate(endDate), "id")}.`
+                : `Histori stok ${newDate(formatDate(startDate), "id")} hingga ${newDate(formatDate(endDate), "id")} tidak ditemukan.`
+              }
+            />
             <DashboardToolbar>
               <DashboardTool>
                 <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} />
@@ -157,16 +168,16 @@ const DashboardParamsPage = ({ parent, slug }) => {
                   id={`${pageid}-filter-startdate`}
                   radius="full"
                   labelText="Filter dari:"
-                  type="date"
-                  value={startDate.toISOString().split("T")[0]}
+                  type="datetime-local"
+                  value={formatDate(startDate)}
                   onChange={(e) => setStartDate(new Date(e.target.value))}
                 />
                 <Input
                   id={`${pageid}-filter-enddate`}
                   radius="full"
                   labelText="Hingga:"
-                  type="date"
-                  value={endDate.toISOString().split("T")[0]}
+                  type="datetime-local"
+                  value={formatDate(endDate)}
                   onChange={(e) => setEndDate(new Date(e.target.value))}
                 />
               </DashboardTool>
@@ -188,7 +199,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                 <TBody>
                   {filterData().map((data, index) => (
                     <TR key={index}>
-                      <TD>{newDate(data.logstockcreate, "en-gb")}</TD>
+                      <TD>{newDate(data.logstockcreate, "id")}</TD>
                       <TD>{data.status}</TD>
                       <TD>{newPrice(data.value)}</TD>
                       <TD type="number">{data.qty}</TD>

@@ -1,26 +1,27 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import jsPDF from "jspdf";
 import { useContent, useFormat, useDevmode } from "@ibrahimstudio/react";
 import { ISTrash } from "@ibrahimstudio/icons";
 import { Input } from "@ibrahimstudio/input";
 import { Button, ButtonGroup } from "@ibrahimstudio/button";
+import html2pdf from "html2pdf.js";
 import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
-import { getCurrentDate, getNormalPhoneNumber } from "../libs/plugins/controller";
 import { useSearch } from "../libs/plugins/handler";
+import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue } from "../libs/plugins/controller";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
-import { SubmitForm } from "../components/input-controls/forms";
-import { exportToExcel, getNestedValue } from "../libs/plugins/controller";
+import { SubmitForm, FileForm } from "../components/input-controls/forms";
+import Invoice from "../components/contents/invoice";
 import { InputWrap } from "../components/input-controls/inputs";
 import Pagination from "../components/navigations/pagination";
 
 const DashboardSlugPage = ({ parent, slug }) => {
   // context api
   const navigate = useNavigate();
+  const printRef = useRef();
   const { newDate, newPrice } = useFormat();
   const { log } = useDevmode();
   const { toTitleCase, toPathname } = useContent();
@@ -42,6 +43,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [selectedMode, setSelectedMode] = useState("add");
   const [sortOrder, setSortOrder] = useState("asc");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFileOpen, setIsFileOpen] = useState(false);
   const [status, setStatus] = useState(0);
   const [custExist, setCustExist] = useState(false);
   // specific statements
@@ -60,7 +62,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [availHoursData, setAvailHoursData] = useState([]);
   const [fvaListData, setFvaListData] = useState([]);
   const [orderData, setOrderData] = useState([]);
-  const [orderDetailData, setOrderDetailData] = useState([]);
+  const [selectedOrderData, setSelectedOrderData] = useState(null);
+  const [orderDetailData, setOrderDetailData] = useState(null);
   // global input chema
   const inputSchema = {
     name: "",
@@ -222,6 +225,35 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const closeEdit = () => {
     restoreInputState();
     setIsFormOpen(false);
+  };
+  const openFile = async (id) => {
+    setIsFileOpen(true);
+    setIsFormFetching(true);
+    try {
+      const orderdata = orderData.find((item) => item.idtransaction === id);
+      if (orderdata) {
+        setSelectedOrderData(orderdata);
+      } else {
+        setSelectedOrderData(null);
+      }
+      const formData = new FormData();
+      formData.append("data", JSON.stringify({ secret, idtransaction: id }));
+      const data = await apiRead(formData, "office", "viewdetailorder");
+      const orderdetaildata = data.data;
+      if (data && orderdetaildata && orderdetaildata.length > 0) {
+        setOrderDetailData(orderdetaildata);
+      } else {
+        setOrderDetailData(null);
+        console.error("Order details not found or empty.");
+      }
+    } catch (error) {
+      console.error("error getting order information:", error);
+    } finally {
+      setIsFormFetching(false);
+    }
+  };
+  const closeFile = () => {
+    setIsFileOpen(false);
   };
   // fetch primary datas on slug changed
   const fetchData = async () => {
@@ -518,11 +550,28 @@ const DashboardSlugPage = ({ parent, slug }) => {
             };
             break;
           case "RESERVATION":
-            submittedData = {
-              secret,
-              status_reservation: inputData.status,
-              status_dp: inputData.statuspayment,
-            };
+            if (selectedMode === "update") {
+              submittedData = {
+                secret,
+                status_reservation: inputData.status,
+                status_dp: inputData.statuspayment,
+              };
+            } else {
+              submittedData = {
+                secret,
+                idservicetype: inputData.id,
+                name: inputData.name,
+                phone: inputData.phone,
+                email: inputData.email,
+                voucher: inputData.vouchercode,
+                service: inputData.service,
+                typeservice: inputData.sub_service,
+                reservationdate: inputData.date,
+                reservationtime: inputData.time,
+                price: inputData.price,
+                bank_code: inputData.bank_code,
+              };
+            }
             break;
           case "ORDER CUSTOMER":
             submittedData = {
@@ -709,7 +758,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <TBody>
                   {filteredCustData.map((data, index) => (
                     <TR key={index}>
-                      <TD>{newDate(data.usercreate, "en-gb")}</TD>
+                      <TD>{newDate(data.usercreate, "id")}</TD>
                       <TD>{toTitleCase(data.username)}</TD>
                       <TD>{data.useremail}</TD>
                       <TD type="number" isCopy>
@@ -889,10 +938,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       onEdit={() => openEdit(data["Nama Layanan"].idservice)}
                       onDelete={() => handleDelete(data["Nama Layanan"].idservice, "cudservice")}
                     >
-                      <TD>{newDate(data["Nama Layanan"].servicecreate, "en-gb")}</TD>
+                      <TD>{newDate(data["Nama Layanan"].servicecreate, "id")}</TD>
                       <TD>{data["Nama Layanan"].servicename}</TD>
                       <TD type="number">{data["Nama Layanan"].idservice}</TD>
-                      <TD>{newDate(data["Nama Layanan"].serviceupdate, "en-gb")}</TD>
+                      <TD>{newDate(data["Nama Layanan"].serviceupdate, "id")}</TD>
                       <TD>{data["Nama Layanan"].servicestatus}</TD>
                     </TR>
                   ))}
@@ -902,6 +951,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             {isServiceShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm
+                size="md"
                 formTitle={selectedMode === "update" ? "Perbarui Data Layanan" : "Tambah Data Layanan"}
                 operation={selectedMode}
                 fetching={isFormFetching}
@@ -1036,7 +1086,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <TBody>
                   {filteredBranchData.map((data, index) => (
                     <TR key={index} onEdit={() => openEdit(data.idoutlet)} onDelete={() => handleDelete(data.idoutlet)}>
-                      <TD>{newDate(data.outletcreate, "en-gb")}</TD>
+                      <TD>{newDate(data.outletcreate, "id")}</TD>
                       <TD>{toTitleCase(data.outlet_name)}</TD>
                       <TD>{toTitleCase(data.outlet_address)}</TD>
                       <TD>{toTitleCase(data.mainregion)}</TD>
@@ -1313,7 +1363,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber page={currentPage} limit={limit} isNoData={!isStockShown} isLoading={isFetching}>
+              <Table byNumber isClickable page={currentPage} limit={limit} isNoData={!isStockShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(stockData, setStockData, "stockcreate")}>
@@ -1332,8 +1382,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredStockData.map((data, index) => (
-                    <TR key={index} isClickable onClick={() => openDetail(data.itemname)}>
-                      <TD>{newDate(data.stockcreate, "en-gb")}</TD>
+                    <TR key={index} onClick={() => openDetail(data.itemname)}>
+                      <TD>{newDate(data.stockcreate, "id")}</TD>
                       <TD>{toTitleCase(data.categorystock)}</TD>
                       <TD>{toTitleCase(data.subcategorystock)}</TD>
                       <TD type="code">{data.sku}</TD>
@@ -1538,7 +1588,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         </Fragment>
                       }
                     >
-                      <TD>{newDate(data["PO Stock"].postockcreate, "en-gb")}</TD>
+                      <TD>{newDate(data["PO Stock"].postockcreate, "id")}</TD>
                       <TD type="code">{data["PO Stock"].postockcode}</TD>
                       <TD>{toTitleCase(data["PO Stock"].username)}</TD>
                       <TD>{toTitleCase(data["PO Stock"].outletname)}</TD>
@@ -1704,7 +1754,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <TBody>
                   {filteredReservData.map((data, index) => (
                     <TR key={index} onEdit={() => openEdit(data.idreservation)} isWarning={data.status_reservation === "0"}>
-                      <TD>{newDate(data.datetimecreate, "en-gb")}</TD>
+                      <TD>{newDate(data.datetimecreate, "id")}</TD>
                       <TD>{data.reservationdate}</TD>
                       <TD>{data.reservationtime}</TD>
                       <TD type="code">{data.rscode}</TD>
@@ -1728,6 +1778,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             {isReservShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm
+                size={selectedMode === "update" ? "sm" : "lg"}
                 formTitle={selectedMode === "update" ? "Ubah Status Reservasi" : "Tambah Data Reservasi"}
                 operation={selectedMode}
                 fetching={isFormFetching}
@@ -1834,30 +1885,30 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       />
                       {/* prettier-ignore */}
                       <Input
-                    id={`${pageid}-subservice`}
-                    variant="select"
-                    isSearchable
-                    radius="full"
-                    labelText="Jenis Layanan"
-                    placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
-                    name="sub_service"
-                    value={inputData.sub_service}
-                    options={inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({
-                      value: type.servicetypename,
-                      label: type.servicetypename,
-                    }))}
-                    onSelect={(selectedValue) => handleReservInputChange({ target: { name: "sub_service", value: selectedValue } })}
-                    errorContent={errors.sub_service}
-                    isRequired
-                    isDisabled={inputData.service ? false : true}
-                  />
+                        id={`${pageid}-subservice`}
+                        variant="select"
+                        isSearchable
+                        radius="full"
+                        labelText="Jenis Layanan"
+                        placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
+                        name="sub_service"
+                        value={inputData.sub_service}
+                        options={inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({
+                          value: type.servicetypename,
+                          label: type.servicetypename,
+                        }))}
+                        onSelect={(selectedValue) => handleReservInputChange({ target: { name: "sub_service", value: selectedValue } })}
+                        errorContent={errors.sub_service}
+                        isRequired
+                        isDisabled={inputData.service ? false : true}
+                      />
                       <Input
                         id={`${pageid}-voucher`}
                         radius="full"
                         labelText="Kode Voucher"
                         placeholder="e.g 598RE3"
                         type="text"
-                        name="voucher"
+                        name="vouchercode"
                         value={inputData.vouchercode}
                         onChange={handleReservInputChange}
                         errorContent={errors.vouchercode}
@@ -1940,40 +1991,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "ORDER CUSTOMER":
-        const exportToPDF = async (id) => {
-          try {
-            const selectedOrder = orderData.find((item) => item.idtransaction === id);
-            if (!selectedOrder) {
-              console.error(`Order with id ${id} not found`);
-              return;
-            }
-            const formData = new FormData();
-            formData.append("data", JSON.stringify({ secret, idtransaction: id }));
-            const data = await apiRead(formData, "office", "viewdetailorder");
-            const orderdetaildata = data.data;
-            const doc = new jsPDF();
-            if (selectedOrder && data && orderdetaildata && orderdetaildata.length > 0) {
-              doc.text(`Edental Invoice - Reservasi no.${selectedOrder.rscode}`, 20, 20);
-              doc.text(`Tanggal: ${selectedOrder.transactioncreate}`, 20, 30);
-              doc.text(`Nomor Invoice: ${selectedOrder.noinvoice}`, 20, 40);
-              doc.text(`Nama Customer: ${selectedOrder.transactionname}`, 20, 50);
-              doc.text(`Nomor Telepon: ${selectedOrder.transactionphone}`, 20, 60);
-              doc.text(`Dokter Penangan: ${selectedOrder.dentist}`, 20, 70);
-              doc.text(`Cabang: ${selectedOrder.outlet_name}`, 20, 80);
-              doc.text(`Total Pembayaran: ${selectedOrder.totalpay}`, 20, 90);
-              doc.text(`Voucher: ${selectedOrder.voucher}`, 20, 100);
-              doc.text(`Metode Pembayaran: ${selectedOrder.payment}`, 20, 110);
-              orderdetaildata.forEach((item, index) => {
-                doc.text(`Item ${index + 1}: ${item.service} - ${item.servicetype} - ${item.price}`, 20, 120 + index * 10);
-              });
-              const filename = `invoice-${toPathname(selectedOrder.transactionname)}-${selectedOrder.rscode}.pdf`;
-              doc.save(filename);
-            } else {
-              console.error("Order details not found or empty.");
-            }
-          } catch (error) {
-            console.error("Error generating PDF:", error);
-          }
+        const exportToPDF = () => {
+          const element = printRef.current;
+          const opt = {
+            margin: 0.2,
+            filename: `invoice-${toPathname(selectedOrderData.transactionname)}-${selectedOrderData.rscode}.pdf`,
+            image: { type: "jpeg", quality: 0.99 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+          };
+          html2pdf().from(element).set(opt).save();
         };
 
         const contactWhatsApp = (number) => {
@@ -2080,7 +2107,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isEditable isPrintable isContactable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
+              <Table
+                byNumber
+                isClickable
+                isEditable
+                isPrintable
+                isContactable
+                page={currentPage}
+                limit={limit}
+                isNoData={!isOrderShown}
+                isLoading={isFetching}
+              >
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(orderData, setOrderData, "transactioncreate")}>
@@ -2103,13 +2140,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TR
                       key={index}
                       isWarning={data.transactionstatus === "0"}
-                      isClickable
                       onEdit={() => openEdit(data.idtransaction)}
                       onClick={() => openDetail(data.idtransaction)}
-                      onPrint={() => exportToPDF(data.idtransaction)}
+                      onPrint={() => openFile(data.idtransaction)}
                       onContact={() => contactWhatsApp(data.transactionphone)}
                     >
-                      <TD>{newDate(data.transactioncreate, "en-gb")}</TD>
+                      <TD>{newDate(data.transactioncreate, "id")}</TD>
                       <TD>{toTitleCase(data.transactionname)}</TD>
                       <TD type="code">{data.rscode}</TD>
                       <TD type="code">{data.noinvoice}</TD>
@@ -2286,6 +2322,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   onClick={handleAddOrderRow}
                 />
               </SubmitForm>
+            )}
+            {selectedOrderData && orderDetailData && isFileOpen && (
+              <FileForm fetching={isFormFetching} onNext={exportToPDF} onClose={closeFile}>
+                <Invoice ref={printRef} data={selectedOrderData} items={orderDetailData} />
+              </FileForm>
             )}
           </Fragment>
         );

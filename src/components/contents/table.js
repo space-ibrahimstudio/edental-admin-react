@@ -77,6 +77,8 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
         return;
       } else if (type === "link") {
         return;
+      } else if (isCopy) {
+        return;
       } else {
         onClick();
       }
@@ -327,12 +329,34 @@ export const TR = ({
   );
 };
 
-export const TBody = ({ children, byNumber, page, limit, isDeletable, isEditable, isExpandable, isCancelable, isPrintable, isContactable }) => {
+export const TBody = ({
+  children,
+  byNumber,
+  page,
+  limit,
+  isDeletable,
+  isEditable,
+  isExpandable,
+  isClickable,
+  isCancelable,
+  isPrintable,
+  isContactable,
+}) => {
   return (
     <main className={styles.tableBody}>
       {React.Children.map(children, (child, index) => {
         const rowIndex = page !== undefined && limit !== undefined ? (page - 1) * limit + index + 1 : index + 1;
-        return React.cloneElement(child, { byNumber, rowIndex, isDeletable, isEditable, isExpandable, isCancelable, isPrintable, isContactable });
+        return React.cloneElement(child, {
+          byNumber,
+          rowIndex,
+          isDeletable,
+          isEditable,
+          isExpandable,
+          isClickable,
+          isCancelable,
+          isPrintable,
+          isContactable,
+        });
       })}
     </main>
   );

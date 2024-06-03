@@ -53,6 +53,7 @@
   margin: 0;
   align-self: stretch;
   justify-content: space-between;
+  gap: var(--pixel-10) var(--pixel-10);
 }
 
 .section {

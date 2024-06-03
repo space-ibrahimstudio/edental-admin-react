@@ -12,6 +12,7 @@ const modalRoot = document.getElementById("modal-root") || document.body;
 
 export const LoginForm = () => {
   const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [inputData, setInputData] = useState({ username: "", password: "" });
 
   const handleChange = (e) => {
@@ -24,7 +25,14 @@ export const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(inputData);
+    setIsLoading(true);
+    try {
+      await login(inputData);
+    } catch (error) {
+      console.error("error when trying to login:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -57,7 +65,14 @@ export const LoginForm = () => {
         />
       </div>
       <footer className={loginstyles.formFoot}>
-        <Button id="submit-login" isFullwidth type="submit" buttonText="Masuk ke Dashboard" />
+        <Button
+          id="submit-login"
+          isFullwidth
+          type="submit"
+          buttonText="Masuk ke Dashboard"
+          loadingContent={<LoadingContent />}
+          isLoading={isLoading}
+        />
         <h6 className={loginstyles.formForgot}>Lupa Password?</h6>
       </footer>
     </form>
@@ -65,6 +80,7 @@ export const LoginForm = () => {
 };
 
 export const SubmitForm = ({
+  size,
   formTitle,
   formSubtitle,
   fetching = false,
@@ -116,10 +132,29 @@ export const SubmitForm = ({
     };
   }, [isClosing]);
 
+  const getFormStyles = () => {
+    let maxWidth;
+    switch (size) {
+      case "sm":
+        maxWidth = "var(--pixel-500)";
+        break;
+      case "md":
+        maxWidth = "var(--pixel-600)";
+        break;
+      case "lg":
+        maxWidth = "var(--pixel-950)";
+        break;
+      default:
+        maxWidth = "var(--pixel-950)";
+        break;
+    }
+    return { maxWidth };
+  };
+
   const modalElement = (
     <main className={styles.formScroll}>
       <section className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
-        <form className={`${styles.form} ${isClosing ? styles.close : ""}`} ref={ref} onSubmit={onSubmit}>
+        <form ref={ref} className={`${styles.form} ${isClosing ? styles.close : ""}`} style={getFormStyles()} onSubmit={onSubmit}>
           <header className={styles.formHead}>
             <LogoPrimary width="96px" height="100%" color="var(--color-primary)" />
             <b className={styles.formTitle}>{formTitle}</b>
@@ -156,6 +191,50 @@ export const SubmitForm = ({
             />
           </footer>
         </form>
+      </section>
+    </main>
+  );
+
+  return createPortal(modalElement, modalRoot);
+};
+
+export const FileForm = ({ onNext, fetching = false, loading, children, onClose }) => {
+  const [isClosing, setIsClosing] = useState(false);
+  const handleClose = () => setIsClosing(true);
+
+  useEffect(() => {
+    if (isClosing) {
+      const animationDuration = 500;
+      setTimeout(() => {
+        onClose();
+      }, animationDuration);
+    }
+  }, [isClosing, onClose]);
+
+  useEffect(() => {
+    let modalCount = 0;
+    const popupModals = document.querySelectorAll(`.${styles.formScreen}`);
+    popupModals.forEach((modal) => {
+      if (!modal.classList.contains(`.${styles.close}`)) {
+        modalCount++;
+      }
+    });
+    document.documentElement.style.overflow = modalCount > 0 ? "hidden" : "auto";
+    return () => {
+      document.documentElement.style.overflow = "auto";
+    };
+  }, [isClosing]);
+
+  const modalElement = (
+    <main className={styles.formScroll}>
+      <nav className={`${styles.sectionNav} ${isClosing ? styles.close : ""}`}>
+        <Button id="file-back-close" radius="full" buttonText="Kembali" onClick={handleClose} />
+        <Button id="file-next-action" radius="full" buttonText="CetaK PDF" onClick={onNext} isLoading={loading} />
+      </nav>
+      <section className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
+        <section className={`${styles.sectionBody} ${fetching ? styles.fetch : ""}`}>
+          {fetching ? <LoadingContent color="var(--color-primary)" /> : children}
+        </section>
       </section>
     </main>
   );

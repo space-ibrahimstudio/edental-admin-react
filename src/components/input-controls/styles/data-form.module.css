@@ -1,8 +1,52 @@
+.sectionBody {
+  margin-top: var(--pixel-50);
+  border-radius: var(--pixel-20);
+  overflow: hidden;
+  width: 795px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+  background-color: var(--color-secondlight);
+}
+
+.sectionBody.fetch {
+  height: var(--pixel-400);
+}
+
+.sectionNav {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: var(--pixel-15) var(--pixel-30);
+  background-color: rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+  z-index: 1;
+  animation-name: fadein;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.sectionNav.close {
+  animation-name: fadeout;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
 .formSubtitle,
 .formTitle {
   align-self: stretch;
   position: relative;
-  font-size: var(--font-lg);
+  font-size: var(--font-md);
   font-family: var(--font-jakarta);
   color: var(--color-hint);
   text-align: center;
@@ -71,7 +115,6 @@
   padding: var(--pixel-40);
   box-sizing: border-box;
   gap: var(--pixel-20) 0;
-  max-width: var(--pixel-950);
   animation-name: slideup;
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
