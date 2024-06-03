@@ -209,6 +209,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const dpStatusAlias = (status) => {
     return status === "1" ? "Exist" : status === "2" ? "Paid" : status === "3" ? "Canceled" : "Pending";
   };
+  const orderStatusAlias = (status) => {
+    return status === "1" ? "Lunas" : status === "2" ? "Batal" : "Open";
+  };
   // global change events handler
   const handlePageChange = (page) => setCurrentPage(page);
   const handleLimitChange = (value) => {
@@ -2197,7 +2200,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TR
                       key={index}
                       isWarning={data.transactionstatus === "0"}
-                      onEdit={() => openEdit(data.idtransaction)}
+                      onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)}
                       onClick={() => openDetail(data.idtransaction)}
                       onPrint={() => openFile(data.idtransaction)}
                       onContact={() => contactWhatsApp(data.transactionphone)}
@@ -2211,7 +2214,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       </TD>
                       <TD>{data.payment}</TD>
                       <TD>{newPrice(data.totalpay)}</TD>
-                      <TD>{dpStatusAlias(data.transactionstatus)}</TD>
+                      <TD>{orderStatusAlias(data.transactionstatus)}</TD>
                       <TD type="code">{data.voucher}</TD>
                       <TD>{toTitleCase(data.dentist)}</TD>
                       <TD>{toTitleCase(data.outlet_name)}</TD>
