@@ -182,11 +182,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   const fetchData = async () => {
     const errormsg = `Terjadi kesalahan saat memuat halaman ${toTitleCase(slug)}. Mohon periksa koneksi internet anda dan coba lagi.`;
-    setIsFetching(true);
     const formData = new FormData();
     const addtFormData = new FormData();
     let data;
     let addtdata;
+    setIsFetching(true);
     try {
       const offset = (currentPage - 1) * limit;
       formData.append("data", JSON.stringify({ secret, limit, hal: offset }));
@@ -363,10 +363,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
       }
     };
     const errormsg = `Terjadi kesalahan saat memuat data. Mohon periksa koneksi internet anda dan coba lagi.`;
-    setIsFormFetching(true);
     const formData = new FormData();
     let data;
     let switchedData;
+    setIsFormFetching(true);
     try {
       switch (slug) {
         case "LAYANAN":
