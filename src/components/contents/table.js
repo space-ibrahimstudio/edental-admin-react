@@ -214,7 +214,9 @@ export const TR = ({
   children,
   byNumber,
   rowIndex,
+  isComplete,
   isWarning,
+  isDanger,
   isDeletable,
   onDelete,
   isEditable,
@@ -312,8 +314,8 @@ export const TR = ({
   }, []);
 
   return (
-    <section ref={ref} className={`${styles.rowWrap} ${isWarning ? styles.warning : ""}`}>
-      <div className={`${styles.bodyRow} ${isWarning ? styles.warning : ""}`}>
+    <section ref={ref} className={`${styles.rowWrap} ${isComplete ? styles.complete : isWarning ? styles.warning : isDanger ? styles.danger : ""}`}>
+      <div className={`${styles.bodyRow} ${isComplete ? styles.complete : isWarning ? styles.warning : isDanger ? styles.danger : ""}`}>
         {renderNumCell()}
         {renderAtnCell()}
         {React.Children.map(children, (child) => {

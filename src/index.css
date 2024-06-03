@@ -65,7 +65,13 @@ a {
   --color-secondlight-50: rgba(255, 255, 255, 0.5);
   --color-light: #fdfdfd;
   --color-yellow: #f9d51b;
+  --color-yellow-4: rgba(249, 213, 27, 0.04);
+  --color-yellow-5: rgba(249, 213, 27, 0.05);
+  --color-yellow-10: rgba(249, 213, 27, 0.1);
   --color-green: #18c964;
+  --color-green-4: rgba(24, 201, 100, 0.04);
+  --color-green-5: rgba(24, 201, 100, 0.05);
+  --color-green-10: rgba(24, 201, 100, 0.1);
   --color-green-30: rgba(24, 201, 100, 0.3);
   --color-red: #f31260;
   --color-red-4: rgba(243, 18, 96, 0.04);

@@ -160,11 +160,27 @@
   transition: var(--transit);
 }
 
+.bodyRow.complete {
+  background-color: var(--color-green-4);
+}
+
 .bodyRow.warning {
+  background-color: var(--color-yellow-4);
+}
+
+.bodyRow.danger {
   background-color: var(--color-red-4);
 }
 
+.bodyRow.complete:hover {
+  background-color: var(--color-green-10);
+}
+
 .bodyRow.warning:hover {
+  background-color: var(--color-yellow-10);
+}
+
+.bodyRow.danger:hover {
   background-color: var(--color-red-10);
 }
 
@@ -179,7 +195,15 @@
   justify-content: flex-start;
 }
 
+.rowWrap.complete:nth-child(even) {
+  background-color: var(--color-green-5);
+}
+
 .rowWrap.warning:nth-child(even) {
+  background-color: var(--color-yellow-5);
+}
+
+.rowWrap.danger:nth-child(even) {
   background-color: var(--color-red-5);
 }
 

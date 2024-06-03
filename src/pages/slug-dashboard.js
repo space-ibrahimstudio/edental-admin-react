@@ -210,7 +210,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     return status === "1" ? "Exist" : status === "2" ? "Paid" : status === "3" ? "Canceled" : "Pending";
   };
   const orderStatusAlias = (status) => {
-    return status === "1" ? "Lunas" : status === "2" ? "Batal" : "Open";
+    return status === "1" ? "Paid" : status === "2" ? "Canceled" : "Open";
   };
   // global change events handler
   const handlePageChange = (page) => setCurrentPage(page);
@@ -1332,19 +1332,19 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber page={currentPage} limit={limit} isNoData={!isDentistShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH>Nama Dokter</TH>
                     <TH>Kode Cabang</TH>
+                    <TH>Nama Dokter</TH>
+                    <TH>Nomor SIP</TH>
                     <TH>Nomor Telepon</TH>
-                    <TH>Alamat</TH>
                   </TR>
                 </THead>
                 <TBody>
                   {filteredDentistData.map((data, index) => (
                     <TR key={index}>
-                      <TD>{toTitleCase(data.name_dentist.replace(`${data.id_branch} -`, ""))}</TD>
                       <TD type="code">{data.id_branch}</TD>
+                      <TD>{toTitleCase(data.name_dentist.replace(`${data.id_branch} -`, ""))}</TD>
+                      <TD type="code">{data.SIP}</TD>
                       <TD type="number">{data.phone}</TD>
-                      <TD>{data.email}</TD>
                     </TR>
                   ))}
                 </TBody>
@@ -1563,7 +1563,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         );
       case "PO MASUK":
         const poStatusAlias = (status) => {
-          return status === "1" ? "Tertunda" : status === "2" ? "Terkirim" : status === "3" ? "Selesai" : status === "4" ? "Ditolak" : "Open";
+          return status === "1" ? "Pending" : status === "2" ? "Sent" : status === "3" ? "Done" : status === "4" ? "Rejected" : "Open";
         };
 
         return (
@@ -1813,7 +1813,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredReservData.map((data, index) => (
-                    <TR key={index} onEdit={() => openEdit(data.idreservation)} isWarning={data.status_reservation === "0"}>
+                    <TR
+                      key={index}
+                      onEdit={() => openEdit(data.idreservation)}
+                      isComplete={data.status_reservation === "1"}
+                      isWarning={data.status_reservation === "2"}
+                      isDanger={data.status_reservation === "3"}
+                    >
                       <TD>{newDate(data.datetimecreate, "id")}</TD>
                       <TD>{data.reservationdate}</TD>
                       <TD>{data.reservationtime}</TD>
@@ -2199,7 +2205,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   {filteredOrderData.map((data, index) => (
                     <TR
                       key={index}
-                      isWarning={data.transactionstatus === "0"}
+                      isComplete={data.transactionstatus === "1"}
+                      isDanger={data.transactionstatus === "2"}
                       onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)}
                       onClick={() => openDetail(data.idtransaction)}
                       onPrint={() => openFile(data.idtransaction)}
