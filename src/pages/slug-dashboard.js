@@ -73,7 +73,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [custData, setCustData] = useState([]);
   const [allservicedata, setAllservicedata] = useState([]);
   const [servicedata, setservicedata] = useState([]);
+  const [allBranchData, setAllBranchData] = useState([]);
   const [branchData, setBranchData] = useState([]);
+  const [selectedBranch, setSelectedBranch] = useState(null);
   const [branchDentistData, setBranchDentistData] = useState([]);
   const [dentistData, setDentistData] = useState([]);
   const [stockData, setStockData] = useState([]);
@@ -216,6 +218,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const handleStatusChange = (value) => {
     setStatus(value);
     setCurrentPage(1);
+  };
+  const handleBranchChange = (value) => {
+    setSelectedBranch(value);
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -377,7 +382,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "CALENDAR RESERVATION":
-          addtFormData.append("data", JSON.stringify({ secret, idbranch: idoutlet }));
+          addtFormData.append("data", JSON.stringify({ secret, idbranch: selectedBranch ? selectedBranch : idoutlet }));
           addtdata = await apiRead(addtFormData, "office", "viewcalendar");
           if (addtdata && addtdata.data && addtdata.data.length > 0) {
             const eventsdata = addtdata.data;
@@ -444,6 +449,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
         setBranchDentistData(dentistdata.data);
       } else {
         setBranchDentistData([]);
+      }
+      const branchdata = await apiRead(formData, "office", "viewoutletall");
+      if (branchdata && branchdata.data && branchdata.data.length > 0) {
+        setAllBranchData(branchdata.data);
+      } else {
+        setAllBranchData([]);
       }
     } catch (error) {
       showNotifications("danger", errormsg);
@@ -2383,7 +2394,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "CALENDAR RESERVATION":
-        const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const daysOfWeek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu"];
 
         const getDaysInMonth = (year, month) => {
           return new Date(year, month + 1, 0).getDate();
@@ -2462,16 +2473,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardToolbar>
               <DashboardTool>
                 <Input
-                  id={`limit-data-${pageid}`}
+                  id={`${pageid}-outlet`}
                   isLabeled={false}
                   variant="select"
-                  noEmptyValue
+                  isSearchable
                   radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={isOrderShown ? false : true}
+                  placeholder="Pilih Cabang"
+                  value={selectedBranch}
+                  options={allBranchData.map((branch) => ({
+                    value: branch.idoutlet,
+                    label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG"),
+                  }))}
+                  onSelect={handleBranchChange}
                 />
               </DashboardTool>
               <DashboardTool>
@@ -2517,7 +2530,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   // run fetch when page rendered on demand and every slug, data page, data limit, and status changed
   useEffect(() => {
     fetchData();
-  }, [slug, currentPage, limit, status]);
+  }, [slug, currentPage, limit, status, slug === "CALENDAR RESERVATION" ? selectedBranch : null]);
   // run fetch when page rendered once on demand
   useEffect(() => {
     fetchAdditionalData();
