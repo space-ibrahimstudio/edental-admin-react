@@ -46,7 +46,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { newDate, newPrice } = useFormat();
   const { log } = useDevmode();
   const { toTitleCase, toPathname } = useContent();
-  const { isLoggedin, secret, cctr, idoutlet } = useAuth();
+  const { isLoggedin, secret, cctr, idoutlet, level } = useAuth();
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
   // dynamic content
@@ -2472,20 +2472,22 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={`Jadwal Reservasi ${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}`} />
             <DashboardToolbar>
               <DashboardTool>
-                <Input
-                  id={`${pageid}-outlet`}
-                  isLabeled={false}
-                  variant="select"
-                  isSearchable
-                  radius="full"
-                  placeholder="Pilih Cabang"
-                  value={selectedBranch}
-                  options={allBranchData.map((branch) => ({
-                    value: branch.idoutlet,
-                    label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG"),
-                  }))}
-                  onSelect={handleBranchChange}
-                />
+                {level === "admin" && (
+                  <Input
+                    id={`${pageid}-outlet`}
+                    isLabeled={false}
+                    variant="select"
+                    isSearchable
+                    radius="full"
+                    placeholder="Pilih Cabang"
+                    value={selectedBranch}
+                    options={allBranchData.map((branch) => ({
+                      value: branch.idoutlet,
+                      label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG"),
+                    }))}
+                    onSelect={handleBranchChange}
+                  />
+                )}
               </DashboardTool>
               <DashboardTool>
                 <Button
