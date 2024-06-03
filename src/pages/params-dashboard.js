@@ -48,7 +48,6 @@ const DashboardParamsPage = ({ parent, slug }) => {
   };
 
   const fetchData = async () => {
-    // prettier-ignore
     const errormsg = `Terjadi kesalahan saat memuat halaman ${toTitleCase(slug)} ${toTitleCase(params)}. Mohon periksa koneksi internet anda dan coba lagi.`;
     setIsFetching(true);
     const formData = new FormData();
@@ -144,42 +143,15 @@ const DashboardParamsPage = ({ parent, slug }) => {
       case "STOCK":
         return (
           <Fragment>
-            <DashboardHead
-              title={isFetching ? "Memuat data ..." : pageTitle}
-              // prettier-ignore
-              desc={isFetching ? "Memuat detail ..." : isDataShown
-                ? `Menampilkan histori stok ${newDate(formatDate(startDate), "id")} hingga ${newDate(formatDate(endDate), "id")}.`
-                : `Histori stok ${newDate(formatDate(startDate), "id")} hingga ${newDate(formatDate(endDate), "id")} tidak ditemukan.`
-              }
-            />
+            <DashboardHead title={isFetching ? "Memuat data ..." : pageTitle} desc={isFetching ? "Memuat detail ..." : isDataShown ? `Menampilkan histori stok ${newDate(formatDate(startDate), "id")} hingga ${newDate(formatDate(endDate), "id")}.` : `Histori stok ${newDate(formatDate(startDate), "id")} hingga ${newDate(formatDate(endDate), "id")} tidak ditemukan.`} />
             <DashboardToolbar>
               <DashboardTool>
                 <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} />
-                <Button
-                  id={`export-data-${pageid}`}
-                  buttonText="Export ke Excel"
-                  radius="full"
-                  bgColor="var(--color-green)"
-                  onClick={() => exportToExcel(filterData(), pageTitle, `${toPathname(pageTitle)}`)}
-                />
+                <Button id={`export-data-${pageid}`} buttonText="Export ke Excel" radius="full" bgColor="var(--color-green)" onClick={() => exportToExcel(filterData(), pageTitle, `${toPathname(pageTitle)}`)} />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`${pageid}-filter-startdate`}
-                  radius="full"
-                  labelText="Filter dari:"
-                  type="datetime-local"
-                  value={formatDate(startDate)}
-                  onChange={(e) => setStartDate(new Date(e.target.value))}
-                />
-                <Input
-                  id={`${pageid}-filter-enddate`}
-                  radius="full"
-                  labelText="Hingga:"
-                  type="datetime-local"
-                  value={formatDate(endDate)}
-                  onChange={(e) => setEndDate(new Date(e.target.value))}
-                />
+                <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Filter dari:" type="datetime-local" value={formatDate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
+                <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga:" type="datetime-local" value={formatDate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -213,7 +185,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
           </Fragment>
         );
       default:
-        return;
+        return null;
     }
   };
 
@@ -226,6 +198,14 @@ const DashboardParamsPage = ({ parent, slug }) => {
       setIsDataShown(filterData().length > 0);
     }
   }, [slug === "STOCK" ? stockHistoryData : null, slug === "STOCK" ? startDate : null, slug === "STOCK" ? endDate : null]);
+
+  useEffect(() => {
+    setSortOrder("asc");
+    if (slug === "STOCK") {
+      setStartDate(new Date(new Date().setMonth(new Date().getMonth() - 1)));
+      setEndDate(new Date());
+    }
+  }, [slug]);
 
   if (!isLoggedin) {
     return <Navigate to="/login" />;

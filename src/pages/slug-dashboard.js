@@ -9,7 +9,8 @@ import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { useSearch } from "../libs/plugins/handler";
-import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue } from "../libs/plugins/controller";
+import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue, inputValidator } from "../libs/plugins/controller";
+import { options, units, hours, inputSchema, errorSchema, orderStatusAlias, dpStatusAlias, poStatusAlias, reservStatusAlias } from "../libs/sources/common";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
@@ -40,7 +41,6 @@ const Modal = ({ isOpen, onClose, events, day }) => {
 };
 
 const DashboardSlugPage = ({ parent, slug }) => {
-  // context api
   const navigate = useNavigate();
   const printRef = useRef();
   const { newDate, newPrice } = useFormat();
@@ -49,11 +49,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { isLoggedin, secret, cctr, idoutlet, level } = useAuth();
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
-  // dynamic content
+
   const pageid = parent && slug ? `slug-${toPathname(parent)}-${toPathname(slug)}` : "slug-dashboard";
   const pagetitle = slug ? `${toTitleCase(slug)}` : "Slug Dashboard";
   const pagepath = parent && slug ? `/${toPathname(parent)}/${toPathname(slug)}` : "/";
-  // global statements
+
   const [limit, setLimit] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -68,14 +68,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [status, setStatus] = useState(0);
   const [custExist, setCustExist] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-  // specific statements
+
   const [allCustData, setAllCustData] = useState([]);
   const [custData, setCustData] = useState([]);
   const [allservicedata, setAllservicedata] = useState([]);
   const [servicedata, setservicedata] = useState([]);
   const [allBranchData, setAllBranchData] = useState([]);
   const [branchData, setBranchData] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(idoutlet);
   const [branchDentistData, setBranchDentistData] = useState([]);
   const [dentistData, setDentistData] = useState([]);
   const [stockData, setStockData] = useState([]);
@@ -92,72 +92,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState("");
-  // global input chema
-  const inputSchema = {
-    name: "",
-    phone: "",
-    address: "",
-    postcode: "",
-    main_region: "",
-    region: "",
-    cctr_group: "",
-    cctr: "",
-    coordinate: "",
-    service: "",
-    sub_service: "",
-    category: "",
-    sub_category: "",
-    unit: "",
-    count: "",
-    value: "",
-    id: "",
-    email: "",
-    vouchercode: "",
-    date: "",
-    time: "",
-    price: 0,
-    bank_code: "",
-    note: "",
-    dentist: "",
-    status: "",
-    statuspayment: "",
-    typepayment: "",
-    layanan: [{ servicetype: "", price: "" }],
-    order: [{ service: "", servicetype: "", price: "" }],
-  };
-  const errorSchema = {
-    name: "",
-    phone: "",
-    address: "",
-    postcode: "",
-    main_region: "",
-    region: "",
-    cctr_group: "",
-    cctr: "",
-    coordinate: "",
-    service: "",
-    sub_service: "",
-    category: "",
-    sub_category: "",
-    unit: "",
-    count: "",
-    value: "",
-    id: "",
-    email: "",
-    vouchercode: "",
-    date: "",
-    time: "",
-    price: "",
-    bank_code: "",
-    note: "",
-    dentist: "",
-    status: "",
-    statuspayment: "",
-    typepayment: "",
-    layanan: [{ servicetype: "", price: "" }],
-    order: [{ service: "", servicetype: "", price: "" }],
-  };
-  // global input statements
+
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
   const restoreInputState = () => {
@@ -165,54 +100,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setErrors({ ...errorSchema });
     setCustExist(false);
   };
-  // static array data
-  const options = [
-    { value: 5, label: "Baris per Halaman: 5" },
-    { value: 10, label: "Baris per Halaman: 10" },
-    { value: 20, label: "Baris per Halaman: 20" },
-    { value: 50, label: "Baris per Halaman: 50" },
-  ];
-  const units = [
-    { value: "PCS", label: "pcs" },
-    { value: "PACK", label: "pack" },
-    { value: "BOTTLE", label: "bottle" },
-    { value: "TUBE", label: "tube" },
-    { value: "BOX", label: "box" },
-    { value: "SET", label: "set" },
-  ];
-  const postatus = [
-    { buttonText: "Open", onClick: () => handleStatusChange(0), isActive: status === 0 },
-    { buttonText: "Tertunda", onClick: () => handleStatusChange(1), isActive: status === 1 },
-    { buttonText: "Terkirim", onClick: () => handleStatusChange(2), isActive: status === 2 },
-    { buttonText: "Selesai", onClick: () => handleStatusChange(3), isActive: status === 3 },
-    { buttonText: "Ditolak", onClick: () => handleStatusChange(4), isActive: status === 4 },
-  ];
-  const hours = [
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "12:30",
-    "13:00",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-    "18:00",
-    "18:30",
-    "19:00",
-  ];
-  // additional data aliased
-  const dpStatusAlias = (status) => {
-    return status === "1" ? "Exist" : status === "2" ? "Paid" : status === "3" ? "Canceled" : "Pending";
-  };
-  const orderStatusAlias = (status) => {
-    return status === "1" ? "Paid" : status === "2" ? "Canceled" : "Open";
-  };
-  // global change events handler
+
   const handlePageChange = (page) => setCurrentPage(page);
   const handleLimitChange = (value) => {
     setLimit(value);
@@ -241,7 +129,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     }
     setData(newData);
   };
-  // global data action handler
+
   const openDetail = (params) => navigate(`${pagepath}/${toPathname(params)}`);
   const openForm = () => {
     setSelectedMode("add");
@@ -291,7 +179,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setSelectedOrderData(null);
     setOrderDetailData(null);
   };
-  // fetch primary datas on slug changed
+
   const fetchData = async () => {
     const errormsg = `Terjadi kesalahan saat memuat halaman ${toTitleCase(slug)}. Mohon periksa koneksi internet anda dan coba lagi.`;
     setIsFetching(true);
@@ -385,11 +273,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "CALENDAR RESERVATION":
-          addtFormData.append("data", JSON.stringify({ secret, idbranch: selectedBranch ? selectedBranch : idoutlet }));
+          addtFormData.append("data", JSON.stringify({ secret, idbranch: selectedBranch }));
           addtdata = await apiRead(addtFormData, "office", "viewcalendar");
           if (addtdata && addtdata.data && addtdata.data.length > 0) {
             const eventsdata = addtdata.data;
-            const transformedEvents = eventsdata.reduce((acc, event) => {
+            const mutatedevents = eventsdata.reduce((acc, event) => {
               const date = event.reservationdate;
               const label = `${event.rscode} ${event.name}`;
               if (!acc[date]) {
@@ -398,7 +286,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               acc[date].push({ label });
               return acc;
             }, {});
-            setEventsData(transformedEvents);
+            setEventsData(mutatedevents);
           } else {
             setEventsData([]);
           }
@@ -413,7 +301,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       setIsFetching(false);
     }
   };
-  // fetch additional datas on page rendered
+
   const fetchAdditionalData = async () => {
     const errormsg = "Terjadi kesalahan saat memuat data tambahan. Mohon periksa koneksi internet anda dan coba lagi.";
     const formData = new FormData();
@@ -464,7 +352,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       console.error(errormsg, error);
     }
   };
-  // global input value settings
+
   const switchData = async (params) => {
     setSelectedData(params);
     const currentData = (arraydata, identifier) => {
@@ -518,11 +406,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 typepayment: "cash",
                 bank_code: "CASH",
                 status: switchedData.transactionstatus,
-                order: orderdetaildata.map((order) => ({
-                  service: order.service,
-                  servicetype: order.servicetype,
-                  price: order.price,
-                })),
+                order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })),
               });
             } else {
               setInputData({
@@ -531,11 +415,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 typepayment: "cashless",
                 bank_code: switchedData.payment,
                 status: switchedData.transactionstatus,
-                order: orderdetaildata.map((order) => ({
-                  service: order.service,
-                  servicetype: order.servicetype,
-                  price: order.price,
-                })),
+                order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })),
               });
             }
           }
@@ -543,10 +423,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "RESERVATION":
           switchedData = currentData(reservData, "idreservation");
           log(`id ${slug} data switched:`, switchedData.idreservation);
-          setInputData({
-            status: switchedData.status_reservation,
-            statuspayment: switchedData.status_dp,
-          });
+          setInputData({ status: switchedData.status_reservation, statuspayment: switchedData.status_dp });
           break;
         default:
           setSelectedData(null);
@@ -559,115 +436,118 @@ const DashboardSlugPage = ({ parent, slug }) => {
       setIsFormFetching(false);
     }
   };
-  // form submission handler
+
   const handleSubmit = async (e, endpoint) => {
     e.preventDefault();
-    const action = e.nativeEvent.submitter.getAttribute("data-action");
-    const confirmmsg =
-      action === "update"
-        ? `Apakah anda yakin untuk menyimpan perubahan pada ${toTitleCase(slug)}?`
-        : `Apakah anda yakin untuk menambahkan data baru pada ${toTitleCase(slug)}?`;
-    const successmsg =
-      action === "update"
-        ? `Selamat! Perubahan anda pada ${toTitleCase(slug)} berhasil disimpan.`
-        : `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
-    const errormsg =
-      action === "update"
-        ? "Terjadi kesalahan saat menyimpan perubahan. Mohon periksa koneksi internet anda dan coba lagi."
-        : "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
-    const confirm = window.confirm(confirmmsg);
-    if (confirm) {
-      setIsSubmitting(true);
-      try {
-        let submittedData;
-        switch (slug) {
-          case "LAYANAN":
-            submittedData = { secret, service: inputData.service, layanan: inputData.layanan };
-            break;
-          case "CABANG EDENTAL":
-            submittedData = {
-              secret,
-              region: inputData.region,
-              name: inputData.name,
-              address: inputData.address,
-              phone: inputData.phone,
-              mainregion: inputData.main_region,
-              postcode: inputData.postcode,
-              cctr_group: inputData.cctr_group,
-              cctr: inputData.cctr,
-              coordinate: inputData.coordinate,
-            };
-            break;
-          case "STOCK":
-            submittedData = {
-              secret,
-              categorystock: inputData.category,
-              subcategorystock: inputData.sub_category,
-              itemname: inputData.name,
-              unit: inputData.unit,
-              stockin: inputData.count,
-              value: inputData.value,
-            };
-            break;
-          case "RESERVATION":
-            if (selectedMode === "update") {
-              submittedData = {
-                secret,
-                status_reservation: inputData.status,
-                status_dp: inputData.statuspayment,
-              };
-            } else {
-              submittedData = {
-                secret,
-                idservicetype: inputData.id,
-                name: inputData.name,
-                phone: inputData.phone,
-                email: inputData.email,
-                voucher: inputData.vouchercode,
-                service: inputData.service,
-                typeservice: inputData.sub_service,
-                reservationdate: inputData.date,
-                reservationtime: inputData.time,
-                price: inputData.price,
-                bank_code: inputData.bank_code,
-              };
-            }
-            break;
-          case "ORDER CUSTOMER":
-            submittedData = {
-              secret,
-              bank_code: inputData.bank_code,
-              dentist: inputData.dentist,
-              transactionstatus: inputData.status,
-              layanan: inputData.order,
-            };
-            break;
-          default:
-            break;
-        }
-        const formData = new FormData();
-        formData.append("data", JSON.stringify(submittedData));
-        if (action === "update") {
-          formData.append("idedit", selectedData);
-        }
-        await apiCrud(formData, "office", endpoint);
-        showNotifications("success", successmsg);
-        if (action === "add") {
-          closeForm();
+    let requiredFields = [];
+    switch (slug) {
+      case "LAYANAN":
+        requiredFields = ["service", "layanan.servicetype", "layanan.price"];
+        break;
+      case "CABANG EDENTAL":
+        requiredFields = ["region", "name", "address", "phone", "main_region", "postcode", "cctr_group", "cctr", "coordinate"];
+        break;
+      case "STOCK":
+        requiredFields = ["category", "sub_category", "name", "unit", "count", "value"];
+        break;
+      case "RESERVATION":
+        if (selectedMode === "update") {
+          requiredFields = [];
         } else {
-          closeEdit();
+          requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time"];
         }
-        await fetchData();
-        await fetchAdditionalData();
-      } catch (error) {
-        showNotifications("danger", errormsg);
-        console.error(errormsg, error);
-      } finally {
-        setIsSubmitting(false);
+        break;
+      case "ORDER CUSTOMER":
+        requiredFields = ["dentist", "order.service", "order.servicetype", "order.price"];
+        break;
+      default:
+        break;
+    }
+    const validationErrors = inputValidator(inputData, requiredFields);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    const action = e.nativeEvent.submitter.getAttribute("data-action");
+    const confirmmsg = action === "update" ? `Apakah anda yakin untuk menyimpan perubahan pada ${toTitleCase(slug)}?` : `Apakah anda yakin untuk menambahkan data baru pada ${toTitleCase(slug)}?`;
+    const successmsg = action === "update" ? `Selamat! Perubahan anda pada ${toTitleCase(slug)} berhasil disimpan.` : `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
+    const errormsg = action === "update" ? "Terjadi kesalahan saat menyimpan perubahan. Mohon periksa koneksi internet anda dan coba lagi." : "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
+    const confirm = window.confirm(confirmmsg);
+    if (!confirm) {
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      let submittedData;
+      switch (slug) {
+        case "LAYANAN":
+          submittedData = { secret, service: inputData.service, layanan: inputData.layanan };
+          break;
+        case "CABANG EDENTAL":
+          submittedData = {
+            secret,
+            region: inputData.region,
+            name: inputData.name,
+            address: inputData.address,
+            phone: inputData.phone,
+            mainregion: inputData.main_region,
+            postcode: inputData.postcode,
+            cctr_group: inputData.cctr_group,
+            cctr: inputData.cctr,
+            coordinate: inputData.coordinate,
+          };
+          break;
+        case "STOCK":
+          submittedData = { secret, categorystock: inputData.category, subcategorystock: inputData.sub_category, itemname: inputData.name, unit: inputData.unit, stockin: inputData.count, value: inputData.value };
+          break;
+        case "RESERVATION":
+          if (selectedMode === "update") {
+            submittedData = { secret, status_reservation: inputData.status, status_dp: inputData.statuspayment };
+          } else {
+            submittedData = {
+              secret,
+              idservicetype: inputData.id,
+              name: inputData.name,
+              phone: inputData.phone,
+              email: inputData.email,
+              voucher: inputData.vouchercode,
+              service: inputData.service,
+              typeservice: inputData.sub_service,
+              reservationdate: inputData.date,
+              reservationtime: inputData.time,
+              price: inputData.price,
+              bank_code: inputData.bank_code,
+            };
+          }
+          break;
+        case "ORDER CUSTOMER":
+          submittedData = { secret, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
+          break;
+        default:
+          break;
       }
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(submittedData));
+      if (action === "update") {
+        formData.append("idedit", selectedData);
+      }
+      await apiCrud(formData, "office", endpoint);
+      showNotifications("success", successmsg);
+      if (action === "add") {
+        closeForm();
+      } else {
+        closeEdit();
+      }
+      await fetchData();
+      await fetchAdditionalData();
+    } catch (error) {
+      showNotifications("danger", errormsg);
+      console.error(errormsg, error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  // data deletions handler
+
   const handleDelete = async (params, endpoint) => {
     const confirmmsg = `Apakah anda yakin untuk menghapus data terpilih dari ${toTitleCase(slug)}?`;
     const successmsg = `Selamat! Data terpilih dari ${toTitleCase(slug)} berhasil dihapus.`;
@@ -681,18 +561,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             submittedData = { secret, service: "", layanan: [] };
             break;
           case "CABANG EDENTAL":
-            submittedData = {
-              secret,
-              region: "",
-              name: "",
-              address: "",
-              phone: "",
-              mainregion: "",
-              postcode: "",
-              cctr_group: "",
-              cctr: "",
-              coordinate: "",
-            };
+            submittedData = { secret, region: "", name: "", address: "", phone: "", mainregion: "", postcode: "", cctr_group: "", cctr: "", coordinate: "" };
             break;
           default:
             break;
@@ -710,96 +579,29 @@ const DashboardSlugPage = ({ parent, slug }) => {
       }
     }
   };
-  // search tool and filtering each datas
-  const {
-    searchTerm: custSearch,
-    handleSearch: handleCustSearch,
-    filteredData: filteredCustData,
-    isDataShown: isCustShown,
-  } = useSearch(custData, ["username", "userphone"]);
-  const {
-    searchTerm: serviceSearch,
-    handleSearch: handleServiceSearch,
-    filteredData: filteredservicedata,
-    isDataShown: isServiceShown,
-  } = useSearch(servicedata, ["Nama Layanan.servicename"]);
-  const {
-    searchTerm: branchSearch,
-    handleSearch: handleBranchSearch,
-    filteredData: filteredBranchData,
-    isDataShown: isBranchShown,
-  } = useSearch(branchData, ["outlet_name", "mainregion", "outlet_region", "cctr_group", "cctr"]);
-  const {
-    searchTerm: dentistSearch,
-    handleSearch: handleDentistSearch,
-    filteredData: filteredDentistData,
-    isDataShown: isDentistShown,
-  } = useSearch(dentistData, ["name_dentist", "id_branch"]);
-  const {
-    searchTerm: stockSearch,
-    handleSearch: handleStockSearch,
-    filteredData: filteredStockData,
-    isDataShown: isStockShown,
-  } = useSearch(stockData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
-  const {
-    searchTerm: inPOSearch,
-    handleSearch: handleInPOSearch,
-    filteredData: filteredInPOData,
-    isDataShown: isInPOShown,
-  } = useSearch(inPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
-  const {
-    searchTerm: reservSearch,
-    handleSearch: handleReservSearch,
-    filteredData: filteredReservData,
-    isDataShown: isReservShown,
-  } = useSearch(reservData, ["rscode", "name", "phone", "outlet_name"]);
-  const {
-    searchTerm: orderSearch,
-    handleSearch: handleOrderSearch,
-    filteredData: filteredOrderData,
-    isDataShown: isOrderShown,
-  } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
-  // JSX render dynamic content on slug changed
+
+  const { searchTerm: custSearch, handleSearch: handleCustSearch, filteredData: filteredCustData, isDataShown: isCustShown } = useSearch(custData, ["username", "userphone"]);
+  const { searchTerm: serviceSearch, handleSearch: handleServiceSearch, filteredData: filteredservicedata, isDataShown: isServiceShown } = useSearch(servicedata, ["Nama Layanan.servicename"]);
+  const { searchTerm: branchSearch, handleSearch: handleBranchSearch, filteredData: filteredBranchData, isDataShown: isBranchShown } = useSearch(branchData, ["outlet_name", "mainregion", "outlet_region", "cctr_group", "cctr"]);
+  const { searchTerm: dentistSearch, handleSearch: handleDentistSearch, filteredData: filteredDentistData, isDataShown: isDentistShown } = useSearch(dentistData, ["name_dentist", "id_branch"]);
+  const { searchTerm: stockSearch, handleSearch: handleStockSearch, filteredData: filteredStockData, isDataShown: isStockShown } = useSearch(stockData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
+  const { searchTerm: inPOSearch, handleSearch: handleInPOSearch, filteredData: filteredInPOData, isDataShown: isInPOShown } = useSearch(inPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
+  const { searchTerm: reservSearch, handleSearch: handleReservSearch, filteredData: filteredReservData, isDataShown: isReservShown } = useSearch(reservData, ["rscode", "name", "phone", "outlet_name"]);
+  const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
+
   const renderContent = () => {
     switch (slug) {
       case "DATA CUSTOMER":
         return (
           <Fragment>
-            {/* prettier-ignore */}
             <DashboardHead title={pagetitle} desc="Daftar Customer yang memiliki riwayat Reservasi. Data ini dibuat otomatis saat proses reservasi dilakukan." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input
-                  id={`search-data-${pageid}`}
-                  radius="full"
-                  isLabeled={false}
-                  placeholder="Cari data ..."
-                  type="text"
-                  value={custSearch}
-                  onChange={(e) => handleCustSearch(e.target.value)}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={custSearch} onChange={(e) => handleCustSearch(e.target.value)} />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={isCustShown ? false : true}
-                />
-                <Button
-                  id={`export-data-${pageid}`}
-                  radius="full"
-                  bgColor="var(--color-green)"
-                  buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)}
-                  isDisabled={isCustShown ? false : true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isCustShown ? false : true} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)} isDisabled={isCustShown ? false : true} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -842,18 +644,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={true} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -867,18 +658,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
           setInputData((prevState) => {
             return { ...prevState, [name]: value };
           });
-
           setErrors((prevErrors) => {
             return { ...prevErrors, [name]: "" };
           });
-
           if (name === "service") {
             const newvalue = value.toLowerCase();
             let serviceexists = allservicedata.some((item) => {
               const servicename = (item["Nama Layanan"] && item["Nama Layanan"].servicename).toLowerCase();
               return servicename === newvalue;
             });
-
             if (serviceexists) {
               setErrors((prevErrors) => {
                 return { ...prevErrors, service: "Layanan dengan nama yang sama sudah ada." };
@@ -889,15 +677,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
         const handleServiceRowChange = (index, e) => {
           const { name, value } = e.target;
-          setInputData((prevState) => ({
-            ...prevState,
-            layanan: prevState.layanan.map((item, idx) => (idx === index ? { ...item, [name]: value } : item)),
-          }));
-
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            layanan: prevErrors.layanan.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)),
-          }));
+          setInputData((prevState) => ({ ...prevState, layanan: prevState.layanan.map((item, idx) => (idx === index ? { ...item, [name]: value } : item)) }));
+          setErrors((prevErrors) => ({ ...prevErrors, layanan: prevErrors.layanan.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
         };
 
         const handleAddServiceRow = () => {
@@ -910,40 +691,19 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const updatedrowerror = [...errors.layanan];
           updatedrow.splice(index, 1);
           updatedrowerror.splice(index, 1);
-
           setInputData((prevState) => ({ ...prevState, layanan: updatedrow }));
           setErrors((prevErrors) => ({ ...prevErrors, layanan: updatedrowerror }));
         };
 
         return (
           <Fragment>
-            {/* prettier-ignore */}
             <DashboardHead title={pagetitle} desc="Daftar layanan yang tersedia saat ini. Klik opsi ikon pada kolom Action untuk melihat detail, memperbarui, atau menghapus data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input
-                  id={`search-data-${pageid}`}
-                  radius="full"
-                  isLabeled={false}
-                  placeholder="Cari data ..."
-                  type="text"
-                  value={serviceSearch}
-                  onChange={(e) => handleServiceSearch(e.target.value)}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={serviceSearch} onChange={(e) => handleServiceSearch(e.target.value)} />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={isServiceShown ? false : true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isServiceShown ? false : true} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
               </DashboardTool>
             </DashboardToolbar>
@@ -970,27 +730,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Fragment>
                           {data["Jenis Layanan"].map((subdata, idx) => (
                             <InputWrap key={idx}>
-                              <Input
-                                id={`${pageid}-name-${index}-${idx}`}
-                                radius="full"
-                                labelText="Jenis Layanan"
-                                value={subdata.servicetypename}
-                                isReadonly
-                              />
-                              <Input
-                                id={`${pageid}-price-${index}-${idx}`}
-                                radius="full"
-                                labelText="Harga"
-                                value={newPrice(subdata.serviceprice)}
-                                isReadonly
-                              />
-                              <Input
-                                id={`${pageid}-status-${index}-${idx}`}
-                                radius="full"
-                                labelText="Status"
-                                value={subdata.servicetypestatus}
-                                isReadonly
-                              />
+                              <Input id={`${pageid}-name-${index}-${idx}`} radius="full" labelText="Jenis Layanan" value={subdata.servicetypename} isReadonly />
+                              <Input id={`${pageid}-price-${index}-${idx}`} radius="full" labelText="Harga" value={newPrice(subdata.serviceprice)} isReadonly />
+                              <Input id={`${pageid}-status-${index}-${idx}`} radius="full" labelText="Status" value={subdata.servicetypestatus} isReadonly />
                             </InputWrap>
                           ))}
                         </Fragment>
@@ -1010,77 +752,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isServiceShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
-              <SubmitForm
-                size="md"
-                formTitle={selectedMode === "update" ? "Perbarui Data Layanan" : "Tambah Data Layanan"}
-                operation={selectedMode}
-                fetching={isFormFetching}
-                onSubmit={(e) => handleSubmit(e, "cudservice")}
-                loading={isSubmitting}
-                onClose={closeForm}
-              >
-                <Input
-                  id={`${pageid}-name`}
-                  radius="full"
-                  labelText="Nama Layanan"
-                  placeholder="Masukkan nama layanan"
-                  type="text"
-                  name="service"
-                  value={inputData.service}
-                  onChange={handleServiceInputChange}
-                  errorContent={errors.service}
-                  isRequired
-                />
+              <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Layanan" : "Tambah Data Layanan"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudservice")} loading={isSubmitting} onClose={closeForm}>
+                <Input id={`${pageid}-name`} radius="full" labelText="Nama Layanan" placeholder="Masukkan nama layanan" type="text" name="service" value={inputData.service} onChange={handleServiceInputChange} errorContent={errors.service} isRequired />
                 {inputData.layanan.map((subservice, index) => (
                   <InputWrap key={index}>
-                    <Input
-                      id={`${pageid}-type-name-${index}`}
-                      radius="full"
-                      labelText="Jenis Layanan"
-                      placeholder="e.g. Scaling gigi"
-                      type="text"
-                      name="servicetype"
-                      value={subservice.servicetype}
-                      onChange={(e) => handleServiceRowChange(index, e)}
-                      errorContent={errors.layanan[index] ? errors.layanan[index].servicetype : ""}
-                      isRequired
-                    />
-                    <Input
-                      id={`${pageid}-type-price-${index}`}
-                      radius="full"
-                      labelText="Atur Harga"
-                      placeholder="Masukkan harga"
-                      type="number"
-                      name="price"
-                      value={subservice.price}
-                      onChange={(e) => handleServiceRowChange(index, e)}
-                      errorContent={errors.layanan[index] ? errors.layanan[index].price : ""}
-                      isRequired
-                    />
-                    <Button
-                      id={`${pageid}-delete-row-${index}`}
-                      variant="dashed"
-                      subVariant="icon"
-                      isTooltip
-                      size="sm"
-                      radius="full"
-                      color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"}
-                      iconContent={<ISTrash />}
-                      tooltipText="Hapus"
-                      onClick={() => handleRmvServiceRow(index)}
-                      isDisabled={index <= 0 ? true : false}
-                    />
+                    <Input id={`${pageid}-type-name-${index}`} radius="full" labelText="Jenis Layanan" placeholder="e.g. Scaling gigi" type="text" name="servicetype" value={subservice.servicetype} onChange={(e) => handleServiceRowChange(index, e)} errorContent={errors[`layanan.${index}.servicetype`] ? errors[`layanan.${index}.servicetype`] : ""} isRequired />
+                    <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleServiceRowChange(index, e)} errorContent={errors[`layanan.${index}.price`] ? errors[`layanan.${index}.price`] : ""} isRequired />
+                    <Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvServiceRow(index)} isDisabled={index <= 0 ? true : false} />
                   </InputWrap>
                 ))}
-                <Button
-                  id={`${pageid}-add-row`}
-                  variant="line"
-                  size="sm"
-                  radius="full"
-                  color="var(--color-hint)"
-                  buttonText="Tambah Jenis Layanan"
-                  onClick={handleAddServiceRow}
-                />
+                <Button id={`${pageid}-add-row`} variant="line" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Jenis Layanan" onClick={handleAddServiceRow} />
               </SubmitForm>
             )}
           </Fragment>
@@ -1091,38 +772,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Cabang Edental. Klik opsi ikon pada kolom Action untuk memperbarui, atau menghapus data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input
-                  id={`search-data-${pageid}`}
-                  radius="full"
-                  isLabeled={false}
-                  placeholder="Cari data ..."
-                  type="text"
-                  value={branchSearch}
-                  onChange={(e) => handleBranchSearch(e.target.value)}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={branchSearch} onChange={(e) => handleBranchSearch(e.target.value)} />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={isBranchShown ? false : true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isBranchShown ? false : true} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
-                <Button
-                  id={`export-data-${pageid}`}
-                  radius="full"
-                  bgColor="var(--color-green)"
-                  buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(filteredBranchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)}
-                  isDisabled={isBranchShown ? false : true}
-                />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredBranchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)} isDisabled={isBranchShown ? false : true} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1163,127 +818,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isBranchShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
-              <SubmitForm
-                formTitle={selectedMode === "update" ? "Perbarui Data Cabang" : "Tambah Data Cabang"}
-                operation={selectedMode}
-                fetching={isFormFetching}
-                onSubmit={(e) => handleSubmit(e, "cudoutlet")}
-                loading={isSubmitting}
-                onClose={closeForm}
-              >
+              <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Cabang" : "Tambah Data Cabang"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudoutlet")} loading={isSubmitting} onClose={closeForm}>
                 <InputWrap>
-                  <Input
-                    id={`${pageid}-name`}
-                    radius="full"
-                    labelText="Nama Outlet"
-                    placeholder="Edental Jakarta Pusat"
-                    type="text"
-                    name="name"
-                    value={inputData.name}
-                    onChange={handleInputChange}
-                    errorContent={errors.name}
-                    isRequired
-                  />
-                  <Input
-                    id={`${pageid}-phone`}
-                    radius="full"
-                    labelText="Nomor Kontak Cabang"
-                    placeholder="0882xxx"
-                    type="tel"
-                    name="phone"
-                    value={inputData.phone}
-                    onChange={handleInputChange}
-                    errorContent={errors.phone}
-                    isRequired
-                  />
-                  <Input
-                    id={`${pageid}-mainregion`}
-                    radius="full"
-                    labelText="Main Region"
-                    placeholder="Jawa"
-                    type="text"
-                    name="main_region"
-                    value={inputData.main_region}
-                    onChange={handleInputChange}
-                    errorContent={errors.main_region}
-                    isRequired
-                  />
+                  <Input id={`${pageid}-name`} radius="full" labelText="Nama Outlet" placeholder="Edental Jakarta Pusat" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                  <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Kontak Cabang" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
+                  <Input id={`${pageid}-mainregion`} radius="full" labelText="Main Region" placeholder="Jawa" type="text" name="main_region" value={inputData.main_region} onChange={handleInputChange} errorContent={errors.main_region} isRequired />
                 </InputWrap>
                 <InputWrap>
-                  <Input
-                    id={`${pageid}-region`}
-                    radius="full"
-                    labelText="Region"
-                    placeholder="DKI Jakarta"
-                    type="text"
-                    name="region"
-                    value={inputData.region}
-                    onChange={handleInputChange}
-                    errorContent={errors.region}
-                    isRequired
-                  />
-                  <Input
-                    id={`${pageid}-address`}
-                    radius="full"
-                    labelText="Alamat Cabang"
-                    placeholder="123 Main Street"
-                    type="text"
-                    name="address"
-                    value={inputData.address}
-                    onChange={handleInputChange}
-                    errorContent={errors.address}
-                    isRequired
-                  />
-                  <Input
-                    id={`${pageid}-postcode`}
-                    radius="full"
-                    labelText="Kode Pos"
-                    placeholder="40282"
-                    type="number"
-                    name="postcode"
-                    value={inputData.postcode}
-                    onChange={handleInputChange}
-                    errorContent={errors.postcode}
-                    isRequired
-                  />
+                  <Input id={`${pageid}-region`} radius="full" labelText="Region" placeholder="DKI Jakarta" type="text" name="region" value={inputData.region} onChange={handleInputChange} errorContent={errors.region} isRequired />
+                  <Input id={`${pageid}-address`} radius="full" labelText="Alamat Cabang" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
+                  <Input id={`${pageid}-postcode`} radius="full" labelText="Kode Pos" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleInputChange} errorContent={errors.postcode} isRequired />
                 </InputWrap>
                 <InputWrap>
-                  <Input
-                    id={`${pageid}-coords`}
-                    radius="full"
-                    labelText="Titik Koordinat"
-                    placeholder="Masukkan titik koordinat"
-                    type="text"
-                    name="coordinate"
-                    value={inputData.coordinate}
-                    onChange={handleInputChange}
-                    errorContent={errors.coordinate}
-                    isRequired
-                  />
-                  <Input
-                    id={`${pageid}-cctrgroup`}
-                    radius="full"
-                    labelText="CCTR Group"
-                    placeholder="Masukkan CCTR group"
-                    type="text"
-                    name="cctr_group"
-                    value={inputData.cctr_group}
-                    onChange={handleInputChange}
-                    errorContent={errors.cctr_group}
-                    isRequired
-                  />
-                  <Input
-                    id={`${pageid}-cctr`}
-                    radius="full"
-                    labelText="CCTR"
-                    placeholder="Masukkan CCTR"
-                    type="text"
-                    name="cctr"
-                    value={inputData.cctr}
-                    onChange={handleInputChange}
-                    errorContent={errors.cctr}
-                    isRequired
-                  />
+                  <Input id={`${pageid}-coords`} radius="full" labelText="Titik Koordinat" placeholder="Masukkan titik koordinat" type="text" name="coordinate" value={inputData.coordinate} onChange={handleInputChange} errorContent={errors.coordinate} isRequired />
+                  <Input id={`${pageid}-cctrgroup`} radius="full" labelText="CCTR Group" placeholder="Masukkan CCTR group" type="text" name="cctr_group" value={inputData.cctr_group} onChange={handleInputChange} errorContent={errors.cctr_group} isRequired />
+                  <Input id={`${pageid}-cctr`} radius="full" labelText="CCTR" placeholder="Masukkan CCTR" type="text" name="cctr" value={inputData.cctr} onChange={handleInputChange} errorContent={errors.cctr} isRequired />
                 </InputWrap>
               </SubmitForm>
             )}
@@ -1295,37 +844,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Dokter yang bertugas di Edental." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input
-                  id={`search-data-${pageid}`}
-                  radius="full"
-                  isLabeled={false}
-                  placeholder="Cari data ..."
-                  type="text"
-                  value={dentistSearch}
-                  onChange={(e) => handleDentistSearch(e.target.value)}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={dentistSearch} onChange={(e) => handleDentistSearch(e.target.value)} />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={isDentistShown ? false : true}
-                />
-                <Button
-                  id={`export-data-${pageid}`}
-                  radius="full"
-                  bgColor="var(--color-green)"
-                  buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(filteredDentistData, "Daftar Dokter", `daftar_dokter_${getCurrentDate()}`)}
-                  isDisabled={isDentistShown ? false : true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isDentistShown ? false : true} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredDentistData, "Daftar Dokter", `daftar_dokter_${getCurrentDate()}`)} isDisabled={isDentistShown ? false : true} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1362,18 +885,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={true} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1384,42 +896,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "STOCK":
         return (
           <Fragment>
-            {/* prettier-ignore */}
             <DashboardHead title={pagetitle} desc="Data Stok berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input
-                  id={`search-data-${pageid}`}
-                  radius="full"
-                  isLabeled={false}
-                  placeholder="Cari data ..."
-                  type="text"
-                  value={stockSearch}
-                  onChange={(e) => handleStockSearch(e.target.value)}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockSearch} onChange={(e) => handleStockSearch(e.target.value)} />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={isStockShown ? false : true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isStockShown ? false : true} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
-                <Button
-                  id={`export-data-${pageid}`}
-                  radius="full"
-                  bgColor="var(--color-green)"
-                  buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)}
-                  isDisabled={isStockShown ? false : true}
-                />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={isStockShown ? false : true} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1460,33 +945,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isStockShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
-              <SubmitForm
-                formTitle={selectedMode === "update" ? "Perbarui Data Stok" : "Tambah Data Stok"}
-                operation={selectedMode}
-                fetching={isFormFetching}
-                onSubmit={(e) => handleSubmit(e, "cudstock")}
-                loading={isSubmitting}
-                onClose={closeForm}
-              >
+              <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Stok" : "Tambah Data Stok"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudstock")} loading={isSubmitting} onClose={closeForm}>
                 <InputWrap>
-                  <Input
-                    id={`${pageid}-category`}
-                    variant="select"
-                    isSearchable
-                    radius="full"
-                    labelText="Kategori"
-                    placeholder="Pilih kategori"
-                    name="category"
-                    value={inputData.category}
-                    options={categoryStockData.map((cat) => ({
-                      value: cat["category_stok"].categorystockname,
-                      label: cat["category_stok"].categorystockname,
-                    }))}
-                    onSelect={(selectedValue) => handleInputChange({ target: { name: "category", value: selectedValue } })}
-                    errorContent={errors.category}
-                    isRequired
-                  />
-                  {/* prettier-ignore */}
+                  <Input id={`${pageid}-category`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder="Pilih kategori" name="category" value={inputData.category} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "category", value: selectedValue } })} errorContent={errors.category} isRequired />
                   <Input
                     id={`${pageid}-subcategory`}
                     variant="select"
@@ -1496,115 +957,44 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     placeholder={inputData.category ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
                     name="sub_category"
                     value={inputData.sub_category}
-                    options={inputData.category && categoryStockData.find((cat) => cat["category_stok"].categorystockname === inputData.category)?.["subcategory_stok"].map((sub) => ({
-                      value: sub.subcategorystock,
-                      label: sub.subcategorystock,
-                    }))}
+                    options={inputData.category && categoryStockData.find((cat) => cat["category_stok"].categorystockname === inputData.category)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))}
                     onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_category", value: selectedValue } })}
                     errorContent={errors.sub_category}
                     isRequired
                     isDisabled={inputData.category ? false : true}
                   />
-                  <Input
-                    id={`${pageid}-name`}
-                    radius="full"
-                    labelText="Nama Item"
-                    placeholder="STERILISATOR"
-                    type="text"
-                    name="item"
-                    value={inputData.name}
-                    onChange={handleInputChange}
-                    errorContent={errors.name}
-                    isRequired
-                  />
+                  <Input id={`${pageid}-name`} radius="full" labelText="Nama Item" placeholder="STERILISATOR" type="text" name="item" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
                 </InputWrap>
                 <InputWrap>
-                  <Input
-                    id={`${pageid}-unit`}
-                    variant="select"
-                    radius="full"
-                    labelText="Unit/satuan"
-                    placeholder="Pilih satuan/unit"
-                    name="unit"
-                    value={inputData.unit}
-                    options={units}
-                    onSelect={(selectedValue) => handleInputChange({ target: { name: "unit", value: selectedValue } })}
-                    errorContent={errors.unit}
-                    isRequired
-                  />
-                  <Input
-                    id={`${pageid}-qty`}
-                    radius="full"
-                    labelText="Jumlah"
-                    placeholder="40"
-                    type="number"
-                    name="count"
-                    value={inputData.count}
-                    onChange={handleInputChange}
-                    errorContent={errors.count}
-                    isRequired
-                  />
-                  <Input
-                    id={`${pageid}-price`}
-                    radius="full"
-                    labelText="Harga Item Satuan"
-                    placeholder="100000"
-                    type="number"
-                    name="value"
-                    value={inputData.value}
-                    onChange={handleInputChange}
-                    errorContent={errors.value}
-                    isRequired
-                  />
+                  <Input id={`${pageid}-unit`} variant="select" radius="full" labelText="Unit/satuan" placeholder="Pilih satuan/unit" name="unit" value={inputData.unit} options={units} onSelect={(selectedValue) => handleInputChange({ target: { name: "unit", value: selectedValue } })} errorContent={errors.unit} isRequired />
+                  <Input id={`${pageid}-qty`} radius="full" labelText="Jumlah" placeholder="40" type="number" name="count" value={inputData.count} onChange={handleInputChange} errorContent={errors.count} isRequired />
+                  <Input id={`${pageid}-price`} radius="full" labelText="Harga Item Satuan" placeholder="100000" type="number" name="value" value={inputData.value} onChange={handleInputChange} errorContent={errors.value} isRequired />
                 </InputWrap>
               </SubmitForm>
             )}
           </Fragment>
         );
       case "PO MASUK":
-        const poStatusAlias = (status) => {
-          return status === "1" ? "Pending" : status === "2" ? "Sent" : status === "3" ? "Done" : status === "4" ? "Rejected" : "Open";
-        };
+        const postatus = [
+          { buttonText: "Open", onClick: () => handleStatusChange(0), isActive: status === 0 },
+          { buttonText: "Pending", onClick: () => handleStatusChange(1), isActive: status === 1 },
+          { buttonText: "Sent", onClick: () => handleStatusChange(2), isActive: status === 2 },
+          { buttonText: "Done", onClick: () => handleStatusChange(3), isActive: status === 3 },
+          { buttonText: "Rejected", onClick: () => handleStatusChange(4), isActive: status === 4 },
+        ];
 
         return (
           <Fragment>
-            {/* prettier-ignore */}
             <DashboardHead title={pagetitle} desc="Daftar permintaan PO item dari semua cabang. Filter status PO melalui tombol tab, atau klik ikon pada kolom Action untuk memperbarui status PO." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input
-                  id={`search-data-${pageid}`}
-                  radius="full"
-                  isLabeled={false}
-                  placeholder="Cari data ..."
-                  type="text"
-                  value={inPOSearch}
-                  onChange={(e) => handleInPOSearch(e.target.value)}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={inPOSearch} onChange={(e) => handleInPOSearch(e.target.value)} />
               </DashboardTool>
               <DashboardTool>
-                <ButtonGroup
-                  size="sm"
-                  radius="full"
-                  baseColor="var(--theme-color-base)"
-                  primaryColor="var(--theme-color-primary)"
-                  secondaryColor="var(--theme-color-secondary)"
-                  buttons={postatus}
-                />
+                <ButtonGroup size="sm" radius="full" baseColor="var(--theme-color-base)" primaryColor="var(--theme-color-primary)" secondaryColor="var(--theme-color-secondary)" buttons={postatus} />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={isInPOShown ? false : true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isInPOShown ? false : true} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1633,16 +1023,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                                 <Input id={`item-sku-${index}-${idx}`} radius="full" labelText="Kode SKU" value={subdata.sku} isReadonly />
                                 <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item" value={subdata.qty} isReadonly />
                               </InputWrap>
-                              <Input
-                                id={`item-note-${index}-${idx}`}
-                                variant="textarea"
-                                radius="full"
-                                labelText="Keterangan"
-                                rows={4}
-                                value={subdata.note}
-                                fallbackValue="Tidak ada keterangan."
-                                isReadonly
-                              />
+                              <Input id={`item-note-${index}-${idx}`} variant="textarea" radius="full" labelText="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." isReadonly />
                             </Fragment>
                           ))}
                         </Fragment>
@@ -1670,18 +1051,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={true} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1690,10 +1060,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "RESERVATION":
-        const reservStatusAlias = (status) => {
-          return status === "1" ? "Completed" : status === "2" ? "Reschedule" : status === "3" ? "Canceled" : "Pending";
-        };
-
         const getAvailHours = async (date) => {
           try {
             const formData = new FormData();
@@ -1713,7 +1079,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const { name, value } = e.target;
           setInputData((prevState) => ({ ...prevState, [name]: value }));
           setErrors({ ...errors, [name]: "" });
-
           if (name === "phone") {
             let phoneexists = false;
             let matcheddata = null;
@@ -1723,7 +1088,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 matcheddata = item;
               }
             });
-
             if (phoneexists) {
               setCustExist(true);
               setInputData((prevState) => ({ ...prevState, name: matcheddata.username, email: matcheddata.useremail }));
@@ -1732,7 +1096,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
               setInputData((prevState) => ({ ...prevState, name: "", email: "" }));
             }
           }
-
           if (name === "sub_service") {
             const selectedservice = allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service);
             const selectedsubservice = selectedservice["Jenis Layanan"].find((type) => type.servicetypename === value);
@@ -1743,7 +1106,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
             }
             log(`id servicetype set to ${selectedsubservice.idservicetype}`);
           }
-
           if (name === "date") {
             getAvailHours(value);
           }
@@ -1751,42 +1113,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
         return (
           <Fragment>
-            {/* prettier-ignore */}
             <DashboardHead title={pagetitle} desc="Data Reservasi customer. Klik Tambah Baru untuk membuat data reservasi baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input
-                  id={`search-data-${pageid}`}
-                  radius="full"
-                  isLabeled={false}
-                  placeholder="Cari data ..."
-                  type="text"
-                  value={reservSearch}
-                  onChange={(e) => handleReservSearch(e.target.value)}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={reservSearch} onChange={(e) => handleReservSearch(e.target.value)} />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={isReservShown ? false : true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isReservShown ? false : true} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
-                <Button
-                  id={`export-data-${pageid}`}
-                  radius="full"
-                  bgColor="var(--color-green)"
-                  buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)}
-                  isDisabled={isReservShown ? false : true}
-                />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)} isDisabled={isReservShown ? false : true} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1813,13 +1148,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredReservData.map((data, index) => (
-                    <TR
-                      key={index}
-                      onEdit={() => openEdit(data.idreservation)}
-                      isComplete={data.status_reservation === "1"}
-                      isWarning={data.status_reservation === "2"}
-                      isDanger={data.status_reservation === "3"}
-                    >
+                    <TR key={index} onEdit={() => openEdit(data.idreservation)} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
                       <TD>{newDate(data.datetimecreate, "id")}</TD>
                       <TD>{data.reservationdate}</TD>
                       <TD>{data.reservationtime}</TD>
@@ -1843,15 +1172,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isReservShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
-              <SubmitForm
-                size={selectedMode === "update" ? "sm" : "lg"}
-                formTitle={selectedMode === "update" ? "Ubah Status Reservasi" : "Tambah Data Reservasi"}
-                operation={selectedMode}
-                fetching={isFormFetching}
-                onSubmit={(e) => handleSubmit(e, "cudreservation")}
-                loading={isSubmitting}
-                onClose={closeForm}
-              >
+              <SubmitForm size={selectedMode === "update" ? "sm" : "lg"} formTitle={selectedMode === "update" ? "Ubah Status Reservasi" : "Tambah Data Reservasi"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudreservation")} loading={isSubmitting} onClose={closeForm}>
                 {selectedMode === "update" ? (
                   <InputWrap>
                     <Input
@@ -1891,65 +1212,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 ) : (
                   <Fragment>
                     <InputWrap>
-                      <Input
-                        id={`${pageid}-phone`}
-                        radius="full"
-                        labelText="Nomor Telepon"
-                        placeholder="0882xxx"
-                        type="tel"
-                        name="phone"
-                        value={inputData.phone}
-                        onChange={handleReservInputChange}
-                        infoContent={custExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""}
-                        errorContent={errors.phone}
-                        isRequired
-                      />
-                      <Input
-                        id={`${pageid}-name`}
-                        radius="full"
-                        labelText="Nama Pelanggan"
-                        placeholder="e.g. John Doe"
-                        type="text"
-                        name="name"
-                        value={inputData.name}
-                        onChange={handleReservInputChange}
-                        errorContent={errors.name}
-                        isRequired
-                        isReadonly={custExist ? true : false}
-                      />
-                      <Input
-                        id={`${pageid}-email`}
-                        radius="full"
-                        labelText="Email"
-                        placeholder="customer@gmail.com"
-                        type="email"
-                        name="email"
-                        value={inputData.email}
-                        onChange={handleReservInputChange}
-                        errorContent={errors.email}
-                        isRequired
-                        isReadonly={custExist ? true : false}
-                      />
+                      <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleReservInputChange} infoContent={custExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""} errorContent={errors.phone} isRequired />
+                      <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleReservInputChange} errorContent={errors.name} isRequired isReadonly={custExist ? true : false} />
+                      <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleReservInputChange} errorContent={errors.email} isRequired isReadonly={custExist ? true : false} />
                     </InputWrap>
                     <InputWrap>
-                      <Input
-                        id={`${pageid}-service`}
-                        variant="select"
-                        isSearchable
-                        radius="full"
-                        labelText="Nama Layanan"
-                        placeholder="Pilih layanan"
-                        name="service"
-                        value={inputData.service}
-                        options={allservicedata.map((service) => ({
-                          value: service["Nama Layanan"].servicename,
-                          label: service["Nama Layanan"].servicename,
-                        }))}
-                        onSelect={(selectedValue) => handleReservInputChange({ target: { name: "service", value: selectedValue } })}
-                        errorContent={errors.service}
-                        isRequired
-                      />
-                      {/* prettier-ignore */}
+                      <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={inputData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleReservInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
                       <Input
                         id={`${pageid}-subservice`}
                         variant="select"
@@ -1959,41 +1227,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                         name="sub_service"
                         value={inputData.sub_service}
-                        options={inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({
-                          value: type.servicetypename,
-                          label: type.servicetypename,
-                        }))}
+                        options={inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))}
                         onSelect={(selectedValue) => handleReservInputChange({ target: { name: "sub_service", value: selectedValue } })}
                         errorContent={errors.sub_service}
                         isRequired
                         isDisabled={inputData.service ? false : true}
                       />
-                      <Input
-                        id={`${pageid}-voucher`}
-                        radius="full"
-                        labelText="Kode Voucher"
-                        placeholder="e.g 598RE3"
-                        type="text"
-                        name="vouchercode"
-                        value={inputData.vouchercode}
-                        onChange={handleReservInputChange}
-                        errorContent={errors.vouchercode}
-                      />
+                      <Input id={`${pageid}-voucher`} radius="full" labelText="Kode Voucher" placeholder="e.g 598RE3" type="text" name="vouchercode" value={inputData.vouchercode} onChange={handleReservInputChange} errorContent={errors.vouchercode} />
                     </InputWrap>
                     <InputWrap>
-                      <Input
-                        id={`${pageid}-date`}
-                        radius="full"
-                        labelText="Tanggal Reservasi"
-                        placeholder="Atur tanggal"
-                        type="date"
-                        name="date"
-                        min={getCurrentDate()}
-                        value={inputData.date}
-                        onChange={handleReservInputChange}
-                        errorContent={errors.date}
-                        isRequired
-                      />
+                      <Input id={`${pageid}-date`} radius="full" labelText="Tanggal Reservasi" placeholder="Atur tanggal" type="date" name="date" min={getCurrentDate()} value={inputData.date} onChange={handleReservInputChange} errorContent={errors.date} isRequired />
                       <Input
                         id={`${pageid}-time`}
                         variant="select"
@@ -2010,44 +1253,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         isDisabled={inputData.date ? false : true}
                       />
                     </InputWrap>
-                    <Input
-                      id={`${pageid}-note`}
-                      variant="textarea"
-                      radius="full"
-                      labelText="Catatan"
-                      placeholder="Masukkan catatan/keterangan ..."
-                      name="note"
-                      rows={4}
-                      value={inputData.note}
-                      onChange={handleReservInputChange}
-                      errorContent={errors.note}
-                    />
+                    <Input id={`${pageid}-note`} variant="textarea" radius="full" labelText="Catatan" placeholder="Masukkan catatan/keterangan ..." name="note" rows={4} value={inputData.note} onChange={handleReservInputChange} errorContent={errors.note} />
                     {inputData.service === "RESERVATION" && inputData.sub_service === "RESERVATION" && (
                       <InputWrap>
-                        <Input
-                          id={`${pageid}-price`}
-                          radius="full"
-                          labelText="Biaya Layanan"
-                          placeholder="Masukkan biaya layanan"
-                          type="number"
-                          name="price"
-                          value={inputData.price}
-                          onChange={handleReservInputChange}
-                          errorContent={errors.price}
-                        />
-                        <Input
-                          id={`${pageid}-payments`}
-                          variant="select"
-                          isSearchable
-                          radius="full"
-                          labelText="Metode Pembayaran"
-                          placeholder="Pilih metode pembayaran"
-                          name="bank_code"
-                          value={inputData.bank_code}
-                          options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
-                          onSelect={(selectedValue) => handleReservInputChange({ target: { name: "bank_code", value: selectedValue } })}
-                          errorContent={errors.bank_code}
-                        />
+                        <Input id={`${pageid}-price`} radius="full" labelText="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleReservInputChange} errorContent={errors.price} />
+                        <Input id={`${pageid}-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder="Pilih metode pembayaran" name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleReservInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} />
                       </InputWrap>
                     )}
                   </Fragment>
@@ -2059,13 +1269,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "ORDER CUSTOMER":
         const exportToPDF = () => {
           const element = printRef.current;
-          const opt = {
-            margin: 0.2,
-            filename: `invoice-${toPathname(selectedOrderData.transactionname)}-${selectedOrderData.rscode}.pdf`,
-            image: { type: "jpeg", quality: 0.99 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-          };
+          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData.transactionname)}-${selectedOrderData.rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
           html2pdf().from(element).set(opt).save();
         };
 
@@ -2078,7 +1282,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const { name, value } = e.target;
           setInputData((prevState) => ({ ...prevState, [name]: value }));
           setErrors({ ...errors, [name]: "" });
-
           if (name === "typepayment") {
             if (value === "cash") {
               setInputData((prevState) => ({ ...prevState, bank_code: "CASH" }));
@@ -2111,11 +1314,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             });
             return { ...prevState, order: updatedorder };
           });
-
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            order: prevErrors.order.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)),
-          }));
+          setErrors((prevErrors) => ({ ...prevErrors, order: prevErrors.order.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
         };
 
         const handleAddOrderRow = () => {
@@ -2128,62 +1327,24 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const updatedrowerror = [...errors.order];
           updatedrow.splice(index, 1);
           updatedrowerror.splice(index, 1);
-
           setInputData((prevState) => ({ ...prevState, order: updatedrow }));
           setErrors((prevErrors) => ({ ...prevErrors, order: updatedrowerror }));
         };
 
         return (
           <Fragment>
-            {/* prettier-ignore */}
             <DashboardHead title={pagetitle} desc="Data order customer ini dibuat otomatis saat proses reservasi dilakukan. Klik baris data untuk melihat masing-masing detail layanan & produk terpakai." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input
-                  id={`search-data-${pageid}`}
-                  radius="full"
-                  isLabeled={false}
-                  placeholder="Cari data ..."
-                  type="text"
-                  value={orderSearch}
-                  onChange={(e) => handleOrderSearch(e.target.value)}
-                />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderSearch} onChange={(e) => handleOrderSearch(e.target.value)} />
               </DashboardTool>
               <DashboardTool>
-                <Input
-                  id={`limit-data-${pageid}`}
-                  isLabeled={false}
-                  variant="select"
-                  noEmptyValue
-                  radius="full"
-                  placeholder="Baris per Halaman"
-                  value={limit}
-                  options={options}
-                  onSelect={handleLimitChange}
-                  isReadonly={isOrderShown ? false : true}
-                />
-                <Button
-                  id={`export-data-${pageid}`}
-                  radius="full"
-                  bgColor="var(--color-green)"
-                  buttonText="Export ke Excel"
-                  onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)}
-                  isDisabled={isOrderShown ? false : true}
-                />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isOrderShown ? false : true} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)} isDisabled={isOrderShown ? false : true} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table
-                byNumber
-                isClickable
-                isEditable
-                isPrintable
-                isContactable
-                page={currentPage}
-                limit={limit}
-                isNoData={!isOrderShown}
-                isLoading={isFetching}
-              >
+              <Table byNumber isClickable isEditable isPrintable isContactable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(orderData, setOrderData, "transactioncreate")}>
@@ -2203,15 +1364,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredOrderData.map((data, index) => (
-                    <TR
-                      key={index}
-                      isComplete={data.transactionstatus === "1"}
-                      isDanger={data.transactionstatus === "2"}
-                      onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)}
-                      onClick={() => openDetail(data.idtransaction)}
-                      onPrint={() => openFile(data.idtransaction)}
-                      onContact={() => contactWhatsApp(data.transactionphone)}
-                    >
+                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
                       <TD>{newDate(data.transactioncreate, "id")}</TD>
                       <TD>{toTitleCase(data.transactionname)}</TD>
                       <TD type="code">{data.rscode}</TD>
@@ -2232,35 +1385,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isOrderShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
-              <SubmitForm
-                formTitle={selectedMode === "update" ? "Perbarui Data Order" : "Tambah Data Order"}
-                operation={selectedMode}
-                fetching={isFormFetching}
-                onSubmit={(e) => handleSubmit(e, "cudorder")}
-                loading={isSubmitting}
-                onClose={closeForm}
-              >
+              <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Order" : "Tambah Data Order"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudorder")} loading={isSubmitting} onClose={closeForm}>
                 <InputWrap>
-                  <Input
-                    id={`${pageid}-dentist`}
-                    variant="select"
-                    isSearchable
-                    radius="full"
-                    labelText="Dokter"
-                    placeholder="Pilih Dokter"
-                    name="dentist"
-                    value={inputData.dentist}
-                    options={branchDentistData.map((dentist) => ({
-                      value: dentist.name_dentist,
-                      label: dentist.name_dentist.replace(`${dentist.id_branch} -`, ""),
-                    }))}
-                    onSelect={(selectedValue) => handleOrderInputChange({ target: { name: "dentist", value: selectedValue } })}
-                    errorContent={errors.dentist}
-                    isRequired
-                  />
+                  <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleOrderInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
                   <Input
                     id={`${pageid}-type-payments`}
                     variant="select"
+                    noEmptyValue
                     radius="full"
                     labelText="Tipe Pembayaran"
                     placeholder="Pilih tipe pembayaran"
@@ -2289,13 +1420,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
                           onSelect={(selectedValue) => handleOrderInputChange({ target: { name: "bank_code", value: selectedValue } })}
                           errorContent={errors.bank_code}
-                          isRequired
                           isDisabled={inputData.typepayment ? false : true}
                         />
                       ) : (
                         <Input
                           id={`${pageid}-status-payments`}
                           variant="select"
+                          noEmptyValue
                           radius="full"
                           labelText="Status Pembayaran"
                           placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"}
@@ -2307,7 +1438,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           ]}
                           onSelect={(selectedValue) => handleOrderInputChange({ target: { name: "status", value: selectedValue } })}
                           errorContent={errors.status}
-                          isRequired
                           isDisabled={inputData.typepayment ? false : true}
                         />
                       )}
@@ -2325,15 +1455,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       placeholder="Pilih Layanan"
                       name="service"
                       value={subservice.service}
-                      options={allservicedata.map((service) => ({
-                        value: service["Nama Layanan"].servicename,
-                        label: service["Nama Layanan"].servicename,
-                      }))}
+                      options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))}
                       onSelect={(selectedValue) => handleOrderRowChange(index, { target: { name: "service", value: selectedValue } })}
-                      errorContent={errors.order[index] ? errors.order[index].service : ""}
+                      errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""}
                       isRequired
                     />
-                    {/* prettier-ignore */}
                     <Input
                       id={`${pageid}-type-name-${index}`}
                       variant="select"
@@ -2343,51 +1469,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                       name="servicetype"
                       value={subservice.servicetype}
-                      options={inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({
-                        value: type.servicetypename,
-                        label: type.servicetypename,
-                      }))}
+                      options={inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))}
                       onSelect={(selectedValue) => handleOrderRowChange(index, { target: { name: "servicetype", value: selectedValue } })}
-                      errorContent={errors.order[index] ? errors.order[index].servicetype : ""}
+                      errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
                       isRequired
                       isDisabled={inputData.order[index].service ? false : true}
                     />
-                    <Input
-                      id={`${pageid}-type-price-${index}`}
-                      radius="full"
-                      labelText="Atur Harga"
-                      placeholder="Masukkan harga"
-                      type="number"
-                      name="price"
-                      value={subservice.price}
-                      onChange={(e) => handleOrderRowChange(index, e)}
-                      errorContent={errors.order[index] ? errors.order[index].price : ""}
-                      isRequired
-                    />
-                    <Button
-                      id={`${pageid}-delete-row-${index}`}
-                      variant="dashed"
-                      subVariant="icon"
-                      isTooltip
-                      size="sm"
-                      radius="full"
-                      color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"}
-                      iconContent={<ISTrash />}
-                      tooltipText="Hapus"
-                      onClick={() => handleRmvOrderRow(index)}
-                      isDisabled={index <= 0 ? true : false}
-                    />
+                    <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleOrderRowChange(index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired />
+                    <Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvOrderRow(index)} isDisabled={index <= 0 ? true : false} />
                   </InputWrap>
                 ))}
-                <Button
-                  id={`${pageid}-add-row`}
-                  variant="line"
-                  size="sm"
-                  radius="full"
-                  color="var(--color-hint)"
-                  buttonText="Tambah Layanan"
-                  onClick={handleAddOrderRow}
-                />
+                <Button id={`${pageid}-add-row`} variant="line" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Layanan" onClick={handleAddOrderRow} />
               </SubmitForm>
             )}
             {selectedOrderData && orderDetailData && isFileOpen && (
@@ -2409,11 +1501,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
         const getDaysInMonth = (year, month) => {
           return new Date(year, month + 1, 0).getDate();
         };
-
         const getFirstDayOfMonth = (year, month) => {
           return new Date(year, month, 1).getDay();
         };
-
         const formatDate = (year, month, day) => {
           return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
         };
@@ -2423,14 +1513,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const month = currentDate.getMonth();
           const daysInMonth = getDaysInMonth(year, month);
           const firstDayOfMonth = getFirstDayOfMonth(year, month);
-
           const calendarDays = [];
           let dayCounter = 1;
-
           for (let i = 0; i < firstDayOfMonth; i++) {
             calendarDays.push(null);
           }
-
           while (dayCounter <= daysInMonth) {
             const date = formatDate(year, month, dayCounter);
             calendarDays.push({ day: dayCounter, events: eventsData[date] || [] });
@@ -2440,7 +1527,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           return calendarDays.map((dayObj, index) => (
             <div key={index} className={calendar.calendarDay} onClick={() => handleDayClick(dayObj)}>
               {dayObj ? (
-                <>
+                <Fragment>
                   <div className={calendar.dayNumber}>{dayObj.day}</div>
                   <div className={calendar.events}>
                     {dayObj.events.slice(0, 2).map((event, i) => (
@@ -2450,20 +1537,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     ))}
                     {dayObj.events.length > 2 && <div className={calendar.moreEvents}>+{dayObj.events.length - 2} more events</div>}
                   </div>
-                </>
+                </Fragment>
               ) : null}
             </div>
           ));
         };
 
-        const handlePrevMonth = () => {
-          setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
-        };
-
-        const handleNextMonth = () => {
-          setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
-        };
-
+        const handlePrevMonth = () => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
+        const handleNextMonth = () => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
         const handleDayClick = (dayObj) => {
           if (dayObj) {
             setSelectedDay(dayObj.day);
@@ -2481,33 +1562,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           <Fragment>
             <DashboardHead title={`Jadwal Reservasi ${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}`} />
             <DashboardToolbar>
+              <DashboardTool>{level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}</DashboardTool>
               <DashboardTool>
-                {level === "admin" && (
-                  <Input
-                    id={`${pageid}-outlet`}
-                    isLabeled={false}
-                    variant="select"
-                    isSearchable
-                    radius="full"
-                    placeholder="Pilih Cabang"
-                    value={selectedBranch}
-                    options={allBranchData.map((branch) => ({
-                      value: branch.idoutlet,
-                      label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG"),
-                    }))}
-                    onSelect={handleBranchChange}
-                  />
-                )}
-              </DashboardTool>
-              <DashboardTool>
-                <Button
-                  id={`${pageid}-prev-month`}
-                  radius="full"
-                  variant="line"
-                  color="var(--color-primary)"
-                  buttonText="Prev Month"
-                  onClick={handlePrevMonth}
-                />
+                <Button id={`${pageid}-prev-month`} radius="full" variant="line" color="var(--color-primary)" buttonText="Prev Month" onClick={handlePrevMonth} />
                 <Button id={`${pageid}-next-month`} radius="full" buttonText="Next Month" onClick={handleNextMonth} />
               </DashboardTool>
             </DashboardToolbar>
@@ -2521,37 +1578,39 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 {generateCalendar()}
               </div>
             </DashboardBody>
-            <Modal
-              isOpen={isModalOpen}
-              onClose={closeModal}
-              events={selectedDayEvents}
-              day={`${selectedDay} ${currentDate.toLocaleString("default", { month: "long" })}`}
-            />
+            <Modal isOpen={isModalOpen} onClose={closeModal} events={selectedDayEvents} day={`${selectedDay} ${currentDate.toLocaleString("default", { month: "long" })}`} />
           </Fragment>
         );
       default:
         return <DashboardHead title={`Halaman Dashboard ${pagetitle} akan segera hadir.`} />;
     }
   };
-  // filter (operational hours - booked hours = available hours)
+
   useEffect(() => {
     if (slug === "RESERVATION") {
       setAvailHoursData(hours.filter((hour) => !bookedHoursData.includes(hour)));
     }
   }, [slug, bookedHoursData]);
-  // run fetch when page rendered on demand and every slug, data page, data limit, and status changed
+
   useEffect(() => {
     fetchData();
   }, [slug, currentPage, limit, status, slug === "CALENDAR RESERVATION" ? selectedBranch : null]);
-  // run fetch when page rendered once on demand
+
   useEffect(() => {
     fetchAdditionalData();
   }, []);
-  // authentication guards
+
+  useEffect(() => {
+    setLimit(5);
+    setCurrentPage(1);
+    setSelectedMode("add");
+    setSortOrder("asc");
+  }, [slug]);
+
   if (!isLoggedin) {
     return <Navigate to="/login" />;
   }
-  // main JSX as dynamic content wrapper
+
   return (
     <Pages title={`${pagetitle} - Dashboard`}>
       <DashboardContainer>{renderContent()}</DashboardContainer>

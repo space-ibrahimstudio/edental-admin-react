@@ -1,0 +1,99 @@
+export const inputSchema = {
+  name: "",
+  phone: "",
+  address: "",
+  postcode: "",
+  main_region: "",
+  region: "",
+  cctr_group: "",
+  cctr: "",
+  coordinate: "",
+  service: "",
+  sub_service: "",
+  category: "",
+  sub_category: "",
+  unit: "",
+  count: "",
+  value: "",
+  id: "",
+  email: "",
+  vouchercode: "",
+  date: "",
+  time: "",
+  price: 0,
+  bank_code: "",
+  note: "",
+  dentist: "",
+  status: "",
+  statuspayment: "",
+  typepayment: "",
+  layanan: [{ servicetype: "", price: "" }],
+  order: [{ service: "", servicetype: "", price: "" }],
+};
+
+export const errorSchema = {
+  name: "",
+  phone: "",
+  address: "",
+  postcode: "",
+  main_region: "",
+  region: "",
+  cctr_group: "",
+  cctr: "",
+  coordinate: "",
+  service: "",
+  sub_service: "",
+  category: "",
+  sub_category: "",
+  unit: "",
+  count: "",
+  value: "",
+  id: "",
+  email: "",
+  vouchercode: "",
+  date: "",
+  time: "",
+  price: "",
+  bank_code: "",
+  note: "",
+  dentist: "",
+  status: "",
+  statuspayment: "",
+  typepayment: "",
+  layanan: [{ servicetype: "", price: "" }],
+  order: [{ service: "", servicetype: "", price: "" }],
+};
+
+export const options = [
+  { value: 5, label: "Baris per Halaman: 5" },
+  { value: 10, label: "Baris per Halaman: 10" },
+  { value: 20, label: "Baris per Halaman: 20" },
+  { value: 50, label: "Baris per Halaman: 50" },
+];
+
+export const units = [
+  { value: "PCS", label: "pcs" },
+  { value: "PACK", label: "pack" },
+  { value: "BOTTLE", label: "bottle" },
+  { value: "TUBE", label: "tube" },
+  { value: "BOX", label: "box" },
+  { value: "SET", label: "set" },
+];
+
+export const hours = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00"];
+
+export const dpStatusAlias = (status) => {
+  return status === "1" ? "Exist" : status === "2" ? "Paid" : status === "3" ? "Canceled" : "Pending";
+};
+
+export const orderStatusAlias = (status) => {
+  return status === "1" ? "Paid" : status === "2" ? "Canceled" : "Open";
+};
+
+export const poStatusAlias = (status) => {
+  return status === "1" ? "Pending" : status === "2" ? "Sent" : status === "3" ? "Done" : status === "4" ? "Rejected" : "Open";
+};
+
+export const reservStatusAlias = (status) => {
+  return status === "1" ? "Completed" : status === "2" ? "Reschedule" : status === "3" ? "Canceled" : "Pending";
+};
