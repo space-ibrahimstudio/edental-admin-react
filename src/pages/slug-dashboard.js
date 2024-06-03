@@ -17,6 +17,27 @@ import { SubmitForm, FileForm } from "../components/input-controls/forms";
 import Invoice from "../components/contents/invoice";
 import { InputWrap } from "../components/input-controls/inputs";
 import Pagination from "../components/navigations/pagination";
+import calendar from "./styles/calendar.module.css";
+
+const Modal = ({ isOpen, onClose, events, day }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className={calendar.modalOverlay}>
+      <div className={calendar.modalContent}>
+        <h2>Events for {day}</h2>
+        <button onClick={onClose} className={calendar.closeButton}>
+          Close
+        </button>
+        <ul>
+          {events.map((event, index) => (
+            <li key={index}>{event.label}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
 
 const DashboardSlugPage = ({ parent, slug }) => {
   // context api
@@ -25,7 +46,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { newDate, newPrice } = useFormat();
   const { log } = useDevmode();
   const { toTitleCase, toPathname } = useContent();
-  const { isLoggedin, secret, cctr } = useAuth();
+  const { isLoggedin, secret, cctr, idoutlet } = useAuth();
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
   // dynamic content
@@ -46,6 +67,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [isFileOpen, setIsFileOpen] = useState(false);
   const [status, setStatus] = useState(0);
   const [custExist, setCustExist] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
   // specific statements
   const [allCustData, setAllCustData] = useState([]);
   const [custData, setCustData] = useState([]);
@@ -64,6 +86,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [orderData, setOrderData] = useState([]);
   const [selectedOrderData, setSelectedOrderData] = useState(null);
   const [orderDetailData, setOrderDetailData] = useState(null);
+  const [eventsData, setEventsData] = useState([]);
+  const [selectedDayEvents, setSelectedDayEvents] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDay, setSelectedDay] = useState("");
   // global input chema
   const inputSchema = {
     name: "",
@@ -254,6 +280,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   };
   const closeFile = () => {
     setIsFileOpen(false);
+    setSelectedOrderData(null);
+    setOrderDetailData(null);
   };
   // fetch primary datas on slug changed
   const fetchData = async () => {
@@ -348,6 +376,24 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
           }
           break;
+        case "CALENDAR RESERVATION":
+          addtFormData.append("data", JSON.stringify({ secret, idbranch: idoutlet }));
+          addtdata = await apiRead(addtFormData, "office", "viewcalendar");
+          if (addtdata && addtdata.data && addtdata.data.length > 0) {
+            const eventsdata = addtdata.data;
+            const transformedEvents = eventsdata.reduce((acc, event) => {
+              const date = event.reservationdate;
+              const label = `${event.rscode} ${event.name}`;
+              if (!acc[date]) {
+                acc[date] = [];
+              }
+              acc[date].push({ label });
+              return acc;
+            }, {});
+            setEventsData(transformedEvents);
+          } else {
+            setEventsData([]);
+          }
         default:
           setTotalPages(0);
           break;
@@ -2334,6 +2380,128 @@ const DashboardSlugPage = ({ parent, slug }) => {
         return (
           <Fragment>
             <DashboardHead title={pagetitle} />
+          </Fragment>
+        );
+      case "CALENDAR RESERVATION":
+        const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        const getDaysInMonth = (year, month) => {
+          return new Date(year, month + 1, 0).getDate();
+        };
+
+        const getFirstDayOfMonth = (year, month) => {
+          return new Date(year, month, 1).getDay();
+        };
+
+        const formatDate = (year, month, day) => {
+          return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        };
+
+        const generateCalendar = () => {
+          const year = currentDate.getFullYear();
+          const month = currentDate.getMonth();
+          const daysInMonth = getDaysInMonth(year, month);
+          const firstDayOfMonth = getFirstDayOfMonth(year, month);
+
+          const calendarDays = [];
+          let dayCounter = 1;
+
+          for (let i = 0; i < firstDayOfMonth; i++) {
+            calendarDays.push(null);
+          }
+
+          while (dayCounter <= daysInMonth) {
+            const date = formatDate(year, month, dayCounter);
+            calendarDays.push({ day: dayCounter, events: eventsData[date] || [] });
+            dayCounter++;
+          }
+
+          return calendarDays.map((dayObj, index) => (
+            <div key={index} className={calendar.calendarDay} onClick={() => handleDayClick(dayObj)}>
+              {dayObj ? (
+                <>
+                  <div className={calendar.dayNumber}>{dayObj.day}</div>
+                  <div className={calendar.events}>
+                    {dayObj.events.slice(0, 2).map((event, i) => (
+                      <div key={i} className={calendar.event}>
+                        {event.label}
+                      </div>
+                    ))}
+                    {dayObj.events.length > 2 && <div className={calendar.moreEvents}>+{dayObj.events.length - 2} more events</div>}
+                  </div>
+                </>
+              ) : null}
+            </div>
+          ));
+        };
+
+        const handlePrevMonth = () => {
+          setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
+        };
+
+        const handleNextMonth = () => {
+          setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
+        };
+
+        const handleDayClick = (dayObj) => {
+          if (dayObj) {
+            setSelectedDay(dayObj.day);
+            setSelectedDayEvents(dayObj.events);
+            setIsModalOpen(true);
+          }
+        };
+
+        const closeModal = () => {
+          setIsModalOpen(false);
+          setSelectedDayEvents([]);
+        };
+
+        return (
+          <Fragment>
+            <DashboardHead title={`Jadwal Reservasi ${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}`} />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input
+                  id={`limit-data-${pageid}`}
+                  isLabeled={false}
+                  variant="select"
+                  noEmptyValue
+                  radius="full"
+                  placeholder="Baris per Halaman"
+                  value={limit}
+                  options={options}
+                  onSelect={handleLimitChange}
+                  isReadonly={isOrderShown ? false : true}
+                />
+              </DashboardTool>
+              <DashboardTool>
+                <Button
+                  id={`${pageid}-prev-month`}
+                  radius="full"
+                  variant="line"
+                  color="var(--color-primary)"
+                  buttonText="Prev Month"
+                  onClick={handlePrevMonth}
+                />
+                <Button id={`${pageid}-next-month`} radius="full" buttonText="Next Month" onClick={handleNextMonth} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <div className={calendar.calendarGrid}>
+                {daysOfWeek.map((day) => (
+                  <div key={day} className={calendar.calendarDayHeader}>
+                    {day}
+                  </div>
+                ))}
+                {generateCalendar()}
+              </div>
+            </DashboardBody>
+            <Modal
+              isOpen={isModalOpen}
+              onClose={closeModal}
+              events={selectedDayEvents}
+              day={`${selectedDay} ${currentDate.toLocaleString("default", { month: "long" })}`}
+            />
           </Fragment>
         );
       default:
