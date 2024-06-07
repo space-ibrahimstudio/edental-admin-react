@@ -29,6 +29,7 @@ export const inputSchema = {
   typepayment: "",
   layanan: [{ servicetype: "", price: "" }],
   order: [{ service: "", servicetype: "", price: "" }],
+  postock: [{ itemname: "", sku: "", stockin: "", note: "" }],
 };
 
 export const errorSchema = {
@@ -62,6 +63,7 @@ export const errorSchema = {
   typepayment: "",
   layanan: [{ servicetype: "", price: "" }],
   order: [{ service: "", servicetype: "", price: "" }],
+  postock: [{ itemname: "", sku: "", stockin: "", note: "" }],
 };
 
 export const options = [

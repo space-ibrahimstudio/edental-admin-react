@@ -6,6 +6,7 @@ import { useAuth } from "../../libs/securities/auth";
 import { useApi } from "../../libs/apis/office";
 import { useNotifications } from "../feedbacks/context/notifications-context";
 import { TabButton, DropDownButton } from "../input-controls/buttons";
+import { Power } from "../contents/icons";
 import styles from "./styles/navbar.module.css";
 
 const Navbar = () => {
@@ -60,7 +61,7 @@ const Navbar = () => {
             </TabButton>
           ))}
         </div>
-        <Button id="logout" size="sm" radius="full" buttonText="Logout" onClick={logoutClick} />
+        <Button id="logout" size="sm" radius="full" buttonText="Logout" onClick={logoutClick} startContent={<Power />} />
       </section>
     </nav>
   );

@@ -77,7 +77,7 @@
   background-color: transparent;
   align-self: stretch;
   box-sizing: border-box;
-  height: var(--pixel-40);
+  min-height: var(--pixel-40);
   color: var(--color-hint);
   flex-direction: row;
   justify-content: center;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useContent } from "@ibrahimstudio/react";
-import { ChevronDown, ArrowIcon } from "../layouts/icons";
+import { Chevron, Arrow } from "../contents/icons";
 import tab from "./styles/tab-button.module.css";
 
 export const DropDownButton = ({ buttonText, onClick }) => {
@@ -9,7 +9,7 @@ export const DropDownButton = ({ buttonText, onClick }) => {
     <div className={tab.dropdownButton} onClick={onClick}>
       <b className={tab.dropdownButtonText}>{buttonText}</b>
       <div className={tab.dropdownButtonIcon}>
-        <ArrowIcon width="10px" height="100%" />
+        <Arrow size="var(--pixel-20)" />
       </div>
     </div>
   );
@@ -63,7 +63,7 @@ export const TabButton = ({ isActive, hasSubMenu, buttonText, children }) => {
   return (
     <button className={`${tab.navMenuTab} ${activeTab === isActive ? tab.active : ""}`} onClick={handleClick}>
       <b className={tab.navMenuTabText}>{toTitleCase(buttonText)}</b>
-      {hasSubMenu && <ChevronDown width="10px" height="100%" flipped={dropdownOpen} />}
+      {hasSubMenu && <Chevron isFlipped={dropdownOpen} />}
       {dropdownOpen && (
         <section ref={ref} className={`${tab.dropdown} ${dropdownOpen ? tab.opened : tab.closed}`}>
           {children}

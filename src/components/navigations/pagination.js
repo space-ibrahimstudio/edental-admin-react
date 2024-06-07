@@ -1,5 +1,5 @@
 import React from "react";
-import { ISChevron } from "@ibrahimstudio/icons";
+import { HChevron } from "../contents/icons";
 import styles from "./styles/pagination.module.css";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
@@ -40,11 +40,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     }
 
     return pagesToShow.map((pageNumber, index) => (
-      <button
-        key={index}
-        className={`${styles.paginationArrow} ${pageNumber === "ellipsis" ? styles.ellipsis : ""} ${currentPage === pageNumber ? styles.active : ""}`}
-        onClick={() => onPageChange(pageNumber)}
-      >
+      <button key={index} className={`${styles.paginationArrow} ${pageNumber === "ellipsis" ? styles.ellipsis : ""} ${currentPage === pageNumber ? styles.active : ""}`} onClick={() => onPageChange(pageNumber)}>
         {pageNumber === "ellipsis" ? <b className={styles.paginationNumText}>...</b> : <b className={styles.paginationNumText}>{pageNumber}</b>}
       </button>
     ));
@@ -53,11 +49,11 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   return (
     <div className={styles.pagination}>
       <button className={`${styles.paginationArrow} ${currentPage === 1 ? styles.disable : ""}`} onClick={prevPage}>
-        <ISChevron width="7px" height="100%" direction="left" />
+        <HChevron size="var(--pixel-25)" direction="left" />
       </button>
       {renderPageNumbers()}
       <button className={`${styles.paginationArrow} ${currentPage === totalPages ? styles.disable : ""}`} onClick={nextPage}>
-        <ISChevron width="7px" height="100%" />
+        <HChevron size="var(--pixel-25)" />
       </button>
     </div>
   );

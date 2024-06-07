@@ -1,3 +1,9 @@
+.formLogoIcon {
+  width: var(--pixel-100);
+  position: relative;
+  height: auto;
+}
+
 .sectionBody {
   margin-top: var(--pixel-50);
   border-radius: var(--pixel-20);

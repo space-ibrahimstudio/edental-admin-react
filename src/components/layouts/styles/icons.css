@@ -1,7 +1,0 @@
-.chevron-down {
-  transition: var(--transit);
-}
-
-.flipped {
-  transform: scaleY(-1);
-}

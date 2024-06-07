@@ -1,3 +1,9 @@
+.formLogoIcon {
+  width: auto;
+  position: relative;
+  height: var(--pixel-20);
+}
+
 .circleBody,
 .circleBodySm {
   position: relative;

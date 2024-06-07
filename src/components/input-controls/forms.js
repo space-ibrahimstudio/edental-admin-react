@@ -4,7 +4,7 @@ import { Button } from "@ibrahimstudio/button";
 import { Input } from "@ibrahimstudio/input";
 import { useAuth } from "../../libs/securities/auth";
 import { LoadingContent } from "../feedbacks/screens";
-import { LogoPrimary, CheckIcon, CloseIcon } from "../layouts/icons";
+import { Check, Close, Login } from "../contents/icons";
 import loginstyles from "./styles/login-form.module.css";
 import styles from "./styles/data-form.module.css";
 
@@ -43,55 +43,18 @@ export const LoginForm = () => {
         <p className={loginstyles.formDesc}>Masukkan Username dan Password untuk mengakses Dashboard.</p>
       </header>
       <div className={loginstyles.formHead}>
-        <Input
-          id="login-username"
-          isLabeled={false}
-          placeholder="e.g. edental_admin"
-          type="text"
-          name="username"
-          value={inputData.username}
-          onChange={handleChange}
-          isRequired
-        />
-        <Input
-          id="login-password"
-          isLabeled={false}
-          placeholder="Masukkan kata sandi"
-          type="password"
-          name="password"
-          value={inputData.password}
-          onChange={handleChange}
-          isRequired
-        />
+        <Input id="login-username" isLabeled={false} placeholder="e.g. edental_admin" type="text" name="username" value={inputData.username} onChange={handleChange} isRequired />
+        <Input id="login-password" isLabeled={false} placeholder="Masukkan kata sandi" type="password" name="password" value={inputData.password} onChange={handleChange} isRequired />
       </div>
       <footer className={loginstyles.formFoot}>
-        <Button
-          id="submit-login"
-          isFullwidth
-          type="submit"
-          buttonText="Masuk ke Dashboard"
-          loadingContent={<LoadingContent />}
-          isLoading={isLoading}
-        />
+        <Button id="submit-login" isFullwidth type="submit" buttonText="Masuk ke Dashboard" startContent={<Login />} loadingContent={<LoadingContent />} isLoading={isLoading} />
         <h6 className={loginstyles.formForgot}>Lupa Password?</h6>
       </footer>
     </form>
   );
 };
 
-export const SubmitForm = ({
-  size,
-  formTitle,
-  formSubtitle,
-  fetching = false,
-  loading,
-  operation = "add",
-  onSubmit,
-  saveText = "Simpan",
-  cancelText = "Batal",
-  children,
-  onClose,
-}) => {
+export const SubmitForm = ({ size, formTitle, formSubtitle, fetching = false, loading, operation = "add", onSubmit, saveText = "Simpan", cancelText = "Batal", children, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const ref = useRef(null);
 
@@ -156,7 +119,7 @@ export const SubmitForm = ({
       <section className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
         <form ref={ref} className={`${styles.form} ${isClosing ? styles.close : ""}`} style={getFormStyles()} onSubmit={onSubmit}>
           <header className={styles.formHead}>
-            <LogoPrimary width="96px" height="100%" color="var(--color-primary)" />
+            <img className={styles.formLogoIcon} loading="lazy" alt="Form Logo" src="/svg/logo-primary.svg" />
             <b className={styles.formTitle}>{formTitle}</b>
             {formSubtitle && <div className={styles.formSubtitle}>{formSubtitle}</div>}
           </header>
@@ -170,25 +133,8 @@ export const SubmitForm = ({
             </div>
           )}
           <footer className={styles.formFooter}>
-            <Button
-              id="cancel-form-submit"
-              variant="dashed"
-              radius="full"
-              color="var(--color-hint)"
-              buttonText={cancelText}
-              onClick={handleClose}
-              startContent={<CloseIcon width="12px" height="100%" />}
-            />
-            <Button
-              id="handle-form-submit"
-              radius="full"
-              type="submit"
-              action={operation}
-              buttonText={saveText}
-              startContent={<CheckIcon width="12px" height="100%" />}
-              isLoading={loading}
-              loadingContent={<LoadingContent />}
-            />
+            <Button id="cancel-form-submit" variant="dashed" radius="full" color="var(--color-hint)" buttonText={cancelText} onClick={handleClose} startContent={<Close />} />
+            <Button id="handle-form-submit" radius="full" type="submit" action={operation} buttonText={saveText} startContent={<Check />} isLoading={loading} loadingContent={<LoadingContent />} />
           </footer>
         </form>
       </section>
@@ -232,9 +178,7 @@ export const FileForm = ({ onNext, fetching = false, loading, children, onClose 
         <Button id="file-next-action" radius="full" buttonText="CetaK PDF" onClick={onNext} isLoading={loading} />
       </nav>
       <section className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
-        <section className={`${styles.sectionBody} ${fetching ? styles.fetch : ""}`}>
-          {fetching ? <LoadingContent color="var(--color-primary)" /> : children}
-        </section>
+        <section className={`${styles.sectionBody} ${fetching ? styles.fetch : ""}`}>{fetching ? <LoadingContent color="var(--color-primary)" /> : children}</section>
       </section>
     </main>
   );

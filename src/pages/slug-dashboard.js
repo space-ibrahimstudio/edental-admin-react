@@ -17,6 +17,7 @@ import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
 import { SubmitForm, FileForm } from "../components/input-controls/forms";
 import Invoice from "../components/contents/invoice";
 import { InputWrap } from "../components/input-controls/inputs";
+import { Search, Plus, Export } from "../components/contents/icons";
 import Pagination from "../components/navigations/pagination";
 import calendar from "./styles/calendar.module.css";
 
@@ -78,9 +79,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [selectedBranch, setSelectedBranch] = useState(idoutlet);
   const [branchDentistData, setBranchDentistData] = useState([]);
   const [dentistData, setDentistData] = useState([]);
+  const [allStockData, setAllStockData] = useState([]);
   const [stockData, setStockData] = useState([]);
   const [categoryStockData, setCategoryStockData] = useState([]);
   const [inPOData, setInPOData] = useState([]);
+  const [centralPOData, setCentralPOData] = useState([]);
   const [reservData, setReservData] = useState([]);
   const [bookedHoursData, setBookedHoursData] = useState([]);
   const [availHoursData, setAvailHoursData] = useState([]);
@@ -102,6 +105,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   };
 
   const handlePageChange = (page) => setCurrentPage(page);
+  const handleBranchChange = (value) => setSelectedBranch(value);
   const handleLimitChange = (value) => {
     setLimit(value);
     setCurrentPage(1);
@@ -109,9 +113,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const handleStatusChange = (value) => {
     setStatus(value);
     setCurrentPage(1);
-  };
-  const handleBranchChange = (value) => {
-    setSelectedBranch(value);
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -129,6 +130,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
     }
     setData(newData);
   };
+
+  const postatus = [
+    { buttonText: "Open", onClick: () => handleStatusChange(0), isActive: status === 0 },
+    { buttonText: "Pending", onClick: () => handleStatusChange(1), isActive: status === 1 },
+    { buttonText: "Sent", onClick: () => handleStatusChange(2), isActive: status === 2 },
+    { buttonText: "Done", onClick: () => handleStatusChange(3), isActive: status === 3 },
+    { buttonText: "Rejected", onClick: () => handleStatusChange(4), isActive: status === 4 },
+  ];
 
   const openDetail = (params) => navigate(`${pagepath}/${toPathname(params)}`);
   const openForm = () => {
@@ -272,6 +281,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
           }
           break;
+        case "PO PUSAT":
+          addtFormData.append("data", JSON.stringify({ secret, limit, hal: offset, status }));
+          addtdata = await apiRead(addtFormData, "office", "viewpostock");
+          if (addtdata && addtdata.data && addtdata.data.length > 0) {
+            setCentralPOData(addtdata.data);
+            setTotalPages(addtdata.TTLPage);
+          } else {
+            setCentralPOData([]);
+            setTotalPages(0);
+          }
+          break;
         case "CALENDAR RESERVATION":
           addtFormData.append("data", JSON.stringify({ secret, idbranch: selectedBranch }));
           addtdata = await apiRead(addtFormData, "office", "viewcalendar");
@@ -290,6 +310,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           } else {
             setEventsData([]);
           }
+          break;
         default:
           setTotalPages(0);
           break;
@@ -346,6 +367,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
         setAllBranchData(branchdata.data);
       } else {
         setAllBranchData([]);
+      }
+      const stockdata = await apiRead(formData, "office", "searchstock");
+      if (stockdata && stockdata.data && stockdata.data.length > 0) {
+        setAllStockData(stockdata.data);
+      } else {
+        setAllStockData([]);
       }
     } catch (error) {
       showNotifications("danger", errormsg);
@@ -460,6 +487,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "ORDER CUSTOMER":
         requiredFields = ["dentist", "order.service", "order.servicetype", "order.price"];
         break;
+      case "PO PUSAT":
+        requiredFields = ["postock.itemname", "postock.sku", "postock.stockin"];
+        break;
       default:
         break;
     }
@@ -522,6 +552,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           break;
         case "ORDER CUSTOMER":
           submittedData = { secret, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
+          break;
+        case "PO PUSAT":
+          submittedData = { secret, postock: inputData.postock };
           break;
         default:
           break;
@@ -588,6 +621,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: inPOSearch, handleSearch: handleInPOSearch, filteredData: filteredInPOData, isDataShown: isInPOShown } = useSearch(inPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: reservSearch, handleSearch: handleReservSearch, filteredData: filteredReservData, isDataShown: isReservShown } = useSearch(reservData, ["rscode", "name", "phone", "outlet_name"]);
   const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
+  const { searchTerm: centralPOSearch, handleSearch: handleCentralPOSearch, filteredData: filteredCentralPOData, isDataShown: isCentralPOShown } = useSearch(centralPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -597,11 +631,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Customer yang memiliki riwayat Reservasi. Data ini dibuat otomatis saat proses reservasi dilakukan." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={custSearch} onChange={(e) => handleCustSearch(e.target.value)} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={custSearch} onChange={(e) => handleCustSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isCustShown ? false : true} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)} isDisabled={isCustShown ? false : true} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)} isDisabled={isCustShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -641,7 +675,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={true} />
@@ -700,11 +734,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar layanan yang tersedia saat ini. Klik opsi ikon pada kolom Action untuk melihat detail, memperbarui, atau menghapus data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={serviceSearch} onChange={(e) => handleServiceSearch(e.target.value)} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={serviceSearch} onChange={(e) => handleServiceSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isServiceShown ? false : true} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -772,12 +806,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Cabang Edental. Klik opsi ikon pada kolom Action untuk memperbarui, atau menghapus data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={branchSearch} onChange={(e) => handleBranchSearch(e.target.value)} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={branchSearch} onChange={(e) => handleBranchSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isBranchShown ? false : true} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredBranchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)} isDisabled={isBranchShown ? false : true} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredBranchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)} isDisabled={isBranchShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -844,11 +878,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Dokter yang bertugas di Edental." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={dentistSearch} onChange={(e) => handleDentistSearch(e.target.value)} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={dentistSearch} onChange={(e) => handleDentistSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isDentistShown ? false : true} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredDentistData, "Daftar Dokter", `daftar_dokter_${getCurrentDate()}`)} isDisabled={isDentistShown ? false : true} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredDentistData, "Daftar Dokter", `daftar_dokter_${getCurrentDate()}`)} isDisabled={isDentistShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -882,7 +916,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={true} />
@@ -899,12 +933,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data Stok berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockSearch} onChange={(e) => handleStockSearch(e.target.value)} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockSearch} onChange={(e) => handleStockSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isStockShown ? false : true} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={isStockShown ? false : true} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={isStockShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -975,20 +1009,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "PO MASUK":
-        const postatus = [
-          { buttonText: "Open", onClick: () => handleStatusChange(0), isActive: status === 0 },
-          { buttonText: "Pending", onClick: () => handleStatusChange(1), isActive: status === 1 },
-          { buttonText: "Sent", onClick: () => handleStatusChange(2), isActive: status === 2 },
-          { buttonText: "Done", onClick: () => handleStatusChange(3), isActive: status === 3 },
-          { buttonText: "Rejected", onClick: () => handleStatusChange(4), isActive: status === 4 },
-        ];
-
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Daftar permintaan PO item dari semua cabang. Filter status PO melalui tombol tab, atau klik ikon pada kolom Action untuk memperbarui status PO." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={inPOSearch} onChange={(e) => handleInPOSearch(e.target.value)} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={inPOSearch} onChange={(e) => handleInPOSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <ButtonGroup size="sm" radius="full" baseColor="var(--theme-color-base)" primaryColor="var(--theme-color-primary)" secondaryColor="var(--theme-color-secondary)" buttons={postatus} />
@@ -1048,7 +1074,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={true} />
@@ -1116,12 +1142,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data Reservasi customer. Klik Tambah Baru untuk membuat data reservasi baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={reservSearch} onChange={(e) => handleReservSearch(e.target.value)} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={reservSearch} onChange={(e) => handleReservSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isReservShown ? false : true} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)} isDisabled={isReservShown ? false : true} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)} isDisabled={isReservShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1336,11 +1362,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data order customer ini dibuat otomatis saat proses reservasi dilakukan. Klik baris data untuk melihat masing-masing detail layanan & produk terpakai." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderSearch} onChange={(e) => handleOrderSearch(e.target.value)} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderSearch} onChange={(e) => handleOrderSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isOrderShown ? false : true} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)} isDisabled={isOrderShown ? false : true} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)} isDisabled={isOrderShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1490,9 +1516,117 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "PO PUSAT":
+        const handleCentralPORowChange = (index, e) => {
+          const { name, value } = e.target;
+          setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, [name]: value } : item)) }));
+          setErrors((prevErrors) => ({ ...prevErrors, postock: prevErrors.postock.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
+        };
+
+        const handleAddCentralPORow = () => {
+          setInputData((prevState) => ({ ...prevState, postock: [...prevState.postock, { itemname: "", sku: "", stockin: "", note: "" }] }));
+          setErrors((prevErrors) => ({ ...prevErrors, postock: [...prevErrors.postock, { itemname: "", sku: "", stockin: "", note: "" }] }));
+        };
+
+        const handleRmvCentralPORow = (index) => {
+          const updatedrow = [...inputData.postock];
+          const updatedrowerror = [...errors.postock];
+          updatedrow.splice(index, 1);
+          updatedrowerror.splice(index, 1);
+          setInputData((prevState) => ({ ...prevState, postock: updatedrow }));
+          setErrors((prevErrors) => ({ ...prevErrors, postock: updatedrowerror }));
+        };
+
         return (
           <Fragment>
             <DashboardHead title={pagetitle} />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={centralPOSearch} onChange={(e) => handleCentralPOSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isCentralPOShown ? false : true} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardToolbar>
+              <DashboardTool>
+                <ButtonGroup size="sm" radius="full" baseColor="var(--theme-color-base)" primaryColor="var(--theme-color-primary)" secondaryColor="var(--theme-color-secondary)" buttons={postatus} />
+              </DashboardTool>
+              <DashboardTool>
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isExpandable page={currentPage} limit={limit} isNoData={!isCentralPOShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(centralPOData, setCentralPOData, "PO Stock.postockcreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Kode PO</TH>
+                    <TH>Nama Admin</TH>
+                    <TH>Status PO</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredCentralPOData.map((data, index) => (
+                    <TR
+                      key={index}
+                      expandContent={
+                        <Fragment>
+                          {data["Detail PO"].map((subdata, idx) => (
+                            <Fragment key={idx}>
+                              <InputWrap>
+                                <Input id={`item-name-${index}-${idx}`} radius="full" labelText="Nama Item" value={subdata.itemname} isReadonly />
+                                <Input id={`item-sku-${index}-${idx}`} radius="full" labelText="Kode SKU" value={subdata.sku} isReadonly />
+                                <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item" value={subdata.qty} isReadonly />
+                              </InputWrap>
+                              <Input id={`item-note-${index}-${idx}`} variant="textarea" radius="full" labelText="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." isReadonly />
+                            </Fragment>
+                          ))}
+                        </Fragment>
+                      }
+                    >
+                      <TD>{newDate(data["PO Stock"].postockcreate, "id")}</TD>
+                      <TD type="code">{data["PO Stock"].postockcode}</TD>
+                      <TD>{toTitleCase(data["PO Stock"].username)}</TD>
+                      <TD>{poStatusAlias(data["PO Stock"].statusstock)}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isCentralPOShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data PO Pusat" : "Tambah Data PO Pusat"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "postock")} loading={isSubmitting} onClose={closeForm}>
+                {inputData.postock.map((po, index) => (
+                  <Fragment key={index}>
+                    <InputWrap>
+                      <Input
+                        id={`${pageid}-item-name-${index}`}
+                        variant="select"
+                        isSearchable
+                        radius="full"
+                        labelText="Nama Item"
+                        placeholder="Pilih Item"
+                        name="itemname"
+                        value={po.itemname}
+                        options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))}
+                        onSelect={(selectedValue) => handleCentralPORowChange(index, { target: { name: "itemname", value: selectedValue } })}
+                        errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""}
+                        isRequired
+                      />
+                      <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
+                      <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
+                      <Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvCentralPORow(index)} isDisabled={index <= 0 ? true : false} />
+                    </InputWrap>
+                    <InputWrap>
+                      <Input id={`${pageid}-item-note-${index}`} variant="textarea" radius="full" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
+                    </InputWrap>
+                    {inputData.postock.length === index + 1 && <Button id={`${pageid}-add-row`} variant="line" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={handleAddCentralPORow} isDisabled={errors[`postock.${index}.itemname`] || errors[`postock.${index}.sku`] || errors[`postock.${index}.stockin`] ? true : false} />}
+                  </Fragment>
+                ))}
+              </SubmitForm>
+            )}
           </Fragment>
         );
       case "CALENDAR RESERVATION":
