@@ -15,9 +15,10 @@ import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
 import { SubmitForm, FileForm } from "../components/input-controls/forms";
+import { OnpageForm, FormHead, FormTitle, FormTitleWrap, FormBody, FormFooter } from "../components/input-controls/onpage-form";
 import Invoice from "../components/contents/invoice";
 import { InputWrap } from "../components/input-controls/inputs";
-import { Search, Plus, Export } from "../components/contents/icons";
+import { Search, Plus, Export, HChevron, Check } from "../components/contents/icons";
 import Pagination from "../components/navigations/pagination";
 import calendar from "./styles/calendar.module.css";
 
@@ -95,6 +96,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState("");
+  const [tabId, setTabId] = useState("1");
+  const [subTabId, setSubTabId] = useState("1");
+  const [subTab, setSubTab] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
@@ -1698,8 +1702,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardToolbar>
               <DashboardTool>{level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}</DashboardTool>
               <DashboardTool>
-                <Button id={`${pageid}-prev-month`} radius="full" variant="line" color="var(--color-primary)" buttonText="Prev Month" onClick={handlePrevMonth} />
-                <Button id={`${pageid}-next-month`} radius="full" buttonText="Next Month" onClick={handleNextMonth} />
+                <Button id={`${pageid}-prev-month`} radius="full" variant="line" color="var(--color-primary)" buttonText="Prev Month" onClick={handlePrevMonth} startContent={<HChevron direction="left" />} />
+                <Button id={`${pageid}-next-month`} radius="full" buttonText="Next Month" onClick={handleNextMonth} endContent={<HChevron />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1713,6 +1717,125 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </div>
             </DashboardBody>
             <Modal isOpen={isModalOpen} onClose={closeModal} events={selectedDayEvents} day={`${selectedDay} ${currentDate.toLocaleString("default", { month: "long" })}`} />
+          </Fragment>
+        );
+      case "REKAM MEDIS":
+        const subTabButton = (id) => {
+          if (id === "1") {
+            return subTab1Button;
+          } else if (id === "2") {
+            return subTab2Button;
+          } else if (id === "3") {
+            return subTab3Button;
+          } else {
+            return [];
+          }
+        };
+
+        const handleSubTabChange = (id) => setSubTabId(id);
+        const handleTabChange = (id) => {
+          setTabId(id);
+          setSubTabId("1");
+          subTabButton(id);
+        };
+
+        const tabbutton = [
+          { buttonText: "Informasi Pribadi", onClick: () => handleTabChange("1"), isActive: tabId === "1" },
+          { buttonText: "Catatan Klinik", onClick: () => handleTabChange("2"), isActive: tabId === "2" },
+          { buttonText: "Diagnosa & Tindakan", onClick: () => handleTabChange("3"), isActive: tabId === "3" },
+          { buttonText: "Resep", onClick: () => handleTabChange("4"), isActive: tabId === "4" },
+        ];
+
+        const subTab1Button = [
+          { buttonText: "Profil", onClick: () => handleSubTabChange("1"), isActive: subTabId === "1" },
+          { buttonText: "Histori Reservasi", onClick: () => handleSubTabChange("2"), isActive: subTabId === "2" },
+          { buttonText: "Histori Order", onClick: () => handleSubTabChange("3"), isActive: subTabId === "3" },
+        ];
+
+        const subTab2Button = [
+          { buttonText: "Anamesa", onClick: () => handleSubTabChange("1"), isActive: subTabId === "1" },
+          { buttonText: "Anamesa Odontogram", onClick: () => handleSubTabChange("2"), isActive: subTabId === "2" },
+          { buttonText: "Pemeriksaan Umum", onClick: () => handleSubTabChange("3"), isActive: subTabId === "3" },
+          { buttonText: "Foto Pasien", onClick: () => handleSubTabChange("4"), isActive: subTabId === "4" },
+        ];
+
+        const subTab3Button = [
+          { buttonText: "Kondisi", onClick: () => handleSubTabChange("1"), isActive: subTabId === "1" },
+          { buttonText: "Diagnosa", onClick: () => handleSubTabChange("2"), isActive: subTabId === "2" },
+          { buttonText: "Tindakan Medis", onClick: () => handleSubTabChange("3"), isActive: subTabId === "3" },
+          { buttonText: "Pemakaian Alkes", onClick: () => handleSubTabChange("4"), isActive: subTabId === "4" },
+        ];
+
+        const renderSection = () => {
+          switch (tabId) {
+            case "1":
+              switch (subTabId) {
+                case "1":
+                  return (
+                    <OnpageForm>
+                      <FormHead>
+                        <FormTitle text="Update Informasi Pribadi" />
+                      </FormHead>
+                      <FormBody>
+                        <InputWrap>
+                          <Input id="reservation-user-name" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                          <Input id="reservation-user-phone" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
+                          <Input id="reservation-user-email" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
+                        </InputWrap>
+                        <InputWrap>
+                          <Input id="reservation-user-address" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
+                        </InputWrap>
+                      </FormBody>
+                      <FormFooter>
+                        <Button id="handle-form-submit" radius="full" type="submit" buttonText="Simpan Perubahan" startContent={<Check />} />
+                      </FormFooter>
+                    </OnpageForm>
+                  );
+                default:
+                  return (
+                    <OnpageForm>
+                      <FormHead>
+                        <FormTitle text="Update Informasi Pribadi" />
+                      </FormHead>
+                      <FormBody>
+                        <InputWrap>
+                          <Input id="reservation-user-name" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                          <Input id="reservation-user-phone" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
+                          <Input id="reservation-user-email" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
+                        </InputWrap>
+                        <InputWrap>
+                          <Input id="reservation-user-address" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
+                        </InputWrap>
+                      </FormBody>
+                      <FormFooter>
+                        <Button id="handle-form-submit" radius="full" type="submit" buttonText="Simpan Perubahan" startContent={<Check />} />
+                      </FormFooter>
+                    </OnpageForm>
+                  );
+              }
+            case "2":
+              return <Fragment></Fragment>;
+          }
+        };
+
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`cust-select-${pageid}`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Customer" name="id" value={inputData.id} options={allCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "id", value: selectedValue } })} />
+              </DashboardTool>
+              <DashboardTool>
+                <ButtonGroup size="sm" radius="full" baseColor="var(--theme-color-base)" primaryColor="var(--theme-color-primary)" secondaryColor="var(--theme-color-secondary)" buttons={tabbutton} />
+                {tabId !== "1" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" startContent={<Plus />} />}
+              </DashboardTool>
+            </DashboardToolbar>
+            {tabId !== "4" && (
+              <DashboardToolbar>
+                <ButtonGroup size="sm" radius="full" baseColor="var(--theme-color-base)" primaryColor="var(--theme-color-primary)" secondaryColor="var(--theme-color-secondary)" buttons={subTabButton(tabId)} />
+              </DashboardToolbar>
+            )}
+            <DashboardBody>{renderSection()}</DashboardBody>
           </Fragment>
         );
       default:

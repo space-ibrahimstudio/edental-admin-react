@@ -260,12 +260,10 @@
   align-items: center;
   justify-content: flex-start;
 }
-
 .view {
   align-self: stretch;
   gap: 13.4px;
 }
-
 .canvas {
   margin: 0;
   padding: 0;

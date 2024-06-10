@@ -7,6 +7,7 @@
 .sectionBody {
   margin-top: var(--pixel-50);
   border-radius: var(--pixel-20);
+  box-shadow: 0 var(--pixel-20) var(--pixel-5) transparent, 0 var(--pixel-15) var(--pixel-5) transparent, 0 var(--pixel-10) var(--pixel-5) rgba(0, 0, 0, 0.01), 0 var(--pixel-5) var(--pixel-5) rgba(0, 0, 0, 0.02), 0 1px var(--pixel-2) rgba(0, 0, 0, 0.03);
   overflow: hidden;
   width: 795px;
   display: flex;
@@ -118,6 +119,7 @@
   width: 100%;
   border-radius: var(--pixel-20);
   background-color: var(--color-foreground);
+  box-shadow: 0 var(--pixel-20) var(--pixel-5) transparent, 0 var(--pixel-15) var(--pixel-5) transparent, 0 var(--pixel-10) var(--pixel-5) rgba(0, 0, 0, 0.01), 0 var(--pixel-5) var(--pixel-5) rgba(0, 0, 0, 0.02), 0 1px var(--pixel-2) rgba(0, 0, 0, 0.03);
   justify-content: flex-start;
   padding: var(--pixel-40);
   box-sizing: border-box;

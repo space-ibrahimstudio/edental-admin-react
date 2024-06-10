@@ -6,7 +6,6 @@
 }
 
 .navMenu {
-  flex: 1;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -28,7 +27,6 @@
   flex-direction: row;
   justify-content: center;
   gap: var(--pixel-10);
-  border-bottom: 1px solid var(--color-secondary-10);
 }
 
 .nav {
@@ -38,8 +36,26 @@
   width: 100%;
   margin: 0;
   background-color: var(--color-foreground);
-  flex-direction: column;
-  justify-content: flex-start;
+  flex-direction: row;
+  justify-content: space-between;
   padding: 0 var(--pixel-60);
   z-index: 999;
+}
+
+@media screen and (max-width: 880px) {
+  .navMenu {
+    display: none;
+  }
+}
+
+@media screen and (min-width: 701px) and (max-width: 1120px) {
+  .nav {
+    padding: 0 var(--pixel-30);
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .nav {
+    padding: 0 var(--pixel-20);
+  }
 }

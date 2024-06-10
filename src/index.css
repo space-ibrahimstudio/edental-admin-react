@@ -92,6 +92,7 @@ a {
   --font-mini: 14px;
   --font-tiny: 12px;
 
+  --pixel-2: 2px;
   --pixel-5: 5px;
   --pixel-10: 10px;
   --pixel-15: 15px;
@@ -100,11 +101,17 @@ a {
   --pixel-30: 30px;
   --pixel-35: 35px;
   --pixel-40: 40px;
+  --pixel-45: 45px;
   --pixel-50: 50px;
+  --pixel-55: 55px;
   --pixel-60: 60px;
   --pixel-65: 65px;
   --pixel-70: 70px;
+  --pixel-75: 75px;
+  --pixel-80: 80px;
+  --pixel-85: 85px;
   --pixel-90: 90px;
+  --pixel-95: 95px;
   --pixel-100: 100px;
   --pixel-120: 120px;
   --pixel-150: 150px;
@@ -115,7 +122,14 @@ a {
   --pixel-400: 400px;
   --pixel-450: 450px;
   --pixel-500: 500px;
+  --pixel-550: 550px;
   --pixel-600: 600px;
+  --pixel-650: 650px;
+  --pixel-700: 700px;
+  --pixel-750: 750px;
+  --pixel-800: 800px;
+  --pixel-850: 850px;
+  --pixel-900: 900px;
   --pixel-950: 950px;
 
   --pixel-min-2: -2px;
@@ -136,6 +150,7 @@ a {
     --font-mini: 12px;
     --font-tiny: 10.2px;
 
+    --pixel-2: 1.7px;
     --pixel-5: 4px;
     --pixel-10: 8.5px;
     --pixel-15: 13px;
@@ -144,11 +159,17 @@ a {
     --pixel-30: 26px;
     --pixel-35: 30px;
     --pixel-40: 34px;
+    --pixel-45: 38.5px;
     --pixel-50: 43px;
+    --pixel-55: 47px;
     --pixel-60: 51.5px;
     --pixel-65: 56px;
     --pixel-70: 60px;
+    --pixel-75: 64px;
+    --pixel-80: 68.5px;
+    --pixel-85: 73px;
     --pixel-90: 77px;
+    --pixel-95: 81.5px;
     --pixel-100: 85px;
     --pixel-120: 120px;
     --pixel-150: 128.5px;
@@ -159,10 +180,17 @@ a {
     --pixel-400: 343px;
     --pixel-450: 386px;
     --pixel-500: 428.5px;
+    --pixel-550: 471.5px;
     --pixel-600: 600px;
+    --pixel-650: 557px;
+    --pixel-700: 600px;
+    --pixel-750: 643px;
+    --pixel-800: 686px;
+    --pixel-850: 728.5px;
+    --pixel-900: 771.5px;
     --pixel-950: 950px;
 
-    --pixel-min-2: -2px;
+    --pixel-min-2: -1.7px;
     --pixel-min-5: -4px;
     --pixel-min-10: -8.5px;
     --pixel-min-15: -13px;
@@ -181,6 +209,7 @@ a {
     --font-mini: 10px;
     --font-tiny: 8.5px;
 
+    --pixel-2: 1.5px;
     --pixel-5: 3.5px;
     --pixel-10: 7px;
     --pixel-15: 11px;
@@ -189,11 +218,17 @@ a {
     --pixel-30: 21px;
     --pixel-35: 25px;
     --pixel-40: 29px;
+    --pixel-45: 32px;
     --pixel-50: 36px;
+    --pixel-55: 39px;
     --pixel-60: 43px;
     --pixel-65: 46.5px;
     --pixel-70: 50px;
+    --pixel-75: 53.5px;
+    --pixel-80: 57px;
+    --pixel-85: 61px;
     --pixel-90: 64px;
+    --pixel-95: 68px;
     --pixel-100: 71.5px;
     --pixel-120: 120px;
     --pixel-150: 107px;
@@ -204,18 +239,21 @@ a {
     --pixel-400: 286px;
     --pixel-450: 321.5px;
     --pixel-500: 357px;
+    --pixel-550: 393px;
     --pixel-600: 600px;
+    --pixel-650: 464px;
+    --pixel-700: 500px;
+    --pixel-750: 536px;
+    --pixel-800: 571px;
+    --pixel-850: 607px;
+    --pixel-900: 643px;
     --pixel-950: 950px;
 
-    --pixel-min-2: -2px;
+    --pixel-min-2: -1.5px;
     --pixel-min-5: -3.5px;
     --pixel-min-10: -7px;
     --pixel-min-15: -11px;
     --pixel-min-20: -14px;
     --pixel-min-30: -21px;
   }
-}
-
-.dashboard {
-  padding-top: 30px;
 }

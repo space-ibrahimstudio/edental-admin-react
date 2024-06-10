@@ -45,6 +45,7 @@
 }
 
 .sectionTool {
+  flex: 1;
   justify-content: center;
   gap: var(--pixel-10);
 }
@@ -65,4 +66,16 @@
   justify-content: flex-start;
   padding: var(--pixel-30) var(--pixel-60);
   gap: var(--pixel-20);
+}
+
+@media screen and (min-width: 701px) and (max-width: 1120px) {
+  .section {
+    padding: var(--pixel-30);
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .section {
+    padding: var(--pixel-20);
+  }
 }

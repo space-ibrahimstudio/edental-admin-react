@@ -61,8 +61,8 @@ const Navbar = () => {
             </TabButton>
           ))}
         </div>
-        <Button id="logout" size="sm" radius="full" buttonText="Logout" onClick={logoutClick} startContent={<Power />} />
       </section>
+      <Button id="logout" size="sm" radius="full" buttonText="Logout" onClick={logoutClick} startContent={<Power />} />
     </nav>
   );
 };
