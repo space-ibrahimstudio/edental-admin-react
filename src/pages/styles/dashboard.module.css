@@ -45,7 +45,7 @@
 }
 
 .sectionTool {
-  flex: 1;
+  /* flex: 1; */
   justify-content: center;
   gap: var(--pixel-10);
 }

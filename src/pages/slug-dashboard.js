@@ -315,6 +315,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setEventsData([]);
           }
           break;
+        case "REKAM MEDIS":
+          data = await apiRead(formData, "office", "viewreservation");
+          if (data && data.data && data.data.length > 0) {
+            setReservData(data.data);
+            setTotalPages(data.TTLPage);
+          } else {
+            setReservData([]);
+            setTotalPages(0);
+          }
+          break;
         default:
           setTotalPages(0);
           break;
@@ -1766,6 +1776,32 @@ const DashboardSlugPage = ({ parent, slug }) => {
           { buttonText: "Pemakaian Alkes", onClick: () => handleSubTabChange("4"), isActive: subTabId === "4" },
         ];
 
+        const handleMedicInputChange = (e) => {
+          const { name, value } = e.target;
+          setInputData((prevState) => ({ ...prevState, [name]: value }));
+          setErrors({ ...errors, [name]: "" });
+
+          if (name === "id") {
+            let custFind = false;
+            let matchedData = null;
+            allCustData.forEach((item) => {
+              if (item.idauthuser === value) {
+                custFind = true;
+                matchedData = item;
+              }
+            });
+            if (custFind) {
+              setInputData((prevState) => ({
+                ...prevState,
+                name: matchedData.username,
+                address: matchedData.address,
+                email: matchedData.useremail,
+                phone: matchedData.userphone,
+              }));
+            }
+          }
+        };
+
         const renderSection = () => {
           switch (tabId) {
             case "1":
@@ -1793,28 +1829,99 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   );
                 default:
                   return (
-                    <OnpageForm>
-                      <FormHead>
-                        <FormTitle text="Update Informasi Pribadi" />
-                      </FormHead>
-                      <FormBody>
-                        <InputWrap>
-                          <Input id="reservation-user-name" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                          <Input id="reservation-user-phone" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
-                          <Input id="reservation-user-email" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
-                        </InputWrap>
-                        <InputWrap>
-                          <Input id="reservation-user-address" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
-                        </InputWrap>
-                      </FormBody>
-                      <FormFooter>
-                        <Button id="handle-form-submit" radius="full" type="submit" buttonText="Simpan Perubahan" startContent={<Check />} />
-                      </FormFooter>
-                    </OnpageForm>
+                    <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
+                      <THead>
+                        <TR>
+                          <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
+                            Tanggal Dibuat
+                          </TH>
+                          <TH>Tanggal Reservasi</TH>
+                          <TH>Jam Reservasi</TH>
+                          <TH>Kode Reservasi</TH>
+                          <TH>Nama Customer</TH>
+                          <TH>Nomor Telepon</TH>
+                          <TH>Alamat Email</TH>
+                          <TH>Status Reservasi</TH>
+                          <TH>Status DP</TH>
+                          <TH>Layanan</TH>
+                          <TH>Jenis Layanan</TH>
+                          <TH>Biaya DP</TH>
+                          <TH>Kode Voucher</TH>
+                          <TH>Nama Cabang</TH>
+                        </TR>
+                      </THead>
+                      <TBody>
+                        {filteredReservData.map((data, index) => (
+                          <TR key={index} onEdit={() => openEdit(data.idreservation)} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
+                            <TD>{newDate(data.datetimecreate, "id")}</TD>
+                            <TD>{data.reservationdate}</TD>
+                            <TD>{data.reservationtime}</TD>
+                            <TD type="code">{data.rscode}</TD>
+                            <TD>{toTitleCase(data.name)}</TD>
+                            <TD type="number" isCopy>
+                              {data.phone}
+                            </TD>
+                            <TD>{data.email}</TD>
+                            <TD>{reservStatusAlias(data.status_reservation)}</TD>
+                            <TD>{dpStatusAlias(data.status_dp)}</TD>
+                            <TD>{toTitleCase(data.service)}</TD>
+                            <TD>{toTitleCase(data.typeservice)}</TD>
+                            <TD>{newPrice(data.price_reservation)}</TD>
+                            <TD type="code">{data.voucher}</TD>
+                            <TD>{toTitleCase(data.outlet_name)}</TD>
+                          </TR>
+                        ))}
+                      </TBody>
+                    </Table>
                   );
               }
-            case "2":
-              return <Fragment></Fragment>;
+            default:
+              return (
+                <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
+                  <THead>
+                    <TR>
+                      <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
+                        Tanggal Dibuat
+                      </TH>
+                      <TH>Tanggal Reservasi</TH>
+                      <TH>Jam Reservasi</TH>
+                      <TH>Kode Reservasi</TH>
+                      <TH>Nama Customer</TH>
+                      <TH>Nomor Telepon</TH>
+                      <TH>Alamat Email</TH>
+                      <TH>Status Reservasi</TH>
+                      <TH>Status DP</TH>
+                      <TH>Layanan</TH>
+                      <TH>Jenis Layanan</TH>
+                      <TH>Biaya DP</TH>
+                      <TH>Kode Voucher</TH>
+                      <TH>Nama Cabang</TH>
+                    </TR>
+                  </THead>
+                  <TBody>
+                    {filteredReservData.map((data, index) => (
+                      <TR key={index} onEdit={() => openEdit(data.idreservation)} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
+                        <TD>{newDate(data.datetimecreate, "id")}</TD>
+                        <TD>{data.reservationdate}</TD>
+                        <TD>{data.reservationtime}</TD>
+                        <TD type="code">{data.rscode}</TD>
+                        <TD>{toTitleCase(data.name)}</TD>
+                        <TD type="number" isCopy>
+                          {data.phone}
+                        </TD>
+                        <TD>{data.email}</TD>
+                        <TD>{reservStatusAlias(data.status_reservation)}</TD>
+                        <TD>{dpStatusAlias(data.status_dp)}</TD>
+                        <TD>{toTitleCase(data.service)}</TD>
+                        <TD>{toTitleCase(data.typeservice)}</TD>
+                        <TD>{newPrice(data.price_reservation)}</TD>
+                        <TD type="code">{data.voucher}</TD>
+                        <TD>{toTitleCase(data.outlet_name)}</TD>
+                      </TR>
+                    ))}
+                  </TBody>
+                </Table>
+              );
           }
         };
 
@@ -1823,7 +1930,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`cust-select-${pageid}`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Customer" name="id" value={inputData.id} options={allCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "id", value: selectedValue } })} />
+                <Input id={`cust-select-${pageid}`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Customer" name="id" value={inputData.id} options={allCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onSelect={(selectedValue) => handleMedicInputChange({ target: { name: "id", value: selectedValue } })} />
               </DashboardTool>
               <DashboardTool>
                 <ButtonGroup size="sm" radius="full" baseColor="var(--theme-color-base)" primaryColor="var(--theme-color-primary)" secondaryColor="var(--theme-color-secondary)" buttons={tabbutton} />
