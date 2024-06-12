@@ -64,6 +64,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [selectedMode, setSelectedMode] = useState("add");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImageUrl, setSelectedImageUrl] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFileOpen, setIsFileOpen] = useState(false);
@@ -122,6 +124,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
     const { name, value } = e.target;
     setInputData((prevState) => ({ ...prevState, [name]: value }));
     setErrors({ ...errors, [name]: "" });
+  };
+  const handleImageSelect = (file) => {
+    setSelectedImage(file);
+    if (file && file.type.startsWith("image/")) {
+      const url = URL.createObjectURL(file);
+      setSelectedImageUrl(url);
+    } else {
+      setSelectedImageUrl(null);
+    }
   };
   const handleSortDate = (data, setData, params) => {
     const newData = [...data];
@@ -504,6 +515,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "PO PUSAT":
         requiredFields = ["postock.itemname", "postock.sku", "postock.stockin"];
         break;
+      case "REKAM MEDIS":
+        switch (tabId) {
+          case "1":
+            switch (subTabId) {
+              case "1":
+                requiredFields = ["name", "phone", "email", "birth", "nik", "address", "gender", "room", "ageyear", "agemonth", "ageday", "service", "sub_service", "dentist"];
+                break;
+              default:
+                break;
+            }
+            break;
+          default:
+            break;
+        }
+        break;
       default:
         break;
     }
@@ -570,11 +596,27 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "PO PUSAT":
           submittedData = { secret, postock: inputData.postock };
           break;
+        case "REKAM MEDIS":
+          switch (tabId) {
+            case "1":
+              switch (subTabId) {
+                case "1":
+                  submittedData = { secret, iduser: inputData.id, birthday: inputData.birth, noktp: inputData.nik, address: inputData.address, gender: inputData.gender, room: inputData.room, ageyear: inputData.ageyear, agemonth: inputData.agemonth, ageday: inputData.ageday, service: inputData.service, servicetype: inputData.sub_service, dentist: inputData.dentist };
+                  break;
+                default:
+                  break;
+              }
+              break;
+            default:
+              break;
+          }
+          break;
         default:
           break;
       }
       const formData = new FormData();
       formData.append("data", JSON.stringify(submittedData));
+      formData.append("fileimg", selectedImage);
       if (action === "update") {
         formData.append("idedit", selectedData);
       }
@@ -1755,20 +1797,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
           { buttonText: "Diagnosa & Tindakan", onClick: () => handleTabChange("3"), isActive: tabId === "3" },
           { buttonText: "Resep", onClick: () => handleTabChange("4"), isActive: tabId === "4" },
         ];
-
         const subTab1Button = [
           { buttonText: "Profil", onClick: () => handleSubTabChange("1"), isActive: subTabId === "1" },
           { buttonText: "Histori Reservasi", onClick: () => handleSubTabChange("2"), isActive: subTabId === "2" },
           { buttonText: "Histori Order", onClick: () => handleSubTabChange("3"), isActive: subTabId === "3" },
+          { buttonText: "Histori Rekam Medis", onClick: () => handleSubTabChange("4"), isActive: subTabId === "4" },
         ];
-
         const subTab2Button = [
           { buttonText: "Anamesa", onClick: () => handleSubTabChange("1"), isActive: subTabId === "1" },
           { buttonText: "Anamesa Odontogram", onClick: () => handleSubTabChange("2"), isActive: subTabId === "2" },
           { buttonText: "Pemeriksaan Umum", onClick: () => handleSubTabChange("3"), isActive: subTabId === "3" },
           { buttonText: "Foto Pasien", onClick: () => handleSubTabChange("4"), isActive: subTabId === "4" },
         ];
-
         const subTab3Button = [
           { buttonText: "Kondisi", onClick: () => handleSubTabChange("1"), isActive: subTabId === "1" },
           { buttonText: "Diagnosa", onClick: () => handleSubTabChange("2"), isActive: subTabId === "2" },
@@ -1808,22 +1848,56 @@ const DashboardSlugPage = ({ parent, slug }) => {
               switch (subTabId) {
                 case "1":
                   return (
-                    <OnpageForm>
+                    <OnpageForm onSubmit={(e) => handleSubmit(e, "edituser")}>
                       <FormHead>
-                        <FormTitle text="Update Informasi Pribadi" />
+                        <FormTitle text="Informasi Pribadi" />
                       </FormHead>
                       <FormBody>
                         <InputWrap>
-                          <Input id="reservation-user-name" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                          <Input id="reservation-user-phone" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
-                          <Input id="reservation-user-email" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
+                          <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleMedicInputChange} errorContent={errors.name} isRequired />
+                          <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleMedicInputChange} errorContent={errors.phone} isRequired />
+                          <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleMedicInputChange} errorContent={errors.email} isRequired />
                         </InputWrap>
                         <InputWrap>
-                          <Input id="reservation-user-address" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
+                          <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleMedicInputChange} errorContent={errors.address} isRequired />
+                          <Input id={`${pageid}-gender`} radius="full" labelText="Jenis Kelamin" placeholder="Laki-laki" type="text" name="gender" value={inputData.gender} onChange={handleMedicInputChange} errorContent={errors.gender} isRequired />
+                          <Input id={`${pageid}-nik`} radius="full" labelText="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={inputData.nik} onChange={handleMedicInputChange} errorContent={errors.nik} isRequired />
+                          <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" onSelect={handleImageSelect} />
+                        </InputWrap>
+                        <InputWrap>
+                          <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth" value={inputData.birth} onChange={handleMedicInputChange} errorContent={errors.birth} isRequired />
+                          <Input id={`${pageid}-ageyear`} radius="full" labelText="Umur (tahun)" placeholder="1999" type="number" name="ageyear" value={inputData.ageyear} onChange={handleMedicInputChange} errorContent={errors.ageyear} isRequired />
+                          <Input id={`${pageid}-agemonth`} radius="full" labelText="Umur (bulan)" placeholder="Januari" type="text" name="agemonth" value={inputData.agemonth} onChange={handleMedicInputChange} errorContent={errors.agemonth} isRequired />
+                          <Input id={`${pageid}-ageday`} radius="full" labelText="Umur (hari)" placeholder="22" type="number" name="ageday" value={inputData.ageday} onChange={handleMedicInputChange} errorContent={errors.ageday} isRequired />
+                        </InputWrap>
+                      </FormBody>
+                      <FormHead>
+                        <FormTitle text="Layanan Klinik" />
+                      </FormHead>
+                      <FormBody>
+                        <InputWrap>
+                          <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={inputData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleMedicInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
+                          <Input
+                            id={`${pageid}-subservice`}
+                            variant="select"
+                            isSearchable
+                            radius="full"
+                            labelText="Jenis Layanan"
+                            placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
+                            name="sub_service"
+                            value={inputData.sub_service}
+                            options={inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))}
+                            onSelect={(selectedValue) => handleMedicInputChange({ target: { name: "sub_service", value: selectedValue } })}
+                            errorContent={errors.sub_service}
+                            isRequired
+                            isDisabled={inputData.service ? false : true}
+                          />
+                          <Input id={`${pageid}-room`} radius="full" labelText="Ruang Pemeriksaan" placeholder="Poli Gigi" type="text" name="room" value={inputData.room} onChange={handleMedicInputChange} errorContent={errors.room} isRequired />
+                          <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter Pemeriksa" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleMedicInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
                         </InputWrap>
                       </FormBody>
                       <FormFooter>
-                        <Button id="handle-form-submit" radius="full" type="submit" buttonText="Simpan Perubahan" startContent={<Check />} />
+                        <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText="Simpan Perubahan" startContent={<Check />} />
                       </FormFooter>
                     </OnpageForm>
                   );
@@ -1957,6 +2031,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
   }, [slug, bookedHoursData]);
 
   useEffect(() => {
+    setInputData({ ...inputSchema });
+    setSelectedImage(null);
+    setSelectedImageUrl(null);
     fetchData();
   }, [slug, currentPage, limit, status, slug === "CALENDAR RESERVATION" ? selectedBranch : null]);
 

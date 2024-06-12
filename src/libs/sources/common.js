@@ -30,6 +30,13 @@ export const inputSchema = {
   layanan: [{ servicetype: "", price: "" }],
   order: [{ service: "", servicetype: "", price: "" }],
   postock: [{ itemname: "", sku: "", stockin: "", note: "" }],
+  birth: "",
+  nik: "",
+  gender: "",
+  room: "",
+  ageyear: "",
+  agemonth: "",
+  ageday: "",
 };
 
 export const errorSchema = {
@@ -64,6 +71,13 @@ export const errorSchema = {
   layanan: [{ servicetype: "", price: "" }],
   order: [{ service: "", servicetype: "", price: "" }],
   postock: [{ itemname: "", sku: "", stockin: "", note: "" }],
+  birth: "",
+  nik: "",
+  gender: "",
+  room: "",
+  ageyear: "",
+  agemonth: "",
+  ageday: "",
 };
 
 export const options = [

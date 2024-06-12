@@ -21,6 +21,10 @@ export const FormFooter = ({ children }) => {
   return <footer className={styles.formFooter}>{children}</footer>;
 };
 
-export const OnpageForm = ({ children }) => {
-  return <form className={styles.onpageForm}>{children}</form>;
+export const OnpageForm = ({ children, onSubmit }) => {
+  return (
+    <form className={styles.onpageForm} onSubmit={onSubmit}>
+      {children}
+    </form>
+  );
 };
