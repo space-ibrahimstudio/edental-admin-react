@@ -62,7 +62,7 @@ const Navbar = () => {
           ))}
         </div>
       </section>
-      <Button id="logout" size="sm" radius="full" buttonText="Logout" onClick={logoutClick} startContent={<Power />} />
+      <Button id="logout" size="sm" radius="full" buttonText="Keluar" onClick={logoutClick} startContent={<Power />} />
     </nav>
   );
 };

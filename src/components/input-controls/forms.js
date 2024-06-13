@@ -1,58 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@ibrahimstudio/button";
-import { Input } from "@ibrahimstudio/input";
-import { useAuth } from "../../libs/securities/auth";
 import { LoadingContent } from "../feedbacks/screens";
-import { Check, Close, Login } from "../contents/icons";
-import loginstyles from "./styles/login-form.module.css";
+import { Check, Close } from "../contents/icons";
 import styles from "./styles/data-form.module.css";
 
 const modalRoot = document.getElementById("modal-root") || document.body;
-
-export const LoginForm = () => {
-  const { login } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [inputData, setInputData] = useState({ username: "", password: "" });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setInputData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      await login(inputData);
-    } catch (error) {
-      console.error("error when trying to login:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <form className={loginstyles.loginForm} onSubmit={handleSubmit}>
-      <header className={loginstyles.formHead}>
-        <img className={loginstyles.formLogoIcon} loading="lazy" alt="Admin Login" src="/svg/logo-primary.svg" />
-        <h1 className={loginstyles.formTitle}>Admin Portal</h1>
-        <p className={loginstyles.formDesc}>Masukkan Username dan Password untuk mengakses Dashboard.</p>
-      </header>
-      <div className={loginstyles.formHead}>
-        <Input id="login-username" isLabeled={false} placeholder="e.g. edental_admin" type="text" name="username" value={inputData.username} onChange={handleChange} isRequired />
-        <Input id="login-password" isLabeled={false} placeholder="Masukkan kata sandi" type="password" name="password" value={inputData.password} onChange={handleChange} isRequired />
-      </div>
-      <footer className={loginstyles.formFoot}>
-        <Button id="submit-login" isFullwidth type="submit" buttonText="Masuk ke Dashboard" startContent={<Login />} loadingContent={<LoadingContent />} isLoading={isLoading} />
-        <h6 className={loginstyles.formForgot}>Lupa Password?</h6>
-      </footer>
-    </form>
-  );
-};
 
 export const SubmitForm = ({ size, formTitle, formSubtitle, fetching = false, loading, operation = "add", onSubmit, saveText = "Simpan", cancelText = "Batal", children, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
