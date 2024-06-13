@@ -15,7 +15,7 @@ import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
 import { SubmitForm, FileForm } from "../components/input-controls/forms";
-import { OnpageForm, FormHead, FormTitle, FormTitleWrap, FormBody, FormFooter } from "../components/input-controls/onpage-form";
+import { OnpageForm, FormHead, FormTitle, FormBody, FormFooter } from "../components/input-controls/onpage-form";
 import Invoice from "../components/contents/invoice";
 import { InputWrap } from "../components/input-controls/inputs";
 import { Search, Plus, Export, HChevron, Check } from "../components/contents/icons";
@@ -65,7 +65,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [selectedData, setSelectedData] = useState(null);
   const [selectedMode, setSelectedMode] = useState("add");
   const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedImageUrl, setSelectedImageUrl] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFileOpen, setIsFileOpen] = useState(false);
@@ -100,7 +99,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [selectedDay, setSelectedDay] = useState("");
   const [tabId, setTabId] = useState("1");
   const [subTabId, setSubTabId] = useState("1");
-  const [subTab, setSubTab] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
@@ -127,12 +125,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   };
   const handleImageSelect = (file) => {
     setSelectedImage(file);
-    if (file && file.type.startsWith("image/")) {
-      const url = URL.createObjectURL(file);
-      setSelectedImageUrl(url);
-    } else {
-      setSelectedImageUrl(null);
-    }
   };
   const handleSortDate = (data, setData, params) => {
     const newData = [...data];
@@ -607,6 +599,27 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   break;
               }
               break;
+            case "2":
+              switch (subTabId) {
+                case "1":
+                  submittedData = {
+                    secret,
+                    iduser: "",
+                    histori_illness: "",
+                    main_complaint: "",
+                    additional_complaint: "",
+                    current_illness: "",
+                    gravida: "",
+                    alergi_gatal: { alergi: "gatal", note: "" },
+                    alergi_debu: { alergi: "debu", note: "" },
+                    alergi_obat: { alergi: "obat", note: "" },
+                    alergi_makanan: { alergi: "makanan", note: "" },
+                    alergi_lainnya: { alergi: "lainnya", note: "" },
+                  };
+                  break;
+                default:
+                  break;
+              }
             default:
               break;
           }
@@ -1831,13 +1844,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               }
             });
             if (custFind) {
-              setInputData((prevState) => ({
-                ...prevState,
-                name: matchedData.username,
-                address: matchedData.address,
-                email: matchedData.useremail,
-                phone: matchedData.userphone,
-              }));
+              setInputData((prevState) => ({ ...prevState, name: matchedData.username, address: matchedData.address, email: matchedData.useremail, phone: matchedData.userphone }));
             }
           }
         };
@@ -2032,8 +2039,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   useEffect(() => {
     setInputData({ ...inputSchema });
+    setSelectedData(null);
     setSelectedImage(null);
-    setSelectedImageUrl(null);
     fetchData();
   }, [slug, currentPage, limit, status, slug === "CALENDAR RESERVATION" ? selectedBranch : null]);
 
