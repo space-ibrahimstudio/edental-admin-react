@@ -1,11 +1,19 @@
 import React from "react";
-import styles from "./styles/user-input.module.css";
+import styles from "./styles/fieldset.module.css";
 
-export const InputWrap = ({ width, isExpanded, expanded, children }) => {
+const Fieldset = ({ type = "reg", gap = "var(--pixel-10)", markers, children, startContent, endContent }) => {
+  const fieldsetstyles = { gap: gap };
+
   return (
-    <div className={styles.inputWrap} style={{ width: width }}>
-      {children}
-      {isExpanded && <div className={styles.inputExpand}>{expanded}</div>}
-    </div>
+    <section className={styles.inputWrap} style={fieldsetstyles}>
+      {type === "row" && startContent}
+      {type === "row" && markers && <b className={styles.wrapMarkers}>{markers}</b>}
+      <div className={`${styles.wrapBody} ${type === "row" ? styles.row : ""}`} style={fieldsetstyles}>
+        {children}
+      </div>
+      {type === "row" && endContent}
+    </section>
   );
 };
+
+export default Fieldset;

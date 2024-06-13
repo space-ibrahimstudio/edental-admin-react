@@ -52,6 +52,7 @@ a {
   --color-primary-10: rgba(56, 128, 235, 0.1);
   --color-primary-20: rgba(56, 128, 235, 0.2);
   --color-primary-30: rgba(56, 128, 235, 0.3);
+  --color-primary-50: rgba(56, 128, 235, 0.5);
   --color-secondary: #0f3948;
   --color-secondary-5: rgba(15, 57, 72, 0.05);
   --color-secondary-10: rgba(15, 57, 72, 0.1);
@@ -59,6 +60,7 @@ a {
   --color-secondary-50: rgba(15, 57, 72, 0.5);
   --color-foreground: #f5f5f7;
   --color-hint: #045e83;
+  --color-hint-20: rgba(4, 94, 131, 0.2);
   --color-secondlight: #fff;
   --color-secondlight-20: rgba(255, 255, 255, 0.2);
   --color-secondlight-30: rgba(255, 255, 255, 0.3);

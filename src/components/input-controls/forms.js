@@ -99,10 +99,10 @@ export const SubmitForm = ({ size, formTitle, formSubtitle, fetching = false, lo
     let maxWidth;
     switch (size) {
       case "sm":
-        maxWidth = "var(--pixel-500)";
+        maxWidth = "var(--pixel-650)";
         break;
       case "md":
-        maxWidth = "var(--pixel-600)";
+        maxWidth = "var(--pixel-800)";
         break;
       case "lg":
         maxWidth = "var(--pixel-950)";
