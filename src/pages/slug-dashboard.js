@@ -5,12 +5,13 @@ import { ISTrash } from "@ibrahimstudio/icons";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
 import html2pdf from "html2pdf.js";
+import moment from "moment-timezone";
 import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { useSearch } from "../libs/plugins/handler";
 import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue, inputValidator } from "../libs/plugins/controller";
-import { options, units, hours, inputSchema, errorSchema, orderStatusAlias, dpStatusAlias, poStatusAlias, reservStatusAlias } from "../libs/sources/common";
+import { options, units, hours, inputSchema, errorSchema, orderStatusAlias, dpStatusAlias, poStatusAlias, reservStatusAlias, genderopt } from "../libs/sources/common";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
@@ -101,6 +102,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [selectedDay, setSelectedDay] = useState("");
   const [tabId, setTabId] = useState("1");
   const [subTabId, setSubTabId] = useState("1");
+  const [selectedCust, setSelectedCust] = useState(null);
+  const [medicRcdData, setMedicRcdData] = useState([]);
+  const [anamesaData, setAnamesaData] = useState([]);
+  const [odontogramData, setOdontogramData] = useState([]);
+  const [inspectData, setInspectData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
@@ -321,13 +327,54 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "REKAM MEDIS":
-          data = await apiRead(formData, "office", "viewreservation");
-          if (data && data.data && data.data.length > 0) {
-            setReservData(data.data);
-            setTotalPages(data.TTLPage);
-          } else {
-            setReservData([]);
-            setTotalPages(0);
+          addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
+          switch (tabId) {
+            case "1":
+              switch (subTabId) {
+                case "4":
+                  addtdata = await apiRead(addtFormData, "office", "viewmedics");
+                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                    setMedicRcdData(addtdata.data);
+                  } else {
+                    setMedicRcdData([]);
+                  }
+                  break;
+                default:
+                  break;
+              }
+              break;
+            case "2":
+              switch (subTabId) {
+                case "1":
+                  addtdata = await apiRead(addtFormData, "office", "viewanamnesa");
+                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                    setAnamesaData(addtdata.data);
+                  } else {
+                    setAnamesaData([]);
+                  }
+                  break;
+                case "2":
+                  addtdata = await apiRead(addtFormData, "office", "viewodontogram");
+                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                    setOdontogramData(addtdata.data);
+                  } else {
+                    setOdontogramData([]);
+                  }
+                  break;
+                case "3":
+                  addtdata = await apiRead(addtFormData, "office", "viewinspection");
+                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                    setInspectData(addtdata.data);
+                  } else {
+                    setInspectData([]);
+                  }
+                  break;
+                default:
+                  break;
+              }
+              break;
+            default:
+              break;
           }
           break;
         default:
@@ -514,7 +561,22 @@ const DashboardSlugPage = ({ parent, slug }) => {
           case "1":
             switch (subTabId) {
               case "1":
-                requiredFields = ["name", "phone", "email", "birth", "nik", "address", "gender", "room", "ageyear", "agemonth", "ageday", "service", "sub_service", "dentist"];
+                requiredFields = ["name", "phone", "email", "birth", "nik", "address", "gender", "room", "service", "sub_service", "dentist"];
+                break;
+              default:
+                break;
+            }
+            break;
+          case "2":
+            switch (subTabId) {
+              case "1":
+                requiredFields = ["histori_illness", "main_complaint", "additional_complaint", "current_illness", "gravida"];
+                break;
+              case "2":
+                requiredFields = ["occlusi", "palatinus", "mandibularis", "palatum", "diastema", "anomali"];
+                break;
+              case "3":
+                requiredFields = ["desc", "nadi", "tensi", "suhu", "berat_badan", "tinggi_badan", "pernapasan", "mata", "mulut_gigi", "kulit"];
                 break;
               default:
                 break;
@@ -606,18 +668,24 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "1":
                   submittedData = {
                     secret,
-                    iduser: "",
-                    histori_illness: "",
-                    main_complaint: "",
-                    additional_complaint: "",
-                    current_illness: "",
-                    gravida: "",
-                    alergi_gatal: { alergi: "gatal", note: "" },
-                    alergi_debu: { alergi: "debu", note: "" },
-                    alergi_obat: { alergi: "obat", note: "" },
-                    alergi_makanan: { alergi: "makanan", note: "" },
-                    alergi_lainnya: { alergi: "lainnya", note: "" },
+                    iduser: selectedCust,
+                    histori_illness: inputData.histori_illness,
+                    main_complaint: inputData.main_complaint,
+                    additional_complaint: inputData.additional_complaint,
+                    current_illness: inputData.current_illness,
+                    gravida: inputData.gravida,
+                    alergi_gatal: inputData.alergi_gatal,
+                    alergi_debu: inputData.alergi_debu,
+                    alergi_obat: inputData.alergi_obat,
+                    alergi_makanan: inputData.alergi_makanan,
+                    alergi_lainnya: inputData.alergi_lainnya,
                   };
+                  break;
+                case "2":
+                  submittedData = { secret, iduser: selectedCust, occlusi: inputData.occlusi, palatinus: inputData.palatinus, mandibularis: inputData.mandibularis, palatum: inputData.palatum, diastema: inputData.diastema, anomali: inputData.anomali, other: inputData.other_odontogram };
+                  break;
+                case "3":
+                  submittedData = { secret, iduser: selectedCust, desciption: inputData.desc, pulse: inputData.nadi, tension: inputData.tensi, temperature: inputData.suhu, weight: inputData.berat_badan, height: inputData.tinggi_badan, breath: inputData.pernapasan, eye: inputData.mata, mouth: inputData.mulut_gigi, skin: inputData.kulit };
                   break;
                 default:
                   break;
@@ -1768,6 +1836,23 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "REKAM MEDIS":
+        const handleCustChange = (value) => {
+          setSelectedCust(value);
+          let custFind = false;
+          let matchedData;
+          allCustData.forEach((item) => {
+            if (item.idauthuser === value) {
+              matchedData = item;
+              custFind = true;
+            }
+          });
+          if (custFind) {
+            setInputData({ ...inputData, name: matchedData.username, address: matchedData.address, email: matchedData.useremail, phone: matchedData.userphone, gender: matchedData.gender, nik: matchedData.noktp, image: matchedData.imgktp, birth: matchedData.birthday });
+          } else {
+            setInputData({ name: "", address: "", email: "", phone: "", gender: "", nik: "", image: null, birth: "" });
+          }
+        };
+
         const subTabButton = (id) => {
           if (id === "1") {
             return subTab1Button;
@@ -1816,20 +1901,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const { name, value } = e.target;
           setInputData((prevState) => ({ ...prevState, [name]: value }));
           setErrors({ ...errors, [name]: "" });
-
-          if (name === "id") {
-            let custFind = false;
-            let matchedData = null;
-            allCustData.forEach((item) => {
-              if (item.idauthuser === value) {
-                custFind = true;
-                matchedData = item;
-              }
-            });
-            if (custFind) {
-              setInputData((prevState) => ({ ...prevState, name: matchedData.username, address: matchedData.address, email: matchedData.useremail, phone: matchedData.userphone }));
-            }
-          }
         };
 
         const renderSection = () => {
@@ -1847,15 +1918,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       </Fieldset>
                       <Fieldset>
                         <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleMedicInputChange} errorContent={errors.address} isRequired />
-                        <Input id={`${pageid}-gender`} radius="full" labelText="Jenis Kelamin" placeholder="Laki-laki" type="text" name="gender" value={inputData.gender} onChange={handleMedicInputChange} errorContent={errors.gender} isRequired />
+                        <Input id={`${pageid}-gender`} variant="select" isSearchable radius="full" labelText="Jenis Kelamin" placeholder="Pilih jenis kelamin" name="gender" value={inputData.gender} options={genderopt} onSelect={(selectedValue) => handleMedicInputChange({ target: { name: "gender", value: selectedValue } })} errorContent={errors.gender} isRequired />
                         <Input id={`${pageid}-nik`} radius="full" labelText="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={inputData.nik} onChange={handleMedicInputChange} errorContent={errors.nik} isRequired />
-                        <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" onSelect={handleImageSelect} />
+                        <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" initialFile={inputData.image} onSelect={handleImageSelect} />
                       </Fieldset>
                       <Fieldset>
                         <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth" value={inputData.birth} onChange={handleMedicInputChange} errorContent={errors.birth} isRequired />
-                        <Input id={`${pageid}-ageyear`} radius="full" labelText="Umur (tahun)" placeholder="1999" type="number" name="ageyear" value={inputData.ageyear} onChange={handleMedicInputChange} errorContent={errors.ageyear} isRequired />
-                        <Input id={`${pageid}-agemonth`} radius="full" labelText="Umur (bulan)" placeholder="Januari" type="text" name="agemonth" value={inputData.agemonth} onChange={handleMedicInputChange} errorContent={errors.agemonth} isRequired />
-                        <Input id={`${pageid}-ageday`} radius="full" labelText="Umur (hari)" placeholder="22" type="number" name="ageday" value={inputData.ageday} onChange={handleMedicInputChange} errorContent={errors.ageday} isRequired />
+                        <Input id={`${pageid}-ageyear`} radius="full" labelText="Umur (tahun)" placeholder="24" fallbackValue="24" type="number" name="ageyear" value={inputData.ageyear} isReadonly />
+                        <Input id={`${pageid}-agemonth`} radius="full" labelText="Umur (bulan)" placeholder="5" fallbackValue="5" type="number" name="agemonth" value={inputData.agemonth} isReadonly />
+                        <Input id={`${pageid}-ageday`} radius="full" labelText="Umur (hari)" placeholder="10" fallbackValue="10" type="number" name="ageday" value={inputData.ageday} isReadonly />
                       </Fieldset>
                       <FormHead title="Layanan Klinik" />
                       <Fieldset>
@@ -1879,105 +1950,212 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter Pemeriksa" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleMedicInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
                       </Fieldset>
                       <FormFooter>
-                        <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText="Simpan Perubahan" startContent={<Check />} />
+                        <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText="Simpan Perubahan" isLoading={isSubmitting} startContent={<Check />} />
                       </FormFooter>
                     </OnpageForm>
                   );
-                default:
+                case "4":
                   return (
-                    <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
+                    <Table byNumber isNoData={medicRcdData.length > 0 ? false : true} isLoading={isFetching}>
                       <THead>
                         <TR>
-                          <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
-                            Tanggal Dibuat
-                          </TH>
-                          <TH>Tanggal Reservasi</TH>
-                          <TH>Jam Reservasi</TH>
-                          <TH>Kode Reservasi</TH>
-                          <TH>Nama Customer</TH>
-                          <TH>Nomor Telepon</TH>
-                          <TH>Alamat Email</TH>
-                          <TH>Status Reservasi</TH>
-                          <TH>Status DP</TH>
+                          <TH>Usia Pasien</TH>
+                          <TH>Ruang Pemeriksaan</TH>
                           <TH>Layanan</TH>
                           <TH>Jenis Layanan</TH>
-                          <TH>Biaya DP</TH>
-                          <TH>Kode Voucher</TH>
-                          <TH>Nama Cabang</TH>
+                          <TH>Dokter Pemeriksa</TH>
                         </TR>
                       </THead>
                       <TBody>
-                        {filteredReservData.map((data, index) => (
-                          <TR key={index} onEdit={() => openEdit(data.idreservation)} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
-                            <TD>{newDate(data.datetimecreate, "id")}</TD>
-                            <TD>{data.reservationdate}</TD>
-                            <TD>{data.reservationtime}</TD>
-                            <TD type="code">{data.rscode}</TD>
-                            <TD>{toTitleCase(data.name)}</TD>
-                            <TD type="number" isCopy>
-                              {data.phone}
-                            </TD>
-                            <TD>{data.email}</TD>
-                            <TD>{reservStatusAlias(data.status_reservation)}</TD>
-                            <TD>{dpStatusAlias(data.status_dp)}</TD>
+                        {medicRcdData.map((data, index) => (
+                          <TR key={index}>
+                            <TD>{`${data.ageyear} tahun, ${data.agemonth} bulan, ${data.ageday} hari`}</TD>
+                            <TD>{toTitleCase(data.room)}</TD>
                             <TD>{toTitleCase(data.service)}</TD>
-                            <TD>{toTitleCase(data.typeservice)}</TD>
-                            <TD>{newPrice(data.price_reservation)}</TD>
-                            <TD type="code">{data.voucher}</TD>
-                            <TD>{toTitleCase(data.outlet_name)}</TD>
+                            <TD>{toTitleCase(data.servicetype)}</TD>
+                            <TD>{toTitleCase(data.dentist)}</TD>
                           </TR>
                         ))}
                       </TBody>
                     </Table>
                   );
+                default:
+                  return <Table isNoData={true} isLoading={isFetching}></Table>;
+              }
+            case "2":
+              switch (subTabId) {
+                case "1":
+                  const renderAllergies = (alergi) => {
+                    const alergidata = JSON.parse(alergi);
+                    return `${alergidata.alergi} - ${alergidata.note}`;
+                  };
+
+                  return (
+                    <Fragment>
+                      <Table byNumber isNoData={anamesaData.length > 0 ? false : true} isLoading={isFetching}>
+                        <THead>
+                          <TR>
+                            <TH>Riwayat Penyakit</TH>
+                            <TH>Keluhan Utama</TH>
+                            <TH>Keluhan Tambahan</TH>
+                            <TH>Penyakit Saat Ini</TH>
+                            <TH>Gravida</TH>
+                            <TH>Alergi Gatal</TH>
+                            <TH>Alergi Debu</TH>
+                            <TH>Alergi Obat</TH>
+                            <TH>Alergi Makanan</TH>
+                            <TH>Alergi Lainnya</TH>
+                          </TR>
+                        </THead>
+                        <TBody>
+                          {anamesaData.map((data, index) => (
+                            <TR key={index}>
+                              <TD>{data.histori_illness}</TD>
+                              <TD>{data.main_complaint}</TD>
+                              <TD>{data.additional_complaint}</TD>
+                              <TD>{data.current_illness}</TD>
+                              <TD>{data.gravida}</TD>
+                              <TD>{renderAllergies(data.alergi_gatal)}</TD>
+                              <TD>{renderAllergies(data.alergi_debu)}</TD>
+                              <TD>{renderAllergies(data.alergi_obat)}</TD>
+                              <TD>{renderAllergies(data.alergi_makanan)}</TD>
+                              <TD>{renderAllergies(data.alergi_lainnya)}</TD>
+                            </TR>
+                          ))}
+                        </TBody>
+                      </Table>
+                      {isFormOpen && (
+                        <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Anamesa" : "Tambah Data Anamesa"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudanamnesa")} loading={isSubmitting} onClose={closeForm}>
+                          <Fieldset>
+                            <Input id={`${pageid}-history-illines`} radius="full" labelText="Riwayat Penyakit" placeholder="Tulis riwayat penyakit" type="text" name="histori_illness" value={inputData.histori_illness} onChange={handleInputChange} errorContent={errors.histori_illness} isRequired />
+                            <Input id={`${pageid}-current-illines`} radius="full" labelText="Penyakit Saat Ini" placeholder="Tulis penyakit saat ini" type="text" name="current_illness" value={inputData.current_illness} onChange={handleInputChange} errorContent={errors.current_illness} isRequired />
+                            <Input id={`${pageid}-gravida`} radius="full" labelText="Gravida" placeholder="Tulis gravida" type="text" name="gravida" value={inputData.gravida} onChange={handleInputChange} errorContent={errors.gravida} isRequired />
+                          </Fieldset>
+                          <Fieldset>
+                            <Input id={`${pageid}-complaint`} variant="textarea" rows={4} radius="full" labelText="Keluhan Utama" placeholder="Tulis keluhan utama" name="main_complaint" value={inputData.main_complaint} onChange={handleInputChange} errorContent={errors.main_complaint} isRequired />
+                            <Input id={`${pageid}-addt-complaint`} variant="textarea" rows={4} radius="full" labelText="Keluhan Tambahan" placeholder="Tulis keluhan tambahan" name="additional_complaint" value={inputData.additional_complaint} onChange={handleInputChange} errorContent={errors.additional_complaint} isRequired />
+                          </Fieldset>
+                          <Fieldset>
+                            <Input id={`${pageid}-allergi-gatal`} variant="textarea" rows={3} radius="full" labelText="Alergi Gatal" placeholder="Masukkan catatan alergi" name="alergi_gatal" value={JSON.parse(inputData.alergi_gatal).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_gatal: JSON.stringify({ alergi: "gatal", note: e.target.value }) }))} />
+                            <Input id={`${pageid}-allergi-debu`} variant="textarea" rows={3} radius="full" labelText="Alergi Debu" placeholder="Masukkan catatan alergi" name="alergi_debu" value={JSON.parse(inputData.alergi_debu).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_debu: JSON.stringify({ alergi: "debu", note: e.target.value }) }))} />
+                          </Fieldset>
+                          <Fieldset>
+                            <Input id={`${pageid}-allergi-obat`} variant="textarea" rows={3} radius="full" labelText="Alergi Obat" placeholder="Masukkan catatan alergi" name="alergi_obat" value={JSON.parse(inputData.alergi_obat).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_obat: JSON.stringify({ alergi: "obat", note: e.target.value }) }))} />
+                            <Input id={`${pageid}-allergi-makanan`} variant="textarea" rows={3} radius="full" labelText="Alergi Makanan" placeholder="Masukkan catatan alergi" name="alergi_makanan" value={JSON.parse(inputData.alergi_makanan).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_makanan: JSON.stringify({ alergi: "makanan", note: e.target.value }) }))} />
+                          </Fieldset>
+                          <Input id={`${pageid}-allergi-lainnya`} variant="textarea" rows={3} radius="full" labelText="Alergi Lainnya" placeholder="Masukkan catatan alergi" name="alergi_lainnya" value={JSON.parse(inputData.alergi_lainnya).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_lainnya: JSON.stringify({ alergi: "lainnya", note: e.target.value }) }))} />
+                        </SubmitForm>
+                      )}
+                    </Fragment>
+                  );
+                case "2":
+                  return (
+                    <Fragment>
+                      <Table byNumber isNoData={odontogramData.length > 0 ? false : true} isLoading={isFetching}>
+                        <THead>
+                          <TR>
+                            <TH>Occlusi</TH>
+                            <TH>Torus Platinus</TH>
+                            <TH>Torus Mandibularis</TH>
+                            <TH>Palatum</TH>
+                            <TH>Diastema</TH>
+                            <TH>Gigi Anomali</TH>
+                            <TH>Lain-lain</TH>
+                          </TR>
+                        </THead>
+                        <TBody>
+                          {odontogramData.map((data, index) => (
+                            <TR key={index}>
+                              <TD>{data.occlusi}</TD>
+                              <TD>{data.palatinus}</TD>
+                              <TD>{data.mandibularis}</TD>
+                              <TD>{data.palatum}</TD>
+                              <TD>{data.diastema}</TD>
+                              <TD>{data.anomali}</TD>
+                              <TD>{data.other}</TD>
+                            </TR>
+                          ))}
+                        </TBody>
+                      </Table>
+                      {isFormOpen && (
+                        <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Odontogram" : "Tambah Data Odontogram"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudodontogram")} loading={isSubmitting} onClose={closeForm}>
+                          <Fieldset>
+                            <Input id={`${pageid}-occlusi`} radius="full" labelText="Occlusi" placeholder="Masukkan occlusi" type="text" name="occlusi" value={inputData.occlusi} onChange={handleInputChange} errorContent={errors.occlusi} isRequired />
+                            <Input id={`${pageid}-palatinus`} radius="full" labelText="Torus Platinus" placeholder="Masukkan torus platinus" type="text" name="palatinus" value={inputData.palatinus} onChange={handleInputChange} errorContent={errors.palatinus} isRequired />
+                            <Input id={`${pageid}-mandibularis`} radius="full" labelText="Torus Mandibularis" placeholder="Masukkan torus mandibularis" type="text" name="mandibularis" value={inputData.mandibularis} onChange={handleInputChange} errorContent={errors.mandibularis} isRequired />
+                          </Fieldset>
+                          <Fieldset>
+                            <Input id={`${pageid}-palatum`} radius="full" labelText="Palatum" placeholder="Masukkan palatum" type="text" name="palatum" value={inputData.palatum} onChange={handleInputChange} errorContent={errors.palatum} isRequired />
+                            <Input id={`${pageid}-diastema`} radius="full" labelText="Diastema" placeholder="Nasukkan diastema" type="text" name="diastema" value={inputData.diastema} onChange={handleInputChange} errorContent={errors.diastema} isRequired />
+                            <Input id={`${pageid}-anomali`} radius="full" labelText="Gigi Anomali" placeholder="Masukkan gigi anomali" type="text" name="anomali" value={inputData.anomali} onChange={handleInputChange} errorContent={errors.anomali} isRequired />
+                          </Fieldset>
+                          <Input id={`${pageid}-other`} radius="full" labelText="Lain-lain" placeholder="Masukkan odontogram lainnya" type="text" name="other_odontogram" value={inputData.other_odontogram} onChange={handleInputChange} />
+                        </SubmitForm>
+                      )}
+                    </Fragment>
+                  );
+                case "3":
+                  return (
+                    <Fragment>
+                      <Table byNumber isNoData={inspectData.length > 0 ? false : true} isLoading={isFetching}>
+                        <THead>
+                          <TR>
+                            <TH>Deskripsi Pemeriksaan</TH>
+                            <TH>Nadi</TH>
+                            <TH>Tensi Darah</TH>
+                            <TH>Suhu Badan</TH>
+                            <TH>Berat Badan</TH>
+                            <TH>Tinggi Badan</TH>
+                            <TH>Pernapasan</TH>
+                            <TH>Mata</TH>
+                            <TH>Gigi & Mulut</TH>
+                            <TH>Kulit</TH>
+                          </TR>
+                        </THead>
+                        <TBody>
+                          {inspectData.map((data, index) => (
+                            <TR key={index}>
+                              <TD>{data.desciption}</TD>
+                              <TD>{data.pulse}</TD>
+                              <TD>{data.tension}</TD>
+                              <TD>{data.temperature}</TD>
+                              <TD>{data.weight}</TD>
+                              <TD>{data.height}</TD>
+                              <TD>{data.breath}</TD>
+                              <TD>{data.eye}</TD>
+                              <TD>{data.mouth}</TD>
+                              <TD>{data.skin}</TD>
+                            </TR>
+                          ))}
+                        </TBody>
+                      </Table>
+                      {isFormOpen && (
+                        <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Pemeriksaan" : "Tambah Data Pemeriksaan"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudinspection")} loading={isSubmitting} onClose={closeForm}>
+                          <Input id={`${pageid}-desc`} radius="full" labelText="Deskripsi Pemeriksaan" placeholder="Tulis deskripsi pemeriksaan" type="text" name="desc" value={inputData.desc} onChange={handleInputChange} errorContent={errors.desc} isRequired />
+                          <Fieldset>
+                            <Input id={`${pageid}-nadi`} radius="full" labelText="Nadi" placeholder="Tulis hasil pemeriksaan nadi" type="text" name="nadi" value={inputData.nadi} onChange={handleInputChange} errorContent={errors.nadi} isRequired />
+                            <Input id={`${pageid}-tensi`} radius="full" labelText="Tensi Darah" placeholder="Tulis tensi darah" type="text" name="tensi" value={inputData.tensi} onChange={handleInputChange} errorContent={errors.tensi} isRequired />
+                            <Input id={`${pageid}-suhu`} radius="full" labelText="Suhu Badan" placeholder="Tulis suhu badan" type="text" name="suhu" value={inputData.suhu} onChange={handleInputChange} errorContent={errors.suhu} isRequired />
+                          </Fieldset>
+                          <Fieldset>
+                            <Input id={`${pageid}-berat_badan`} radius="full" labelText="Berat Badan (kg)" placeholder="Tulis berat badan" type="number" name="berat_badan" value={inputData.berat_badan} onChange={handleInputChange} errorContent={errors.berat_badan} isRequired />
+                            <Input id={`${pageid}-tinggi_badan`} radius="full" labelText="Tinggi Badan (cm)" placeholder="Tulis tinggi badan" type="number" name="tinggi_badan" value={inputData.tinggi_badan} onChange={handleInputChange} errorContent={errors.tinggi_badan} isRequired />
+                            <Input id={`${pageid}-pernapasan`} radius="full" labelText="Pernapasan" placeholder="Tulis hasil pemeriksaan pernapasan" type="text" name="pernapasan" value={inputData.pernapasan} onChange={handleInputChange} errorContent={errors.pernapasan} isRequired />
+                          </Fieldset>
+                          <Fieldset>
+                            <Input id={`${pageid}-mata`} radius="full" labelText="Mata" placeholder="Tulis hasil pemeriksaan mata" type="text" name="mata" value={inputData.mata} onChange={handleInputChange} errorContent={errors.mata} isRequired />
+                            <Input id={`${pageid}-mulut_gigi`} radius="full" labelText="Mulut & Gigi" placeholder="Tulis hasil pemeriksaan mulut & gigi" type="text" name="mulut_gigi" value={inputData.mulut_gigi} onChange={handleInputChange} errorContent={errors.mulut_gigi} isRequired />
+                            <Input id={`${pageid}-kulit`} radius="full" labelText="Kulit" placeholder="Tulis hasil pemeriksaan kulit" type="text" name="kulit" value={inputData.kulit} onChange={handleInputChange} errorContent={errors.kulit} isRequired />
+                          </Fieldset>
+                        </SubmitForm>
+                      )}
+                    </Fragment>
+                  );
+                default:
+                  return <Table isNoData={true} isLoading={isFetching}></Table>;
               }
             default:
-              return (
-                <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
-                  <THead>
-                    <TR>
-                      <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
-                        Tanggal Dibuat
-                      </TH>
-                      <TH>Tanggal Reservasi</TH>
-                      <TH>Jam Reservasi</TH>
-                      <TH>Kode Reservasi</TH>
-                      <TH>Nama Customer</TH>
-                      <TH>Nomor Telepon</TH>
-                      <TH>Alamat Email</TH>
-                      <TH>Status Reservasi</TH>
-                      <TH>Status DP</TH>
-                      <TH>Layanan</TH>
-                      <TH>Jenis Layanan</TH>
-                      <TH>Biaya DP</TH>
-                      <TH>Kode Voucher</TH>
-                      <TH>Nama Cabang</TH>
-                    </TR>
-                  </THead>
-                  <TBody>
-                    {filteredReservData.map((data, index) => (
-                      <TR key={index} onEdit={() => openEdit(data.idreservation)} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
-                        <TD>{newDate(data.datetimecreate, "id")}</TD>
-                        <TD>{data.reservationdate}</TD>
-                        <TD>{data.reservationtime}</TD>
-                        <TD type="code">{data.rscode}</TD>
-                        <TD>{toTitleCase(data.name)}</TD>
-                        <TD type="number" isCopy>
-                          {data.phone}
-                        </TD>
-                        <TD>{data.email}</TD>
-                        <TD>{reservStatusAlias(data.status_reservation)}</TD>
-                        <TD>{dpStatusAlias(data.status_dp)}</TD>
-                        <TD>{toTitleCase(data.service)}</TD>
-                        <TD>{toTitleCase(data.typeservice)}</TD>
-                        <TD>{newPrice(data.price_reservation)}</TD>
-                        <TD type="code">{data.voucher}</TD>
-                        <TD>{toTitleCase(data.outlet_name)}</TD>
-                      </TR>
-                    ))}
-                  </TBody>
-                </Table>
-              );
+              return <Table isNoData={true} isLoading={isFetching}></Table>;
           }
         };
 
@@ -1986,11 +2164,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`cust-select-${pageid}`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Customer" name="id" value={inputData.id} options={allCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onSelect={(selectedValue) => handleMedicInputChange({ target: { name: "id", value: selectedValue } })} />
+                <Input id={`cust-select-${pageid}`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Customer" name="id" options={allCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onSelect={handleCustChange} />
               </DashboardTool>
-              <DashboardTool>
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" startContent={<Plus />} />
-              </DashboardTool>
+              {tabId !== "1" && (
+                <DashboardTool>
+                  <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} isDisabled={tabId === "3" || tabId === "4"} />
+                </DashboardTool>
+              )}
             </DashboardToolbar>
             <TabSwitch buttons={tabbutton} />
             {tabId !== "4" && <TabGroup buttons={subTabButton(tabId)} />}
@@ -2003,17 +2183,29 @@ const DashboardSlugPage = ({ parent, slug }) => {
   };
 
   useEffect(() => {
+    if (inputData.birth) {
+      const birthDate = moment(inputData.birth).tz("Asia/Jakarta");
+      const today = moment().tz("Asia/Jakarta");
+      const years = today.diff(birthDate, "years", true);
+      const months = today.diff(birthDate, "months") % 12;
+      const days = today.diff(birthDate, "days") % 30;
+      setInputData({ ...inputData, ageyear: Math.floor(years), agemonth: months, ageday: days });
+    } else {
+      setInputData({ ...inputData, ageyear: "", agemonth: "", ageday: "" });
+    }
+  }, [inputData.birth]);
+
+  useEffect(() => {
     if (slug === "RESERVATION") {
       setAvailHoursData(hours.filter((hour) => !bookedHoursData.includes(hour)));
     }
   }, [slug, bookedHoursData]);
 
   useEffect(() => {
-    setInputData({ ...inputSchema });
     setSelectedData(null);
     setSelectedImage(null);
     fetchData();
-  }, [slug, currentPage, limit, status, slug === "CALENDAR RESERVATION" ? selectedBranch : null]);
+  }, [slug, currentPage, limit, status, selectedBranch, selectedCust, tabId, subTabId]);
 
   useEffect(() => {
     fetchAdditionalData();
