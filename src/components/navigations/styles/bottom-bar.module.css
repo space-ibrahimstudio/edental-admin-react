@@ -45,3 +45,9 @@
 .bottomBar.offline {
   background-color: var(--color-red);
 }
+
+@media screen and (max-width: 550px) {
+  .bottomBar {
+    display: none;
+  }
+}

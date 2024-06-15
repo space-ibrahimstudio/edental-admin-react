@@ -645,7 +645,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             case "1":
               switch (subTabId) {
                 case "1":
-                  submittedData = { secret, iduser: inputData.id, birthday: inputData.birth, noktp: inputData.nik, address: inputData.address, gender: inputData.gender, room: inputData.room, ageyear: inputData.ageyear, agemonth: inputData.agemonth, ageday: inputData.ageday, service: inputData.service, servicetype: inputData.sub_service, dentist: inputData.dentist };
+                  submittedData = { secret, iduser: selectedCust, birthday: inputData.birth, noktp: inputData.nik, address: inputData.address, gender: inputData.gender, room: inputData.room, ageyear: inputData.ageyear, agemonth: inputData.agemonth, ageday: inputData.ageday, service: inputData.service, servicetype: inputData.sub_service, dentist: inputData.dentist };
                   break;
                 default:
                   break;
@@ -1923,7 +1923,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       </Fieldset>
                       <Fieldset>
                         <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
-                        <Input id={`${pageid}-gender`} variant="select" isSearchable radius="full" labelText="Jenis Kelamin" placeholder="Pilih jenis kelamin" name="gender" value={inputData.gender} options={genderopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "gender", value: selectedValue } })} errorContent={errors.gender} isRequired />
+                        <Input id={`${pageid}-gender`} variant="select" radius="full" labelText="Jenis Kelamin" placeholder="Pilih jenis kelamin" name="gender" value={inputData.gender} options={genderopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "gender", value: selectedValue } })} errorContent={errors.gender} isRequired />
                         <Input id={`${pageid}-nik`} radius="full" labelText="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={inputData.nik} onChange={handleInputChange} errorContent={errors.nik} isRequired />
                         <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" name="image" initialFile={inputData.image} onSelect={handleImageSelect} />
                       </Fieldset>
