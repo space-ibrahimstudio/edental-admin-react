@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../libs/securities/auth";
-import { User, NetOn, NetOff, Speed, Cached, Okay } from "../contents/icons";
+import { User, NetOn, NetOff, Speed, Cached, Okay, Battery } from "../contents/icons";
 import styles from "./styles/bottom-bar.module.css";
 
 const BarContent = ({ content, startContent }) => {
@@ -64,7 +64,7 @@ const BottomBar = ({ loading }) => {
   }, []);
 
   return (
-    <footer className={styles.bottomBar}>
+    <footer className={`${styles.bottomBar} ${isOnline ? "" : styles.offline}`}>
       <BarContentWrap>
         <BarContent content={username} startContent={<User />} />
         <BarContent content={loading ? "memuat data ..." : "siap digunakan"} startContent={loading ? <Cached animate /> : <Okay />} />
@@ -73,7 +73,7 @@ const BottomBar = ({ loading }) => {
       <BarContentWrap>
         <BarContent content={`IP: ${ip_address}`} />
         <BarContent content={isOnline ? "online" : "offline"} startContent={isOnline ? <NetOn /> : <NetOff />} />
-        <BarContent content={`battery: ${batteryStatus.level}%`} />
+        <BarContent content={`${batteryStatus.level}%`} startContent={<Battery level={batteryStatus.level} charging={batteryStatus.charging} />} />
       </BarContentWrap>
     </footer>
   );

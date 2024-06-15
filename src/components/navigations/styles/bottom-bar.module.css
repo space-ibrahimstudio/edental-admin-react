@@ -41,3 +41,7 @@
   box-sizing: border-box;
   z-index: 999;
 }
+
+.bottomBar.offline {
+  background-color: var(--color-red);
+}
