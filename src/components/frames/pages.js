@@ -1,12 +1,14 @@
 import React, { Fragment } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "../navigations/navbar";
+import BottomBar from "../navigations/bottom-bar";
 
-const Pages = ({ title, access = "private", topmargin = "var(--pixel-70)", bgImage, justify = "flex-start", children }) => {
+const Pages = ({ title, access = "private", topmargin = "var(--pixel-70)", bottommargin = "var(--pixel-25)", bgImage, justify = "flex-start", loading, children }) => {
   const layoutstyles = {
     width: "100%",
     position: "relative",
     paddingTop: topmargin,
+    paddingBottom: bottommargin,
     backgroundColor: bgImage ? "unset" : "var(--color-foreground)",
     backgroundImage: bgImage ? `url(${bgImage})` : "unset",
     backgroundPosition: bgImage ? "center" : "unset",
@@ -28,6 +30,7 @@ const Pages = ({ title, access = "private", topmargin = "var(--pixel-70)", bgIma
       <main style={layoutstyles}>
         {access === "private" && <Navbar />}
         {children}
+        {access === "private" && <BottomBar loading={loading} />}
       </main>
     </Fragment>
   );

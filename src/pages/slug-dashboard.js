@@ -15,6 +15,7 @@ import { options, units, hours, inputSchema, errorSchema, orderStatusAlias, dpSt
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
+import Calendar, { CalendarDay, CalendarDate, DateEvent, EventModal } from "../components/contents/calendar";
 import { SubmitForm, FileForm } from "../components/input-controls/forms";
 import OnpageForm, { FormHead, FormFooter } from "../components/input-controls/onpage-forms";
 import Fieldset from "../components/input-controls/inputs";
@@ -23,27 +24,6 @@ import TabSwitch from "../components/input-controls/tab-switch";
 import { Search, Plus, Export, HChevron, Check } from "../components/contents/icons";
 import Pagination from "../components/navigations/pagination";
 import Invoice from "../components/contents/invoice";
-import calendar from "./styles/calendar.module.css";
-
-const Modal = ({ isOpen, onClose, events, day }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className={calendar.modalOverlay}>
-      <div className={calendar.modalContent}>
-        <h2>Events for {day}</h2>
-        <button onClick={onClose} className={calendar.closeButton}>
-          Close
-        </button>
-        <ul>
-          {events.map((event, index) => (
-            <li key={index}>{event.label}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-};
 
 const DashboardSlugPage = ({ parent, slug }) => {
   const navigate = useNavigate();
@@ -63,6 +43,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const [isFormFetching, setIsFormFetching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
@@ -99,6 +80,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [eventsData, setEventsData] = useState([]);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDay, setSelectedDay] = useState("");
   const [tabId, setTabId] = useState("1");
   const [subTabId, setSubTabId] = useState("1");
@@ -314,11 +296,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
             const eventsdata = addtdata.data;
             const mutatedevents = eventsdata.reduce((acc, event) => {
               const date = event.reservationdate;
-              const label = `${event.rscode} ${event.name}`;
+              const time = event.reservationtime;
+              const status = event.status_reservation;
+              const label = `${event.reservationtime} | ${event.rscode} - ${toTitleCase(event.name)}`;
               if (!acc[date]) {
                 acc[date] = [];
               }
-              acc[date].push({ label });
+              acc[date].push({ ...event, label, time, status });
+              acc[date].sort((a, b) => a.time.localeCompare(b.time));
               return acc;
             }, {});
             setEventsData(mutatedevents);
@@ -394,6 +379,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     const formData = new FormData();
     const addtFormData = new FormData();
     formData.append("data", JSON.stringify({ secret }));
+    setIsOptimizing(true);
     try {
       const servicedata = await apiRead(formData, "office", "searchservice");
       if (servicedata && servicedata.data && servicedata.data.length > 0) {
@@ -443,6 +429,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
     } catch (error) {
       showNotifications("danger", errormsg);
       console.error(errormsg, error);
+    } finally {
+      setIsOptimizing(false);
     }
   };
 
@@ -774,7 +762,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isCustShown ? false : true} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)} isDisabled={isCustShown ? false : true} startContent={<Export />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)} isDisabled={isCustShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -877,7 +865,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isServiceShown ? false : true} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -948,8 +936,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isBranchShown ? false : true} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredBranchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)} isDisabled={isBranchShown ? false : true} startContent={<Export />} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredBranchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)} isDisabled={isBranchShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1020,7 +1008,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isDentistShown ? false : true} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredDentistData, "Daftar Dokter", `daftar_dokter_${getCurrentDate()}`)} isDisabled={isDentistShown ? false : true} startContent={<Export />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredDentistData, "Daftar Dokter", `daftar_dokter_${getCurrentDate()}`)} isDisabled={isDentistShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1075,8 +1063,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isStockShown ? false : true} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={isStockShown ? false : true} startContent={<Export />} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={isStockShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1280,8 +1268,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isReservShown ? false : true} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)} isDisabled={isReservShown ? false : true} startContent={<Export />} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)} isDisabled={isReservShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1500,7 +1488,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isOrderShown ? false : true} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export ke Excel" onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)} isDisabled={isOrderShown ? false : true} startContent={<Export />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)} isDisabled={isOrderShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1678,7 +1666,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isCentralPOShown ? false : true} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={openForm} startContent={<Plus />} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
               </DashboardTool>
             </DashboardToolbar>
             <TabGroup buttons={postatus} />
@@ -1750,12 +1738,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "CALENDAR RESERVATION":
-        const daysOfWeek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu"];
-
-        const getDaysInMonth = (year, month) => {
+        const daysofweek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu"];
+        const getDaysMonth = (year, month) => {
           return new Date(year, month + 1, 0).getDate();
         };
-        const getFirstDayOfMonth = (year, month) => {
+        const getFirstDayMonth = (year, month) => {
           return new Date(year, month, 1).getDay();
         };
         const formatDate = (year, month, day) => {
@@ -1765,51 +1752,71 @@ const DashboardSlugPage = ({ parent, slug }) => {
         const generateCalendar = () => {
           const year = currentDate.getFullYear();
           const month = currentDate.getMonth();
-          const daysInMonth = getDaysInMonth(year, month);
-          const firstDayOfMonth = getFirstDayOfMonth(year, month);
-          const calendarDays = [];
+          const daysmonth = getDaysMonth(year, month);
+          const firstdaymonth = getFirstDayMonth(year, month);
+          const daysprevmonth = getDaysMonth(year, month - 1);
+          const calendardays = [];
           let dayCounter = 1;
-          for (let i = 0; i < firstDayOfMonth; i++) {
-            calendarDays.push(null);
+
+          for (let i = firstdaymonth - 1; i >= 0; i--) {
+            const day = daysprevmonth - i;
+            const date = formatDate(year, month - 1, day);
+            calendardays.push({ day, events: eventsData[date] || [], isCurrentMonth: false, date });
           }
-          while (dayCounter <= daysInMonth) {
+          while (dayCounter <= daysmonth) {
             const date = formatDate(year, month, dayCounter);
-            calendarDays.push({ day: dayCounter, events: eventsData[date] || [] });
+            calendardays.push({ day: dayCounter, events: eventsData[date] || [], isCurrentMonth: true, date });
             dayCounter++;
           }
+          const anotherdaysmonth = 42 - calendardays.length;
+          for (let i = 1; i <= anotherdaysmonth; i++) {
+            const date = formatDate(year, month + 1, i);
+            calendardays.push({ day: i, events: eventsData[date] || [], isCurrentMonth: false, date });
+          }
 
-          return calendarDays.map((dayObj, index) => (
-            <div key={index} className={calendar.calendarDay} onClick={() => handleDayClick(dayObj)}>
-              {dayObj ? (
-                <Fragment>
-                  <div className={calendar.dayNumber}>{dayObj.day}</div>
-                  <div className={calendar.events}>
-                    {dayObj.events.slice(0, 2).map((event, i) => (
-                      <div key={i} className={calendar.event}>
-                        {event.label}
-                      </div>
-                    ))}
-                    {dayObj.events.length > 2 && <div className={calendar.moreEvents}>+{dayObj.events.length - 2} more events</div>}
-                  </div>
-                </Fragment>
-              ) : null}
-            </div>
+          const isToday = (dateString) => {
+            const todayWIB = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
+            const todayWIBdate = new Date(todayWIB).toISOString().split("T")[0];
+            return todayWIBdate === dateString;
+          };
+
+          const handleDayClick = (dayObj) => {
+            if (dayObj) {
+              setSelectedDay(dayObj.day);
+              setSelectedDayEvents(dayObj.events);
+              setIsModalOpen(true);
+            }
+          };
+
+          const openEvent = (event) => {
+            setSelectedEvent(event);
+            setIsModalOpen(true);
+          };
+
+          return calendardays.map((dayObj, index) => (
+            <CalendarDate key={index} date={dayObj.day} isDisabled={dayObj.isCurrentMonth ? false : true}>
+              {dayObj.events.slice(0, 3).map((event, i) => (
+                <DateEvent key={i} label={event.label} status={event.status} onClick={() => openEvent(event)} isDisabled={dayObj.isCurrentMonth ? false : true} />
+              ))}
+              {dayObj.events.length > 3 && <DateEvent label={`+${dayObj.events.length - 3} more events`} />}
+            </CalendarDate>
           ));
         };
 
         const handlePrevMonth = () => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
         const handleNextMonth = () => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
-        const handleDayClick = (dayObj) => {
-          if (dayObj) {
-            setSelectedDay(dayObj.day);
-            setSelectedDayEvents(dayObj.events);
-            setIsModalOpen(true);
-          }
+        const handleToday = () => {
+          const todayWIB = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
+          setCurrentDate(new Date(todayWIB));
         };
-
         const closeModal = () => {
           setIsModalOpen(false);
           setSelectedDayEvents([]);
+        };
+
+        const closeEvent = () => {
+          setIsModalOpen(false);
+          setSelectedEvent(null);
         };
 
         return (
@@ -1818,21 +1825,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardToolbar>
               <DashboardTool>{level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}</DashboardTool>
               <DashboardTool>
+                <Button id={`${pageid}-today`} radius="full" buttonText="Hari Ini" onClick={handleToday} />
                 <Button id={`${pageid}-prev-month`} radius="full" variant="line" color="var(--color-primary)" buttonText="Prev Month" onClick={handlePrevMonth} startContent={<HChevron direction="left" />} />
                 <Button id={`${pageid}-next-month`} radius="full" buttonText="Next Month" onClick={handleNextMonth} endContent={<HChevron />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <div className={calendar.calendarGrid}>
-                {daysOfWeek.map((day) => (
-                  <div key={day} className={calendar.calendarDayHeader}>
-                    {day}
-                  </div>
+              <Calendar>
+                {daysofweek.map((day) => (
+                  <CalendarDay key={day}>{day}</CalendarDay>
                 ))}
                 {generateCalendar()}
-              </div>
+              </Calendar>
             </DashboardBody>
-            <Modal isOpen={isModalOpen} onClose={closeModal} events={selectedDayEvents} day={`${selectedDay} ${currentDate.toLocaleString("default", { month: "long" })}`} />
+            {isModalOpen && <EventModal title={`${selectedEvent.rscode} - ${toTitleCase(selectedEvent.name)}`} status={selectedEvent.status_reservation} time={`${selectedEvent.reservationdate}, ${selectedEvent.reservationtime}`} service={`${toTitleCase(selectedEvent.service)}, ${toTitleCase(selectedEvent.typeservice)}`} onClose={closeEvent} />}
+            {/* <Modal isOpen={isModalOpen} onClose={closeModal} events={selectedDayEvents} day={`${selectedDay} ${currentDate.toLocaleString("default", { month: "long" })}`} /> */}
           </Fragment>
         );
       case "REKAM MEDIS":
@@ -1918,7 +1925,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
                         <Input id={`${pageid}-gender`} variant="select" isSearchable radius="full" labelText="Jenis Kelamin" placeholder="Pilih jenis kelamin" name="gender" value={inputData.gender} options={genderopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "gender", value: selectedValue } })} errorContent={errors.gender} isRequired />
                         <Input id={`${pageid}-nik`} radius="full" labelText="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={inputData.nik} onChange={handleInputChange} errorContent={errors.nik} isRequired />
-                        <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" initialFile={inputData.image} onSelect={handleInputChange} />
+                        <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" name="image" initialFile={inputData.image} onSelect={handleImageSelect} />
                       </Fieldset>
                       <Fieldset>
                         <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth" value={inputData.birth} onChange={handleInputChange} errorContent={errors.birth} isRequired />
@@ -2166,7 +2173,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               {tabId !== "1" && (
                 <DashboardTool>
-                  <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah Baru" onClick={selectedCust ? openForm : handleAddError} startContent={<Plus />} isDisabled={tabId === "3" || tabId === "4"} />
+                  <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={selectedCust ? openForm : handleAddError} startContent={<Plus />} isDisabled={tabId === "3" || tabId === "4"} />
                 </DashboardTool>
               )}
             </DashboardToolbar>
@@ -2194,12 +2201,41 @@ const DashboardSlugPage = ({ parent, slug }) => {
   }, [inputData.birth]);
 
   useEffect(() => {
+    const calculateAge = () => {
+      if (inputData.birth) {
+        try {
+          const birthDate = moment(inputData.birth, moment.ISO_8601, true);
+          if (birthDate.isValid()) {
+            const today = moment().tz("Asia/Jakarta");
+            const years = today.diff(birthDate, "years", true);
+            const months = today.diff(birthDate, "months") % 12;
+            // const days = today.diff(birthDate.clone().startOf("month"), "days");
+            const days = today.diff(birthDate, "days") % 30 || 0;
+            setInputData({ ...inputData, ageyear: Math.floor(years), agemonth: months, ageday: days });
+          } else {
+            console.warn("Invalid birth date format. Please use YYYY-MM-DD.");
+          }
+        } catch (error) {
+          console.error("Error calculating age:", error);
+        }
+      } else {
+        setInputData({ ...inputData, ageyear: "", agemonth: "", ageday: "" });
+      }
+    };
+    calculateAge();
+  }, [inputData.birth]);
+
+  useEffect(() => {
     if (slug === "RESERVATION") {
       setAvailHoursData(hours.filter((hour) => !bookedHoursData.includes(hour)));
     }
   }, [slug, bookedHoursData]);
 
   useEffect(() => {
+    if (slug !== "REKAM MEDIS") {
+      setInputData({ ...inputSchema });
+      setErrors({ ...errorSchema });
+    }
     setSelectedData(null);
     setSelectedImage(null);
     fetchData();
@@ -2221,7 +2257,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   }
 
   return (
-    <Pages title={`${pagetitle} - Dashboard`}>
+    <Pages title={`${pagetitle} - Dashboard`} loading={isOptimizing}>
       <DashboardContainer>{renderContent()}</DashboardContainer>
     </Pages>
   );

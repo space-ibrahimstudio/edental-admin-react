@@ -144,6 +144,7 @@ export const AuthProvider = ({ children }) => {
   const level = sessionStorage.getItem("level");
   const cctr = sessionStorage.getItem("outlet-code");
   const idoutlet = sessionStorage.getItem("outlet-id");
+  const ip_address = sessionStorage.getItem("ip-address");
 
   useEffect(() => {
     auth();
@@ -153,9 +154,7 @@ export const AuthProvider = ({ children }) => {
     return <LoadingScreen />;
   }
 
-  return (
-    <AuthContext.Provider value={{ loading, isLoggedin, login, logout, username, secret, level, idoutlet, cctr }}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ loading, isLoggedin, login, logout, username, secret, level, idoutlet, cctr, ip_address }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

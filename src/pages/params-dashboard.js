@@ -147,7 +147,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
             <DashboardToolbar>
               <DashboardTool>
                 <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} />
-                <Button id={`export-data-${pageid}`} buttonText="Export ke Excel" radius="full" bgColor="var(--color-green)" onClick={() => exportToExcel(filterData(), pageTitle, `${toPathname(pageTitle)}`)} />
+                <Button id={`export-data-${pageid}`} buttonText="Export" radius="full" bgColor="var(--color-green)" onClick={() => exportToExcel(filterData(), pageTitle, `${toPathname(pageTitle)}`)} />
               </DashboardTool>
               <DashboardTool>
                 <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Filter dari:" type="datetime-local" value={formatDate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
