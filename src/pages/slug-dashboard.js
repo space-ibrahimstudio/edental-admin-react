@@ -22,6 +22,7 @@ import Fieldset from "../components/input-controls/inputs";
 import TabGroup from "../components/input-controls/tab-group";
 import TabSwitch from "../components/input-controls/tab-switch";
 import { Search, Plus, Export, HChevron, Check } from "../components/contents/icons";
+import { LoadingContent } from "../components/feedbacks/screens";
 import Pagination from "../components/navigations/pagination";
 import Invoice from "../components/contents/invoice";
 
@@ -1935,7 +1936,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       </Fieldset>
                       <FormHead title="Layanan Klinik" />
                       <Fieldset>
-                        <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={inputData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
+                        <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={inputData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
                         <Input
                           id={`${pageid}-subservice`}
                           variant="select"
@@ -1945,7 +1946,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                           name="sub_service"
                           value={inputData.sub_service}
-                          options={inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))}
+                          options={(inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
                           onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_service", value: selectedValue } })}
                           errorContent={errors.sub_service}
                           isRequired
@@ -1955,7 +1956,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter Pemeriksa" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
                       </Fieldset>
                       <FormFooter>
-                        <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText="Simpan Perubahan" isLoading={isSubmitting} startContent={<Check />} />
+                        <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText="Simpan Perubahan" isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
                       </FormFooter>
                     </OnpageForm>
                   );
