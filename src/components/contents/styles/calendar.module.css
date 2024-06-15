@@ -286,7 +286,7 @@
   flex: 1;
   border-radius: var(--pixel-10);
   border: 1px solid var(--color-secondary-10);
-  overflow: hidden;
+  overflow-x: auto;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
 }
@@ -300,7 +300,6 @@
 }
 
 .calendarHscroll {
-  overflow-x: auto;
   flex-direction: row;
 }
 

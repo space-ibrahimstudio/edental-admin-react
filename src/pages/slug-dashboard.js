@@ -79,10 +79,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [selectedOrderData, setSelectedOrderData] = useState(null);
   const [orderDetailData, setOrderDetailData] = useState(null);
   const [eventsData, setEventsData] = useState([]);
-  const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [selectedDay, setSelectedDay] = useState("");
   const [tabId, setTabId] = useState("1");
   const [subTabId, setSubTabId] = useState("1");
   const [selectedCust, setSelectedCust] = useState(null);
@@ -1172,7 +1170,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                               <Input id={`item-name-${index}-${idx}`} radius="full" labelText="Nama Item" value={subdata.itemname} isReadonly />
                               <Input id={`item-sku-${index}-${idx}`} radius="full" labelText="Kode SKU" value={subdata.sku} isReadonly />
                               <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item" value={subdata.qty} isReadonly />
-                              <Input id={`item-note-${index}-${idx}`} variant="textarea" radius="full" labelText="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." isReadonly />
+                              <Input id={`item-note-${index}-${idx}`} variant="textarea" labelText="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." isReadonly />
                             </Fieldset>
                           ))}
                         </Fragment>
@@ -1402,7 +1400,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         isDisabled={inputData.date ? false : true}
                       />
                     </Fieldset>
-                    <Input id={`${pageid}-note`} variant="textarea" radius="full" labelText="Catatan" placeholder="Masukkan catatan/keterangan ..." name="note" rows={4} value={inputData.note} onChange={handleReservInputChange} errorContent={errors.note} />
+                    <Input id={`${pageid}-note`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan/keterangan ..." name="note" rows={4} value={inputData.note} onChange={handleReservInputChange} errorContent={errors.note} />
                     {inputData.service === "RESERVATION" && inputData.sub_service === "RESERVATION" && (
                       <Fieldset>
                         <Input id={`${pageid}-price`} radius="full" labelText="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleReservInputChange} errorContent={errors.price} />
@@ -1694,7 +1692,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                               <Input id={`item-name-${index}-${idx}`} radius="full" labelText="Nama Item" value={subdata.itemname} isReadonly />
                               <Input id={`item-sku-${index}-${idx}`} radius="full" labelText="Kode SKU" value={subdata.sku} isReadonly />
                               <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item" value={subdata.qty} isReadonly />
-                              <Input id={`item-note-${index}-${idx}`} variant="textarea" radius="full" labelText="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." isReadonly />
+                              <Input id={`item-note-${index}-${idx}`} variant="textarea" labelText="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." isReadonly />
                             </Fieldset>
                           ))}
                         </Fragment>
@@ -1730,7 +1728,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     />
                     <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
                     <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
-                    <Input id={`${pageid}-item-note-${index}`} variant="textarea" radius="full" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
+                    <Input id={`${pageid}-item-note-${index}`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
                   </Fieldset>
                 ))}
                 <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Jenis Layanan" onClick={handleAddCentralPORow} />
@@ -1775,20 +1773,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
             calendardays.push({ day: i, events: eventsData[date] || [], isCurrentMonth: false, date });
           }
 
-          const isToday = (dateString) => {
-            const todayWIB = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
-            const todayWIBdate = new Date(todayWIB).toISOString().split("T")[0];
-            return todayWIBdate === dateString;
-          };
-
-          const handleDayClick = (dayObj) => {
-            if (dayObj) {
-              setSelectedDay(dayObj.day);
-              setSelectedDayEvents(dayObj.events);
-              setIsModalOpen(true);
-            }
-          };
-
           const openEvent = (event) => {
             setSelectedEvent(event);
             setIsModalOpen(true);
@@ -1810,10 +1794,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const todayWIB = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
           setCurrentDate(new Date(todayWIB));
         };
-        const closeModal = () => {
-          setIsModalOpen(false);
-          setSelectedDayEvents([]);
-        };
 
         const closeEvent = () => {
           setIsModalOpen(false);
@@ -1822,7 +1802,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
         return (
           <Fragment>
-            <DashboardHead title={`Jadwal Reservasi ${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}`} />
+            <DashboardHead title={`Jadwal Reservasi ${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}`} desc="Data visual jadwal reservasi, klik event label untuk melihat detail setiap jadwal reservasi." />
             <DashboardToolbar>
               <DashboardTool>{level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}</DashboardTool>
               <DashboardTool>
@@ -1840,7 +1820,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </Calendar>
             </DashboardBody>
             {isModalOpen && <EventModal title={`${selectedEvent.rscode} - ${toTitleCase(selectedEvent.name)}`} status={selectedEvent.status_reservation} time={`${selectedEvent.reservationdate}, ${selectedEvent.reservationtime}`} service={`${toTitleCase(selectedEvent.service)}, ${toTitleCase(selectedEvent.typeservice)}`} onClose={closeEvent} />}
-            {/* <Modal isOpen={isModalOpen} onClose={closeModal} events={selectedDayEvents} day={`${selectedDay} ${currentDate.toLocaleString("default", { month: "long" })}`} /> */}
           </Fragment>
         );
       case "REKAM MEDIS":
@@ -2038,18 +2017,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
                             <Input id={`${pageid}-gravida`} radius="full" labelText="Gravida" placeholder="Tulis gravida" type="text" name="gravida" value={inputData.gravida} onChange={handleInputChange} errorContent={errors.gravida} isRequired />
                           </Fieldset>
                           <Fieldset>
-                            <Input id={`${pageid}-complaint`} variant="textarea" rows={4} radius="full" labelText="Keluhan Utama" placeholder="Tulis keluhan utama" name="main_complaint" value={inputData.main_complaint} onChange={handleInputChange} errorContent={errors.main_complaint} isRequired />
-                            <Input id={`${pageid}-addt-complaint`} variant="textarea" rows={4} radius="full" labelText="Keluhan Tambahan" placeholder="Tulis keluhan tambahan" name="additional_complaint" value={inputData.additional_complaint} onChange={handleInputChange} errorContent={errors.additional_complaint} isRequired />
+                            <Input id={`${pageid}-complaint`} variant="textarea" rows={4} labelText="Keluhan Utama" placeholder="Tulis keluhan utama" name="main_complaint" value={inputData.main_complaint} onChange={handleInputChange} errorContent={errors.main_complaint} isRequired />
+                            <Input id={`${pageid}-addt-complaint`} variant="textarea" rows={4} labelText="Keluhan Tambahan" placeholder="Tulis keluhan tambahan" name="additional_complaint" value={inputData.additional_complaint} onChange={handleInputChange} errorContent={errors.additional_complaint} isRequired />
                           </Fieldset>
                           <Fieldset>
-                            <Input id={`${pageid}-allergi-gatal`} variant="textarea" rows={3} radius="full" labelText="Alergi Gatal" placeholder="Masukkan catatan alergi" name="alergi_gatal" value={JSON.parse(inputData.alergi_gatal).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_gatal: JSON.stringify({ alergi: "gatal", note: e.target.value }) }))} />
-                            <Input id={`${pageid}-allergi-debu`} variant="textarea" rows={3} radius="full" labelText="Alergi Debu" placeholder="Masukkan catatan alergi" name="alergi_debu" value={JSON.parse(inputData.alergi_debu).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_debu: JSON.stringify({ alergi: "debu", note: e.target.value }) }))} />
+                            <Input id={`${pageid}-allergi-gatal`} variant="textarea" rows={3} labelText="Alergi Gatal" placeholder="Masukkan catatan alergi" name="alergi_gatal" value={JSON.parse(inputData.alergi_gatal).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_gatal: JSON.stringify({ alergi: "gatal", note: e.target.value }) }))} />
+                            <Input id={`${pageid}-allergi-debu`} variant="textarea" rows={3} labelText="Alergi Debu" placeholder="Masukkan catatan alergi" name="alergi_debu" value={JSON.parse(inputData.alergi_debu).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_debu: JSON.stringify({ alergi: "debu", note: e.target.value }) }))} />
                           </Fieldset>
                           <Fieldset>
-                            <Input id={`${pageid}-allergi-obat`} variant="textarea" rows={3} radius="full" labelText="Alergi Obat" placeholder="Masukkan catatan alergi" name="alergi_obat" value={JSON.parse(inputData.alergi_obat).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_obat: JSON.stringify({ alergi: "obat", note: e.target.value }) }))} />
-                            <Input id={`${pageid}-allergi-makanan`} variant="textarea" rows={3} radius="full" labelText="Alergi Makanan" placeholder="Masukkan catatan alergi" name="alergi_makanan" value={JSON.parse(inputData.alergi_makanan).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_makanan: JSON.stringify({ alergi: "makanan", note: e.target.value }) }))} />
+                            <Input id={`${pageid}-allergi-obat`} variant="textarea" rows={3} labelText="Alergi Obat" placeholder="Masukkan catatan alergi" name="alergi_obat" value={JSON.parse(inputData.alergi_obat).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_obat: JSON.stringify({ alergi: "obat", note: e.target.value }) }))} />
+                            <Input id={`${pageid}-allergi-makanan`} variant="textarea" rows={3} labelText="Alergi Makanan" placeholder="Masukkan catatan alergi" name="alergi_makanan" value={JSON.parse(inputData.alergi_makanan).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_makanan: JSON.stringify({ alergi: "makanan", note: e.target.value }) }))} />
                           </Fieldset>
-                          <Input id={`${pageid}-allergi-lainnya`} variant="textarea" rows={3} radius="full" labelText="Alergi Lainnya" placeholder="Masukkan catatan alergi" name="alergi_lainnya" value={JSON.parse(inputData.alergi_lainnya).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_lainnya: JSON.stringify({ alergi: "lainnya", note: e.target.value }) }))} />
+                          <Input id={`${pageid}-allergi-lainnya`} variant="textarea" rows={3} labelText="Alergi Lainnya" placeholder="Masukkan catatan alergi" name="alergi_lainnya" value={JSON.parse(inputData.alergi_lainnya).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_lainnya: JSON.stringify({ alergi: "lainnya", note: e.target.value }) }))} />
                         </SubmitForm>
                       )}
                     </Fragment>
@@ -2167,7 +2146,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
         return (
           <Fragment>
-            <DashboardHead title={pagetitle} />
+            <DashboardHead title={pagetitle} desc="Panel untuk memperbarui profil data dan menambah histori catatan medis pasien." />
             <DashboardToolbar>
               <DashboardTool>
                 <Input id={`cust-select-${pageid}`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Customer" name="id" options={allCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onSelect={handleCustChange} />

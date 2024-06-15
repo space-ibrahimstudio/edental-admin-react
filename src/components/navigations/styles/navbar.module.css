@@ -1,8 +1,8 @@
 .navLogo {
   cursor: pointer;
   position: relative;
-  width: var(--pixel-150);
-  height: auto;
+  width: auto;
+  height: var(--pixel-30);
 }
 
 .navMenu {

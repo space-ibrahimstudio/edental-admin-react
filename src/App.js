@@ -9,6 +9,7 @@ import LoginPage from "./pages/login";
 import DashboardOverviewPage from "./pages/overview-dashboard";
 import DashboardSlugPage from "./pages/slug-dashboard";
 import DashboardParamsPage from "./pages/params-dashboard";
+import ErrorPage from "./pages/404";
 
 function App() {
   const { pathname } = useLocation();
@@ -54,6 +55,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<DashboardOverviewPage />} />
+      <Route path="*" element={<ErrorPage />} />
       {/* prettier-ignore */}
       <Fragment>
         {tabMenus.map((menu, index) => (

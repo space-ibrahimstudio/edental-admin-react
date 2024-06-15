@@ -46,6 +46,10 @@
   background-color: var(--color-red);
 }
 
+.bottomBar.loading {
+  background-color: var(--color-yellow);
+}
+
 @media screen and (max-width: 550px) {
   .bottomBar {
     display: none;

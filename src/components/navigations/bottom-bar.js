@@ -64,7 +64,7 @@ const BottomBar = ({ loading }) => {
   }, []);
 
   return (
-    <footer className={`${styles.bottomBar} ${isOnline ? "" : styles.offline}`}>
+    <footer className={`${styles.bottomBar} ${loading ? styles.loading : ""} ${isOnline ? "" : styles.offline}`}>
       <BarContentWrap>
         <BarContent content={username} startContent={<User />} />
         <BarContent content={loading ? "memuat data ..." : "siap digunakan"} startContent={loading ? <Cached animate /> : <Okay />} />
