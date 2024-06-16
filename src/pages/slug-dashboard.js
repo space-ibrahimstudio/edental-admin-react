@@ -88,6 +88,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [anamesaData, setAnamesaData] = useState([]);
   const [odontogramData, setOdontogramData] = useState([]);
   const [inspectData, setInspectData] = useState([]);
+  const [historyReservData, setHistoryReservData] = useState([]);
+  const [historyOrderData, setHistoryOrderData] = useState([]);
+  const [photoMedic, setPhotoMedic] = useState(null);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
@@ -315,6 +318,22 @@ const DashboardSlugPage = ({ parent, slug }) => {
           switch (tabId) {
             case "1":
               switch (subTabId) {
+                case "2":
+                  addtdata = await apiRead(addtFormData, "office", "viewhistoryresev");
+                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                    setHistoryReservData(addtdata.data);
+                  } else {
+                    setHistoryReservData([]);
+                  }
+                  break;
+                case "3":
+                  addtdata = await apiRead(addtFormData, "office", "viewhistoryorder");
+                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                    setHistoryOrderData(addtdata.data);
+                  } else {
+                    setHistoryOrderData([]);
+                  }
+                  break;
                 case "4":
                   addtdata = await apiRead(addtFormData, "office", "viewmedics");
                   if (addtdata && addtdata.data && addtdata.data.length > 0) {
@@ -353,6 +372,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     setInspectData([]);
                   }
                   break;
+                case "4":
+                  addtdata = await apiRead(addtFormData, "office", "viewphoto");
+                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                    setPhotoMedic(addtdata.data[0].photo);
+                  } else {
+                    setPhotoMedic(null);
+                  }
                 default:
                   break;
               }
@@ -565,6 +591,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
               case "3":
                 requiredFields = ["desc", "nadi", "tensi", "suhu", "berat_badan", "tinggi_badan", "pernapasan", "mata", "mulut_gigi", "kulit"];
                 break;
+              case "4":
+                requiredFields = [];
+                break;
               default:
                 break;
             }
@@ -673,6 +702,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   break;
                 case "3":
                   submittedData = { secret, iduser: selectedCust, desciption: inputData.desc, pulse: inputData.nadi, tension: inputData.tensi, temperature: inputData.suhu, weight: inputData.berat_badan, height: inputData.tinggi_badan, breath: inputData.pernapasan, eye: inputData.mata, mouth: inputData.mulut_gigi, skin: inputData.kulit };
+                  break;
+                case "4":
+                  submittedData = { secret, iduser: selectedCust };
                   break;
                 default:
                   break;
@@ -1939,6 +1971,90 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       </FormFooter>
                     </OnpageForm>
                   );
+                case "2":
+                  return (
+                    <Table byNumber isNoData={historyReservData.length > 0 ? false : true} isLoading={isFetching}>
+                      <THead>
+                        <TR>
+                          <TH isSorted onSort={() => handleSortDate(historyReservData, setHistoryReservData, "datetimecreate")}>
+                            Tanggal Dibuat
+                          </TH>
+                          <TH>Tanggal Reservasi</TH>
+                          <TH>Jam Reservasi</TH>
+                          <TH>Kode Reservasi</TH>
+                          <TH>Nama Customer</TH>
+                          <TH>Nomor Telepon</TH>
+                          <TH>Alamat Email</TH>
+                          <TH>Status Reservasi</TH>
+                          <TH>Status DP</TH>
+                          <TH>Layanan</TH>
+                          <TH>Jenis Layanan</TH>
+                          <TH>Biaya DP</TH>
+                          <TH>Kode Voucher</TH>
+                        </TR>
+                      </THead>
+                      <TBody>
+                        {historyReservData.map((data, index) => (
+                          <TR key={index} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
+                            <TD>{newDate(data.datetimecreate, "id")}</TD>
+                            <TD>{data.reservationdate}</TD>
+                            <TD>{data.reservationtime}</TD>
+                            <TD type="code">{data.rscode}</TD>
+                            <TD>{toTitleCase(data.name)}</TD>
+                            <TD type="number" isCopy>
+                              {data.phone}
+                            </TD>
+                            <TD>{data.email}</TD>
+                            <TD>{reservStatusAlias(data.status_reservation)}</TD>
+                            <TD>{dpStatusAlias(data.status_dp)}</TD>
+                            <TD>{toTitleCase(data.service)}</TD>
+                            <TD>{toTitleCase(data.typeservice)}</TD>
+                            <TD>{newPrice(data.price_reservation)}</TD>
+                            <TD type="code">{data.voucher}</TD>
+                          </TR>
+                        ))}
+                      </TBody>
+                    </Table>
+                  );
+                case "3":
+                  return (
+                    <Table byNumber isClickable isNoData={historyOrderData.length > 0 ? false : true} isLoading={isFetching}>
+                      <THead>
+                        <TR>
+                          <TH isSorted onSort={() => handleSortDate(historyOrderData, setHistoryOrderData, "transactioncreate")}>
+                            Tanggal Dibuat
+                          </TH>
+                          <TH>Nama Pengguna</TH>
+                          <TH>Kode Reservasi</TH>
+                          <TH>Nomor Invoice</TH>
+                          <TH>Nomor Telepon</TH>
+                          <TH>Metode Pembayaran</TH>
+                          <TH>Total Pembayaran</TH>
+                          <TH>Status Pembayaran</TH>
+                          <TH>Kode Voucher</TH>
+                          <TH>Nama Dokter</TH>
+                        </TR>
+                      </THead>
+                      <TBody>
+                        {historyOrderData.map((data, index) => (
+                          <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => navigate(`/${toPathname(parent)}/order-customer/${toPathname(data.idtransaction)}`)}>
+                            <TD>{newDate(data.transactioncreate, "id")}</TD>
+                            <TD>{toTitleCase(data.transactionname)}</TD>
+                            <TD type="code">{data.rscode}</TD>
+                            <TD type="code">{data.noinvoice}</TD>
+                            <TD type="number" isCopy>
+                              {data.transactionphone}
+                            </TD>
+                            <TD>{data.payment}</TD>
+                            <TD>{newPrice(data.totalpay)}</TD>
+                            <TD>{orderStatusAlias(data.transactionstatus)}</TD>
+                            <TD type="code">{data.voucher}</TD>
+                            <TD>{toTitleCase(data.dentist)}</TD>
+                          </TR>
+                        ))}
+                      </TBody>
+                    </Table>
+                  );
                 case "4":
                   return (
                     <Table byNumber isNoData={medicRcdData.length > 0 ? false : true} isLoading={isFetching}>
@@ -2136,6 +2252,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       )}
                     </Fragment>
                   );
+
+                case "4":
+                  return (
+                    <OnpageForm onSubmit={(e) => handleSubmit(e, "cudphoto")}>
+                      <FormHead title="Tambah/Update Foto Pasien" />
+                      <Input id={`${pageid}-medic-photo`} variant="upload" isPreview isLabeled={false} radius="full" initialFile={photoMedic} onSelect={handleImageSelect} />
+                      <FormFooter>
+                        <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText="Simpan Perubahan" isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
+                      </FormFooter>
+                    </OnpageForm>
+                  );
                 default:
                   return <Table isNoData={true} isLoading={isFetching}></Table>;
               }
@@ -2189,7 +2316,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
             const today = moment().tz("Asia/Jakarta");
             const years = today.diff(birthDate, "years", true);
             const months = today.diff(birthDate, "months") % 12;
-            // const days = today.diff(birthDate.clone().startOf("month"), "days");
             const days = today.diff(birthDate, "days") % 30 || 0;
             setInputData({ ...inputData, ageyear: Math.floor(years), agemonth: months, ageday: days });
           } else {

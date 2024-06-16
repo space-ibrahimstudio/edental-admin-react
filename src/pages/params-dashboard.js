@@ -21,7 +21,6 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const { showNotifications } = useNotifications();
 
   const pageid = parent && slug && params ? `params-${toPathname(parent)}-${toPathname(slug)}-${toPathname(params)}` : "params-dashboard";
-  const pagepath = parent && slug && params ? `/${toPathname(parent)}/${toPathname(slug)}/${toPathname(params)}` : "/";
 
   const [pageTitle, setPageTitle] = useState("");
   const [isFetching, setIsFetching] = useState(false);
@@ -34,7 +33,6 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const [orderDetailData, setOrderDetailData] = useState([]);
 
   const goBack = () => navigate(-1);
-
   const handleSortDate = (data, setData, params) => {
     const newData = [...data];
     if (!sortOrder || sortOrder === "desc") {
@@ -191,13 +189,13 @@ const DashboardParamsPage = ({ parent, slug }) => {
 
   useEffect(() => {
     fetchData();
-  }, [slug, params, slug === "STOCK" ? startDate : null, slug === "STOCK" ? endDate : null]);
+  }, [slug, params, startDate, endDate]);
 
   useEffect(() => {
     if (slug === "STOCK") {
       setIsDataShown(filterData().length > 0);
     }
-  }, [slug === "STOCK" ? stockHistoryData : null, slug === "STOCK" ? startDate : null, slug === "STOCK" ? endDate : null]);
+  }, [slug, stockHistoryData, startDate, endDate]);
 
   useEffect(() => {
     setSortOrder("asc");
