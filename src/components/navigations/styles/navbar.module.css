@@ -29,6 +29,13 @@
   gap: var(--pixel-10);
 }
 
+.navToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .nav {
   position: fixed;
   top: 0;

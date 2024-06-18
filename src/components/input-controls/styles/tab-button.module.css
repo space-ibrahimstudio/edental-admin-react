@@ -104,6 +104,7 @@
   overflow: hidden;
   flex-direction: column;
   justify-content: flex-start;
+  z-index: 59;
 }
 
 .dropdown.opened {

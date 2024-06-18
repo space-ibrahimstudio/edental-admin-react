@@ -573,3 +573,16 @@ export const Battery = ({ size, color, level, charging }) => {
     </div>
   );
 };
+
+export const Burger = ({ size, color }) => {
+  const fill = color ? color : "currentColor";
+  const iconstyle = { width: size, height: size };
+
+  return (
+    <div className={styles.isIcon} style={iconstyle}>
+      <svg width="100%" height="100%" viewBox="0 0 34 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 0H33.3333V4.16667H0V0ZM0 10.4167H33.3333V14.5833H0V10.4167ZM0 20.8333H33.3333V25H0V20.8333Z" fill={fill} />
+      </svg>
+    </div>
+  );
+};

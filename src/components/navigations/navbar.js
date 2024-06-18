@@ -1,21 +1,95 @@
-import React, { useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useContent } from "@ibrahimstudio/react";
+import { useContent, useWindow } from "@ibrahimstudio/react";
 import { Button } from "@ibrahimstudio/button";
 import { useAuth } from "../../libs/securities/auth";
 import { useApi } from "../../libs/apis/office";
 import { useNotifications } from "../feedbacks/context/notifications-context";
 import { TabButton, DropDownButton } from "../input-controls/buttons";
-import { Power } from "../contents/icons";
+import { Power, Close, Burger } from "../contents/icons";
 import styles from "./styles/navbar.module.css";
+import menu from "./styles/mobile-menu.module.css";
+
+const MobileMenu = ({ tabMenus, onClose }) => {
+  const navigate = useNavigate();
+  const { toPathname, toTitleCase } = useContent();
+  const [isClosing, setIsClosing] = useState(false);
+  const [subTabOpen, setSubTabOpen] = useState(false);
+  const ref = useRef(null);
+
+  const handleClose = () => setIsClosing(true);
+  const SubTabClick = (menuName, submenuName) => {
+    const formattedmenu = toPathname(menuName);
+    const formattedsubmenu = toPathname(submenuName);
+    const url = `/${formattedmenu}/${formattedsubmenu}`;
+    navigate(url);
+  };
+
+  useEffect(() => {
+    if (isClosing) {
+      const animationDuration = 500;
+      setTimeout(() => {
+        onClose();
+      }, animationDuration);
+    }
+  }, [isClosing, onClose]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setIsClosing(true);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [ref, setIsClosing]);
+
+  return (
+    <Fragment>
+      <section ref={ref} className={`${menu.mobileMenu} ${isClosing ? menu.close : ""}`}>
+        <div className={menu.menuHeader}>
+          <img className={styles.navLogoIcon} loading="lazy" alt="" src="/svg/logo-primary.svg" />
+          <button className={menu.closeButton} onClick={handleClose}>
+            <Close color="var(--color-secondary)" />
+          </button>
+        </div>
+        <div className={menu.menuNav}>
+          {Array.isArray(tabMenus) &&
+            tabMenus.map((menu, index) => (
+              <TabButton key={index} isActive={menu["Menu Utama"].menu_name} hasSubMenu={menu["Sub Menu"] && menu["Sub Menu"].length > 0} buttonText={menu["Menu Utama"].menu_name}>
+                {menu["Sub Menu"] && menu["Sub Menu"].map((submenu, index) => <DropDownButton key={index} buttonText={toTitleCase(submenu.submenu_name)} onClick={() => SubTabClick(menu["Menu Utama"].menu_name, submenu.submenu_name)} />)}
+              </TabButton>
+            ))}
+        </div>
+      </section>
+      <div
+        className={`${menu.mobileMenuBg} ${isClosing ? menu.close : ""}`}
+        style={{
+          content: "''",
+          position: "fixed",
+          top: "0",
+          right: "0",
+          bottom: "0",
+          left: "0",
+          zIndex: "1001",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+        }}
+      ></div>
+    </Fragment>
+  );
+};
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { toPathname, toTitleCase } = useContent();
+  const { width } = useWindow();
   const { secret, level, logout } = useAuth();
   const { apiRead } = useApi();
   const { showNotifications } = useNotifications();
   const [tabMenus, setTabMenus] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const logoutClick = () => logout();
   const SubTabClick = (menuName, submenuName) => {
@@ -62,7 +136,11 @@ const Navbar = () => {
           ))}
         </div>
       </section>
-      <Button id="logout" size="sm" radius="full" buttonText="Keluar" onClick={logoutClick} startContent={<Power />} />
+      <section className={styles.navToggle}>
+        <Button id="logout" size="sm" radius="full" buttonText="Keluar" onClick={logoutClick} startContent={<Power />} />
+        {width < 880 && <Button id="menu-drawer" size="sm" variant="hollow" subVariant="icon" radius="full" iconContent={<Burger color="var(--color-secondary)" />} onClick={() => setMenuOpen(true)} />}
+      </section>
+      {menuOpen && <MobileMenu tabMenus={tabMenus} onClose={() => setMenuOpen(false)} />}
     </nav>
   );
 };
