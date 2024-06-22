@@ -15,6 +15,7 @@ import { options, units, hours, inputSchema, errorSchema, orderStatusAlias, dpSt
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
+import Grid, { GridItem } from "../components/contents/grid";
 import Calendar, { CalendarDay, CalendarDate, DateEvent, EventModal } from "../components/contents/calendar";
 import { SubmitForm, FileForm } from "../components/input-controls/forms";
 import OnpageForm, { FormHead, FormFooter } from "../components/input-controls/onpage-forms";
@@ -90,7 +91,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [inspectData, setInspectData] = useState([]);
   const [historyReservData, setHistoryReservData] = useState([]);
   const [historyOrderData, setHistoryOrderData] = useState([]);
-  const [photoMedic, setPhotoMedic] = useState(null);
+  const [photoMedic, setPhotoMedic] = useState([]);
   const [userData, setUserData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
@@ -375,9 +376,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "4":
                   addtdata = await apiRead(addtFormData, "office", "viewphoto");
                   if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                    setPhotoMedic(addtdata.data[0].photo);
+                    setPhotoMedic(addtdata.data);
                   } else {
-                    setPhotoMedic(null);
+                    setPhotoMedic([]);
                   }
                 default:
                   break;
@@ -895,7 +896,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredUserData.map((data, index) => (
-                    <TR key={index} onEdit={() => openEdit(data.idauth)} onDelete={() => handleDelete(data.idauth, "cuduser")}>
+                    <TR key={index} onEdit={() => openEdit(data.idauth)} onDelete={() => handleDelete(data.idauth, "cuduser")} isDanger={data.apiauth_status !== "0"}>
                       <TD>{newDate(data.apiauthcreate, "id")}</TD>
                       <TD>{data.username}</TD>
                       <TD>{data.level}</TD>
@@ -1809,14 +1810,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
           setErrors((prevErrors) => ({ ...prevErrors, postock: prevErrors.postock.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
           if (name === "itemname") {
             const selecteditem = allStockData.find((s) => s.itemname === value);
-            setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, sku: selecteditem.sku } : item)) }));
+            setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, idstock: selecteditem.idstock, sku: selecteditem.sku } : item)) }));
+            log(`id item set to ${selecteditem.idstock}`);
             log(`sku item set to ${selecteditem.sku}`);
           }
         };
 
         const handleAddCentralPORow = () => {
-          setInputData((prevState) => ({ ...prevState, postock: [...prevState.postock, { itemname: "", sku: "", stockin: "", note: "" }] }));
-          setErrors((prevErrors) => ({ ...prevErrors, postock: [...prevErrors.postock, { itemname: "", sku: "", stockin: "", note: "" }] }));
+          setInputData((prevState) => ({ ...prevState, postock: [...prevState.postock, { idstock: "", itemname: "", sku: "", stockin: "", note: "" }] }));
+          setErrors((prevErrors) => ({ ...prevErrors, postock: [...prevErrors.postock, { idstock: "", itemname: "", sku: "", stockin: "", note: "" }] }));
         };
 
         const handleRmvCentralPORow = (index) => {
@@ -2200,6 +2202,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Table byNumber isNoData={medicRcdData.length > 0 ? false : true} isLoading={isFetching}>
                       <THead>
                         <TR>
+                          <TH>ID Rekam Medis</TH>
                           <TH>Usia Pasien</TH>
                           <TH>Ruang Pemeriksaan</TH>
                           <TH>Layanan</TH>
@@ -2210,6 +2213,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TBody>
                         {medicRcdData.map((data, index) => (
                           <TR key={index}>
+                            <TD type="number">{data.idmedicalrecords}</TD>
                             <TD>{`${data.ageyear} tahun, ${data.agemonth} bulan, ${data.ageday} hari`}</TD>
                             <TD>{toTitleCase(data.room)}</TD>
                             <TD>{toTitleCase(data.service)}</TD>
@@ -2236,6 +2240,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Table byNumber isNoData={anamesaData.length > 0 ? false : true} isLoading={isFetching}>
                         <THead>
                           <TR>
+                            <TH>ID Rekam Medis</TH>
                             <TH>Riwayat Penyakit</TH>
                             <TH>Keluhan Utama</TH>
                             <TH>Keluhan Tambahan</TH>
@@ -2251,6 +2256,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <TBody>
                           {anamesaData.map((data, index) => (
                             <TR key={index}>
+                              <TD type="number">{data.idmedicalrecords}</TD>
                               <TD>{data.histori_illness}</TD>
                               <TD>{data.main_complaint}</TD>
                               <TD>{data.additional_complaint}</TD>
@@ -2295,6 +2301,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Table byNumber isNoData={odontogramData.length > 0 ? false : true} isLoading={isFetching}>
                         <THead>
                           <TR>
+                            <TH>ID Rekam Medis</TH>
                             <TH>Occlusi</TH>
                             <TH>Torus Platinus</TH>
                             <TH>Torus Mandibularis</TH>
@@ -2307,6 +2314,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <TBody>
                           {odontogramData.map((data, index) => (
                             <TR key={index}>
+                              <TD type="number">{data.idmedicalrecords}</TD>
                               <TD>{data.occlusi}</TD>
                               <TD>{data.palatinus}</TD>
                               <TD>{data.mandibularis}</TD>
@@ -2341,6 +2349,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Table byNumber isNoData={inspectData.length > 0 ? false : true} isLoading={isFetching}>
                         <THead>
                           <TR>
+                            <TH>ID Rekam Medis</TH>
                             <TH>Deskripsi Pemeriksaan</TH>
                             <TH>Nadi</TH>
                             <TH>Tensi Darah</TH>
@@ -2356,6 +2365,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <TBody>
                           {inspectData.map((data, index) => (
                             <TR key={index}>
+                              <TD type="number">{data.idmedicalrecords}</TD>
                               <TD>{data.desciption}</TD>
                               <TD>{data.pulse}</TD>
                               <TD>{data.tension}</TD>
@@ -2394,13 +2404,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   );
                 case "4":
                   return (
-                    <OnpageForm onSubmit={(e) => handleSubmit(e, "cudphoto")}>
-                      <FormHead title="Tambah/Update Foto Pasien" />
-                      <Input id={`${pageid}-medic-photo`} variant="upload" isPreview isLabeled={false} radius="full" initialFile={photoMedic} onSelect={handleImageSelect} />
-                      <FormFooter>
-                        <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText="Simpan Perubahan" isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
-                      </FormFooter>
-                    </OnpageForm>
+                    <Fragment>
+                      <Grid>
+                        {photoMedic.map((photo) => (
+                          <GridItem key={photo.idmedicalrecords} type="img" label={photo.idmedicalrecords} src={photo.photo} />
+                        ))}
+                      </Grid>
+                      {isFormOpen && (
+                        <SubmitForm size="sm" formTitle="Tambah Foto Pasien" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudphoto")} loading={isSubmitting} onClose={closeForm}>
+                          <Input id={`${pageid}-medic-photo`} variant="upload" isPreview isLabeled={false} onSelect={handleImageSelect} />
+                        </SubmitForm>
+                      )}
+                    </Fragment>
                   );
                 default:
                   return <Table isNoData={true} isLoading={isFetching}></Table>;
