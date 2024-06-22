@@ -177,6 +177,10 @@ export const poStatusAlias = (status) => {
   return status === "1" ? "Pending" : status === "2" ? "Sent" : status === "3" ? "Done" : status === "4" ? "Rejected" : "Open";
 };
 
+export const userStatusAlias = (status) => {
+  return status === "0" ? "Aktif" : "Pending";
+};
+
 export const reservStatusAlias = (status) => {
   return status === "1" ? "Completed" : status === "2" ? "Reschedule" : status === "3" ? "Canceled" : "Pending";
 };

@@ -11,7 +11,7 @@ import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { useSearch } from "../libs/plugins/handler";
 import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue, inputValidator } from "../libs/plugins/controller";
-import { options, units, hours, inputSchema, errorSchema, orderStatusAlias, dpStatusAlias, poStatusAlias, reservStatusAlias, genderopt } from "../libs/sources/common";
+import { options, units, hours, inputSchema, errorSchema, orderStatusAlias, dpStatusAlias, poStatusAlias, reservStatusAlias, genderopt, userStatusAlias } from "../libs/sources/common";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
@@ -548,7 +548,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             id: switchedData.idoutlet,
             username: switchedData.username,
             level: switchedData.level,
-            status: switchedData.status,
+            status: switchedData.apiauth_status,
           });
           setSelectedBranch(switchedData.idoutlet);
           break;
@@ -888,6 +888,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     </TH>
                     <TH>Username</TH>
                     <TH>Level</TH>
+                    <TH>Status</TH>
                     <TH>Nama Cabang</TH>
                     <TH>Kode Cabang</TH>
                   </TR>
@@ -898,6 +899,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD>{newDate(data.apiauthcreate, "id")}</TD>
                       <TD>{data.username}</TD>
                       <TD>{data.level}</TD>
+                      <TD>{userStatusAlias(data.apiauth_status)}</TD>
                       <TD>{toTitleCase(data.outlet_name)}</TD>
                       <TD type="code">{data.cctr}</TD>
                     </TR>
