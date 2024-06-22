@@ -133,7 +133,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   const postatus = [
     { label: "Open", onClick: () => handleStatusChange(0), active: status === 0 },
-    { label: "Pending", onClick: () => handleStatusChange(1), active: status === 1 },
     { label: "Sent", onClick: () => handleStatusChange(2), active: status === 2 },
     { label: "Done", onClick: () => handleStatusChange(3), active: status === 3 },
     { label: "Rejected", onClick: () => handleStatusChange(4), active: status === 4 },
@@ -553,6 +552,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           });
           setSelectedBranch(switchedData.idoutlet);
           break;
+        case "PO MASUK":
+          switchedData = currentData(inPOData, "PO Stock.idpostock");
+          log(`id ${slug} data switched:`, switchedData["PO Stock"].idpostock);
+          setInputData({ id: switchedData["PO Stock"].idpostock, status: switchedData["PO Stock"].statusstock });
+          break;
         default:
           setSelectedData(null);
           break;
@@ -590,6 +594,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
         break;
       case "PO PUSAT":
         requiredFields = ["postock.itemname", "postock.sku", "postock.stockin"];
+        break;
+      case "MANAJEMEN USER":
+        requiredFields = ["username", "level", "status"];
         break;
       case "REKAM MEDIS":
         switch (tabId) {
@@ -689,6 +696,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           break;
         case "PO PUSAT":
           submittedData = { secret, postock: inputData.postock };
+          break;
+        case "PO MASUK":
+          submittedData = { secret, idpostock: selectedData, status: inputData.status };
           break;
         case "MANAJEMEN USER":
           submittedData = { secret, idoutlet: selectedBranch, username: inputData.username, password: inputData.password, level: inputData.level, status: inputData.status };
@@ -913,7 +923,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     name="level"
                     value={inputData.level}
                     options={[
-                      { value: "pusat", label: "Admin Pusat" },
+                      { value: "admin", label: "Admin Pusat" },
                       { value: "cabang", label: "Admin Cabang" },
                     ]}
                     onSelect={(selectedValue) => handleInputChange({ target: { name: "level", value: selectedValue } })}
@@ -1278,7 +1288,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardToolbar>
             <TabGroup buttons={postatus} />
             <DashboardBody>
-              <Table byNumber isExpandable page={currentPage} limit={limit} isNoData={!isInPOShown} isLoading={isFetching}>
+              <Table byNumber isExpandable isEditable page={currentPage} limit={limit} isNoData={!isInPOShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(inPOData, setInPOData, "PO Stock.postockcreate")}>
@@ -1306,6 +1316,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           ))}
                         </Fragment>
                       }
+                      onEdit={() => openEdit(data["PO Stock"].idpostock)}
                     >
                       <TD>{newDate(data["PO Stock"].postockcreate, "id")}</TD>
                       <TD type="code">{data["PO Stock"].postockcode}</TD>
@@ -1318,6 +1329,29 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </Table>
             </DashboardBody>
             {isInPOShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle="Ubah Status PO" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "updatepostock")} loading={isSubmitting} onClose={closeForm}>
+                <Fieldset>
+                  <Input
+                    id={`${pageid}-po-status`}
+                    variant="select"
+                    noEmptyValue
+                    radius="full"
+                    labelText="Status PO"
+                    placeholder="Set status"
+                    name="status"
+                    value={inputData.status}
+                    options={[
+                      { value: "0", label: "Open" },
+                      { value: "2", label: "Sent" },
+                      { value: "3", label: "Done" },
+                      { value: "4", label: "Rejected" },
+                    ]}
+                    onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })}
+                  />
+                </Fieldset>
+              </SubmitForm>
+            )}
           </Fragment>
         );
       case "PO KELUAR":
