@@ -778,6 +778,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           case "CABANG EDENTAL":
             submittedData = { secret, region: "", name: "", address: "", phone: "", mainregion: "", postcode: "", cctr_group: "", cctr: "", coordinate: "" };
             break;
+          case "MANAJEMEN USER":
+            submittedData = { secret, idoutlet: "", username: "", password: "", level: "", status: "" };
+            break;
           default:
             break;
         }
@@ -869,7 +872,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isUserShown} isLoading={isFetching}>
+              <Table byNumber isEditable isDeletable page={currentPage} limit={limit} isNoData={!isUserShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(userData, setUserData, "apiauthcreate")}>
@@ -883,7 +886,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {userDatabyBranch.map((data, index) => (
-                    <TR key={index} onEdit={() => openEdit(data.idauth)}>
+                    <TR key={index} onEdit={() => openEdit(data.idauth)} onDelete={() => handleDelete(data.idauth, "cuduser")}>
                       <TD>{newDate(data.apiauthcreate, "id")}</TD>
                       <TD>{data.username}</TD>
                       <TD>{data.level}</TD>
