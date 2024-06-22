@@ -551,6 +551,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             level: switchedData.level,
             status: switchedData.status,
           });
+          setSelectedBranch(switchedData.idoutlet);
           break;
         default:
           setSelectedData(null);
@@ -856,14 +857,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "MANAJEMEN USER":
-        const userDatabyBranch = filteredUserData.filter((data) => data.idoutlet === selectedBranch);
-
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={userSearch} onChange={(e) => handleUserSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
@@ -885,7 +883,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {userDatabyBranch.map((data, index) => (
+                  {filteredUserData.map((data, index) => (
                     <TR key={index} onEdit={() => openEdit(data.idauth)} onDelete={() => handleDelete(data.idauth, "cuduser")}>
                       <TD>{newDate(data.apiauthcreate, "id")}</TD>
                       <TD>{data.username}</TD>
@@ -939,6 +937,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     errorContent={errors.status}
                     isRequired
                   />
+                  <Input id={`${pageid}-outlet`} variant="select" isSearchable radius="full" labelText="Cabang" placeholder="Pilih cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />
                 </Fieldset>
               </SubmitForm>
             )}
@@ -1254,7 +1253,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     isRequired
                     isDisabled={inputData.category ? false : true}
                   />
-                  <Input id={`${pageid}-name`} radius="full" labelText="Nama Item" placeholder="STERILISATOR" type="text" name="item" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                  <Input id={`${pageid}-name`} radius="full" labelText="Nama Item" placeholder="STERILISATOR" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
                 </Fieldset>
                 <Fieldset>
                   <Input id={`${pageid}-unit`} variant="select" radius="full" labelText="Unit/satuan" placeholder="Pilih satuan/unit" name="unit" value={inputData.unit} options={units} onSelect={(selectedValue) => handleInputChange({ target: { name: "unit", value: selectedValue } })} errorContent={errors.unit} isRequired />
@@ -1772,6 +1771,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const { name, value } = e.target;
           setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, [name]: value } : item)) }));
           setErrors((prevErrors) => ({ ...prevErrors, postock: prevErrors.postock.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
+          if (name === "itemname") {
+            const selecteditem = allStockData.find((s) => s.itemname === value);
+            setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, sku: selecteditem.sku } : item)) }));
+            log(`sku item set to ${selecteditem.sku}`);
+          }
         };
 
         const handleAddCentralPORow = () => {
@@ -1863,7 +1867,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Input id={`${pageid}-item-note-${index}`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
                   </Fieldset>
                 ))}
-                <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Jenis Layanan" onClick={handleAddCentralPORow} />
+                <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={handleAddCentralPORow} />
               </SubmitForm>
             )}
           </Fragment>
@@ -2444,7 +2448,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setSelectedData(null);
     setSelectedImage(null);
     fetchData();
-  }, [slug, currentPage, limit, status, selectedBranch, selectedCust, tabId, subTabId]);
+  }, [slug, currentPage, limit, status, slug !== "MANAJEMEN USER" ? selectedBranch : null, selectedCust, tabId, subTabId]);
 
   useEffect(() => {
     fetchAdditionalData();

@@ -9,14 +9,14 @@ const modalRoot = document.getElementById("modal-root") || document.body;
 
 export const SubmitForm = ({ size, formTitle, formSubtitle, fetching = false, loading, operation = "add", onSubmit, saveText = "Simpan", cancelText = "Batal", children, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
-  const ref = useRef(null);
+  // const ref = useRef(null);
 
   const handleClose = () => setIsClosing(true);
-  const handleClickOutside = (e) => {
-    if (ref.current && !ref.current.contains(e.target)) {
-      setIsClosing(true);
-    }
-  };
+  // const handleClickOutside = (e) => {
+  //   if (ref.current && !ref.current.contains(e.target)) {
+  //     setIsClosing(true);
+  //   }
+  // };
 
   useEffect(() => {
     if (isClosing) {
@@ -27,12 +27,12 @@ export const SubmitForm = ({ size, formTitle, formSubtitle, fetching = false, lo
     }
   }, [isClosing, onClose]);
 
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  // useEffect(() => {
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
 
   useEffect(() => {
     let modalCount = 0;
@@ -70,7 +70,7 @@ export const SubmitForm = ({ size, formTitle, formSubtitle, fetching = false, lo
   const modalElement = (
     <main className={styles.formScroll}>
       <section className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
-        <form ref={ref} className={`${styles.form} ${isClosing ? styles.close : ""}`} style={getFormStyles()} onSubmit={onSubmit}>
+        <form className={`${styles.form} ${isClosing ? styles.close : ""}`} style={getFormStyles()} onSubmit={onSubmit}>
           <header className={styles.formHead}>
             <img className={styles.formLogoIcon} loading="lazy" alt="Form Logo" src="/svg/logo-primary.svg" />
             <b className={styles.formTitle}>{formTitle}</b>
