@@ -65,6 +65,9 @@ export const inputSchema = {
   mata: "",
   mulut_gigi: "",
   kulit: "",
+  username: "",
+  password: "",
+  level: "",
 };
 
 export const errorSchema = {
@@ -134,6 +137,9 @@ export const errorSchema = {
   mata: "",
   mulut_gigi: "",
   kulit: "",
+  username: "",
+  password: "",
+  level: "",
 };
 
 export const options = [

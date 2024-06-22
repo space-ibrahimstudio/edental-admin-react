@@ -91,6 +91,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [historyReservData, setHistoryReservData] = useState([]);
   const [historyOrderData, setHistoryOrderData] = useState([]);
   const [photoMedic, setPhotoMedic] = useState(null);
+  const [userData, setUserData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
@@ -387,6 +388,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
               break;
           }
           break;
+        case "MANAJEMEN USER":
+          data = await apiRead(formData, "office", "viewuser");
+          if (data && data.data && data.data.length > 0) {
+            setUserData(data.data);
+            setTotalPages(data.TTLPage);
+          } else {
+            setUserData([]);
+            setTotalPages(0);
+          }
+          break;
         default:
           setTotalPages(0);
           break;
@@ -531,6 +542,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
           log(`id ${slug} data switched:`, switchedData.idreservation);
           setInputData({ status: switchedData.status_reservation, statuspayment: switchedData.status_dp });
           break;
+        case "MANAJEMEN USER":
+          switchedData = currentData(userData, "idauth");
+          log(`id ${slug} data switched:`, switchedData.idauth);
+          setInputData({
+            id: switchedData.idoutlet,
+            username: switchedData.username,
+            level: switchedData.level,
+            status: switchedData.status,
+          });
+          break;
         default:
           setSelectedData(null);
           break;
@@ -668,6 +689,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "PO PUSAT":
           submittedData = { secret, postock: inputData.postock };
           break;
+        case "MANAJEMEN USER":
+          submittedData = { secret, idoutlet: selectedBranch, username: inputData.username, password: inputData.password, level: inputData.level, status: inputData.status };
+          break;
         case "REKAM MEDIS":
           switch (tabId) {
             case "1":
@@ -780,6 +804,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: reservSearch, handleSearch: handleReservSearch, filteredData: filteredReservData, isDataShown: isReservShown } = useSearch(reservData, ["rscode", "name", "phone", "outlet_name"]);
   const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
   const { searchTerm: centralPOSearch, handleSearch: handleCentralPOSearch, filteredData: filteredCentralPOData, isDataShown: isCentralPOShown } = useSearch(centralPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
+  const { searchTerm: userSearch, handleSearch: handleUserSearch, filteredData: filteredUserData, isDataShown: isUserShown } = useSearch(userData, ["username", "cctr", "outlet_name"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -828,20 +853,92 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "MANAJEMEN USER":
+        const userDatabyBranch = filteredUserData.filter((data) => data.idoutlet === selectedBranch);
+
         return (
           <Fragment>
-            <DashboardHead title={pagetitle} />
+            <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" startContent={<Search />} />
+                <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={userSearch} onChange={(e) => handleUserSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={true} />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isUserShown ? false : true} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table isNoData={true}></Table>
+              <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isUserShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(userData, setUserData, "apiauthcreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Username</TH>
+                    <TH>Level</TH>
+                    <TH>Nama Cabang</TH>
+                    <TH>Kode Cabang</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {userDatabyBranch.map((data, index) => (
+                    <TR key={index} onEdit={() => openEdit(data.idauth)}>
+                      <TD>{newDate(data.apiauthcreate, "id")}</TD>
+                      <TD>{data.username}</TD>
+                      <TD>{data.level}</TD>
+                      <TD>{toTitleCase(data.outlet_name)}</TD>
+                      <TD type="code">{data.cctr}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
             </DashboardBody>
+            {isReservShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle={selectedMode === "update" ? "Ubah Data Pengguna" : "Tambah Data Pengguna"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cuduser")} loading={isSubmitting} onClose={closeForm}>
+                <Fieldset>
+                  <Input id={`${pageid}-username`} radius="full" labelText="Username" placeholder="cabang.jakarta@edental.id" type="text" name="username" value={inputData.username} onChange={handleInputChange} errorContent={errors.username} isRequired />
+                  <Input id={`${pageid}-password`} radius="full" labelText="Password" placeholder="Masukkan password" type="password" name="password" value={inputData.password} onChange={handleInputChange} errorContent={errors.password} isRequired />
+                </Fieldset>
+                <Fieldset>
+                  <Input
+                    id={`${pageid}-level`}
+                    variant="select"
+                    noEmptyValue
+                    radius="full"
+                    labelText="Level/Akses"
+                    placeholder="Pilih level/akses"
+                    name="level"
+                    value={inputData.level}
+                    options={[
+                      { value: "pusat", label: "Admin Pusat" },
+                      { value: "cabang", label: "Admin Cabang" },
+                    ]}
+                    onSelect={(selectedValue) => handleInputChange({ target: { name: "level", value: selectedValue } })}
+                    errorContent={errors.level}
+                    isRequired
+                  />
+                  <Input
+                    id={`${pageid}-status`}
+                    variant="select"
+                    noEmptyValue
+                    radius="full"
+                    labelText="Status Pengguna"
+                    placeholder="Pilih status"
+                    name="status"
+                    value={inputData.status}
+                    options={[
+                      { value: "0", label: "Aktif" },
+                      { value: "1", label: "Pending" },
+                    ]}
+                    onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })}
+                    errorContent={errors.status}
+                    isRequired
+                  />
+                </Fieldset>
+              </SubmitForm>
+            )}
           </Fragment>
         );
       case "LAYANAN":
@@ -2252,7 +2349,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       )}
                     </Fragment>
                   );
-
                 case "4":
                   return (
                     <OnpageForm onSubmit={(e) => handleSubmit(e, "cudphoto")}>

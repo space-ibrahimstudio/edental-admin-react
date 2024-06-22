@@ -19,8 +19,8 @@ const BarContentWrap = ({ children }) => {
 const BottomBar = ({ loading }) => {
   const { ip_address, username } = useAuth();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [batteryStatus, setBatteryStatus] = useState({ level: null, charging: null });
-  const [memoryUsage, setMemoryUsage] = useState({ jsHeapSizeLimit: null, totalJSHeapSize: null, usedJSHeapSize: null });
+  const [batteryStatus, setBatteryStatus] = useState({ level: "N/A", charging: false });
+  const [memoryUsage, setMemoryUsage] = useState({ jsHeapSizeLimit: "N/A", totalJSHeapSize: "N/A", usedJSHeapSize: "N/A" });
 
   useEffect(() => {
     const updateOnlineStatus = () => {
@@ -39,10 +39,15 @@ const BottomBar = ({ loading }) => {
       setBatteryStatus({ level: (battery.level * 100).toFixed(0), charging: battery.charging });
     };
     const getBatteryStatus = async () => {
-      const battery = await navigator.getBattery();
-      updateBatteryStatus(battery);
-      battery.addEventListener("levelchange", () => updateBatteryStatus(battery));
-      battery.addEventListener("chargingchange", () => updateBatteryStatus(battery));
+      if ("getBattery" in navigator) {
+        const battery = await navigator.getBattery();
+        updateBatteryStatus(battery);
+        battery.addEventListener("levelchange", () => updateBatteryStatus(battery));
+        battery.addEventListener("chargingchange", () => updateBatteryStatus(battery));
+      } else {
+        console.warn("Battery Status API is not supported in this browser.");
+        setBatteryStatus({ level: "N/A", charging: false });
+      }
     };
     getBatteryStatus();
   }, []);
@@ -55,6 +60,13 @@ const BottomBar = ({ loading }) => {
           jsHeapSizeLimit: (jsHeapSizeLimit / 1048576).toFixed(2),
           totalJSHeapSize: (totalJSHeapSize / 1048576).toFixed(2),
           usedJSHeapSize: (usedJSHeapSize / 1048576).toFixed(2),
+        });
+      } else {
+        console.warn("Memory API is not supported in this browser.");
+        setMemoryUsage({
+          jsHeapSizeLimit: "N/A",
+          totalJSHeapSize: "N/A",
+          usedJSHeapSize: "N/A",
         });
       }
     };
