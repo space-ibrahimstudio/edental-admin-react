@@ -1091,7 +1091,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredBranchData.map((data, index) => (
-                    <TR key={index} onEdit={() => openEdit(data.idoutlet)} onDelete={() => handleDelete(data.idoutlet)}>
+                    <TR key={index} onEdit={() => openEdit(data.idoutlet)} onDelete={() => handleDelete(data.idoutlet, "cudoutlet")}>
                       <TD>{newDate(data.outletcreate, "id")}</TD>
                       <TD>{toTitleCase(data.outlet_name)}</TD>
                       <TD>{toTitleCase(data.outlet_address)}</TD>
