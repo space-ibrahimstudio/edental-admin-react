@@ -54,37 +54,37 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFileOpen, setIsFileOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [status, setStatus] = useState(0);
   const [custExist, setCustExist] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const [allCustData, setAllCustData] = useState([]);
   const [custData, setCustData] = useState([]);
-  const [allservicedata, setAllservicedata] = useState([]);
+  const [allCustData, setAllCustData] = useState([]);
+  const [selectedCust, setSelectedCust] = useState(null);
   const [servicedata, setservicedata] = useState([]);
-  const [allBranchData, setAllBranchData] = useState([]);
+  const [allservicedata, setAllservicedata] = useState([]);
   const [branchData, setBranchData] = useState([]);
+  const [allBranchData, setAllBranchData] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(idoutlet);
-  const [branchDentistData, setBranchDentistData] = useState([]);
   const [dentistData, setDentistData] = useState([]);
-  const [allStockData, setAllStockData] = useState([]);
+  const [branchDentistData, setBranchDentistData] = useState([]);
   const [stockData, setStockData] = useState([]);
+  const [allStockData, setAllStockData] = useState([]);
   const [categoryStockData, setCategoryStockData] = useState([]);
   const [inPOData, setInPOData] = useState([]);
   const [centralPOData, setCentralPOData] = useState([]);
   const [reservData, setReservData] = useState([]);
   const [bookedHoursData, setBookedHoursData] = useState([]);
   const [availHoursData, setAvailHoursData] = useState([]);
-  const [fvaListData, setFvaListData] = useState([]);
   const [orderData, setOrderData] = useState([]);
+  const [fvaListData, setFvaListData] = useState([]);
   const [selectedOrderData, setSelectedOrderData] = useState(null);
   const [orderDetailData, setOrderDetailData] = useState(null);
   const [eventsData, setEventsData] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [tabId, setTabId] = useState("1");
   const [subTabId, setSubTabId] = useState("1");
-  const [selectedCust, setSelectedCust] = useState(null);
   const [medicRcdData, setMedicRcdData] = useState([]);
   const [anamesaData, setAnamesaData] = useState([]);
   const [odontogramData, setOdontogramData] = useState([]);
@@ -1386,6 +1386,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           try {
             const formData = new FormData();
             formData.append("tgl", date);
+            formData.append("idoutlet", idoutlet)
             const data = await apiRead(formData, "main", "searchtime");
             if (data && data.data && data.data.length > 0) {
               setBookedHoursData(data.data.map((hours) => hours.reservationtime));
@@ -2033,6 +2034,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
         };
 
+        const handleAddError = () => showNotifications("warning", "Mohon pilih Customer terlebih dahulu.");
         const handleSubTabChange = (id) => setSubTabId(id);
         const handleTabChange = (id) => {
           setTabId(id);
@@ -2064,10 +2066,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           { label: "Tindakan Medis", onClick: () => handleSubTabChange("3"), active: subTabId === "3" },
           { label: "Pemakaian Alkes", onClick: () => handleSubTabChange("4"), active: subTabId === "4" },
         ];
-
-        const handleAddError = () => {
-          showNotifications("warning", "Mohon pilih Customer terlebih dahulu.");
-        };
 
         const renderSection = () => {
           switch (tabId) {

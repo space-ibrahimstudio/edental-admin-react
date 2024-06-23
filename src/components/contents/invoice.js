@@ -1,6 +1,7 @@
 import React, { Fragment, forwardRef } from "react";
 import { useContent, useFormat } from "@ibrahimstudio/react";
 import { useAuth } from "../../libs/securities/auth";
+import { orderStatusAlias } from "../../libs/sources/common";
 import styles from "./styles/invoice.module.css";
 
 const InvoiceContent = ({ data, items }) => {
@@ -27,7 +28,7 @@ const InvoiceContent = ({ data, items }) => {
       <section className={styles.header}>
         <div className={styles.subHeaderLeft}>
           <span className={styles.headerOutlet}>Informasi Dokter</span>
-          <span className={styles.headerName}>{`${toTitleCase(data.dentist)}`}</span>
+          <span className={styles.headerName}>{data.dentist === "" ? "Not set" : `${toTitleCase(data.dentist)}`}</span>
           <span className={styles.headerOutlet}>084127432</span>
         </div>
         <div className={styles.headerRight}>
@@ -114,8 +115,8 @@ const InvoiceContent = ({ data, items }) => {
           </div>
           <div className={styles.paymentValue}>
             <div className={styles.labelWrap}>
-              <span className={styles.th1Text}>{data.payment}</span>
-              <span className={styles.th1Text}>LUNAS</span>
+              <span className={styles.th1Text}>{data.payment === "" ? "Not set" : data.payment}</span>
+              <span className={styles.th1Text}>{orderStatusAlias(data.transactionstatus)}</span>
             </div>
           </div>
         </div>
