@@ -68,6 +68,7 @@ export const inputSchema = {
   username: "",
   password: "",
   level: "",
+  sip: "",
 };
 
 export const errorSchema = {
@@ -140,6 +141,7 @@ export const errorSchema = {
   username: "",
   password: "",
   level: "",
+  sip: "",
 };
 
 export const options = [

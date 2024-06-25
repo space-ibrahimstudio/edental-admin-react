@@ -558,6 +558,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
           log(`id ${slug} data switched:`, switchedData["PO Stock"].idpostock);
           setInputData({ id: switchedData["PO Stock"].idpostock, status: switchedData["PO Stock"].statusstock });
           break;
+        case "DENTIST":
+          switchedData = currentData(dentistData, "id_dentist");
+          log(`id ${slug} data switched:`, switchedData.id_dentist);
+          setInputData({
+            cctr: switchedData.id_branch,
+            name: switchedData.name_dentist,
+            sip: switchedData.sip,
+            phone: switchedData.phone,
+          });
+          break;
         default:
           setSelectedData(null);
           break;
@@ -631,6 +641,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           default:
             break;
         }
+        break;
+      case "DENTIST":
+        requiredFields = ["cctr", "name", "sip", "phone"];
         break;
       default:
         break;
@@ -748,6 +761,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
             default:
               break;
           }
+          break;
+        case "DENTIST":
+          submittedData = { secret, idbranch: inputData.cctr, name_dentist: inputData.name, sip: inputData.sip, phone: inputData.phone };
           break;
         default:
           break;
@@ -1152,11 +1168,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isDentistShown ? false : true} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredDentistData, "Daftar Dokter", `daftar_dokter_${getCurrentDate()}`)} isDisabled={isDentistShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber page={currentPage} limit={limit} isNoData={!isDentistShown} isLoading={isFetching}>
+              <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isDentistShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH>Kode Cabang</TH>
@@ -1167,10 +1184,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredDentistData.map((data, index) => (
-                    <TR key={index}>
+                    <TR key={index} onEdit={() => openEdit(data.id_dentist)}>
                       <TD type="code">{data.id_branch}</TD>
                       <TD>{toTitleCase(data.name_dentist.replace(`${data.id_branch} -`, ""))}</TD>
-                      <TD type="code">{data.SIP}</TD>
+                      <TD type="code">{data.sip}</TD>
                       <TD type="number">{data.phone}</TD>
                     </TR>
                   ))}
@@ -1178,6 +1195,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </Table>
             </DashboardBody>
             {isDentistShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Dokter" : "Tambah Data Dokter"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cuddentist")} loading={isSubmitting} onClose={closeForm}>
+                <Fieldset>
+                  <Input id={`${pageid}-outlet-code`} variant="select" isSearchable radius="full" labelText="Cabang" placeholder="Pilih cabang" name="cctr" value={inputData.cctr} options={allBranchData.map((branch) => ({ value: branch.cctr, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "cctr", value: selectedValue } })} errorContent={errors.cctr} isRequired />
+                  <Input id={`${pageid}-name`} radius="full" labelText="Nama Dokter" placeholder="Masukkan nama Dokter" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                  <Input id={`${pageid}-sip`} radius="full" labelText="Nomor SIP" placeholder="Masukkan nomor SIP" type="number" name="sip" value={inputData.sip} onChange={handleInputChange} errorContent={errors.sip} isRequired />
+                  <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
+                </Fieldset>
+              </SubmitForm>
+            )}
           </Fragment>
         );
       case "KAS":
