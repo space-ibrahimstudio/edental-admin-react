@@ -702,6 +702,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               reservationtime: inputData.time,
               price: inputData.price,
               bank_code: inputData.bank_code,
+              note: inputData.note,
             };
           }
           break;
@@ -1490,6 +1491,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH>Biaya DP</TH>
                     <TH>Kode Voucher</TH>
                     <TH>Nama Cabang</TH>
+                    <TH>Catatan</TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1511,6 +1513,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD>{newPrice(data.price_reservation)}</TD>
                       <TD type="code">{data.voucher}</TD>
                       <TD>{toTitleCase(data.outlet_name)}</TD>
+                      <TD>{data.note}</TD>
                     </TR>
                   ))}
                 </TBody>
