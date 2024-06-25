@@ -2521,10 +2521,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   }, [slug, bookedHoursData]);
 
   useEffect(() => {
-    setSelectedBranch(idoutlet);
-  }, [slug]);
-
-  useEffect(() => {
     if (slug !== "REKAM MEDIS") {
       setInputData({ ...inputSchema });
       setErrors({ ...errorSchema });
@@ -2543,6 +2539,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setCurrentPage(1);
     setSelectedMode("add");
     setSortOrder("asc");
+    setSelectedBranch(idoutlet);
   }, [slug]);
 
   if (!isLoggedin) {
