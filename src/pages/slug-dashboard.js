@@ -431,7 +431,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
       }
       const fvadata = await apiRead(formData, "office", "viewlistva");
       const allfvadata = fvadata.data;
-      const filteredfvadata = allfvadata.filter((va) => va.is_activated === true);
+      const staticdata = [{ code: "INVOICE", country: "ID", currency: "IDR", is_activated: true, name: "Invoice Xendit" }];
+      const mergedvadata = [...staticdata, ...allfvadata];
+      const filteredfvadata = mergedvadata.filter((va) => va.is_activated === true);
       if (filteredfvadata && filteredfvadata.length > 0) {
         setFvaListData(filteredfvadata);
       } else {
@@ -2028,7 +2030,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 {generateCalendar()}
               </Calendar>
             </DashboardBody>
-            {isModalOpen && <EventModal title={`${selectedEvent.rscode} - ${toTitleCase(selectedEvent.name)}`} status={selectedEvent.status_reservation} time={`${selectedEvent.reservationdate}, ${selectedEvent.reservationtime}`} service={`${toTitleCase(selectedEvent.service)}, ${toTitleCase(selectedEvent.typeservice)}`} onClose={closeEvent} />}
+            {isModalOpen && <EventModal idorder={selectedEvent.idtransaction} title={`${selectedEvent.rscode} - ${toTitleCase(selectedEvent.name)}`} status={selectedEvent.status_reservation} time={`${selectedEvent.reservationdate}, ${selectedEvent.reservationtime}`} service={`${toTitleCase(selectedEvent.service)}, ${toTitleCase(selectedEvent.typeservice)}`} onClose={closeEvent} />}
           </Fragment>
         );
       case "REKAM MEDIS":

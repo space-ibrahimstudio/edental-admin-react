@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@ibrahimstudio/button";
 import { reservStatusAlias } from "../../libs/sources/common";
 import { Close, Badge, Clock, ShopBag, ViewSource } from "./icons";
@@ -7,9 +8,10 @@ import styles from "./styles/calendar.module.css";
 
 const modalRoot = document.getElementById("modal-root") || document.body;
 
-export const EventModal = ({ title, status, time, service, onClose }) => {
-  const [isClosing, setIsClosing] = useState(false);
+export const EventModal = ({ idorder, title, status, time, service, onClose }) => {
   const ref = useRef(null);
+  const navigate = useNavigate();
+  const [isClosing, setIsClosing] = useState(false);
   const badgecolor = status === "1" ? "var(--color-green)" : status === "2" ? "var(--color-yellow)" : status === "3" ? "var(--color-red)" : "var(--color-primary)";
 
   const handleClose = () => setIsClosing(true);
@@ -71,7 +73,7 @@ export const EventModal = ({ title, status, time, service, onClose }) => {
               <p className={styles.itemText}>{service}</p>
             </div>
           </div>
-          <Button radius="full" buttonText="Lihat Detail" onClick={() => {}} endContent={<ViewSource />} />
+          <Button radius="full" buttonText="Lihat Detail" onClick={() => navigate(`/order/order-customer/${idorder}`)} endContent={<ViewSource />} />
         </div>
       </section>
     </main>
