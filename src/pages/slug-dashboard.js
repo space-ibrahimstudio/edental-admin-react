@@ -852,8 +852,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isCustShown ? false : true} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)} isDisabled={isCustShown ? false : true} startContent={<Export />} />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={!isCustShown} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)} isDisabled={!isCustShown} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -896,7 +896,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={userSearch} onChange={(e) => handleUserSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isUserShown ? false : true} />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={!isUserShown} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -1027,7 +1027,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={serviceSearch} onChange={(e) => handleServiceSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isServiceShown ? false : true} />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={!isServiceShown} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -1098,9 +1098,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={branchSearch} onChange={(e) => handleBranchSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isBranchShown ? false : true} />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={!isBranchShown} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredBranchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)} isDisabled={isBranchShown ? false : true} startContent={<Export />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredBranchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)} isDisabled={!isBranchShown} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1255,8 +1255,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH>Nama Item</TH>
                     <TH>Unit</TH>
                     <TH>Stok Akhir</TH>
-                    <TH>Harga</TH>
-                    <TH>Total Nilai</TH>
+                    <Fragment>
+                      {level === "admin" && (
+                        <Fragment>
+                          <TH>Harga</TH>
+                          <TH>Total Nilai</TH>
+                        </Fragment>
+                      )}
+                    </Fragment>
                     <TH>Nama Cabang</TH>
                   </TR>
                 </THead>
@@ -1270,8 +1276,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD>{toTitleCase(data.itemname)}</TD>
                       <TD>{data.unit}</TD>
                       <TD type="number">{data.lastqty}</TD>
-                      <TD>{newPrice(data.value)}</TD>
-                      <TD>{newPrice(data.totalvalue)}</TD>
+                      <Fragment>
+                        {level === "admin" && (
+                          <Fragment>
+                            <TD>{newPrice(data.value)}</TD>
+                            <TD>{newPrice(data.totalvalue)}</TD>
+                          </Fragment>
+                        )}
+                      </Fragment>
                       <TD>{toTitleCase(data.outletname)}</TD>
                     </TR>
                   ))}
