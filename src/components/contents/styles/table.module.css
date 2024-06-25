@@ -161,14 +161,17 @@
 }
 
 .bodyRow.complete {
+  box-shadow: inset 0 0 0 1px var(--color-green);
   background-color: var(--color-green-4);
 }
 
 .bodyRow.warning {
+  box-shadow: inset 0 0 0 1px var(--color-yellow);
   background-color: var(--color-yellow-4);
 }
 
 .bodyRow.danger {
+  box-shadow: inset 0 0 0 1px var(--color-red);
   background-color: var(--color-red-4);
 }
 
