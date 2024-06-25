@@ -198,7 +198,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setIsFetching(true);
     try {
       const offset = (currentPage - 1) * limit;
-      formData.append("data", JSON.stringify({ secret, limit, hal: offset }));
+      formData.append("data", JSON.stringify({ secret, limit, hal: offset, idoutlet: selectedBranch }));
       switch (slug) {
         case "DATA CUSTOMER":
           data = await apiRead(formData, "office", "viewcustomer");
@@ -822,18 +822,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: userSearch, handleSearch: handleUserSearch, filteredData: filteredUserData, isDataShown: isUserShown } = useSearch(userData, ["username", "cctr", "outlet_name"]);
 
   const renderContent = () => {
-    let databyBranch;
     switch (slug) {
       case "DATA CUSTOMER":
-        databyBranch = filteredCustData.filter((data) => data.idoutlet === selectedBranch);
-
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Daftar Customer yang memiliki riwayat Reservasi. Data ini dibuat otomatis saat proses reservasi dilakukan." />
             <DashboardToolbar>
               <DashboardTool>
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={custSearch} onChange={(e) => handleCustSearch(e.target.value)} startContent={<Search />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isCustShown ? false : true} />
@@ -841,7 +838,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber page={currentPage} limit={limit} isNoData={databyBranch.length > 0 ? false : true} isLoading={isFetching}>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isCustShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(custData, setCustData, "usercreate")}>
@@ -854,7 +851,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {databyBranch.map((data, index) => (
+                  {filteredCustData.map((data, index) => (
                     <TR key={index}>
                       <TD>{newDate(data.usercreate, "id")}</TD>
                       <TD>{toTitleCase(data.username)}</TD>
@@ -868,7 +865,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {databyBranch.length > 0 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isCustShown > 0 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
           </Fragment>
         );
       case "MANAJEMEN USER":
@@ -1201,15 +1198,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "STOCK":
-        databyBranch = filteredStockData.filter((data) => data.idoutlet === selectedBranch);
-
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Data Stok berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
             <DashboardToolbar>
               <DashboardTool>
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockSearch} onChange={(e) => handleStockSearch(e.target.value)} startContent={<Search />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isStockShown ? false : true} />
@@ -1218,7 +1213,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isClickable page={currentPage} limit={limit} isNoData={databyBranch.length > 0 ? false : true} isLoading={isFetching}>
+              <Table byNumber isClickable page={currentPage} limit={limit} isNoData={!isStockShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(stockData, setStockData, "stockcreate")}>
@@ -1236,7 +1231,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {databyBranch.map((data, index) => (
+                  {filteredStockData.map((data, index) => (
                     <TR key={index} onClick={() => openDetail(data.itemname)}>
                       <TD>{newDate(data.stockcreate, "id")}</TD>
                       <TD>{toTitleCase(data.categorystock)}</TD>
@@ -1253,7 +1248,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {databyBranch.length > 0 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isStockShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Stok" : "Tambah Data Stok"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudstock")} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
@@ -1386,7 +1381,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           try {
             const formData = new FormData();
             formData.append("tgl", date);
-            formData.append("idoutlet", idoutlet)
+            formData.append("idoutlet", idoutlet);
             const data = await apiRead(formData, "main", "searchtime");
             if (data && data.data && data.data.length > 0) {
               setBookedHoursData(data.data.map((hours) => hours.reservationtime));
@@ -1440,6 +1435,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardToolbar>
               <DashboardTool>
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={reservSearch} onChange={(e) => handleReservSearch(e.target.value)} startContent={<Search />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isReservShown ? false : true} />
@@ -1660,6 +1656,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardToolbar>
               <DashboardTool>
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderSearch} onChange={(e) => handleOrderSearch(e.target.value)} startContent={<Search />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isOrderShown ? false : true} />
@@ -2495,6 +2492,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
       setAvailHoursData(hours.filter((hour) => !bookedHoursData.includes(hour)));
     }
   }, [slug, bookedHoursData]);
+
+  useEffect(() => {
+    setSelectedBranch(idoutlet);
+  }, [slug]);
 
   useEffect(() => {
     if (slug !== "REKAM MEDIS") {
