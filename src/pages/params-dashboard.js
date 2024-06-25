@@ -7,16 +7,19 @@ import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { getNestedValue, exportToExcel } from "../libs/plugins/controller";
+import { options } from "../libs/sources/common";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
+import { Export, Arrow } from "../components/contents/icons";
+import Pagination from "../components/navigations/pagination";
 
 const DashboardParamsPage = ({ parent, slug }) => {
   const { params } = useParams();
   const navigate = useNavigate();
   const { toPathname, toTitleCase } = useContent();
   const { newDate, newPrice } = useFormat();
-  const { isLoggedin, secret } = useAuth();
+  const { isLoggedin, secret, idoutlet, level } = useAuth();
   const { apiRead } = useApi();
   const { showNotifications } = useNotifications();
 
@@ -28,11 +31,22 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1)));
   const [endDate, setEndDate] = useState(new Date());
+  const [limit, setLimit] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [selectedBranch, setSelectedBranch] = useState(idoutlet);
 
   const [stockHistoryData, setStockHistoryData] = useState([]);
+  const [allBranchData, setAllBranchData] = useState([]);
   const [orderDetailData, setOrderDetailData] = useState([]);
 
   const goBack = () => navigate(-1);
+  const handlePageChange = (page) => setCurrentPage(page);
+  const handleBranchChange = (value) => setSelectedBranch(value);
+  const handleLimitChange = (value) => {
+    setLimit(value);
+    setCurrentPage(1);
+  };
   const handleSortDate = (data, setData, params) => {
     const newData = [...data];
     if (!sortOrder || sortOrder === "desc") {
@@ -49,7 +63,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
     const errormsg = `Terjadi kesalahan saat memuat halaman ${toTitleCase(slug)} ${toTitleCase(params)}. Mohon periksa koneksi internet anda dan coba lagi.`;
     setIsFetching(true);
     const formData = new FormData();
+    const addtFormData = new FormData();
     let data;
+    let addtdata;
     try {
       switch (slug) {
         case "ORDER CUSTOMER":
@@ -66,16 +82,26 @@ const DashboardParamsPage = ({ parent, slug }) => {
           }
           break;
         case "STOCK":
-          formData.append("data", JSON.stringify({ secret, stockname: params }));
+          const offset = (currentPage - 1) * limit;
+          formData.append("data", JSON.stringify({ secret, stockname: params, limit, hal: offset, idoutlet: selectedBranch }));
           data = await apiRead(formData, "office", "logstock");
           if (data && data.data && data.data.length > 0) {
             setStockHistoryData(data.data);
+            setTotalPages(data.TTLPage);
             setPageTitle(`Histori Stok ${toTitleCase(params)}`);
             setIsDataShown(true);
           } else {
             setStockHistoryData([]);
+            setTotalPages(0);
             setPageTitle("");
             setIsDataShown(false);
+          }
+          addtFormData.append("data", JSON.stringify({ secret }));
+          addtdata = await apiRead(addtFormData, "office", "viewoutletall");
+          if (addtdata && addtdata.data && addtdata.data.length > 0) {
+            setAllBranchData(addtdata.data);
+          } else {
+            setAllBranchData([]);
           }
           break;
         default:
@@ -109,7 +135,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
             <DashboardHead title={isFetching ? "Memuat data ..." : isDataShown ? pageTitle : "Tidak ada data."} />
             <DashboardToolbar>
               <DashboardTool>
-                <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} />
+                <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} startContent={<Arrow direction="left" />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -144,10 +170,12 @@ const DashboardParamsPage = ({ parent, slug }) => {
             <DashboardHead title={isFetching ? "Memuat data ..." : pageTitle} desc={isFetching ? "Memuat detail ..." : isDataShown ? `Menampilkan histori stok ${newDate(formatDate(startDate), "id")} hingga ${newDate(formatDate(endDate), "id")}.` : `Histori stok ${newDate(formatDate(startDate), "id")} hingga ${newDate(formatDate(endDate), "id")} tidak ditemukan.`} />
             <DashboardToolbar>
               <DashboardTool>
-                <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} />
-                <Button id={`export-data-${pageid}`} buttonText="Export" radius="full" bgColor="var(--color-green)" onClick={() => exportToExcel(filterData(), pageTitle, `${toPathname(pageTitle)}`)} />
+                <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} startContent={<Arrow direction="left" />} />
+                <Button id={`export-data-${pageid}`} buttonText="Export" radius="full" bgColor="var(--color-green)" onClick={() => exportToExcel(filterData(), pageTitle, `${toPathname(pageTitle)}`)} startContent={<Export />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isDataShown ? false : true} />
                 <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Filter dari:" type="datetime-local" value={formatDate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
                 <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga:" type="datetime-local" value={formatDate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
               </DashboardTool>
@@ -180,6 +208,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
+            {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
           </Fragment>
         );
       default:
@@ -189,7 +218,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
 
   useEffect(() => {
     fetchData();
-  }, [slug, params, startDate, endDate]);
+  }, [slug, params, startDate, endDate, limit, selectedBranch]);
 
   useEffect(() => {
     if (slug === "STOCK") {
