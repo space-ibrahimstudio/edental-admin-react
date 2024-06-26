@@ -10,7 +10,7 @@ import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { useSearch } from "../libs/plugins/handler";
-import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue, inputValidator } from "../libs/plugins/controller";
+import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue, inputValidator, emailValidator } from "../libs/plugins/controller";
 import { options, units, hours, inputSchema, errorSchema, orderStatusAlias, dpStatusAlias, poStatusAlias, reservStatusAlias, genderopt, userStatusAlias } from "../libs/sources/common";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
@@ -116,6 +116,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
     const { name, value } = e.target;
     setInputData((prevState) => ({ ...prevState, [name]: value }));
     setErrors({ ...errors, [name]: "" });
+    if (name === "email") {
+      if (!emailValidator(value)) {
+        setErrors((prevErrors) => ({ ...prevErrors, email: "Invalid email format" }));
+      } else {
+        setErrors((prevErrors) => ({ ...prevErrors, email: "" }));
+      }
+    }
   };
   const handleImageSelect = (file) => {
     setSelectedImage(file);
@@ -1238,7 +1245,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={isStockShown ? false : true} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+                {level === "admin" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />}
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={isStockShown ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -1419,6 +1426,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "RESERVATION":
+        const MIN_AMOUNT = 10000;
         const getAvailHours = async (date) => {
           try {
             const formData = new FormData();
@@ -1456,6 +1464,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
               setInputData((prevState) => ({ ...prevState, name: "", email: "" }));
             }
           }
+          if (name === "email") {
+            if (!emailValidator(value)) {
+              setErrors((prevErrors) => ({ ...prevErrors, email: "Invalid email format" }));
+            } else {
+              setErrors((prevErrors) => ({ ...prevErrors, email: "" }));
+            }
+          }
           if (name === "sub_service") {
             const selectedservice = allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service);
             const selectedsubservice = selectedservice["Jenis Layanan"].find((type) => type.servicetypename === value);
@@ -1468,6 +1483,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           if (name === "date") {
             getAvailHours(value);
+          }
+          if (name === "price") {
+            if (value < MIN_AMOUNT) {
+              setErrors((prevErrors) => ({ ...prevErrors, price: `The minimum amount is ${MIN_AMOUNT.toLocaleString("id-ID", { style: "currency", currency: "IDR" })}` }));
+            } else {
+              setErrors((prevErrors) => ({ ...prevErrors, price: "" }));
+            }
           }
         };
 

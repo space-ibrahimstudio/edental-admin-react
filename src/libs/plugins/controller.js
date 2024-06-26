@@ -52,6 +52,11 @@ export function inputValidator(formData, requiredFields) {
   return errors;
 }
 
+export function emailValidator(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(String(email).toLowerCase());
+};
+
 export function getNestedValue(obj, path) {
   return path.split(".").reduce((acc, part) => acc && acc[part], obj);
 }
