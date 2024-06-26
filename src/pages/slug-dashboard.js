@@ -1661,12 +1661,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
               if (idx === index) {
                 let updateditem = { ...item, [name]: value };
                 if (name === "servicetype") {
-                  const selectedservice = prevState.order[index].service;
-                  const servicedata = allservicedata.find((service) => service["Nama Layanan"].servicename === selectedservice);
-                  if (servicedata) {
-                    const selectedtype = servicedata["Jenis Layanan"].find((type) => type.servicetypename === value);
-                    if (selectedtype) {
-                      updateditem.price = selectedtype.serviceprice || "";
+                  if (value !== "RESERVATION") {
+                    const selectedservice = prevState.order[index].service;
+                    const servicedata = allservicedata.find((service) => service["Nama Layanan"].servicename === selectedservice);
+                    if (servicedata) {
+                      const selectedtype = servicedata["Jenis Layanan"].find((type) => type.servicetypename === value);
+                      if (selectedtype) {
+                        updateditem.price = selectedtype.serviceprice || "";
+                      }
                     }
                   }
                 }
@@ -1823,6 +1825,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       onSelect={(selectedValue) => handleOrderRowChange(index, { target: { name: "service", value: selectedValue } })}
                       errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""}
                       isRequired
+                      isReadonly={inputData.order[index].service === "RESERVATION"}
                     />
                     <Input
                       id={`${pageid}-type-name-${index}`}
@@ -1837,9 +1840,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       onSelect={(selectedValue) => handleOrderRowChange(index, { target: { name: "servicetype", value: selectedValue } })}
                       errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
                       isRequired
-                      isDisabled={inputData.order[index].service ? false : true}
+                      isDisabled={!inputData.order[index].service}
+                      isReadonly={inputData.order[index].service === "RESERVATION"}
                     />
-                    <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleOrderRowChange(index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired />
+                    <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleOrderRowChange(index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
                   </Fieldset>
                 ))}
                 <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Layanan" onClick={handleAddOrderRow} />
