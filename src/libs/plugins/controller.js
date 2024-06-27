@@ -52,6 +52,34 @@ export function inputValidator(formData, requiredFields) {
   return errors;
 }
 
+export function validateForm(inputSchema, errorSchema, formData, setErrors) {
+  let valid = true;
+  const newerrors = { ...errorSchema };
+  Object.keys(inputSchema).forEach(field => {
+    if (Array.isArray(formData[field])) {
+      const fielderrors = [];
+      formData[field].forEach((item, index) => {
+        const errors = {};
+        Object.keys(item).forEach(key => {
+          if (!item[key].trim()) {
+            errors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} is required`;
+            valid = false;
+          }
+        });
+        fielderrors[index] = errors;
+      });
+      newerrors[field] = fielderrors;
+    } else {
+      if (!formData[field].trim()) {
+        newerrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
+        valid = false;
+      }
+    }
+  });
+  setErrors(newerrors);
+  return valid;
+};
+
 export function emailValidator(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(String(email).toLowerCase());

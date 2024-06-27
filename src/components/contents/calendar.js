@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@ibrahimstudio/button";
-import { reservStatusAlias } from "../../libs/sources/common";
+import { useAlias } from "../../libs/plugins/helper";
 import { Close, Badge, Clock, ShopBag, ViewSource } from "./icons";
 import styles from "./styles/calendar.module.css";
 
@@ -11,9 +11,11 @@ const modalRoot = document.getElementById("modal-root") || document.body;
 export const EventModal = ({ idorder, title, status, time, service, onClose }) => {
   const ref = useRef(null);
   const navigate = useNavigate();
-  const [isClosing, setIsClosing] = useState(false);
+  const { reservAlias } = useAlias();
+
   const badgecolor = status === "1" ? "var(--color-green)" : status === "2" ? "var(--color-yellow)" : status === "3" ? "var(--color-red)" : "var(--color-primary)";
 
+  const [isClosing, setIsClosing] = useState(false);
   const handleClose = () => setIsClosing(true);
   const handleClickOutside = (e) => {
     if (ref.current && !ref.current.contains(e.target)) {
@@ -59,7 +61,7 @@ export const EventModal = ({ idorder, title, status, time, service, onClose }) =
             <Badge color={badgecolor} />
             <header className={styles.modalHead}>
               <h1 className={styles.modalTitle}>{title}</h1>
-              <span className={styles.modalDesc}>{`Status: ${reservStatusAlias(status)}`}</span>
+              <span className={styles.modalDesc}>{`Status: ${reservAlias(status)}`}</span>
             </header>
             <Button radius="full" variant="hollow" subVariant="icon" color="var(--color-secondary-50)" iconContent={<Close size="var(--pixel-25)" />} onClick={handleClose} />
           </header>

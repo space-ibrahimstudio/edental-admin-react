@@ -6,12 +6,12 @@ import { Input } from "@ibrahimstudio/input";
 import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
-import { getNestedValue, exportToExcel } from "../libs/plugins/controller";
-import { options } from "../libs/sources/common";
+import { getNestedValue } from "../libs/plugins/controller";
+import { useOptions } from "../libs/plugins/helper";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
-import { Export, Arrow } from "../components/contents/icons";
+import { Arrow } from "../components/contents/icons";
 import Pagination from "../components/navigations/pagination";
 
 const DashboardParamsPage = ({ parent, slug }) => {
@@ -22,6 +22,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const { isLoggedin, secret, idoutlet, level } = useAuth();
   const { apiRead } = useApi();
   const { showNotifications } = useNotifications();
+  const { limitopt } = useOptions();
 
   const pageid = parent && slug && params ? `params-${toPathname(parent)}-${toPathname(slug)}-${toPathname(params)}` : "params-dashboard";
 
@@ -173,11 +174,11 @@ const DashboardParamsPage = ({ parent, slug }) => {
                 <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} startContent={<Arrow direction="left" />} />
                 {/* <Button id={`export-data-${pageid}`} buttonText="Export" radius="full" bgColor="var(--color-green)" onClick={() => exportToExcel(filterData(), pageTitle, `${toPathname(pageTitle)}`)} startContent={<Export />} isDisabled={!isDataShown} /> */}
                 {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={options} onSelect={handleLimitChange} isReadonly={!isDataShown} />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isDataShown} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Filter dari:" type="datetime-local" value={formatDate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} isReadonly={!isDataShown} />
-                <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga:" type="datetime-local" value={formatDate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} isReadonly={!isDataShown} />
+                <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Filter dari:" type="datetime-local" value={formatDate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
+                <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga:" type="datetime-local" value={formatDate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>

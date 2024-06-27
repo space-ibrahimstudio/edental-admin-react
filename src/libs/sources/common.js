@@ -69,6 +69,7 @@ export const inputSchema = {
   password: "",
   level: "",
   sip: "",
+  outlet: "",
 };
 
 export const errorSchema = {
@@ -100,7 +101,7 @@ export const errorSchema = {
   status: "",
   statuspayment: "",
   typepayment: "",
-  layanan: [{ servicetype: "", price: "" }],
+  layanan: [{}],
   order: [{ service: "", servicetype: "", price: "" }],
   postock: [{ idstock: "", itemname: "", sku: "", stockin: "", note: "" }],
   birth: "",
@@ -142,47 +143,5 @@ export const errorSchema = {
   password: "",
   level: "",
   sip: "",
-};
-
-export const options = [
-  { value: 5, label: "Baris per Halaman: 5" },
-  { value: 10, label: "Baris per Halaman: 10" },
-  { value: 20, label: "Baris per Halaman: 20" },
-  { value: 50, label: "Baris per Halaman: 50" },
-];
-
-export const genderopt = [
-  { value: "male", label: "Laki-laki" },
-  { value: "female", label: "Perempuan" },
-];
-
-export const units = [
-  { value: "PCS", label: "pcs" },
-  { value: "PACK", label: "pack" },
-  { value: "BOTTLE", label: "bottle" },
-  { value: "TUBE", label: "tube" },
-  { value: "BOX", label: "box" },
-  { value: "SET", label: "set" },
-];
-
-export const hours = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00"];
-
-export const dpStatusAlias = (status) => {
-  return status === "1" ? "Exist" : status === "2" ? "Paid" : status === "3" ? "Canceled" : "Pending";
-};
-
-export const orderStatusAlias = (status) => {
-  return status === "1" ? "Paid" : status === "2" ? "Canceled" : "Open";
-};
-
-export const poStatusAlias = (status) => {
-  return status === "1" ? "Pending" : status === "2" ? "Sent" : status === "3" ? "Done" : status === "4" ? "Rejected" : "Open";
-};
-
-export const userStatusAlias = (status) => {
-  return status === "0" ? "Aktif" : "Pending";
-};
-
-export const reservStatusAlias = (status) => {
-  return status === "1" ? "Completed" : status === "2" ? "Reschedule" : status === "3" ? "Canceled" : "Pending";
+  outlet: "",
 };

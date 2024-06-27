@@ -1,13 +1,14 @@
 import React, { Fragment, forwardRef } from "react";
 import { useContent, useFormat } from "@ibrahimstudio/react";
 import { useAuth } from "../../libs/securities/auth";
-import { orderStatusAlias } from "../../libs/sources/common";
+import { useAlias } from "../../libs/plugins/helper";
 import styles from "./styles/invoice.module.css";
 
 const InvoiceContent = ({ data, items }) => {
   const { toTitleCase } = useContent();
   const { newDate, newPrice } = useFormat();
   const { username } = useAuth();
+  const { orderAlias } = useAlias();
 
   return (
     <Fragment>
@@ -116,7 +117,7 @@ const InvoiceContent = ({ data, items }) => {
           <div className={styles.paymentValue}>
             <div className={styles.labelWrap}>
               <span className={styles.th1Text}>{data.payment === "" ? "Not set" : data.payment}</span>
-              <span className={styles.th1Text}>{orderStatusAlias(data.transactionstatus)}</span>
+              <span className={styles.th1Text}>{orderAlias(data.transactionstatus)}</span>
             </div>
           </div>
         </div>
