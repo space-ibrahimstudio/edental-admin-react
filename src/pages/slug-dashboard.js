@@ -851,7 +851,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             case "1":
               switch (subTabId) {
                 case "1":
-                  submittedData = { secret, iduser: selectedCust, birthday: inputData.birth, noktp: inputData.nik, address: inputData.address, gender: inputData.gender, room: inputData.room, ageyear: inputData.ageyear, agemonth: inputData.agemonth, ageday: inputData.ageday, service: inputData.service, servicetype: inputData.sub_service, dentist: inputData.dentist };
+                  submittedData = { secret, iduser: selectedCust, name: inputData.name, phone: inputData.phone, email: inputData.email, birthday: inputData.birth, noktp: inputData.nik, address: inputData.address, gender: inputData.gender, room: inputData.room, ageyear: inputData.ageyear, agemonth: inputData.agemonth, ageday: inputData.ageday, service: inputData.service, servicetype: inputData.sub_category, dentist: inputData.dentist };
                   break;
                 default:
                   break;
@@ -2341,12 +2341,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
         };
 
+        const addtCustData = [{ idauthuser: "", username: "Tambah Baru" }];
+        const mergedCustData = [...addtCustData, ...allCustData];
+
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Panel untuk memperbarui profil data dan menambah histori catatan medis pasien." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`cust-select-${pageid}`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Customer" name="id" options={allCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onSelect={handleCustChange} />
+                <Input id={`cust-select-${pageid}`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Customer" name="id" options={mergedCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onSelect={handleCustChange} />
               </DashboardTool>
               {tabId !== "1" && (
                 <DashboardTool>
