@@ -440,15 +440,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
             case "1":
               switch (subTabId) {
                 case "2":
-                  addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
-                  addtdata = await apiRead(addtFormData, "office", "viewhistoryresev");
-                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                    setHistoryReservData(addtdata.data);
+                  if (selectedCust) {
+                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
+                    addtdata = await apiRead(addtFormData, "office", "viewhistoryresev");
+                    if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                      setHistoryReservData(addtdata.data);
+                    } else {
+                      setHistoryReservData([]);
+                    }
                   } else {
                     setHistoryReservData([]);
                   }
                   break;
                 case "3":
+                  if (selectedCust) {
                   addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
                   addtdata = await apiRead(addtFormData, "office", "viewhistoryorder");
                   if (addtdata && addtdata.data && addtdata.data.length > 0) {
@@ -456,6 +461,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   } else {
                     setHistoryOrderData([]);
                   }
+                } else {
+                  setHistoryOrderData([])
+                }
                   break;
                 case "4":
                   addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
