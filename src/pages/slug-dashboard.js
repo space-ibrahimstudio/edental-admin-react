@@ -462,8 +462,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     setHistoryOrderData([]);
                   }
                 } else {
-                  setHistoryOrderData([])
-                }
+                  setHistoryOrderData([]);
+                } 
                   break;
                 case "4":
                   addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
