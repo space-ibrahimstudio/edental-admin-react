@@ -435,11 +435,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "REKAM MEDIS":
-          addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
+          const nikno = allCustData.filter((data) => data.idauthuser === selectedCust);
           switch (tabId) {
             case "1":
               switch (subTabId) {
                 case "2":
+                  addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
                   addtdata = await apiRead(addtFormData, "office", "viewhistoryresev");
                   if (addtdata && addtdata.data && addtdata.data.length > 0) {
                     setHistoryReservData(addtdata.data);
@@ -448,6 +449,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   }
                   break;
                 case "3":
+                  addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
                   addtdata = await apiRead(addtFormData, "office", "viewhistoryorder");
                   if (addtdata && addtdata.data && addtdata.data.length > 0) {
                     setHistoryOrderData(addtdata.data);
@@ -456,6 +458,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   }
                   break;
                 case "4":
+                  addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
                   addtdata = await apiRead(addtFormData, "office", "viewmedics");
                   if (addtdata && addtdata.data && addtdata.data.length > 0) {
                     setMedicRcdData(addtdata.data);
@@ -468,6 +471,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               }
               break;
             case "2":
+              addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
               switch (subTabId) {
                 case "1":
                   addtdata = await apiRead(addtFormData, "office", "viewanamnesa");
@@ -2031,7 +2035,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   );
                 case "2":
                   return (
-                    <Table byNumber isNoData={historyReservData.length < 0} isLoading={isFetching}>
+                    <Table byNumber isNoData={historyReservData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                       <THead>
                         <TR>
                           <TH isSorted onSort={() => handleSortDate(historyReservData, setHistoryReservData, "datetimecreate")}>
@@ -2076,7 +2080,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   );
                 case "3":
                   return (
-                    <Table byNumber isClickable isNoData={historyOrderData.length < 0} isLoading={isFetching}>
+                    <Table byNumber isClickable isNoData={historyOrderData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                       <THead>
                         <TR>
                           <TH isSorted onSort={() => handleSortDate(historyOrderData, setHistoryOrderData, "transactioncreate")}>
@@ -2115,7 +2119,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   );
                 case "4":
                   return (
-                    <Table byNumber isNoData={medicRcdData.length < 0} isLoading={isFetching}>
+                    <Table byNumber isNoData={medicRcdData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                       <THead>
                         <TR>
                           <TH>ID Rekam Medis</TH>
@@ -2153,7 +2157,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
                   return (
                     <Fragment>
-                      <Table byNumber isNoData={anamesaData.length < 0} isLoading={isFetching}>
+                      <Table byNumber isNoData={anamesaData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
                             <TH>ID Rekam Medis</TH>
@@ -2214,7 +2218,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "2":
                   return (
                     <Fragment>
-                      <Table byNumber isNoData={odontogramData.length < 0} isLoading={isFetching}>
+                      <Table byNumber isNoData={odontogramData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
                             <TH>ID Rekam Medis</TH>
@@ -2262,7 +2266,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "3":
                   return (
                     <Fragment>
-                      <Table byNumber isNoData={inspectData.length < 0} isLoading={isFetching}>
+                      <Table byNumber isNoData={inspectData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
                             <TH>ID Rekam Medis</TH>
