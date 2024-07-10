@@ -32,6 +32,7 @@ export const useOptions = () => {
     { value: "3", label: "Done" },
     { value: "4", label: "Rejected" },
   ];
+  const pocstatopt = [{ value: "3", label: "Done" }];
   const reservstatopt = [
     { value: "0", label: "Pending" },
     { value: "2", label: "Reschedule" },
@@ -49,7 +50,7 @@ export const useOptions = () => {
     { value: "0", label: "Pending" },
     { value: "2", label: "Lunas" },
   ];
-  return { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt };
+  return { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt };
 };
 
 export const useAlias = () => {

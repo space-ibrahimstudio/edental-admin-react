@@ -37,7 +37,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { isLoggedin, secret, cctr, idoutlet, level } = useAuth();
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
-  const { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt } = useOptions();
+  const { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt } = useOptions();
   const { paymentAlias, orderAlias, poAlias, usrstatAlias, reservAlias } = useAlias();
 
   const pageid = parent && slug ? `slug-${toPathname(parent)}-${toPathname(slug)}` : "slug-dashboard";
@@ -697,6 +697,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           log(`id ${slug} data switched:`, switchedData["PO Stock"].idpostock);
           setInputData({ id: switchedData["PO Stock"].idpostock, status: switchedData["PO Stock"].statusstock });
           break;
+        case "PO PUSAT":
+          switchedData = currentData(centralPOData, "PO Stock.idpostock");
+          log(`id ${slug} data switched:`, switchedData["PO Stock"].idpostock);
+          setInputData({ id: switchedData["PO Stock"].idpostock, status: switchedData["PO Stock"].statusstock });
+          break;
         case "DENTIST":
           switchedData = currentData(dentistData, "id_dentist");
           log(`id ${slug} data switched:`, switchedData.id_dentist);
@@ -764,7 +769,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
         requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
         break;
       case "PO PUSAT":
-        requiredFields = ["postock.itemname", "postock.sku", "postock.stockin"];
+        if (selectedMode === "update") {
+          requiredFields = []
+        } else {
+          requiredFields = ["postock.itemname", "postock.sku", "postock.stockin"];
+        }
         break;
       case "MANAJEMEN USER":
         requiredFields = ["username", "level", "status"];
@@ -858,7 +867,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
           break;
         case "PO PUSAT":
-          submittedData = { secret, postock: inputData.postock };
+          if (selectedMode === "update") {
+            submittedData = { secret, idpostock: selectedData, status: inputData.status };
+          } else {
+            submittedData = { secret, postock: inputData.postock };
+          }
           break;
         case "PO MASUK":
           submittedData = { secret, idpostock: selectedData, status: inputData.status };
@@ -1786,7 +1799,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardToolbar>
             <TabGroup buttons={postatus} />
             <DashboardBody>
-              <Table byNumber isExpandable page={currentPage} limit={limit} isNoData={!isCentralPOShown} isLoading={isFetching}>
+              <Table byNumber isExpandable isEditable={status === 2} page={currentPage} limit={limit} isNoData={!isCentralPOShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(centralPOData, setCentralPOData, "PO Stock.postockcreate")}>
@@ -1813,6 +1826,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           ))}
                         </Fragment>
                       }
+                      onEdit={() => openEdit(data["PO Stock"].idpostock)}
                     >
                       <TD>{newDate(data["PO Stock"].postockcreate, "id")}</TD>
                       <TD type="code">{data["PO Stock"].postockcode}</TD>
@@ -1825,30 +1839,40 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isCentralPOShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
-              <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data PO Pusat" : "Tambah Data PO Pusat"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "postock")} loading={isSubmitting} onClose={closeForm}>
-                {inputData.postock.map((po, index) => (
-                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("postock", index)} isDisabled={index <= 0} />}>
-                    <Input
-                      id={`${pageid}-item-name-${index}`}
-                      variant="select"
-                      isSearchable
-                      radius="full"
-                      labelText="Nama Item"
-                      placeholder="Pilih Item"
-                      name="itemname"
-                      value={po.itemname}
-                      options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))}
-                      onSelect={(selectedValue) => handleCentralPORowChange(index, { target: { name: "itemname", value: selectedValue } })}
-                      errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""}
-                      isRequired
-                    />
-                    <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
-                    <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
-                    <Input id={`${pageid}-item-note-${index}`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
-                  </Fieldset>
-                ))}
-                <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("postock")} />
-              </SubmitForm>
+              <Fragment>
+                {selectedMode === "update" ? (
+                  <SubmitForm size="sm" formTitle="Ubah Status PO Pusat" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "updatepostock")} loading={isSubmitting} onClose={closeForm}>
+                    <Fieldset>
+                      <Input id={`${pageid}-po-status`} variant="select" noEmptyValue radius="full" labelText="Status PO" placeholder="Set status" name="status" value={inputData.status} options={pocstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
+                    </Fieldset>
+                  </SubmitForm>
+                ) : (
+                  <SubmitForm formTitle="Tambah Data PO Pusat" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "postock")} loading={isSubmitting} onClose={closeForm}>
+                    {inputData.postock.map((po, index) => (
+                      <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("postock", index)} isDisabled={index <= 0} />}>
+                        <Input
+                          id={`${pageid}-item-name-${index}`}
+                          variant="select"
+                          isSearchable
+                          radius="full"
+                          labelText="Nama Item"
+                          placeholder="Pilih Item"
+                          name="itemname"
+                          value={po.itemname}
+                          options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))}
+                          onSelect={(selectedValue) => handleCentralPORowChange(index, { target: { name: "itemname", value: selectedValue } })}
+                          errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""}
+                          isRequired
+                        />
+                        <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
+                        <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
+                        <Input id={`${pageid}-item-note-${index}`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
+                      </Fieldset>
+                    ))}
+                    <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("postock")} />
+                  </SubmitForm>
+                )}
+              </Fragment>
             )}
           </Fragment>
         );
