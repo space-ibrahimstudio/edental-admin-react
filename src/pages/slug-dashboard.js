@@ -676,9 +676,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const orderdetaildata = data.data;
           if (data && orderdetaildata && orderdetaildata.length > 0) {
             if (switchedData.payment === "CASH") {
-              setInputData({ id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
+              setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
             } else {
-              setInputData({ id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
+              setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
             }
           }
           break;
@@ -714,9 +714,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   const orderdetaildata = data.data;
                   if (data && orderdetaildata && orderdetaildata.length > 0) {
                     if (switchedData.payment === "CASH") {
-                      setInputData({ id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
+                      setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
                     } else {
-                      setInputData({ id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
+                      setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
                     }
                   }
                   break;
@@ -761,7 +761,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         }
         break;
       case "ORDER CUSTOMER":
-        requiredFields = ["dentist", "order.service", "order.servicetype", "order.price"];
+        requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
         break;
       case "PO PUSAT":
         requiredFields = ["postock.itemname", "postock.sku", "postock.stockin"];
@@ -802,7 +802,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             switch (subTabId) {
               case "3":
                 if (selectedMode === "update") {
-                  requiredFields = ["dentist", "order.service", "order.servicetype", "order.price"];
+                  requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
                 } else {
                   requiredFields = ["rscode"];
                 }
@@ -855,7 +855,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "ORDER CUSTOMER":
-          submittedData = { secret, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
+          submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
           break;
         case "PO PUSAT":
           submittedData = { secret, postock: inputData.postock };
@@ -901,7 +901,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   const nikno = allCustData.filter((data) => data.idauthuser === selectedCust);
                   const noktp = nikno[0].noktp;
                   if (selectedMode === "update") {
-                    submittedData = { secret, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
+                    submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
                   } else {
                     submittedData = { secret, noktp, rscode: inputData.rscode };
                   }
@@ -2434,6 +2434,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Fragment>
                           {selectedMode === "update" ? (
                             <SubmitForm formTitle="Perbarui Data Order" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudorder")} loading={isSubmitting} onClose={closeForm}>
+                              <Fieldset>
+                                <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                                <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
+                              </Fieldset>
                               <Fieldset>
                                 <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
                                 <Input id={`${pageid}-type-payments`} variant="select" noEmptyValue radius="full" labelText="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errorContent={errors.typepayment} isRequired />
