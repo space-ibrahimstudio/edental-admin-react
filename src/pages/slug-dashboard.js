@@ -74,6 +74,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [dentistData, setDentistData] = useState([]);
   const [branchDentistData, setBranchDentistData] = useState([]);
   const [stockData, setStockData] = useState([]);
+  const [stockOutData, setStockOutData] = useState([]);
   const [allStockData, setAllStockData] = useState([]);
   const [categoryStockData, setCategoryStockData] = useState([]);
   const [inPOData, setInPOData] = useState([]);
@@ -369,6 +370,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(data.TTLPage);
           } else {
             setStockData([]);
+            setTotalPages(0);
+          }
+          break;
+        case "STOCK OUT":
+          data = await apiRead(formData, "office", "viewstockout");
+          if (data && data.data && data.data.length > 0) {
+            setStockOutData(data.data);
+            setTotalPages(data.TTLPage);
+          } else {
+            setStockOutData([]);
             setTotalPages(0);
           }
           break;
@@ -770,7 +781,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         break;
       case "PO PUSAT":
         if (selectedMode === "update") {
-          requiredFields = []
+          requiredFields = [];
         } else {
           requiredFields = ["postock.itemname", "postock.sku", "postock.stockin"];
         }
@@ -996,6 +1007,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: branchSearch, handleSearch: handleBranchSearch, filteredData: filteredBranchData, isDataShown: isBranchShown } = useSearch(branchData, ["outlet_name", "mainregion", "outlet_region", "cctr_group", "cctr"]);
   const { searchTerm: dentistSearch, handleSearch: handleDentistSearch, filteredData: filteredDentistData, isDataShown: isDentistShown } = useSearch(dentistData, ["name_dentist", "id_branch"]);
   const { searchTerm: stockSearch, handleSearch: handleStockSearch, filteredData: filteredStockData, isDataShown: isStockShown } = useSearch(stockData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
+  const { searchTerm: stockOutSearch, handleSearch: handleStockOutSearch, filteredData: filteredStockOutData, isDataShown: isStockOutShown } = useSearch(stockOutData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
   const { searchTerm: inPOSearch, handleSearch: handleInPOSearch, filteredData: filteredInPOData, isDataShown: isInPOShown } = useSearch(inPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: reservSearch, handleSearch: handleReservSearch, filteredData: filteredReservData, isDataShown: isReservShown } = useSearch(reservData, ["rscode", "name", "phone", "outlet_name"]);
   const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
@@ -1409,6 +1421,72 @@ const DashboardSlugPage = ({ parent, slug }) => {
             )}
           </Fragment>
         );
+      case "STOCK OUT":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data Stok Keluar berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockOutSearch} onChange={(e) => handleStockOutSearch(e.target.value)} startContent={<Search />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isStockOutShown} />
+                {level === "admin" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />}
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockOutData, "Daftar Stok Keluar", `daftar_stok_keluar_${getCurrentDate()}`)} isDisabled={!isStockOutShown} startContent={<Export />} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isClickable page={currentPage} limit={limit} isNoData={!isStockOutShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(stockOutData, setStockOutData, "stockoutcreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Kategori</TH>
+                    <TH>Sub Kategori</TH>
+                    <TH>Kode SKU</TH>
+                    <TH>Nama Item</TH>
+                    <TH>Unit</TH>
+                    <TH>Stok Akhir</TH>
+                    <Fragment>
+                      {level === "admin" && (
+                        <Fragment>
+                          <TH>Harga</TH>
+                          <TH>Total Nilai</TH>
+                        </Fragment>
+                      )}
+                    </Fragment>
+                    <TH>Nama Cabang</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredStockOutData.map((data, index) => (
+                    <TR key={index} onClick={() => openDetail(data.itemname)}>
+                      <TD>{newDate(data.stockoutcreate, "id")}</TD>
+                      <TD>{toTitleCase(data.categorystock)}</TD>
+                      <TD>{toTitleCase(data.subcategorystock)}</TD>
+                      <TD type="code">{data.sku}</TD>
+                      <TD>{toTitleCase(data.itemname)}</TD>
+                      <TD>{data.unit}</TD>
+                      <TD type="number">{data.lastqty}</TD>
+                      <Fragment>
+                        {level === "admin" && (
+                          <Fragment>
+                            <TD>{newPrice(data.value)}</TD>
+                            <TD>{newPrice(data.totalvalue)}</TD>
+                          </Fragment>
+                        )}
+                      </Fragment>
+                      <TD>{toTitleCase(data.outletname)}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isStockOutShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+          </Fragment>
+        );
       case "PO MASUK":
         return (
           <Fragment>
@@ -1787,7 +1865,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
         return (
           <Fragment>
-            <DashboardHead title={pagetitle} />
+            <DashboardHead title={pagetitle} desc="Daftar permintaan PO ke Pusat. Klik Tambah untuk membuat permintaan PO baru, atau review status permintaan PO terkini." />
             <DashboardToolbar>
               <DashboardTool>
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={centralPOSearch} onChange={(e) => handleCentralPOSearch(e.target.value)} startContent={<Search />} />
@@ -1944,7 +2022,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
         return (
           <Fragment>
-            <DashboardHead title={`Jadwal Reservasi ${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}`} desc="Data visual jadwal reservasi, klik event label untuk melihat detail setiap jadwal reservasi." />
+            <DashboardHead title={`Jadwal Reservasi ${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}`} desc="Data visual jadwal reservasi, klik kolom tanggal untuk melihat daftar jadwal reservasi harian." />
             <DashboardToolbar>
               <DashboardTool>{level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}</DashboardTool>
               <DashboardTool>
