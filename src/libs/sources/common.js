@@ -70,6 +70,7 @@ export const inputSchema = {
   level: "",
   sip: "",
   outlet: "",
+  rscode: "",
 };
 
 export const errorSchema = {
@@ -144,4 +145,5 @@ export const errorSchema = {
   level: "",
   sip: "",
   outlet: "",
+  rscode: "",
 };

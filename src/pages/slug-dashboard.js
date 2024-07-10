@@ -79,6 +79,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [inPOData, setInPOData] = useState([]);
   const [centralPOData, setCentralPOData] = useState([]);
   const [reservData, setReservData] = useState([]);
+  const [rscodeData, setRscodeData] = useState([]);
   const [bookedHoursData, setBookedHoursData] = useState([]);
   const [availHoursData, setAvailHoursData] = useState([]);
   const [orderData, setOrderData] = useState([]);
@@ -454,16 +455,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   break;
                 case "3":
                   if (selectedCust) {
-                  addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
-                  addtdata = await apiRead(addtFormData, "office", "viewhistoryorder");
-                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                    setHistoryOrderData(addtdata.data);
+                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
+                    addtdata = await apiRead(addtFormData, "office", "viewhistoryorder");
+                    if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                      setHistoryOrderData(addtdata.data);
+                    } else {
+                      setHistoryOrderData([]);
+                    }
                   } else {
                     setHistoryOrderData([]);
                   }
-                } else {
-                  setHistoryOrderData([]);
-                } 
                   break;
                 case "4":
                   addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
@@ -512,6 +513,25 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   } else {
                     setPhotoMedic([]);
                   }
+                default:
+                  break;
+              }
+              break;
+            case "3":
+              switch (subTabId) {
+                case "3":
+                  if (selectedCust) {
+                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
+                    addtdata = await apiRead(addtFormData, "office", "viewhistoryorder");
+                    if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                      setHistoryOrderData(addtdata.data);
+                    } else {
+                      setHistoryOrderData([]);
+                    }
+                  } else {
+                    setHistoryOrderData([]);
+                  }
+                  break;
                 default:
                   break;
               }
@@ -595,6 +615,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
         setAllStockData(stockdata.data);
       } else {
         setAllStockData([]);
+      }
+      const rscodedata = await apiRead(formData, "office", "searchrscode");
+      if (rscodedata && rscodedata.data && rscodedata.data.length > 0) {
+        setRscodeData(rscodedata.data);
+      } else {
+        setRscodeData([]);
       }
     } catch (error) {
       showNotifications("danger", errormsg);
@@ -778,6 +804,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 break;
             }
             break;
+          case "3":
+            switch (subTabId) {
+              case "3":
+                requiredFields = ["rscode"];
+                break;
+              default:
+                break;
+            }
+            break;
           default:
             break;
         }
@@ -899,6 +934,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 default:
                   break;
               }
+              break;
+            case "3":
+              switch (subTabId) {
+                case "3":
+                  const nikno = allCustData.filter((data) => data.idauthuser === selectedCust);
+                  const noktp = nikno[0].noktp;
+                  submittedData = { secret, noktp, rscode: inputData.rscode };
+                  break;
+                default:
+                  break;
+              }
+              break;
             default:
               break;
           }
@@ -2043,7 +2090,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   );
                 case "2":
                   return (
-                    <Table byNumber isNoData={historyReservData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                    <Table byNumber isNoData={historyReservData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                       <THead>
                         <TR>
                           <TH isSorted onSort={() => handleSortDate(historyReservData, setHistoryReservData, "datetimecreate")}>
@@ -2088,7 +2135,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   );
                 case "3":
                   return (
-                    <Table byNumber isClickable isNoData={historyOrderData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                    <Table byNumber isClickable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                       <THead>
                         <TR>
                           <TH isSorted onSort={() => handleSortDate(historyOrderData, setHistoryOrderData, "transactioncreate")}>
@@ -2127,7 +2174,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   );
                 case "4":
                   return (
-                    <Table byNumber isNoData={medicRcdData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                    <Table byNumber isNoData={medicRcdData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                       <THead>
                         <TR>
                           <TH>ID Rekam Medis</TH>
@@ -2165,7 +2212,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
                   return (
                     <Fragment>
-                      <Table byNumber isNoData={anamesaData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                      <Table byNumber isNoData={anamesaData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
                             <TH>ID Rekam Medis</TH>
@@ -2226,7 +2273,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "2":
                   return (
                     <Fragment>
-                      <Table byNumber isNoData={odontogramData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                      <Table byNumber isNoData={odontogramData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
                             <TH>ID Rekam Medis</TH>
@@ -2274,7 +2321,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "3":
                   return (
                     <Fragment>
-                      <Table byNumber isNoData={inspectData.length < 0 || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                      <Table byNumber isNoData={inspectData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
                             <TH>ID Rekam Medis</TH>
@@ -2348,6 +2395,57 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 default:
                   return <Table isNoData={true} isLoading={isFetching}></Table>;
               }
+            case "3":
+              switch (subTabId) {
+                case "3":
+                  return (
+                    <Fragment>
+                      <Table byNumber isClickable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                        <THead>
+                          <TR>
+                            <TH isSorted onSort={() => handleSortDate(historyOrderData, setHistoryOrderData, "transactioncreate")}>
+                              Tanggal Dibuat
+                            </TH>
+                            <TH>Nama Pengguna</TH>
+                            <TH>Kode Reservasi</TH>
+                            <TH>Nomor Invoice</TH>
+                            <TH>Nomor Telepon</TH>
+                            <TH>Metode Pembayaran</TH>
+                            <TH>Total Pembayaran</TH>
+                            <TH>Status Pembayaran</TH>
+                            <TH>Kode Voucher</TH>
+                            <TH>Nama Dokter</TH>
+                          </TR>
+                        </THead>
+                        <TBody>
+                          {historyOrderData.map((data, index) => (
+                            <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => navigate(`/${toPathname(parent)}/order-customer/${toPathname(data.idtransaction)}`)}>
+                              <TD>{newDate(data.transactioncreate, "id")}</TD>
+                              <TD>{toTitleCase(data.transactionname)}</TD>
+                              <TD type="code">{data.rscode}</TD>
+                              <TD type="code">{data.noinvoice}</TD>
+                              <TD type="number" isCopy>
+                                {data.transactionphone}
+                              </TD>
+                              <TD>{data.payment}</TD>
+                              <TD>{newPrice(data.totalpay)}</TD>
+                              <TD>{orderAlias(data.transactionstatus)}</TD>
+                              <TD type="code">{data.voucher}</TD>
+                              <TD>{toTitleCase(data.dentist)}</TD>
+                            </TR>
+                          ))}
+                        </TBody>
+                      </Table>
+                      {isFormOpen && (
+                        <SubmitForm size="sm" formTitle="Tambah Tindakan Medis" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addmedis")} loading={isSubmitting} onClose={closeForm}>
+                          <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
+                        </SubmitForm>
+                      )}
+                    </Fragment>
+                  );
+                default:
+                  return <Table isNoData={true} isLoading={isFetching}></Table>;
+              }
             default:
               return <Table isNoData={true} isLoading={isFetching}></Table>;
           }
@@ -2365,7 +2463,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               {tabId !== "1" && (
                 <DashboardTool>
-                  <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={selectedCust ? openForm : handleAddError} startContent={<Plus />} isDisabled={tabId === "3" || tabId === "4"} />
+                  <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={selectedCust ? openForm : handleAddError} startContent={<Plus />} isDisabled={tabId === "3" ? (subTabId !== "3" ? true : false) : false || tabId === "4"} />
                 </DashboardTool>
               )}
             </DashboardToolbar>
