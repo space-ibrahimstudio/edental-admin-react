@@ -1,21 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
+import { useContent } from "@ibrahimstudio/react";
 import { Button } from "@ibrahimstudio/button";
 import { useAlias } from "../../libs/plugins/helper";
-import { Close, Badge, Clock, ShopBag, ViewSource } from "./icons";
+import { Close, Badge, Clock, ShopBag } from "./icons";
 import styles from "./styles/calendar.module.css";
 
 const modalRoot = document.getElementById("modal-root") || document.body;
 
-export const EventModal = ({ idorder, title, status, time, service, onClose }) => {
+export const EventModal = ({ events, onClose }) => {
   const ref = useRef(null);
-  const navigate = useNavigate();
+  const { toTitleCase } = useContent();
   const { reservAlias } = useAlias();
-
-  const badgecolor = status === "1" ? "var(--color-green)" : status === "2" ? "var(--color-yellow)" : status === "3" ? "var(--color-red)" : "var(--color-primary)";
-
   const [isClosing, setIsClosing] = useState(false);
+
+  const badgecolor = (status) => (status === "1" ? "var(--color-green)" : status === "2" ? "var(--color-yellow)" : status === "3" ? "var(--color-red)" : "var(--color-primary)");
   const handleClose = () => setIsClosing(true);
   const handleClickOutside = (e) => {
     if (ref.current && !ref.current.contains(e.target)) {
@@ -57,25 +56,30 @@ export const EventModal = ({ idorder, title, status, time, service, onClose }) =
     <main className={styles.modalScroll}>
       <section className={`${styles.modalScreen} ${isClosing ? styles.close : ""}`}>
         <div ref={ref} className={`${styles.eventModal} ${isClosing ? styles.close : ""}`}>
-          <header className={styles.modalNav}>
-            <Badge color={badgecolor} />
-            <header className={styles.modalHead}>
-              <h1 className={styles.modalTitle}>{title}</h1>
-              <span className={styles.modalDesc}>{`Status: ${reservAlias(status)}`}</span>
-            </header>
-            <Button radius="full" variant="hollow" subVariant="icon" color="var(--color-secondary-50)" iconContent={<Close size="var(--pixel-25)" />} onClick={handleClose} />
-          </header>
-          <div className={styles.modalBody}>
-            <div className={styles.modalItem}>
-              <Clock />
-              <p className={styles.itemText}>{time}</p>
-            </div>
-            <div className={styles.modalItem}>
-              <ShopBag />
-              <p className={styles.itemText}>{service}</p>
-            </div>
+          <div className={styles.modalContent}>
+            {events.map((event, index) => (
+              <Fragment key={index}>
+                <header className={styles.modalNav}>
+                  <Badge color={badgecolor(event.status_reservation)} />
+                  <header className={styles.modalHead}>
+                    <h1 className={styles.modalTitle}>{`${event.rscode} - ${event.name}`}</h1>
+                    <span className={styles.modalDesc}>{`Status: ${reservAlias(event.status_reservation)}`}</span>
+                  </header>
+                </header>
+                <div className={styles.modalBody}>
+                  <div className={styles.modalItem}>
+                    <Clock />
+                    <p className={styles.itemText}>{`${event.reservationdate}, ${event.reservationtime}`}</p>
+                  </div>
+                  <div className={styles.modalItem}>
+                    <ShopBag />
+                    <p className={styles.itemText}>{`${toTitleCase(event.service)}, ${toTitleCase(event.typeservice)}`}</p>
+                  </div>
+                </div>
+              </Fragment>
+            ))}
           </div>
-          <Button radius="full" buttonText="Lihat Detail" onClick={() => navigate(`/order/order-customer/${idorder}`)} endContent={<ViewSource />} />
+          <Button radius="full" variant="hollow" subVariant="icon" color="var(--color-secondary-50)" iconContent={<Close size="var(--pixel-25)" />} onClick={handleClose} />
         </div>
       </section>
     </main>
@@ -84,14 +88,14 @@ export const EventModal = ({ idorder, title, status, time, service, onClose }) =
   return createPortal(modalElement, modalRoot);
 };
 
-export const DateEvent = ({ label, status, onClick, isDisabled }) => {
+export const DateEvent = ({ label, status, isDisabled }) => {
   const compstyle = {
     color: status === "1" ? "var(--color-green)" : status === "2" ? "var(--color-yellow)" : status === "3" ? "var(--color-red)" : "var(--color-primary)",
     backgroundColor: status === "1" ? "var(--color-green-20)" : status === "2" ? "var(--color-yellow-20)" : status === "3" ? "var(--color-red-20)" : "var(--color-primary-20)",
   };
 
   return (
-    <div className={`${styles.dateEvent} ${isDisabled ? styles.disabled : styles.active}`} style={compstyle} onClick={isDisabled ? () => {} : onClick}>
+    <div className={`${styles.dateEvent} ${isDisabled ? styles.disabled : styles.active}`} style={compstyle}>
       <span className={styles.eventText}>{label}</span>
     </div>
   );
@@ -105,9 +109,9 @@ export const CalendarDay = ({ children }) => {
   );
 };
 
-export const CalendarDate = ({ date, isDisabled, children }) => {
+export const CalendarDate = ({ date, isDisabled, hasEvent = true, children, onClick = () => {} }) => {
   return (
-    <div className={styles.calendarDate}>
+    <div className={`${styles.calendarDate} ${hasEvent ? styles.clickable : ""}`} onClick={hasEvent ? (isDisabled ? () => {} : onClick) : () => {}}>
       <div className={`${styles.dateEventUl} ${isDisabled ? styles.disabled : ""}`}>
         <span className={styles.dateText}>{date}</span>
         {children}

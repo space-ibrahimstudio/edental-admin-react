@@ -87,7 +87,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [selectedOrderData, setSelectedOrderData] = useState(null);
   const [orderDetailData, setOrderDetailData] = useState(null);
   const [eventsData, setEventsData] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [tabId, setTabId] = useState("1");
   const [subTabId, setSubTabId] = useState("1");
   const [medicRcdData, setMedicRcdData] = useState([]);
@@ -100,6 +100,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [userData, setUserData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
+  const [onpageData, setOnpageData] = useState({ ...inputData });
   const [errors, setErrors] = useState({ ...errorSchema });
 
   const handlePageChange = (page) => setCurrentPage(page);
@@ -513,6 +514,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   } else {
                     setPhotoMedic([]);
                   }
+                  break;
                 default:
                   break;
               }
@@ -664,17 +666,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "CABANG EDENTAL":
           switchedData = currentData(branchData, "idoutlet");
           log(`id ${slug} data switched:`, switchedData.idoutlet);
-          setInputData({
-            name: switchedData.outlet_name,
-            phone: switchedData.outlet_phone,
-            address: switchedData.outlet_address,
-            postcode: switchedData.postcode,
-            main_region: switchedData.mainregion,
-            region: switchedData.outlet_region,
-            cctr_group: switchedData.cctr_group,
-            cctr: switchedData.cctr,
-            coordinate: switchedData.coordinate,
-          });
+          setInputData({ name: switchedData.outlet_name, phone: switchedData.outlet_phone, address: switchedData.outlet_address, postcode: switchedData.postcode, main_region: switchedData.mainregion, region: switchedData.outlet_region, cctr_group: switchedData.cctr_group, cctr: switchedData.cctr, coordinate: switchedData.coordinate });
           break;
         case "ORDER CUSTOMER":
           switchedData = currentData(orderData, "idtransaction");
@@ -684,23 +676,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const orderdetaildata = data.data;
           if (data && orderdetaildata && orderdetaildata.length > 0) {
             if (switchedData.payment === "CASH") {
-              setInputData({
-                id: switchedData.idtransaction,
-                dentist: switchedData.dentist,
-                typepayment: "cash",
-                bank_code: "CASH",
-                status: switchedData.transactionstatus,
-                order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })),
-              });
+              setInputData({ id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
             } else {
-              setInputData({
-                id: switchedData.idtransaction,
-                dentist: switchedData.dentist,
-                typepayment: "cashless",
-                bank_code: switchedData.payment,
-                status: switchedData.transactionstatus,
-                order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })),
-              });
+              setInputData({ id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
             }
           }
           break;
@@ -712,12 +690,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "MANAJEMEN USER":
           switchedData = currentData(userData, "idauth");
           log(`id ${slug} data switched:`, switchedData.idauth);
-          setInputData({
-            outlet: switchedData.idoutlet,
-            username: switchedData.username,
-            level: switchedData.level,
-            status: switchedData.apiauth_status,
-          });
+          setInputData({ outlet: switchedData.idoutlet, username: switchedData.username, level: switchedData.level, status: switchedData.apiauth_status });
           break;
         case "PO MASUK":
           switchedData = currentData(inPOData, "PO Stock.idpostock");
@@ -727,12 +700,33 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "DENTIST":
           switchedData = currentData(dentistData, "id_dentist");
           log(`id ${slug} data switched:`, switchedData.id_dentist);
-          setInputData({
-            cctr: switchedData.id_branch,
-            name: switchedData.name_dentist,
-            sip: switchedData.sip,
-            phone: switchedData.phone,
-          });
+          setInputData({ cctr: switchedData.id_branch, name: switchedData.name_dentist, sip: switchedData.sip, phone: switchedData.phone });
+          break;
+        case "REKAM MEDIS":
+          switch (tabId) {
+            case "3":
+              switch (subTabId) {
+                case "3":
+                  switchedData = currentData(historyOrderData, "idtransaction");
+                  log(`id ${slug} data switched:`, switchedData.idtransaction);
+                  formData.append("data", JSON.stringify({ secret, idtransaction: params }));
+                  data = await apiRead(formData, "office", "viewdetailorder");
+                  const orderdetaildata = data.data;
+                  if (data && orderdetaildata && orderdetaildata.length > 0) {
+                    if (switchedData.payment === "CASH") {
+                      setInputData({ id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
+                    } else {
+                      setInputData({ id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
+                    }
+                  }
+                  break;
+                default:
+                  break;
+              }
+              break;
+            default:
+              break;
+          }
           break;
         default:
           setSelectedData(null);
@@ -807,7 +801,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           case "3":
             switch (subTabId) {
               case "3":
-                requiredFields = ["rscode"];
+                if (selectedMode === "update") {
+                  requiredFields = ["dentist", "order.service", "order.servicetype", "order.price"];
+                } else {
+                  requiredFields = ["rscode"];
+                }
                 break;
               default:
                 break;
@@ -844,18 +842,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           submittedData = { secret, service: inputData.service, layanan: inputData.layanan };
           break;
         case "CABANG EDENTAL":
-          submittedData = {
-            secret,
-            region: inputData.region,
-            name: inputData.name,
-            address: inputData.address,
-            phone: inputData.phone,
-            mainregion: inputData.main_region,
-            postcode: inputData.postcode,
-            cctr_group: inputData.cctr_group,
-            cctr: inputData.cctr,
-            coordinate: inputData.coordinate,
-          };
+          submittedData = { secret, region: inputData.region, name: inputData.name, address: inputData.address, phone: inputData.phone, mainregion: inputData.main_region, postcode: inputData.postcode, cctr_group: inputData.cctr_group, cctr: inputData.cctr, coordinate: inputData.coordinate };
           break;
         case "STOCK":
           submittedData = { secret, categorystock: inputData.category, subcategorystock: inputData.sub_category, itemname: inputData.name, unit: inputData.unit, stockin: inputData.count, value: inputData.value };
@@ -864,21 +851,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (selectedMode === "update") {
             submittedData = { secret, status_reservation: inputData.status, status_dp: inputData.statuspayment };
           } else {
-            submittedData = {
-              secret,
-              idservicetype: inputData.id,
-              name: inputData.name,
-              phone: inputData.phone,
-              email: inputData.email,
-              voucher: inputData.vouchercode,
-              service: inputData.service,
-              typeservice: inputData.sub_service,
-              reservationdate: inputData.date,
-              reservationtime: inputData.time,
-              price: inputData.price,
-              bank_code: inputData.bank_code,
-              note: inputData.note,
-            };
+            submittedData = { secret, idservicetype: inputData.id, name: inputData.name, phone: inputData.phone, email: inputData.email, voucher: inputData.vouchercode, service: inputData.service, typeservice: inputData.sub_service, reservationdate: inputData.date, reservationtime: inputData.time, price: inputData.price, bank_code: inputData.bank_code, note: inputData.note };
           }
           break;
         case "ORDER CUSTOMER":
@@ -907,20 +880,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             case "2":
               switch (subTabId) {
                 case "1":
-                  submittedData = {
-                    secret,
-                    iduser: selectedCust,
-                    histori_illness: inputData.histori_illness,
-                    main_complaint: inputData.main_complaint,
-                    additional_complaint: inputData.additional_complaint,
-                    current_illness: inputData.current_illness,
-                    gravida: inputData.gravida,
-                    alergi_gatal: inputData.alergi_gatal,
-                    alergi_debu: inputData.alergi_debu,
-                    alergi_obat: inputData.alergi_obat,
-                    alergi_makanan: inputData.alergi_makanan,
-                    alergi_lainnya: inputData.alergi_lainnya,
-                  };
+                  submittedData = { secret, iduser: selectedCust, histori_illness: inputData.histori_illness, main_complaint: inputData.main_complaint, additional_complaint: inputData.additional_complaint, current_illness: inputData.current_illness, gravida: inputData.gravida, alergi_gatal: inputData.alergi_gatal, alergi_debu: inputData.alergi_debu, alergi_obat: inputData.alergi_obat, alergi_makanan: inputData.alergi_makanan, alergi_lainnya: inputData.alergi_lainnya };
                   break;
                 case "2":
                   submittedData = { secret, iduser: selectedCust, occlusi: inputData.occlusi, palatinus: inputData.palatinus, mandibularis: inputData.mandibularis, palatum: inputData.palatum, diastema: inputData.diastema, anomali: inputData.anomali, other: inputData.other_odontogram };
@@ -940,7 +900,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "3":
                   const nikno = allCustData.filter((data) => data.idauthuser === selectedCust);
                   const noktp = nikno[0].noktp;
-                  submittedData = { secret, noktp, rscode: inputData.rscode };
+                  if (selectedMode === "update") {
+                    submittedData = { secret, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
+                  } else {
+                    submittedData = { secret, noktp, rscode: inputData.rscode };
+                  }
                   break;
                 default:
                   break;
@@ -1925,15 +1889,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
             calendardays.push({ day: i, events: eventsData[date] || [], isCurrentMonth: false, date });
           }
 
-          const openEvent = (event) => {
-            setSelectedEvent(event);
-            setIsModalOpen(true);
+          const openEvent = (dayObj) => {
+            if (dayObj) {
+              setSelectedDayEvents(dayObj.events);
+              setIsModalOpen(true);
+            }
           };
 
           return calendardays.map((dayObj, index) => (
-            <CalendarDate key={index} date={dayObj.day} isDisabled={!dayObj.isCurrentMonth}>
+            <CalendarDate key={index} date={dayObj.day} isDisabled={!dayObj.isCurrentMonth} hasEvent={dayObj.events.length > 0} onClick={() => openEvent(dayObj)}>
               {dayObj.events.slice(0, 3).map((event, i) => (
-                <DateEvent key={i} label={event.label} status={event.status} onClick={() => openEvent(event)} isDisabled={!dayObj.isCurrentMonth} />
+                <DateEvent key={i} label={event.label} status={event.status} isDisabled={!dayObj.isCurrentMonth} />
               ))}
               {dayObj.events.length > 3 && <DateEvent label={`+${dayObj.events.length - 3} more events`} />}
             </CalendarDate>
@@ -1949,7 +1915,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
         const closeEvent = () => {
           setIsModalOpen(false);
-          setSelectedEvent(null);
+          setSelectedDayEvents([]);
         };
 
         return (
@@ -1971,7 +1937,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 {generateCalendar()}
               </Calendar>
             </DashboardBody>
-            {isModalOpen && <EventModal idorder={selectedEvent.idtransaction} title={`${selectedEvent.rscode} - ${toTitleCase(selectedEvent.name)}`} status={selectedEvent.status_reservation} time={`${selectedEvent.reservationdate}, ${selectedEvent.reservationtime}`} service={`${toTitleCase(selectedEvent.service)}, ${toTitleCase(selectedEvent.typeservice)}`} onClose={closeEvent} />}
+            {isModalOpen && <EventModal events={selectedDayEvents} onClose={closeEvent} />}
           </Fragment>
         );
       case "REKAM MEDIS":
@@ -2398,9 +2364,37 @@ const DashboardSlugPage = ({ parent, slug }) => {
             case "3":
               switch (subTabId) {
                 case "3":
+                  const handleMedicRowChange = (index, e) => {
+                    const { name, value } = e.target;
+                    setInputData((prevState) => {
+                      const updatedorder = prevState.order.map((item, idx) => {
+                        if (idx === index) {
+                          let updateditem = { ...item, [name]: value };
+                          if (name === "servicetype") {
+                            if (value !== "RESERVATION") {
+                              const selectedservice = prevState.order[index].service;
+                              const servicedata = allservicedata.find((service) => service["Nama Layanan"].servicename === selectedservice);
+                              if (servicedata) {
+                                const selectedtype = servicedata["Jenis Layanan"].find((type) => type.servicetypename === value);
+                                if (selectedtype) {
+                                  updateditem.price = selectedtype.serviceprice || "";
+                                }
+                              }
+                            }
+                          }
+                          return updateditem;
+                        } else {
+                          return item;
+                        }
+                      });
+                      return { ...prevState, order: updatedorder };
+                    });
+                    setErrors((prevErrors) => ({ ...prevErrors, order: prevErrors.order.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
+                  };
+
                   return (
                     <Fragment>
-                      <Table byNumber isClickable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                      <Table byNumber isClickable isEditable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
                             <TH isSorted onSort={() => handleSortDate(historyOrderData, setHistoryOrderData, "transactioncreate")}>
@@ -2419,7 +2413,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         </THead>
                         <TBody>
                           {historyOrderData.map((data, index) => (
-                            <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => navigate(`/${toPathname(parent)}/order-customer/${toPathname(data.idtransaction)}`)}>
+                            <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => navigate(`/${toPathname(parent)}/order-customer/${toPathname(data.idtransaction)}`)} onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)}>
                               <TD>{newDate(data.transactioncreate, "id")}</TD>
                               <TD>{toTitleCase(data.transactionname)}</TD>
                               <TD type="code">{data.rscode}</TD>
@@ -2437,9 +2431,79 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         </TBody>
                       </Table>
                       {isFormOpen && (
-                        <SubmitForm size="sm" formTitle="Tambah Tindakan Medis" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addmedis")} loading={isSubmitting} onClose={closeForm}>
-                          <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
-                        </SubmitForm>
+                        <Fragment>
+                          {selectedMode === "update" ? (
+                            <SubmitForm formTitle="Perbarui Data Order" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudorder")} loading={isSubmitting} onClose={closeForm}>
+                              <Fieldset>
+                                <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
+                                <Input id={`${pageid}-type-payments`} variant="select" noEmptyValue radius="full" labelText="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errorContent={errors.typepayment} isRequired />
+                                {inputData.typepayment && (
+                                  <Fragment>
+                                    {inputData.typepayment === "cashless" ? (
+                                      <Input
+                                        id={`${pageid}-method-payments`}
+                                        variant="select"
+                                        isSearchable
+                                        radius="full"
+                                        labelText="Metode Pembayaran"
+                                        placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"}
+                                        name="bank_code"
+                                        value={inputData.bank_code}
+                                        options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
+                                        onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })}
+                                        errorContent={errors.bank_code}
+                                        isDisabled={!inputData.typepayment}
+                                      />
+                                    ) : (
+                                      <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />
+                                    )}
+                                  </Fragment>
+                                )}
+                              </Fieldset>
+                              {inputData.order.map((subservice, index) => (
+                                <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("order", index)} isDisabled={index <= 0} />}>
+                                  <Input
+                                    id={`${pageid}-name-${index}`}
+                                    variant="select"
+                                    isSearchable
+                                    radius="full"
+                                    labelText="Nama Layanan"
+                                    placeholder="Pilih Layanan"
+                                    name="service"
+                                    value={subservice.service}
+                                    options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))}
+                                    onSelect={(selectedValue) => handleMedicRowChange(index, { target: { name: "service", value: selectedValue } })}
+                                    errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""}
+                                    isRequired
+                                    isReadonly={inputData.order[index].service === "RESERVATION"}
+                                  />
+                                  <Input
+                                    id={`${pageid}-type-name-${index}`}
+                                    variant="select"
+                                    isSearchable
+                                    radius="full"
+                                    labelText="Jenis Layanan"
+                                    placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
+                                    name="servicetype"
+                                    value={subservice.servicetype}
+                                    options={inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))}
+                                    onSelect={(selectedValue) => handleMedicRowChange(index, { target: { name: "servicetype", value: selectedValue } })}
+                                    errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
+                                    isRequired
+                                    isDisabled={!inputData.order[index].service}
+                                    isReadonly={inputData.order[index].service === "RESERVATION"}
+                                  />
+                                  <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleMedicRowChange(index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
+                                </Fieldset>
+                              ))}
+                              <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Layanan" onClick={() => handleAddRow("order")} />
+                            </SubmitForm>
+                          ) : (
+                            <SubmitForm size="sm" formTitle="Tambah Tindakan Medis" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addmedis")} loading={isSubmitting} onClose={closeForm}>
+                              <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
+                            </SubmitForm>
+                          )}
+                        </Fragment>
                       )}
                     </Fragment>
                   );
