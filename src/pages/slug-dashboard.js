@@ -2268,7 +2268,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     </Table>
                   );
                 default:
-                  return <Table isNoData={true} isLoading={isFetching}></Table>;
+                  return <Table isNoData={true}></Table>;
               }
             case "2":
               switch (subTabId) {
@@ -2461,7 +2461,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     </Fragment>
                   );
                 default:
-                  return <Table isNoData={true} isLoading={isFetching}></Table>;
+                  return <Table isNoData={true}></Table>;
               }
             case "3":
               switch (subTabId) {
@@ -2613,16 +2613,73 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       )}
                     </Fragment>
                   );
+                case "4":
+                  const handleAlkesRowChange = (index, e) => {
+                    const { name, value } = e.target;
+                    setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, [name]: value } : item)) }));
+                    setErrors((prevErrors) => ({ ...prevErrors, postock: prevErrors.postock.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
+                    if (name === "itemname") {
+                      const selecteditem = allStockData.find((s) => s.itemname === value);
+                      setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, idstock: selecteditem.idstock, sku: selecteditem.sku } : item)) }));
+                      log(`id item set to ${selecteditem.idstock}`);
+                      log(`sku item set to ${selecteditem.sku}`);
+                    }
+                  };
+
+                  return (
+                    <Fragment>
+                      <Table isNoData={true}></Table>
+                      {isFormOpen && (
+                        <SubmitForm formTitle="Tambah Data Pemakaian Alkes" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "postock")} loading={isSubmitting} onClose={closeForm}>
+                          {inputData.postock.map((po, index) => (
+                            <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("postock", index)} isDisabled={index <= 0} />}>
+                              <Input
+                                id={`${pageid}-item-name-${index}`}
+                                variant="select"
+                                isSearchable
+                                radius="full"
+                                labelText="Nama Item"
+                                placeholder="Pilih Item"
+                                name="itemname"
+                                value={po.itemname}
+                                options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))}
+                                onSelect={(selectedValue) => handleAlkesRowChange(index, { target: { name: "itemname", value: selectedValue } })}
+                                errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""}
+                                isRequired
+                              />
+                              <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleAlkesRowChange(index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
+                              <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleAlkesRowChange(index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
+                            </Fieldset>
+                          ))}
+                          <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("postock")} />
+                        </SubmitForm>
+                      )}
+                    </Fragment>
+                  );
                 default:
-                  return <Table isNoData={true} isLoading={isFetching}></Table>;
+                  return <Table isNoData={true}></Table>;
               }
             default:
-              return <Table isNoData={true} isLoading={isFetching}></Table>;
+              return <Table isNoData={true}></Table>;
           }
         };
 
         const addtCustData = [{ idauthuser: "", username: "Tambah Baru" }];
         const mergedCustData = [...addtCustData, ...allCustData];
+
+        const disableButton = () => {
+          if (tabId === "3") {
+            if (subTabId === "3" || subTabId === "4") {
+              return false;
+            } else {
+              return true;
+            }
+          } else if (tabId === "4") {
+            return true;
+          } else {
+            return false;
+          }
+        };
 
         return (
           <Fragment>
@@ -2633,7 +2690,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               {tabId !== "1" && (
                 <DashboardTool>
-                  <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={selectedCust ? openForm : handleAddError} startContent={<Plus />} isDisabled={tabId === "3" ? (subTabId !== "3" ? true : false) : false || tabId === "4"} />
+                  <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={selectedCust ? openForm : handleAddError} startContent={<Plus />} isDisabled={disableButton()} />
                 </DashboardTool>
               )}
             </DashboardToolbar>
