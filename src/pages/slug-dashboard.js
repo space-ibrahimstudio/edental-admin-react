@@ -213,6 +213,25 @@ const DashboardSlugPage = ({ parent, slug }) => {
     const updatedvalues = [...inputData[field]];
     const updatederrors = errors[field] ? [...errors[field]] : [];
     updatedvalues[index] = { ...updatedvalues[index], [name]: value };
+    if (field === "order" && name === "servicetype" && value !== "RESERVATION") {
+      const selectedService = updatedvalues[index].service;
+      const serviceData = allservicedata.find((service) => service["Nama Layanan"].servicename === selectedService);
+      if (serviceData) {
+        const selectedType = serviceData["Jenis Layanan"].find((type) => type.servicetypename === value);
+        if (selectedType) {
+          updatedvalues[index].price = selectedType.serviceprice || "";
+        }
+      }
+    }
+    if (field === "postock" && name === "itemname") {
+      const selectedItem = allStockData.find((s) => s.itemname === value);
+      if (selectedItem) {
+        updatedvalues[index].idstock = selectedItem.idstock;
+        updatedvalues[index].sku = selectedItem.sku;
+        log(`id item set to ${selectedItem.idstock}`);
+        log(`sku item set to ${selectedItem.sku}`);
+      }
+    }
     if (!updatederrors[index]) {
       updatederrors[index] = {};
     } else {
@@ -1694,34 +1713,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           window.open(`https://wa.me/${wanumber}`, "_blank");
         };
 
-        const handleOrderRowChange = (index, e) => {
-          const { name, value } = e.target;
-          setInputData((prevState) => {
-            const updatedorder = prevState.order.map((item, idx) => {
-              if (idx === index) {
-                let updateditem = { ...item, [name]: value };
-                if (name === "servicetype") {
-                  if (value !== "RESERVATION") {
-                    const selectedservice = prevState.order[index].service;
-                    const servicedata = allservicedata.find((service) => service["Nama Layanan"].servicename === selectedservice);
-                    if (servicedata) {
-                      const selectedtype = servicedata["Jenis Layanan"].find((type) => type.servicetypename === value);
-                      if (selectedtype) {
-                        updateditem.price = selectedtype.serviceprice || "";
-                      }
-                    }
-                  }
-                }
-                return updateditem;
-              } else {
-                return item;
-              }
-            });
-            return { ...prevState, order: updatedorder };
-          });
-          setErrors((prevErrors) => ({ ...prevErrors, order: prevErrors.order.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
-        };
-
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Data order customer ini dibuat otomatis saat proses reservasi dilakukan. Klik baris data untuk melihat masing-masing detail layanan & produk terpakai." />
@@ -1816,7 +1807,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       name="service"
                       value={subservice.service}
                       options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))}
-                      onSelect={(selectedValue) => handleOrderRowChange(index, { target: { name: "service", value: selectedValue } })}
+                      onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })}
                       errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""}
                       isRequired
                       isReadonly={inputData.order[index].service === "RESERVATION"}
@@ -1831,13 +1822,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       name="servicetype"
                       value={subservice.servicetype}
                       options={inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))}
-                      onSelect={(selectedValue) => handleOrderRowChange(index, { target: { name: "servicetype", value: selectedValue } })}
+                      onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })}
                       errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
                       isRequired
                       isDisabled={!inputData.order[index].service}
                       isReadonly={inputData.order[index].service === "RESERVATION"}
                     />
-                    <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleOrderRowChange(index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
+                    <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
                   </Fieldset>
                 ))}
                 <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Layanan" onClick={() => handleAddRow("order")} />
@@ -1851,18 +1842,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "PO PUSAT":
-        const handleCentralPORowChange = (index, e) => {
-          const { name, value } = e.target;
-          setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, [name]: value } : item)) }));
-          setErrors((prevErrors) => ({ ...prevErrors, postock: prevErrors.postock.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
-          if (name === "itemname") {
-            const selecteditem = allStockData.find((s) => s.itemname === value);
-            setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, idstock: selecteditem.idstock, sku: selecteditem.sku } : item)) }));
-            log(`id item set to ${selecteditem.idstock}`);
-            log(`sku item set to ${selecteditem.sku}`);
-          }
-        };
-
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Daftar permintaan PO ke Pusat. Klik Tambah untuk membuat permintaan PO baru, atau review status permintaan PO terkini." />
@@ -1938,13 +1917,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           name="itemname"
                           value={po.itemname}
                           options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))}
-                          onSelect={(selectedValue) => handleCentralPORowChange(index, { target: { name: "itemname", value: selectedValue } })}
+                          onSelect={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })}
                           errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""}
                           isRequired
                         />
-                        <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
-                        <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
-                        <Input id={`${pageid}-item-note-${index}`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleCentralPORowChange(index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
+                        <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
+                        <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
+                        <Input id={`${pageid}-item-note-${index}`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
                       </Fieldset>
                     ))}
                     <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("postock")} />
@@ -2466,34 +2445,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
             case "3":
               switch (subTabId) {
                 case "3":
-                  const handleMedicRowChange = (index, e) => {
-                    const { name, value } = e.target;
-                    setInputData((prevState) => {
-                      const updatedorder = prevState.order.map((item, idx) => {
-                        if (idx === index) {
-                          let updateditem = { ...item, [name]: value };
-                          if (name === "servicetype") {
-                            if (value !== "RESERVATION") {
-                              const selectedservice = prevState.order[index].service;
-                              const servicedata = allservicedata.find((service) => service["Nama Layanan"].servicename === selectedservice);
-                              if (servicedata) {
-                                const selectedtype = servicedata["Jenis Layanan"].find((type) => type.servicetypename === value);
-                                if (selectedtype) {
-                                  updateditem.price = selectedtype.serviceprice || "";
-                                }
-                              }
-                            }
-                          }
-                          return updateditem;
-                        } else {
-                          return item;
-                        }
-                      });
-                      return { ...prevState, order: updatedorder };
-                    });
-                    setErrors((prevErrors) => ({ ...prevErrors, order: prevErrors.order.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
-                  };
-
                   return (
                     <Fragment>
                       <Table byNumber isClickable isEditable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
@@ -2578,7 +2529,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                                     name="service"
                                     value={subservice.service}
                                     options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))}
-                                    onSelect={(selectedValue) => handleMedicRowChange(index, { target: { name: "service", value: selectedValue } })}
+                                    onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })}
                                     errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""}
                                     isRequired
                                     isReadonly={inputData.order[index].service === "RESERVATION"}
@@ -2593,13 +2544,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                                     name="servicetype"
                                     value={subservice.servicetype}
                                     options={inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))}
-                                    onSelect={(selectedValue) => handleMedicRowChange(index, { target: { name: "servicetype", value: selectedValue } })}
+                                    onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })}
                                     errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
                                     isRequired
                                     isDisabled={!inputData.order[index].service}
                                     isReadonly={inputData.order[index].service === "RESERVATION"}
                                   />
-                                  <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleMedicRowChange(index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
+                                  <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
                                 </Fieldset>
                               ))}
                               <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Layanan" onClick={() => handleAddRow("order")} />
@@ -2614,18 +2565,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     </Fragment>
                   );
                 case "4":
-                  const handleAlkesRowChange = (index, e) => {
-                    const { name, value } = e.target;
-                    setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, [name]: value } : item)) }));
-                    setErrors((prevErrors) => ({ ...prevErrors, postock: prevErrors.postock.map((error, idx) => (idx === index ? { ...error, [name]: "" } : error)) }));
-                    if (name === "itemname") {
-                      const selecteditem = allStockData.find((s) => s.itemname === value);
-                      setInputData((prevState) => ({ ...prevState, postock: prevState.postock.map((item, idx) => (idx === index ? { ...item, idstock: selecteditem.idstock, sku: selecteditem.sku } : item)) }));
-                      log(`id item set to ${selecteditem.idstock}`);
-                      log(`sku item set to ${selecteditem.sku}`);
-                    }
-                  };
-
                   return (
                     <Fragment>
                       <Table isNoData={true}></Table>
@@ -2643,12 +2582,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
                                 name="itemname"
                                 value={po.itemname}
                                 options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))}
-                                onSelect={(selectedValue) => handleAlkesRowChange(index, { target: { name: "itemname", value: selectedValue } })}
+                                onSelect={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })}
                                 errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""}
                                 isRequired
                               />
-                              <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleAlkesRowChange(index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
-                              <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleAlkesRowChange(index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
+                              <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
+                              <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
                             </Fieldset>
                           ))}
                           <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("postock")} />
