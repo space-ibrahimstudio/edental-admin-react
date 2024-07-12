@@ -71,6 +71,7 @@ export const inputSchema = {
   sip: "",
   outlet: "",
   rscode: "",
+  alkesitem: [{ idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" }],
 };
 
 export const errorSchema = {
@@ -146,4 +147,5 @@ export const errorSchema = {
   sip: "",
   outlet: "",
   rscode: "",
+  alkesitem: [{ idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" }],
 };

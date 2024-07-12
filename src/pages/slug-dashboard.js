@@ -99,6 +99,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [historyOrderData, setHistoryOrderData] = useState([]);
   const [photoMedic, setPhotoMedic] = useState([]);
   const [userData, setUserData] = useState([]);
+  const [alkesData, setAlkesData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputData });
@@ -230,6 +231,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
         updatedvalues[index].sku = selectedItem.sku;
         log(`id item set to ${selectedItem.idstock}`);
         log(`sku item set to ${selectedItem.sku}`);
+      }
+    }
+    if (field === "alkesitem" && name === "itemname") {
+      const selectedItem = allStockData.find((s) => s.itemname === value);
+      if (selectedItem) {
+        updatedvalues[index].idstock = selectedItem.idstock;
+        updatedvalues[index].sku = selectedItem.sku;
+        updatedvalues[index].unit = selectedItem.unit;
+        log(`id item set to ${selectedItem.idstock}`);
+        log(`sku item set to ${selectedItem.sku}`);
+        log(`unit item set to ${selectedItem.unit}`);
       }
     }
     if (!updatederrors[index]) {
@@ -467,13 +479,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "REKAM MEDIS":
-          const nikno = allCustData.filter((data) => data.idauthuser === selectedCust);
+          const nikno = allCustData.find((data) => data.idauthuser === selectedCust);
           switch (tabId) {
             case "1":
               switch (subTabId) {
                 case "2":
                   if (selectedCust) {
-                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
+                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno.noktp }));
                     addtdata = await apiRead(addtFormData, "office", "viewhistoryresev");
                     if (addtdata && addtdata.data && addtdata.data.length > 0) {
                       setHistoryReservData(addtdata.data);
@@ -486,7 +498,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   break;
                 case "3":
                   if (selectedCust) {
-                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
+                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno.noktp }));
                     addtdata = await apiRead(addtFormData, "office", "viewhistoryorder");
                     if (addtdata && addtdata.data && addtdata.data.length > 0) {
                       setHistoryOrderData(addtdata.data);
@@ -553,7 +565,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               switch (subTabId) {
                 case "3":
                   if (selectedCust) {
-                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno[0].noktp }));
+                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno.noktp }));
                     addtdata = await apiRead(addtFormData, "office", "viewhistoryorder");
                     if (addtdata && addtdata.data && addtdata.data.length > 0) {
                       setHistoryOrderData(addtdata.data);
@@ -562,6 +574,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     }
                   } else {
                     setHistoryOrderData([]);
+                  }
+                  break;
+                case "4":
+                  addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
+                  addtdata = await apiRead(addtFormData, "office", "viewstockoutdetail");
+                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                    setAlkesData(addtdata.data);
+                  } else {
+                    setAlkesData([]);
                   }
                   break;
                 default:
@@ -846,6 +867,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   requiredFields = ["rscode"];
                 }
                 break;
+              case "4":
+                requiredFields = ["rscode", "alkesitem.categorystock", "alkesitem.subcategorystock", "alkesitem.itemname", "alkesitem.unit", "alkesitem.qty", "alkesitem.status"];
+                break;
               default:
                 break;
             }
@@ -948,6 +972,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   } else {
                     submittedData = { secret, noktp, rscode: inputData.rscode };
                   }
+                  break;
+                case "4":
+                  submittedData = { secret, iduser: selectedCust, rscode: inputData.rscode, stock: inputData.alkesitem };
                   break;
                 default:
                   break;
@@ -2447,7 +2474,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "3":
                   return (
                     <Fragment>
-                      <Table byNumber isClickable isEditable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                      <Table byNumber isEditable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
                             <TH isSorted onSort={() => handleSortDate(historyOrderData, setHistoryOrderData, "transactioncreate")}>
@@ -2466,7 +2493,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         </THead>
                         <TBody>
                           {historyOrderData.map((data, index) => (
-                            <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => navigate(`/${toPathname(parent)}/order-customer/${toPathname(data.idtransaction)}`)} onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)}>
+                            <TR key={index} onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)}>
                               <TD>{newDate(data.transactioncreate, "id")}</TD>
                               <TD>{toTitleCase(data.transactionname)}</TD>
                               <TD type="code">{data.rscode}</TD>
@@ -2567,11 +2594,87 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "4":
                   return (
                     <Fragment>
-                      <Table isNoData={true}></Table>
+                      <Table byNumber isNoData={alkesData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                        <THead>
+                          <TR>
+                            <TH isSorted onSort={() => handleSortDate(alkesData, setAlkesData, "stockoutcreate")}>
+                              Tanggal Dibuat
+                            </TH>
+                            <TH>Kategori</TH>
+                            <TH>Sub Kategori</TH>
+                            <TH>Kode SKU</TH>
+                            <TH>Nama Item</TH>
+                            <TH>Unit</TH>
+                            <TH>Stok Akhir</TH>
+                            <Fragment>
+                              {level === "admin" && (
+                                <Fragment>
+                                  <TH>Harga</TH>
+                                  <TH>Total Nilai</TH>
+                                </Fragment>
+                              )}
+                            </Fragment>
+                            <TH>Nama Cabang</TH>
+                          </TR>
+                        </THead>
+                        <TBody>
+                          {alkesData.map((data, index) => (
+                            <TR key={index}>
+                              <TD>{newDate(data.stockoutcreate, "id")}</TD>
+                              <TD>{toTitleCase(data.categorystock)}</TD>
+                              <TD>{toTitleCase(data.subcategorystock)}</TD>
+                              <TD type="code">{data.sku}</TD>
+                              <TD>{toTitleCase(data.itemname)}</TD>
+                              <TD>{data.unit}</TD>
+                              <TD type="number">{data.lastqty}</TD>
+                              <Fragment>
+                                {level === "admin" && (
+                                  <Fragment>
+                                    <TD>{newPrice(data.value)}</TD>
+                                    <TD>{newPrice(data.totalvalue)}</TD>
+                                  </Fragment>
+                                )}
+                              </Fragment>
+                              <TD>{toTitleCase(data.outletname)}</TD>
+                            </TR>
+                          ))}
+                        </TBody>
+                      </Table>
                       {isFormOpen && (
-                        <SubmitForm formTitle="Tambah Data Pemakaian Alkes" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "postock")} loading={isSubmitting} onClose={closeForm}>
-                          {inputData.postock.map((po, index) => (
-                            <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("postock", index)} isDisabled={index <= 0} />}>
+                        <SubmitForm formTitle="Tambah Data Pemakaian Alkes" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addstockout")} loading={isSubmitting} onClose={closeForm}>
+                          <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
+                          {inputData.alkesitem.map((alkes, index) => (
+                            <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("alkesitem", index)} isDisabled={index <= 0} />}>
+                              <Input
+                                id={`${pageid}-categorystock-${index}`}
+                                variant="select"
+                                isSearchable
+                                radius="full"
+                                labelText="Kategori"
+                                placeholder={inputData.rscode ? "Pilih kategori" : "Mohon isi kode reservasi dahulu"}
+                                name="categorystock"
+                                value={alkes.categorystock}
+                                options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))}
+                                onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "categorystock", value: selectedValue } })}
+                                errorContent={errors[`alkesitem.${index}.categorystock`] ? errors[`alkesitem.${index}.categorystock`] : ""}
+                                isRequired
+                                isDisabled={!inputData.rscode}
+                              />
+                              <Input
+                                id={`${pageid}-subcategorystock-${index}`}
+                                variant="select"
+                                isSearchable
+                                radius="full"
+                                labelText="Sub Kategori"
+                                placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
+                                name="subcategorystock"
+                                value={alkes.subcategorystock}
+                                options={alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))}
+                                onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "subcategorystock", value: selectedValue } })}
+                                errorContent={errors[`alkesitem.${index}.subcategorystock`] ? errors[`alkesitem.${index}.subcategorystock`] : ""}
+                                isRequired
+                                isDisabled={!alkes.categorystock}
+                              />
                               <Input
                                 id={`${pageid}-item-name-${index}`}
                                 variant="select"
@@ -2580,17 +2683,19 @@ const DashboardSlugPage = ({ parent, slug }) => {
                                 labelText="Nama Item"
                                 placeholder="Pilih Item"
                                 name="itemname"
-                                value={po.itemname}
-                                options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))}
-                                onSelect={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })}
-                                errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""}
+                                value={alkes.itemname}
+                                options={alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))}
+                                onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "itemname", value: selectedValue } })}
+                                errorContent={errors[`alkesitem.${index}.itemname`] ? errors[`alkesitem.${index}.itemname`] : ""}
                                 isRequired
+                                isDisabled={!alkes.subcategorystock}
                               />
-                              <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
-                              <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
+                              <Input id={`${pageid}-item-unit-${index}`} radius="full" labelText="Unit Item" placeholder="PCS" type="text" name="unit" value={alkes.unit} onChange={(e) => handleRowChange("alkesitem", index, e)} errorContent={errors[`alkesitem.${index}.unit`] ? errors[`alkesitem.${index}.unit`] : ""} isRequired isDisabled={!alkes.itemname} />
+                              <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="qty" value={alkes.qty} onChange={(e) => handleRowChange("alkesitem", index, e)} errorContent={errors[`alkesitem.${index}.qty`] ? errors[`alkesitem.${index}.qty`] : ""} isRequired isDisabled={!alkes.itemname} />
+                              <Input id={`${pageid}-item-status-${index}`} radius="full" labelText="Status Item" placeholder="Barang habis pakai" type="text" name="status" value={alkes.status} onChange={(e) => handleRowChange("alkesitem", index, e)} errorContent={errors[`alkesitem.${index}.status`] ? errors[`alkesitem.${index}.status`] : ""} isRequired isDisabled={!alkes.itemname} />
                             </Fieldset>
                           ))}
-                          <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("postock")} />
+                          <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("alkesitem")} />
                         </SubmitForm>
                       )}
                     </Fragment>
