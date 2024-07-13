@@ -74,6 +74,10 @@ export const inputSchema = {
   alkesitem: [{ idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" }],
   stockexp: [{ idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "expire" }],
   recipe: "",
+  diagnose: "",
+  diagnosecode: "",
+  diagnosedetail: "",
+  diagdetail: [{ diagnosisdetail: "" }],
 };
 
 export const errorSchema = {
@@ -152,4 +156,8 @@ export const errorSchema = {
   alkesitem: [{ idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" }],
   stockexp: [{ idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "expire" }],
   recipe: "",
+  diagnose: "",
+  diagnosecode: "",
+  diagnosedetail: "",
+  diagdetail: [{ diagnosisdetail: "" }],
 };

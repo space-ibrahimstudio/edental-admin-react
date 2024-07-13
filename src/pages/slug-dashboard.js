@@ -37,7 +37,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { isLoggedin, secret, cctr, idoutlet, level } = useAuth();
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
-  const { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt, stockoutstatopt } = useOptions();
+  const { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt, stockoutstatopt, diagnoseopt } = useOptions();
   const { paymentAlias, orderAlias, poAlias, usrstatAlias, reservAlias } = useAlias();
 
   const pageid = parent && slug ? `slug-${toPathname(parent)}-${toPathname(slug)}` : "slug-dashboard";
@@ -102,6 +102,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [alkesData, setAlkesData] = useState([]);
   const [stockExpData, setStockExpData] = useState([]);
   const [recipeData, setRecipeData] = useState([]);
+  const [diagnoseData, setDiagnoseData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -386,6 +387,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
           } else {
             setservicedata([]);
             setTotalPages(0);
+          }
+          break;
+        case "DIAGNOSA":
+          addtFormData.append("data", JSON.stringify({ secret }));
+          data = await apiRead(addtFormData, "office", "viewdiagnosis");
+          if (data && data.data && data.data.length > 0) {
+            setDiagnoseData(data.data);
+          } else {
+            setDiagnoseData([]);
           }
           break;
         case "CABANG EDENTAL":
@@ -845,6 +855,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "STOCK EXPIRE":
         requiredFields = ["stockexp.categorystock", "stockexp.subcategorystock", "stockexp.itemname", "stockexp.unit", "stockexp.qty", "stockexp.status"];
         break;
+      case "DIAGNOSA":
+        requiredFields = ["diagnosecode", "diagdetail.diagnosisdetail"];
+        break;
       case "RESERVATION":
         if (selectedMode === "update") {
           requiredFields = [];
@@ -1007,8 +1020,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
             case "3":
               switch (subTabId) {
                 case "3":
-                  const nikno = allCustData.filter((data) => data.idauthuser === selectedCust);
-                  const noktp = nikno[0].noktp;
+                  const nikno = allCustData.find((data) => data.idauthuser === selectedCust);
+                  const noktp = nikno.noktp;
                   if (selectedMode === "update") {
                     submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
                   } else {
@@ -1031,6 +1044,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           break;
         case "DENTIST":
           submittedData = { secret, idbranch: inputData.cctr, name_dentist: inputData.name, sip: inputData.sip, phone: inputData.phone };
+          break;
+        case "DIAGNOSA":
+          submittedData = { secret, diagnosiscode: inputData.diagnosecode, detail: inputData.diagdetail };
           break;
         default:
           break;
@@ -1105,6 +1121,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
   const { searchTerm: centralPOSearch, handleSearch: handleCentralPOSearch, filteredData: filteredCentralPOData, isDataShown: isCentralPOShown } = useSearch(centralPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: userSearch, handleSearch: handleUserSearch, filteredData: filteredUserData, isDataShown: isUserShown } = useSearch(userData, ["username", "cctr", "outlet_name"]);
+  const { searchTerm: diagnoseSearch, handleSearch: handleDiagnoseSearch, filteredData: filteredDiagnoseData, isDataShown: isDiagnoseShown } = useSearch(diagnoseData, ["code.diagnosiscode"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -1747,6 +1764,62 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardBody>
               <Table isNoData></Table>
             </DashboardBody>
+          </Fragment>
+        );
+      case "DIAGNOSA":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Daftar data Diagnosa. Klik opsi ikon pada kolom Action untuk melihat detail data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={diagnoseSearch} onChange={(e) => handleDiagnoseSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isDiagnoseShown} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isExpandable isNoData={!isDiagnoseShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(diagnoseData, setDiagnoseData, "code.diagnosiscodecreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Kode Diagnosa</TH>
+                    <TH>Status Diagnosa</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredDiagnoseData.map((data, index) => (
+                    <TR
+                      key={index}
+                      expandContent={data["detail"].map((subdata, idx) => (
+                        <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
+                          <Input id={`${pageid}-detail-${index}-${idx}`} radius="full" labelText="Detail Diagnosa" value={subdata.diagnosisdetail} isReadonly />
+                          <Input id={`${pageid}-status-${index}-${idx}`} radius="full" labelText="Status Detail Diagnosa" value={subdata.diagnosisdetailstatus} isReadonly />
+                        </Fieldset>
+                      ))}
+                    >
+                      <TD>{newDate(data["code"].diagnosiscodecreate, "id")}</TD>
+                      <TD type="code">{data["code"].diagnosiscode}</TD>
+                      <TD>{data["code"].diagnosiscodestatus}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isFormOpen && (
+              <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Diagnosa" : "Tambah Data Diagnosa"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "adddiagnosis")} loading={isSubmitting} onClose={closeForm}>
+                <Input id={`${pageid}-diagnose-code`} radius="full" labelText="Kode Diagnosa" placeholder="Masukkan kode diagnosa" type="text" name="diagnosecode" value={inputData.diagnosecode} onChange={handleInputChange} errorContent={errors.diagnosecode} isRequired />
+                {inputData.diagdetail.map((detail, index) => (
+                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("diagdetail", index)} isDisabled={index <= 0} />}>
+                    <Input id={`${pageid}-diagnose-detail-${index}`} radius="full" labelText="Detail Diagnosa" placeholder="Masukkan detail diagnosa" type="text" name="diagnosisdetail" value={detail.diagnosisdetail} onChange={(e) => handleRowChange("diagdetail", index, e)} errorContent={errors[`diagdetail.${index}.diagnosisdetail`] ? errors[`diagdetail.${index}.diagnosisdetail`] : ""} isRequired />
+                  </Fieldset>
+                ))}
+                <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Jenis Layanan" onClick={() => handleAddRow("diagdetail")} />
+              </SubmitForm>
+            )}
           </Fragment>
         );
       case "RESERVATION":
@@ -2606,6 +2679,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
               }
             case "3":
               switch (subTabId) {
+                case "2":
+                  return (
+                    <Fragment>
+                      <Table isNoData={true}></Table>
+                      {isFormOpen && (
+                        <SubmitForm size="sm" formTitle="Tambah Data Pemeriksaan" operation="add" fetching={isFormFetching} onSubmit={() => {}} loading={isSubmitting} onClose={closeForm}>
+                          <Input id={`${pageid}-diagnose`} variant="select" noEmptyValue radius="full" labelText="Jenis Diagnosa" placeholder="Pilih jenis diagnosa" name="diagnose" value={inputData.diagnose} options={diagnoseopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnose", value: selectedValue } })} errorContent={errors.diagnose} isRequired />
+                          <Input id={`${pageid}-diagnose-code`} radius="full" labelText="Kode Diagnosa" placeholder="C76 - Neoplasma ganas lainnya dan YTT" type="text" name="diagnose_code" value={inputData.diagnose_code} onChange={handleInputChange} errorContent={errors.diagnose_code} isRequired />
+                          <Input id={`${pageid}-diagnose-detail`} radius="full" labelText="Rincian Diagnosa" placeholder="C76.1 - Thorax" type="text" name="diagnose_detail" value={inputData.diagnose_detail} onChange={handleInputChange} errorContent={errors.diagnose_detail} isRequired />
+                          <Input id={`${pageid}-note`} variant="textarea" labelText="Keterangan" placeholder="Masukkan keterangan diagnosa" name="note" rows={5} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} isRequired />
+                        </SubmitForm>
+                      )}
+                    </Fragment>
+                  );
                 case "3":
                   return (
                     <Fragment>
@@ -2869,10 +2956,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
         const disableButton = () => {
           if (tabId === "3") {
-            if (subTabId === "3" || subTabId === "4") {
-              return false;
-            } else {
+            if (subTabId === "1") {
               return true;
+            } else {
+              return false;
             }
           } else {
             return false;

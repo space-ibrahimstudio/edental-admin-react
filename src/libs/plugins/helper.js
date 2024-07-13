@@ -55,7 +55,12 @@ export const useOptions = () => {
     { value: "Barang Habis Pakai", label: "Barang Habis Pakai" },
     { value: "Barang Tidak Habis Pakai", label: "Barang Tidak Habis Pakai" },
   ];
-  return { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt, stockoutstatopt };
+  const diagnoseopt = [
+    { value: "Diagnosa Utama", label: "Diagnosa Utama" },
+    { value: "Diagnosa Sekunder", label: "Diagnosa Sekunder" },
+    { value: "Diagnosa Komplikasi", label: "Diagnosa Komplikasi" },
+  ];
+  return { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt, stockoutstatopt, diagnoseopt };
 };
 
 export const useAlias = () => {
