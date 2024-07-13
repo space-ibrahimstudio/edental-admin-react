@@ -1541,14 +1541,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH>Nama Item</TH>
                     <TH>Unit</TH>
                     <TH>Stok Akhir</TH>
-                    <Fragment>
-                      {level === "admin" && (
-                        <Fragment>
-                          <TH>Harga</TH>
-                          <TH>Total Nilai</TH>
-                        </Fragment>
-                      )}
-                    </Fragment>
                     <TH>Nama Cabang</TH>
                   </TR>
                 </THead>
@@ -1561,15 +1553,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD type="code">{data.sku}</TD>
                       <TD>{toTitleCase(data.itemname)}</TD>
                       <TD>{data.unit}</TD>
-                      <TD type="number">{data.lastqty}</TD>
-                      <Fragment>
-                        {level === "admin" && (
-                          <Fragment>
-                            <TD>{newPrice(data.value)}</TD>
-                            <TD>{newPrice(data.totalvalue)}</TD>
-                          </Fragment>
-                        )}
-                      </Fragment>
+                      <TD>Stock Out</TD>
                       <TD>{toTitleCase(data.outletname)}</TD>
                     </TR>
                   ))}
@@ -1607,14 +1591,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH>Nama Item</TH>
                     <TH>Unit</TH>
                     <TH>Stok Akhir</TH>
-                    <Fragment>
-                      {level === "admin" && (
-                        <Fragment>
-                          <TH>Harga</TH>
-                          <TH>Total Nilai</TH>
-                        </Fragment>
-                      )}
-                    </Fragment>
                     <TH>Nama Cabang</TH>
                   </TR>
                 </THead>
@@ -1627,15 +1603,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD type="code">{data.sku}</TD>
                       <TD>{toTitleCase(data.itemname)}</TD>
                       <TD>{data.unit}</TD>
-                      <TD type="number">{data.lastqty}</TD>
-                      <Fragment>
-                        {level === "admin" && (
-                          <Fragment>
-                            <TD>{newPrice(data.value)}</TD>
-                            <TD>{newPrice(data.totalvalue)}</TD>
-                          </Fragment>
-                        )}
-                      </Fragment>
+                      <TD>Stock Expired</TD>
                       <TD>{toTitleCase(data.outletname)}</TD>
                     </TR>
                   ))}
@@ -2774,7 +2742,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                             <TH>Kode SKU</TH>
                             <TH>Nama Item</TH>
                             <TH>Unit</TH>
-                            <TH>Stok Akhir</TH>
+                            <TH>Stok Terpakai</TH>
                             <TH>Nama Cabang</TH>
                           </TR>
                         </THead>
