@@ -103,6 +103,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [stockExpData, setStockExpData] = useState([]);
   const [recipeData, setRecipeData] = useState([]);
   const [diagnoseData, setDiagnoseData] = useState([]);
+  const [allDiagnoseData, setAllDiagnoseData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -715,6 +716,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
         setRscodeData(rscodedata.data);
       } else {
         setRscodeData([]);
+      }
+      const diagdata = await apiRead(formData, "office", "viewdiagnosis");
+      if (diagdata && diagdata.data && diagdata.data.length > 0) {
+        setAllDiagnoseData(diagdata.data);
+      } else {
+        setAllDiagnoseData([]);
       }
     } catch (error) {
       showNotifications("danger", errormsg);
@@ -2341,10 +2348,38 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Fragment>
                       <Table isNoData={true}></Table>
                       {isFormOpen && (
-                        <SubmitForm size="sm" formTitle="Tambah Data Pemeriksaan" operation="add" fetching={isFormFetching} onSubmit={() => {}} loading={isSubmitting} onClose={closeForm}>
+                        <SubmitForm size="sm" formTitle="Tambah Data Diagnosa" operation="add" fetching={isFormFetching} onSubmit={() => {}} loading={isSubmitting} onClose={closeForm}>
                           <Input id={`${pageid}-diagnose`} variant="select" noEmptyValue radius="full" labelText="Jenis Diagnosa" placeholder="Pilih jenis diagnosa" name="diagnose" value={inputData.diagnose} options={diagnoseopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnose", value: selectedValue } })} errorContent={errors.diagnose} isRequired />
-                          <Input id={`${pageid}-diagnose-code`} radius="full" labelText="Kode Diagnosa" placeholder="C76 - Neoplasma ganas lainnya dan YTT" type="text" name="diagnose_code" value={inputData.diagnose_code} onChange={handleInputChange} errorContent={errors.diagnose_code} isRequired />
-                          <Input id={`${pageid}-diagnose-detail`} radius="full" labelText="Rincian Diagnosa" placeholder="C76.1 - Thorax" type="text" name="diagnose_detail" value={inputData.diagnose_detail} onChange={handleInputChange} errorContent={errors.diagnose_detail} isRequired />
+                          <Input
+                            id={`${pageid}-diagnose-code`}
+                            variant="select"
+                            isSearchable
+                            radius="full"
+                            labelText="Kode Diagnosa"
+                            placeholder="Pilih kode diagnosa"
+                            name="diagnosecode"
+                            value={inputData.diagnosecode}
+                            options={allDiagnoseData.map((diag) => ({ value: diag["code"].diagnosiscode, label: diag["code"].diagnosiscode }))}
+                            onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnosecode", value: selectedValue } })}
+                            errorContent={errors.diagnosecode}
+                            isRequired
+                            isDisabled={!inputData.diagnose}
+                          />
+                          <Input
+                            id={`${pageid}-diagnose-detail`}
+                            variant="select"
+                            isSearchable
+                            radius="full"
+                            labelText="Rincian Diagnosa"
+                            placeholder={inputData.diagnosecode ? "Pilih rincian diagnosa" : "Mohon pilih kode diagnosa dahulu"}
+                            name="diagnosedetail"
+                            value={inputData.diagnosedetail}
+                            options={(inputData.diagnosecode && allDiagnoseData.find((s) => s["code"].diagnosiscode === inputData.diagnosecode)?.["detail"].map((det) => ({ value: det.diagnosisdetail, label: det.diagnosisdetail }))) || []}
+                            onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnosedetail", value: selectedValue } })}
+                            errorContent={errors.diagnosedetail}
+                            isRequired
+                            isDisabled={!inputData.diagnosecode}
+                          />
                           <Input id={`${pageid}-note`} variant="textarea" labelText="Keterangan" placeholder="Masukkan keterangan diagnosa" name="note" rows={5} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} isRequired />
                         </SubmitForm>
                       )}
