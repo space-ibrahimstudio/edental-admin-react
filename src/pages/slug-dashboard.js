@@ -1496,7 +1496,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     placeholder={inputData.category ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
                     name="sub_category"
                     value={inputData.sub_category}
-                    options={inputData.category && categoryStockData.find((cat) => cat["category_stok"].categorystockname === inputData.category)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))}
+                    options={(inputData.category && categoryStockData.find((cat) => cat["category_stok"].categorystockname === inputData.category)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []}
                     onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_category", value: selectedValue } })}
                     errorContent={errors.sub_category}
                     isRequired
@@ -1524,7 +1524,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
               <DashboardTool>
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isStockOutShown} />
-                {level === "admin" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />}
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockOutData, "Daftar Stok Keluar", `daftar_stok_keluar_${getCurrentDate()}`)} isDisabled={!isStockOutShown} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -1638,7 +1637,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
                       name="subcategorystock"
                       value={alkes.subcategorystock}
-                      options={alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))}
+                      options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []}
                       onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "subcategorystock", value: selectedValue } })}
                       errorContent={errors[`stockexp.${index}.subcategorystock`] ? errors[`stockexp.${index}.subcategorystock`] : ""}
                       isRequired
@@ -1653,7 +1652,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       placeholder="Pilih Item"
                       name="itemname"
                       value={alkes.itemname}
-                      options={alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))}
+                      options={(alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))) || []}
                       onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "itemname", value: selectedValue } })}
                       errorContent={errors[`stockexp.${index}.itemname`] ? errors[`stockexp.${index}.itemname`] : ""}
                       isRequired
@@ -1839,7 +1838,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                         name="sub_service"
                         value={inputData.sub_service}
-                        options={inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))}
+                        options={(inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
                         onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_service", value: selectedValue } })}
                         errorContent={errors.sub_service}
                         isRequired
@@ -1984,7 +1983,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                       name="servicetype"
                       value={subservice.servicetype}
-                      options={inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))}
+                      options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
                       onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })}
                       errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
                       isRequired
@@ -2706,7 +2705,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                                     placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                                     name="servicetype"
                                     value={subservice.servicetype}
-                                    options={inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))}
+                                    options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
                                     onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })}
                                     errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
                                     isRequired
@@ -2791,7 +2790,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                                 placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
                                 name="subcategorystock"
                                 value={alkes.subcategorystock}
-                                options={alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))}
+                                options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []}
                                 onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "subcategorystock", value: selectedValue } })}
                                 errorContent={errors[`alkesitem.${index}.subcategorystock`] ? errors[`alkesitem.${index}.subcategorystock`] : ""}
                                 isRequired
@@ -2951,6 +2950,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setSelectedMode("add");
     setSortOrder("asc");
     setSelectedBranch(idoutlet);
+    setSelectedCust(null);
+    setOnpageData({ ...inputSchema });
   }, [slug]);
 
   if (!isLoggedin) {
