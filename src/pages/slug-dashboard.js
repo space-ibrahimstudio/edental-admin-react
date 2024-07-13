@@ -2768,20 +2768,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                             <TH isSorted onSort={() => handleSortDate(alkesData, setAlkesData, "stockoutcreate")}>
                               Tanggal Dibuat
                             </TH>
+                            <TH>Kode Reservasi</TH>
                             <TH>Kategori</TH>
                             <TH>Sub Kategori</TH>
                             <TH>Kode SKU</TH>
                             <TH>Nama Item</TH>
                             <TH>Unit</TH>
                             <TH>Stok Akhir</TH>
-                            <Fragment>
-                              {level === "admin" && (
-                                <Fragment>
-                                  <TH>Harga</TH>
-                                  <TH>Total Nilai</TH>
-                                </Fragment>
-                              )}
-                            </Fragment>
                             <TH>Nama Cabang</TH>
                           </TR>
                         </THead>
@@ -2789,20 +2782,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           {alkesData.map((data, index) => (
                             <TR key={index}>
                               <TD>{newDate(data.stockoutcreate, "id")}</TD>
+                              <TD>{data.rscode}</TD>
                               <TD>{toTitleCase(data.categorystock)}</TD>
                               <TD>{toTitleCase(data.subcategorystock)}</TD>
                               <TD type="code">{data.sku}</TD>
                               <TD>{toTitleCase(data.itemname)}</TD>
                               <TD>{data.unit}</TD>
                               <TD type="number">{data.lastqty}</TD>
-                              <Fragment>
-                                {level === "admin" && (
-                                  <Fragment>
-                                    <TD>{newPrice(data.value)}</TD>
-                                    <TD>{newPrice(data.totalvalue)}</TD>
-                                  </Fragment>
-                                )}
-                              </Fragment>
                               <TD>{toTitleCase(data.outletname)}</TD>
                             </TR>
                           ))}

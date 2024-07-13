@@ -48,7 +48,8 @@ export const useOptions = () => {
   ];
   const orderstatopt = [
     { value: "0", label: "Pending" },
-    { value: "2", label: "Lunas" },
+    { value: "1", label: "Paid" },
+    { value: "2", label: "Canceled" },
   ];
   const stockoutstatopt = [
     { value: "Barang Habis Pakai", label: "Barang Habis Pakai" },
