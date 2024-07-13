@@ -50,7 +50,11 @@ export const useOptions = () => {
     { value: "0", label: "Pending" },
     { value: "2", label: "Lunas" },
   ];
-  return { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt };
+  const stockoutstatopt = [
+    { value: "Barang Habis Pakai", label: "Barang Habis Pakai" },
+    { value: "Barang Tidak Habis Pakai", label: "Barang Tidak Habis Pakai" },
+  ];
+  return { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt, stockoutstatopt };
 };
 
 export const useAlias = () => {

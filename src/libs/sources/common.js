@@ -72,6 +72,8 @@ export const inputSchema = {
   outlet: "",
   rscode: "",
   alkesitem: [{ idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" }],
+  stockexp: [{ idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "expire" }],
+  recipe: "",
 };
 
 export const errorSchema = {
@@ -148,4 +150,6 @@ export const errorSchema = {
   outlet: "",
   rscode: "",
   alkesitem: [{ idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" }],
+  stockexp: [{ idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "expire" }],
+  recipe: "",
 };

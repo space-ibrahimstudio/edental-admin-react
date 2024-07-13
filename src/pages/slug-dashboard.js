@@ -37,7 +37,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { isLoggedin, secret, cctr, idoutlet, level } = useAuth();
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
-  const { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt } = useOptions();
+  const { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt, stockoutstatopt } = useOptions();
   const { paymentAlias, orderAlias, poAlias, usrstatAlias, reservAlias } = useAlias();
 
   const pageid = parent && slug ? `slug-${toPathname(parent)}-${toPathname(slug)}` : "slug-dashboard";
@@ -100,9 +100,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [photoMedic, setPhotoMedic] = useState([]);
   const [userData, setUserData] = useState([]);
   const [alkesData, setAlkesData] = useState([]);
+  const [stockExpData, setStockExpData] = useState([]);
+  const [recipeData, setRecipeData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
-  const [onpageData, setOnpageData] = useState({ ...inputData });
+  const [onpageData, setOnpageData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
 
   const handlePageChange = (page) => setCurrentPage(page);
@@ -145,6 +147,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setInputData((prevState) => ({ ...prevState, [name]: value }));
+    setOnpageData((prevState) => ({ ...prevState, [name]: value }));
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     if (slug === "LAYANAN") {
       if (name === "service") {
@@ -234,6 +237,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
       }
     }
     if (field === "alkesitem" && name === "itemname") {
+      const selectedItem = allStockData.find((s) => s.itemname === value);
+      if (selectedItem) {
+        updatedvalues[index].idstock = selectedItem.idstock;
+        updatedvalues[index].sku = selectedItem.sku;
+        updatedvalues[index].unit = selectedItem.unit;
+        log(`id item set to ${selectedItem.idstock}`);
+        log(`sku item set to ${selectedItem.sku}`);
+        log(`unit item set to ${selectedItem.unit}`);
+      }
+    }
+    if (field === "stockexp" && name === "itemname") {
       const selectedItem = allStockData.find((s) => s.itemname === value);
       if (selectedItem) {
         updatedvalues[index].idstock = selectedItem.idstock;
@@ -414,6 +428,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
           }
           break;
+        case "STOCK EXPIRE":
+          data = await apiRead(formData, "office", "viewstockexpire");
+          if (data && data.data && data.data.length > 0) {
+            setStockExpData(data.data);
+            setTotalPages(data.TTLPage);
+          } else {
+            setStockExpData([]);
+            setTotalPages(0);
+          }
+          break;
         case "PO MASUK":
           addtFormData.append("data", JSON.stringify({ secret, limit, hal: offset, status }));
           addtdata = await apiRead(addtFormData, "office", "viewpostock");
@@ -587,6 +611,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   break;
                 default:
                   break;
+              }
+              break;
+            case "4":
+              addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
+              addtdata = await apiRead(addtFormData, "office", "viewrecipe");
+              if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                setRecipeData(addtdata.data);
+              } else {
+                setRecipeData([]);
               }
               break;
             default:
@@ -809,6 +842,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "STOCK":
         requiredFields = ["category", "sub_category", "name", "unit", "count", "value"];
         break;
+      case "STOCK EXPIRE":
+        requiredFields = ["stockexp.categorystock", "stockexp.subcategorystock", "stockexp.itemname", "stockexp.unit", "stockexp.qty", "stockexp.status"];
+        break;
       case "RESERVATION":
         if (selectedMode === "update") {
           requiredFields = [];
@@ -874,6 +910,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 break;
             }
             break;
+          case "4":
+            requiredFields = ["rscode", "recipe"];
+            break;
           default:
             break;
         }
@@ -910,6 +949,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "STOCK":
           submittedData = { secret, categorystock: inputData.category, subcategorystock: inputData.sub_category, itemname: inputData.name, unit: inputData.unit, stockin: inputData.count, value: inputData.value };
           break;
+        case "STOCK EXPIRE":
+          submittedData = { secret, stock: inputData.stockexp };
+          break;
         case "RESERVATION":
           if (selectedMode === "update") {
             submittedData = { secret, status_reservation: inputData.status, status_dp: inputData.statuspayment };
@@ -938,7 +980,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             case "1":
               switch (subTabId) {
                 case "1":
-                  submittedData = { secret, iduser: selectedCust, name: inputData.name, phone: inputData.phone, email: inputData.email, birthday: inputData.birth, noktp: inputData.nik, address: inputData.address, gender: inputData.gender, room: inputData.room, ageyear: inputData.ageyear, agemonth: inputData.agemonth, ageday: inputData.ageday, service: inputData.service, servicetype: inputData.sub_category, dentist: inputData.dentist };
+                  submittedData = { secret, iduser: selectedCust, name: onpageData.name, phone: onpageData.phone, email: onpageData.email, birthday: onpageData.birth, noktp: onpageData.nik, address: onpageData.address, gender: onpageData.gender, room: onpageData.room, ageyear: onpageData.ageyear, agemonth: onpageData.agemonth, ageday: onpageData.ageday, service: onpageData.service, servicetype: onpageData.sub_category, dentist: onpageData.dentist };
                   break;
                 default:
                   break;
@@ -979,6 +1021,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 default:
                   break;
               }
+              break;
+            case "4":
+              submittedData = { secret, iduser: selectedCust, rscode: inputData.rscode, recipe: inputData.recipe };
               break;
             default:
               break;
@@ -1054,6 +1099,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: dentistSearch, handleSearch: handleDentistSearch, filteredData: filteredDentistData, isDataShown: isDentistShown } = useSearch(dentistData, ["name_dentist", "id_branch"]);
   const { searchTerm: stockSearch, handleSearch: handleStockSearch, filteredData: filteredStockData, isDataShown: isStockShown } = useSearch(stockData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
   const { searchTerm: stockOutSearch, handleSearch: handleStockOutSearch, filteredData: filteredStockOutData, isDataShown: isStockOutShown } = useSearch(stockOutData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
+  const { searchTerm: stockExpSearch, handleSearch: handleStockExpSearch, filteredData: filteredStockExpData, isDataShown: isStockExpShown } = useSearch(stockExpData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
   const { searchTerm: inPOSearch, handleSearch: handleInPOSearch, filteredData: filteredInPOData, isDataShown: isInPOShown } = useSearch(inPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: reservSearch, handleSearch: handleReservSearch, filteredData: filteredReservData, isDataShown: isReservShown } = useSearch(reservData, ["rscode", "name", "phone", "outlet_name"]);
   const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
@@ -1531,6 +1577,128 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </Table>
             </DashboardBody>
             {isStockOutShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+          </Fragment>
+        );
+      case "STOCK EXPIRE":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data Stok Expire berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockExpSearch} onChange={(e) => handleStockExpSearch(e.target.value)} startContent={<Search />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isStockExpShown} />
+                {level === "admin" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />}
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockExpData, "Daftar Stok Expire", `daftar_stok_expire_${getCurrentDate()}`)} isDisabled={!isStockExpShown} startContent={<Export />} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isClickable page={currentPage} limit={limit} isNoData={!isStockExpShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(stockExpData, setStockExpData, "stockexpirecreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Kategori</TH>
+                    <TH>Sub Kategori</TH>
+                    <TH>Kode SKU</TH>
+                    <TH>Nama Item</TH>
+                    <TH>Unit</TH>
+                    <TH>Stok Akhir</TH>
+                    <Fragment>
+                      {level === "admin" && (
+                        <Fragment>
+                          <TH>Harga</TH>
+                          <TH>Total Nilai</TH>
+                        </Fragment>
+                      )}
+                    </Fragment>
+                    <TH>Nama Cabang</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredStockExpData.map((data, index) => (
+                    <TR key={index} onClick={() => openDetail(data.itemname)}>
+                      <TD>{newDate(data.stockexpirecreate, "id")}</TD>
+                      <TD>{toTitleCase(data.categorystock)}</TD>
+                      <TD>{toTitleCase(data.subcategorystock)}</TD>
+                      <TD type="code">{data.sku}</TD>
+                      <TD>{toTitleCase(data.itemname)}</TD>
+                      <TD>{data.unit}</TD>
+                      <TD type="number">{data.lastqty}</TD>
+                      <Fragment>
+                        {level === "admin" && (
+                          <Fragment>
+                            <TD>{newPrice(data.value)}</TD>
+                            <TD>{newPrice(data.totalvalue)}</TD>
+                          </Fragment>
+                        )}
+                      </Fragment>
+                      <TD>{toTitleCase(data.outletname)}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isStockExpShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm formTitle="Tambah Data Stok Kadaluwarsa" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addstockexpire")} loading={isSubmitting} onClose={closeForm}>
+                {inputData.stockexp.map((alkes, index) => (
+                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("stockexp", index)} isDisabled={index <= 0} />}>
+                    <Input
+                      id={`${pageid}-categorystock-${index}`}
+                      variant="select"
+                      isSearchable
+                      radius="full"
+                      labelText="Kategori"
+                      placeholder="Pilih kategori"
+                      name="categorystock"
+                      value={alkes.categorystock}
+                      options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))}
+                      onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "categorystock", value: selectedValue } })}
+                      errorContent={errors[`stockexp.${index}.categorystock`] ? errors[`stockexp.${index}.categorystock`] : ""}
+                      isRequired
+                    />
+                    <Input
+                      id={`${pageid}-subcategorystock-${index}`}
+                      variant="select"
+                      isSearchable
+                      radius="full"
+                      labelText="Sub Kategori"
+                      placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
+                      name="subcategorystock"
+                      value={alkes.subcategorystock}
+                      options={alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))}
+                      onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "subcategorystock", value: selectedValue } })}
+                      errorContent={errors[`stockexp.${index}.subcategorystock`] ? errors[`stockexp.${index}.subcategorystock`] : ""}
+                      isRequired
+                      isDisabled={!alkes.categorystock}
+                    />
+                    <Input
+                      id={`${pageid}-item-name-${index}`}
+                      variant="select"
+                      isSearchable
+                      radius="full"
+                      labelText="Nama Item"
+                      placeholder="Pilih Item"
+                      name="itemname"
+                      value={alkes.itemname}
+                      options={alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))}
+                      onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "itemname", value: selectedValue } })}
+                      errorContent={errors[`stockexp.${index}.itemname`] ? errors[`stockexp.${index}.itemname`] : ""}
+                      isRequired
+                      isDisabled={!alkes.subcategorystock}
+                    />
+                    <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="AL2" type="text" name="sku" value={alkes.sku} onChange={(e) => handleRowChange("stockexp", index, e)} errorContent={errors[`stockexp.${index}.sku`] ? errors[`stockexp.${index}.sku`] : ""} isRequired isDisabled={!alkes.itemname} />
+                    <Input id={`${pageid}-item-unit-${index}`} radius="full" labelText="Unit Item" placeholder="PCS" type="text" name="unit" value={alkes.unit} onChange={(e) => handleRowChange("stockexp", index, e)} errorContent={errors[`stockexp.${index}.unit`] ? errors[`stockexp.${index}.unit`] : ""} isRequired isDisabled={!alkes.itemname} />
+                    <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="qty" value={alkes.qty} onChange={(e) => handleRowChange("stockexp", index, e)} errorContent={errors[`stockexp.${index}.qty`] ? errors[`stockexp.${index}.qty`] : ""} isRequired isDisabled={!alkes.itemname} />
+                  </Fieldset>
+                ))}
+                <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("stockexp")} />
+              </SubmitForm>
+            )}
           </Fragment>
         );
       case "PO MASUK":
@@ -2060,9 +2228,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
             }
           });
           if (custFind) {
-            setInputData({ ...inputData, name: matchedData.username, address: matchedData.address, email: matchedData.useremail, phone: matchedData.userphone, gender: matchedData.gender, nik: matchedData.noktp, image: matchedData.imgktp, birth: matchedData.birthday });
+            setOnpageData({ ...onpageData, name: matchedData.username, address: matchedData.address, email: matchedData.useremail, phone: matchedData.userphone, gender: matchedData.gender, nik: matchedData.noktp, image: matchedData.imgktp, birth: matchedData.birthday });
           } else {
-            setInputData({ name: "", address: "", email: "", phone: "", gender: "", nik: "", image: null, birth: "" });
+            setOnpageData({ name: "", address: "", email: "", phone: "", gender: "", nik: "", image: null, birth: "" });
           }
         };
 
@@ -2078,7 +2246,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
         };
 
-        const handleAddError = () => showNotifications("warning", "Mohon pilih Customer terlebih dahulu.");
+        const handleAddError = () => showNotifications("danger", "Mohon pilih Customer terlebih dahulu sebelum menambahkan data.");
         const handleSubTabChange = (id) => setSubTabId(id);
         const handleTabChange = (id) => {
           setTabId(id);
@@ -2120,45 +2288,45 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <OnpageForm onSubmit={(e) => handleSubmit(e, "edituser")}>
                       <FormHead title="Informasi Pribadi" />
                       <Fieldset>
-                        <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                        <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
-                        <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
+                        <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={onpageData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                        <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={onpageData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
+                        <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={onpageData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
                       </Fieldset>
                       <Fieldset>
-                        <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
-                        <Input id={`${pageid}-gender`} variant="select" radius="full" labelText="Jenis Kelamin" placeholder="Pilih jenis kelamin" name="gender" value={inputData.gender} options={genderopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "gender", value: selectedValue } })} errorContent={errors.gender} isRequired />
-                        <Input id={`${pageid}-nik`} radius="full" labelText="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={inputData.nik} onChange={handleInputChange} errorContent={errors.nik} isRequired />
-                        <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" name="image" initialFile={inputData.image} onSelect={handleImageSelect} />
+                        <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={onpageData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
+                        <Input id={`${pageid}-gender`} variant="select" radius="full" labelText="Jenis Kelamin" placeholder="Pilih jenis kelamin" name="gender" value={onpageData.gender} options={genderopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "gender", value: selectedValue } })} errorContent={errors.gender} isRequired />
+                        <Input id={`${pageid}-nik`} radius="full" labelText="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={onpageData.nik} onChange={handleInputChange} errorContent={errors.nik} isRequired />
+                        <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" name="image" initialFile={onpageData.image} onSelect={handleImageSelect} />
                       </Fieldset>
                       <Fieldset>
-                        <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth" value={inputData.birth} onChange={handleInputChange} errorContent={errors.birth} isRequired />
-                        <Input id={`${pageid}-ageyear`} radius="full" labelText="Umur (tahun)" placeholder="24" fallbackValue="24" type="number" name="ageyear" value={inputData.ageyear} isReadonly />
-                        <Input id={`${pageid}-agemonth`} radius="full" labelText="Umur (bulan)" placeholder="5" fallbackValue="5" type="number" name="agemonth" value={inputData.agemonth} isReadonly />
-                        <Input id={`${pageid}-ageday`} radius="full" labelText="Umur (hari)" placeholder="10" fallbackValue="10" type="number" name="ageday" value={inputData.ageday} isReadonly />
+                        <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth" max={getCurrentDate()} value={onpageData.birth} onChange={handleInputChange} errorContent={errors.birth} isRequired />
+                        <Input id={`${pageid}-ageyear`} radius="full" labelText="Umur (tahun)" placeholder="24" fallbackValue="24" type="number" name="ageyear" value={onpageData.ageyear} isReadonly />
+                        <Input id={`${pageid}-agemonth`} radius="full" labelText="Umur (bulan)" placeholder="5" fallbackValue="5" type="number" name="agemonth" value={onpageData.agemonth} isReadonly />
+                        <Input id={`${pageid}-ageday`} radius="full" labelText="Umur (hari)" placeholder="10" fallbackValue="10" type="number" name="ageday" value={onpageData.ageday} isReadonly />
                       </Fieldset>
                       <FormHead title="Layanan Klinik" />
                       <Fieldset>
-                        <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={inputData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
+                        <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={onpageData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
                         <Input
                           id={`${pageid}-subservice`}
                           variant="select"
                           isSearchable
                           radius="full"
                           labelText="Jenis Layanan"
-                          placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
+                          placeholder={onpageData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
                           name="sub_service"
-                          value={inputData.sub_service}
-                          options={(inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
+                          value={onpageData.sub_service}
+                          options={(onpageData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === onpageData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
                           onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_service", value: selectedValue } })}
                           errorContent={errors.sub_service}
                           isRequired
-                          isDisabled={!inputData.service}
+                          isDisabled={!onpageData.service}
                         />
-                        <Input id={`${pageid}-room`} radius="full" labelText="Ruang Pemeriksaan" placeholder="Poli Gigi" type="text" name="room" value={inputData.room} onChange={handleInputChange} errorContent={errors.room} isRequired />
-                        <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter Pemeriksa" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
+                        <Input id={`${pageid}-room`} radius="full" labelText="Ruang Pemeriksaan" placeholder="Poli Gigi" type="text" name="room" value={onpageData.room} onChange={handleInputChange} errorContent={errors.room} isRequired />
+                        <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter Pemeriksa" placeholder="Pilih Dokter" name="dentist" value={onpageData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
                       </Fieldset>
                       <FormFooter>
-                        <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText="Simpan Perubahan" isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
+                        <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText={selectedCust ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
                       </FormFooter>
                     </OnpageForm>
                   );
@@ -2641,7 +2809,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         </TBody>
                       </Table>
                       {isFormOpen && (
-                        <SubmitForm formTitle="Tambah Data Pemakaian Alkes" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addstockout")} loading={isSubmitting} onClose={closeForm}>
+                        <SubmitForm size="md" formTitle="Tambah Data Pemakaian Alkes" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addstockout")} loading={isSubmitting} onClose={closeForm}>
                           <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
                           {inputData.alkesitem.map((alkes, index) => (
                             <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("alkesitem", index)} isDisabled={index <= 0} />}>
@@ -2692,7 +2860,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                               />
                               <Input id={`${pageid}-item-unit-${index}`} radius="full" labelText="Unit Item" placeholder="PCS" type="text" name="unit" value={alkes.unit} onChange={(e) => handleRowChange("alkesitem", index, e)} errorContent={errors[`alkesitem.${index}.unit`] ? errors[`alkesitem.${index}.unit`] : ""} isRequired isDisabled={!alkes.itemname} />
                               <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="qty" value={alkes.qty} onChange={(e) => handleRowChange("alkesitem", index, e)} errorContent={errors[`alkesitem.${index}.qty`] ? errors[`alkesitem.${index}.qty`] : ""} isRequired isDisabled={!alkes.itemname} />
-                              <Input id={`${pageid}-item-status-${index}`} radius="full" labelText="Status Item" placeholder="Barang habis pakai" type="text" name="status" value={alkes.status} onChange={(e) => handleRowChange("alkesitem", index, e)} errorContent={errors[`alkesitem.${index}.status`] ? errors[`alkesitem.${index}.status`] : ""} isRequired isDisabled={!alkes.itemname} />
+                              <Input id={`${pageid}-item-status-${index}`} variant="select" radius="full" labelText="Status Item" placeholder="Pilih status" name="status" value={alkes.status} options={stockoutstatopt} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "status", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.status`] ? errors[`alkesitem.${index}.status`] : ""} isRequired isDisabled={!alkes.itemname} />
                             </Fieldset>
                           ))}
                           <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("alkesitem")} />
@@ -2703,6 +2871,41 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 default:
                   return <Table isNoData={true}></Table>;
               }
+            case "4":
+              return (
+                <Fragment>
+                  <Table byNumber isNoData={recipeData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                    <THead>
+                      <TR>
+                        <TH isSorted onSort={() => handleSortDate(recipeData, setRecipeData, "recipecreate")}>
+                          Tanggal Dibuat
+                        </TH>
+                        <TH>Kode Reservasi</TH>
+                        <TH>Dokter Pemeriksa</TH>
+                        <TH>Resep</TH>
+                        <TH>Nama Cabang</TH>
+                      </TR>
+                    </THead>
+                    <TBody>
+                      {recipeData.map((data, index) => (
+                        <TR key={index}>
+                          <TD>{newDate(data.recipecreate, "id")}</TD>
+                          <TD type="code">{data.rscode}</TD>
+                          <TD>{toTitleCase(data.dentist)}</TD>
+                          <TD>{data.recipe}</TD>
+                          <TD>{toTitleCase(data.outletname)}</TD>
+                        </TR>
+                      ))}
+                    </TBody>
+                  </Table>
+                  {isFormOpen && (
+                    <SubmitForm size="sm" formTitle="Tambah Resep" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addrecipe")} loading={isSubmitting} onClose={closeForm}>
+                      <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
+                      <Input id={`${pageid}-recipe`} variant="textarea" labelText="Resep" placeholder="Tulis resep" name="recipe" rows={5} value={inputData.recipe} onChange={handleInputChange} errorContent={errors.recipe} isRequired />
+                    </SubmitForm>
+                  )}
+                </Fragment>
+              );
             default:
               return <Table isNoData={true}></Table>;
           }
@@ -2718,8 +2921,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
             } else {
               return true;
             }
-          } else if (tabId === "4") {
-            return true;
           } else {
             return false;
           }
@@ -2749,29 +2950,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
   };
 
   useEffect(() => {
-    if (inputData.birth) {
-      const birthDate = moment(inputData.birth).tz("Asia/Jakarta");
-      const today = moment().tz("Asia/Jakarta");
-      const years = today.diff(birthDate, "years", true);
-      const months = today.diff(birthDate, "months") % 12;
-      const days = today.diff(birthDate, "days") % 30;
-      setInputData({ ...inputData, ageyear: Math.floor(years), agemonth: months, ageday: days });
-    } else {
-      setInputData({ ...inputData, ageyear: "", agemonth: "", ageday: "" });
-    }
-  }, [inputData.birth]);
-
-  useEffect(() => {
     const calculateAge = () => {
-      if (inputData.birth) {
+      if (onpageData.birth) {
         try {
-          const birthDate = moment(inputData.birth, moment.ISO_8601, true);
+          const birthDate = moment(onpageData.birth, moment.ISO_8601, true);
           if (birthDate.isValid()) {
             const today = moment().tz("Asia/Jakarta");
             const years = today.diff(birthDate, "years", true);
             const months = today.diff(birthDate, "months") % 12;
             const days = today.diff(birthDate, "days") % 30 || 0;
-            setInputData({ ...inputData, ageyear: Math.floor(years), agemonth: months, ageday: days });
+            setOnpageData({ ...onpageData, ageyear: Math.floor(years), agemonth: months, ageday: days });
           } else {
             console.warn("Invalid birth date format. Please use YYYY-MM-DD.");
           }
@@ -2779,11 +2967,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           console.error("Error calculating age:", error);
         }
       } else {
-        setInputData({ ...inputData, ageyear: "", agemonth: "", ageday: "" });
+        setOnpageData({ ...onpageData, ageyear: "", agemonth: "", ageday: "" });
       }
     };
     calculateAge();
-  }, [inputData.birth]);
+  }, [onpageData.birth]);
 
   useEffect(() => {
     if (slug === "RESERVATION") {
@@ -2792,10 +2980,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   }, [slug, bookedHoursData]);
 
   useEffect(() => {
-    if (slug !== "REKAM MEDIS") {
-      setInputData({ ...inputSchema });
-      setErrors({ ...errorSchema });
-    }
+    setInputData({ ...inputSchema });
+    setErrors({ ...errorSchema });
     setSelectedData(null);
     setSelectedImage(null);
     fetchData();
