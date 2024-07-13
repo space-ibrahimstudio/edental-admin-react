@@ -231,32 +231,24 @@ const DashboardSlugPage = ({ parent, slug }) => {
     if (field === "postock" && name === "itemname") {
       const selectedItem = allStockData.find((s) => s.itemname === value);
       if (selectedItem) {
-        updatedvalues[index].idstock = selectedItem.idstock;
-        updatedvalues[index].sku = selectedItem.sku;
-        log(`id item set to ${selectedItem.idstock}`);
-        log(`sku item set to ${selectedItem.sku}`);
+        updatedvalues[index].idstock = selectedItem.idstock || "";
+        updatedvalues[index].sku = selectedItem.sku || "";
       }
     }
     if (field === "alkesitem" && name === "itemname") {
       const selectedItem = allStockData.find((s) => s.itemname === value);
       if (selectedItem) {
-        updatedvalues[index].idstock = selectedItem.idstock;
-        updatedvalues[index].sku = selectedItem.sku;
-        updatedvalues[index].unit = selectedItem.unit;
-        log(`id item set to ${selectedItem.idstock}`);
-        log(`sku item set to ${selectedItem.sku}`);
-        log(`unit item set to ${selectedItem.unit}`);
+        updatedvalues[index].idstock = selectedItem.idstock || "";
+        updatedvalues[index].sku = selectedItem.sku || "";
+        updatedvalues[index].unit = selectedItem.unit || "";
       }
     }
     if (field === "stockexp" && name === "itemname") {
       const selectedItem = allStockData.find((s) => s.itemname === value);
       if (selectedItem) {
-        updatedvalues[index].idstock = selectedItem.idstock;
-        updatedvalues[index].sku = selectedItem.sku;
-        updatedvalues[index].unit = selectedItem.unit;
-        log(`id item set to ${selectedItem.idstock}`);
-        log(`sku item set to ${selectedItem.sku}`);
-        log(`unit item set to ${selectedItem.unit}`);
+        updatedvalues[index].idstock = selectedItem.idstock || "";
+        updatedvalues[index].sku = selectedItem.sku || "";
+        updatedvalues[index].unit = selectedItem.unit || "";
       }
     }
     if (!updatederrors[index]) {
@@ -276,6 +268,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
       newitems = { service: "", servicetype: "", price: "" };
     } else if (field === "postock") {
       newitems = { idstock: "", itemname: "", sku: "", stockin: "", note: "" };
+    } else if (field === "diagdetail") {
+      newitems = { diagnosisdetail: "" };
+    } else if (field === "stockexp") {
+      newitems = { idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "expire" };
+    } else if (field === "alkesitem") {
+      newitems = { idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" };
     }
     const updatedvalues = [...inputData[field], newitems];
     const updatederrors = errors[field] ? [...errors[field], newitems] : [{}];
@@ -379,6 +377,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
           }
           break;
+        case "MANAJEMEN USER":
+          data = await apiRead(formData, "office", "viewuser");
+          if (data && data.data && data.data.length > 0) {
+            setUserData(data.data);
+            setTotalPages(data.TTLPage);
+          } else {
+            setUserData([]);
+            setTotalPages(0);
+          }
+          break;
         case "LAYANAN":
           data = await apiRead(formData, "office", "viewservice");
           if (data && data.data && data.data.length > 0) {
@@ -387,15 +395,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           } else {
             setservicedata([]);
             setTotalPages(0);
-          }
-          break;
-        case "DIAGNOSA":
-          addtFormData.append("data", JSON.stringify({ secret }));
-          data = await apiRead(addtFormData, "office", "viewdiagnosis");
-          if (data && data.data && data.data.length > 0) {
-            setDiagnoseData(data.data);
-          } else {
-            setDiagnoseData([]);
           }
           break;
         case "CABANG EDENTAL":
@@ -408,6 +407,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
           }
           break;
+        case "DIAGNOSA":
+          addtFormData.append("data", JSON.stringify({ secret }));
+          data = await apiRead(addtFormData, "office", "viewdiagnosis");
+          if (data && data.data && data.data.length > 0) {
+            setDiagnoseData(data.data);
+          } else {
+            setDiagnoseData([]);
+          }
+          break;
         case "DENTIST":
           data = await apiRead(formData, "office", "viewdentist");
           if (data && data.data && data.data.length > 0) {
@@ -415,16 +423,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(data.TTLPage);
           } else {
             setDentistData([]);
-            setTotalPages(0);
-          }
-          break;
-        case "STOCK":
-          data = await apiRead(formData, "office", "viewstock");
-          if (data && data.data && data.data.length > 0) {
-            setStockData(data.data);
-            setTotalPages(data.TTLPage);
-          } else {
-            setStockData([]);
             setTotalPages(0);
           }
           break;
@@ -448,34 +446,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
           }
           break;
-        case "PO MASUK":
-          addtFormData.append("data", JSON.stringify({ secret, limit, hal: offset, status }));
-          addtdata = await apiRead(addtFormData, "office", "viewpostock");
-          if (addtdata && addtdata.data && addtdata.data.length > 0) {
-            setInPOData(addtdata.data);
-            setTotalPages(addtdata.TTLPage);
-          } else {
-            setInPOData([]);
-            setTotalPages(0);
-          }
-          break;
-        case "RESERVATION":
-          data = await apiRead(formData, "office", "viewreservation");
+        case "STOCK":
+          data = await apiRead(formData, "office", "viewstock");
           if (data && data.data && data.data.length > 0) {
-            setReservData(data.data);
+            setStockData(data.data);
             setTotalPages(data.TTLPage);
           } else {
-            setReservData([]);
-            setTotalPages(0);
-          }
-          break;
-        case "ORDER CUSTOMER":
-          data = await apiRead(formData, "office", "vieworder");
-          if (data && data.data && data.data.length > 0) {
-            setOrderData(data.data);
-            setTotalPages(data.TTLPage);
-          } else {
-            setOrderData([]);
+            setStockData([]);
             setTotalPages(0);
           }
           break;
@@ -490,26 +467,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
           }
           break;
-        case "CALENDAR RESERVATION":
-          addtFormData.append("data", JSON.stringify({ secret, idbranch: selectedBranch }));
-          addtdata = await apiRead(addtFormData, "office", "viewcalendar");
+        case "PO MASUK":
+          addtFormData.append("data", JSON.stringify({ secret, limit, hal: offset, status }));
+          addtdata = await apiRead(addtFormData, "office", "viewpostock");
           if (addtdata && addtdata.data && addtdata.data.length > 0) {
-            const eventsdata = addtdata.data;
-            const mutatedevents = eventsdata.reduce((acc, event) => {
-              const date = event.reservationdate;
-              const time = event.reservationtime;
-              const status = event.status_reservation;
-              const label = `${event.reservationtime} | ${event.rscode} - ${toTitleCase(event.name)}`;
-              if (!acc[date]) {
-                acc[date] = [];
-              }
-              acc[date].push({ ...event, label, time, status });
-              acc[date].sort((a, b) => a.time.localeCompare(b.time));
-              return acc;
-            }, {});
-            setEventsData(mutatedevents);
+            setInPOData(addtdata.data);
+            setTotalPages(addtdata.TTLPage);
           } else {
-            setEventsData([]);
+            setInPOData([]);
+            setTotalPages(0);
           }
           break;
         case "REKAM MEDIS":
@@ -636,14 +602,46 @@ const DashboardSlugPage = ({ parent, slug }) => {
               break;
           }
           break;
-        case "MANAJEMEN USER":
-          data = await apiRead(formData, "office", "viewuser");
+        case "RESERVATION":
+          data = await apiRead(formData, "office", "viewreservation");
           if (data && data.data && data.data.length > 0) {
-            setUserData(data.data);
+            setReservData(data.data);
             setTotalPages(data.TTLPage);
           } else {
-            setUserData([]);
+            setReservData([]);
             setTotalPages(0);
+          }
+          break;
+        case "ORDER CUSTOMER":
+          data = await apiRead(formData, "office", "vieworder");
+          if (data && data.data && data.data.length > 0) {
+            setOrderData(data.data);
+            setTotalPages(data.TTLPage);
+          } else {
+            setOrderData([]);
+            setTotalPages(0);
+          }
+          break;
+        case "CALENDAR RESERVATION":
+          addtFormData.append("data", JSON.stringify({ secret, idbranch: selectedBranch }));
+          addtdata = await apiRead(addtFormData, "office", "viewcalendar");
+          if (addtdata && addtdata.data && addtdata.data.length > 0) {
+            const eventsdata = addtdata.data;
+            const mutatedevents = eventsdata.reduce((acc, event) => {
+              const date = event.reservationdate;
+              const time = event.reservationtime;
+              const status = event.status_reservation;
+              const label = `${event.reservationtime} | ${event.rscode} - ${toTitleCase(event.name)}`;
+              if (!acc[date]) {
+                acc[date] = [];
+              }
+              acc[date].push({ ...event, label, time, status });
+              acc[date].sort((a, b) => a.time.localeCompare(b.time));
+              return acc;
+            }, {});
+            setEventsData(mutatedevents);
+          } else {
+            setEventsData([]);
           }
           break;
         default:
@@ -749,6 +747,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setIsFormFetching(true);
     try {
       switch (slug) {
+        case "MANAJEMEN USER":
+          switchedData = currentData(userData, "idauth");
+          log(`id ${slug} data switched:`, switchedData.idauth);
+          setInputData({ outlet: switchedData.idoutlet, username: switchedData.username, level: switchedData.level, status: switchedData.apiauth_status });
+          break;
         case "LAYANAN":
           switchedData = currentData(servicedata, "Nama Layanan.idservice");
           log(`id ${slug} data switched:`, switchedData["Nama Layanan"].idservice);
@@ -762,44 +765,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
           log(`id ${slug} data switched:`, switchedData.idoutlet);
           setInputData({ name: switchedData.outlet_name, phone: switchedData.outlet_phone, address: switchedData.outlet_address, postcode: switchedData.postcode, main_region: switchedData.mainregion, region: switchedData.outlet_region, cctr_group: switchedData.cctr_group, cctr: switchedData.cctr, coordinate: switchedData.coordinate });
           break;
-        case "ORDER CUSTOMER":
-          switchedData = currentData(orderData, "idtransaction");
-          log(`id ${slug} data switched:`, switchedData.idtransaction);
-          formData.append("data", JSON.stringify({ secret, idtransaction: params }));
-          data = await apiRead(formData, "office", "viewdetailorder");
-          const orderdetaildata = data.data;
-          if (data && orderdetaildata && orderdetaildata.length > 0) {
-            if (switchedData.payment === "CASH") {
-              setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
-            } else {
-              setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
-            }
-          }
-          break;
-        case "RESERVATION":
-          switchedData = currentData(reservData, "idreservation");
-          log(`id ${slug} data switched:`, switchedData.idreservation);
-          setInputData({ status: switchedData.status_reservation, statuspayment: switchedData.status_dp });
-          break;
-        case "MANAJEMEN USER":
-          switchedData = currentData(userData, "idauth");
-          log(`id ${slug} data switched:`, switchedData.idauth);
-          setInputData({ outlet: switchedData.idoutlet, username: switchedData.username, level: switchedData.level, status: switchedData.apiauth_status });
-          break;
-        case "PO MASUK":
-          switchedData = currentData(inPOData, "PO Stock.idpostock");
-          log(`id ${slug} data switched:`, switchedData["PO Stock"].idpostock);
-          setInputData({ id: switchedData["PO Stock"].idpostock, status: switchedData["PO Stock"].statusstock });
+        case "DENTIST":
+          switchedData = currentData(dentistData, "id_dentist");
+          log(`id ${slug} data switched:`, switchedData.id_dentist);
+          setInputData({ cctr: switchedData.id_branch, name: switchedData.name_dentist, sip: switchedData.sip, phone: switchedData.phone });
           break;
         case "PO PUSAT":
           switchedData = currentData(centralPOData, "PO Stock.idpostock");
           log(`id ${slug} data switched:`, switchedData["PO Stock"].idpostock);
           setInputData({ id: switchedData["PO Stock"].idpostock, status: switchedData["PO Stock"].statusstock });
           break;
-        case "DENTIST":
-          switchedData = currentData(dentistData, "id_dentist");
-          log(`id ${slug} data switched:`, switchedData.id_dentist);
-          setInputData({ cctr: switchedData.id_branch, name: switchedData.name_dentist, sip: switchedData.sip, phone: switchedData.phone });
+        case "PO MASUK":
+          switchedData = currentData(inPOData, "PO Stock.idpostock");
+          log(`id ${slug} data switched:`, switchedData["PO Stock"].idpostock);
+          setInputData({ id: switchedData["PO Stock"].idpostock, status: switchedData["PO Stock"].statusstock });
           break;
         case "REKAM MEDIS":
           switch (tabId) {
@@ -827,6 +806,25 @@ const DashboardSlugPage = ({ parent, slug }) => {
               break;
           }
           break;
+        case "RESERVATION":
+          switchedData = currentData(reservData, "idreservation");
+          log(`id ${slug} data switched:`, switchedData.idreservation);
+          setInputData({ status: switchedData.status_reservation, statuspayment: switchedData.status_dp });
+          break;
+        case "ORDER CUSTOMER":
+          switchedData = currentData(orderData, "idtransaction");
+          log(`id ${slug} data switched:`, switchedData.idtransaction);
+          formData.append("data", JSON.stringify({ secret, idtransaction: params }));
+          data = await apiRead(formData, "office", "viewdetailorder");
+          const orderdetaildata = data.data;
+          if (data && orderdetaildata && orderdetaildata.length > 0) {
+            if (switchedData.payment === "CASH") {
+              setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
+            } else {
+              setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
+            }
+          }
+          break;
         default:
           setSelectedData(null);
           break;
@@ -843,30 +841,26 @@ const DashboardSlugPage = ({ parent, slug }) => {
     e.preventDefault();
     let requiredFields = [];
     switch (slug) {
+      case "MANAJEMEN USER":
+        requiredFields = ["username", "level", "status"];
+        break;
       case "LAYANAN":
         requiredFields = ["service", "layanan.servicetype", "layanan.price"];
         break;
       case "CABANG EDENTAL":
         requiredFields = ["region", "name", "address", "phone", "main_region", "postcode", "cctr_group", "cctr", "coordinate"];
         break;
-      case "STOCK":
-        requiredFields = ["category", "sub_category", "name", "unit", "count", "value"];
+      case "DIAGNOSA":
+        requiredFields = ["diagnosecode", "diagdetail.diagnosisdetail"];
+        break;
+      case "DENTIST":
+        requiredFields = ["cctr", "name", "sip", "phone"];
         break;
       case "STOCK EXPIRE":
         requiredFields = ["stockexp.categorystock", "stockexp.subcategorystock", "stockexp.itemname", "stockexp.unit", "stockexp.qty", "stockexp.status"];
         break;
-      case "DIAGNOSA":
-        requiredFields = ["diagnosecode", "diagdetail.diagnosisdetail"];
-        break;
-      case "RESERVATION":
-        if (selectedMode === "update") {
-          requiredFields = [];
-        } else {
-          requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time"];
-        }
-        break;
-      case "ORDER CUSTOMER":
-        requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
+      case "STOCK":
+        requiredFields = ["category", "sub_category", "name", "unit", "count", "value"];
         break;
       case "PO PUSAT":
         if (selectedMode === "update") {
@@ -874,9 +868,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
         } else {
           requiredFields = ["postock.itemname", "postock.sku", "postock.stockin"];
         }
-        break;
-      case "MANAJEMEN USER":
-        requiredFields = ["username", "level", "status"];
         break;
       case "REKAM MEDIS":
         switch (tabId) {
@@ -930,10 +921,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
             break;
         }
         break;
-      case "DENTIST":
-        requiredFields = ["cctr", "name", "sip", "phone"];
+      case "RESERVATION":
+        if (selectedMode === "update") {
+          requiredFields = [];
+        } else {
+          requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time"];
+        }
+        break;
+      case "ORDER CUSTOMER":
+        requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
         break;
       default:
+        requiredFields = [];
         break;
     }
     const validationErrors = inputValidator(inputData, requiredFields);
@@ -953,27 +952,26 @@ const DashboardSlugPage = ({ parent, slug }) => {
     try {
       let submittedData;
       switch (slug) {
+        case "MANAJEMEN USER":
+          submittedData = { secret, idoutlet: inputData.outlet, username: inputData.username, password: inputData.password, level: inputData.level, status: inputData.status };
+          break;
         case "LAYANAN":
           submittedData = { secret, service: inputData.service, layanan: inputData.layanan };
           break;
         case "CABANG EDENTAL":
           submittedData = { secret, region: inputData.region, name: inputData.name, address: inputData.address, phone: inputData.phone, mainregion: inputData.main_region, postcode: inputData.postcode, cctr_group: inputData.cctr_group, cctr: inputData.cctr, coordinate: inputData.coordinate };
           break;
-        case "STOCK":
-          submittedData = { secret, categorystock: inputData.category, subcategorystock: inputData.sub_category, itemname: inputData.name, unit: inputData.unit, stockin: inputData.count, value: inputData.value };
+        case "DIAGNOSA":
+          submittedData = { secret, diagnosiscode: inputData.diagnosecode, detail: inputData.diagdetail };
+          break;
+        case "DENTIST":
+          submittedData = { secret, idbranch: inputData.cctr, name_dentist: inputData.name, sip: inputData.sip, phone: inputData.phone };
           break;
         case "STOCK EXPIRE":
           submittedData = { secret, stock: inputData.stockexp };
           break;
-        case "RESERVATION":
-          if (selectedMode === "update") {
-            submittedData = { secret, status_reservation: inputData.status, status_dp: inputData.statuspayment };
-          } else {
-            submittedData = { secret, idservicetype: inputData.id, name: inputData.name, phone: inputData.phone, email: inputData.email, voucher: inputData.vouchercode, service: inputData.service, typeservice: inputData.sub_service, reservationdate: inputData.date, reservationtime: inputData.time, price: inputData.price, bank_code: inputData.bank_code, note: inputData.note };
-          }
-          break;
-        case "ORDER CUSTOMER":
-          submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
+        case "STOCK":
+          submittedData = { secret, categorystock: inputData.category, subcategorystock: inputData.sub_category, itemname: inputData.name, unit: inputData.unit, stockin: inputData.count, value: inputData.value };
           break;
         case "PO PUSAT":
           if (selectedMode === "update") {
@@ -984,9 +982,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           break;
         case "PO MASUK":
           submittedData = { secret, idpostock: selectedData, status: inputData.status };
-          break;
-        case "MANAJEMEN USER":
-          submittedData = { secret, idoutlet: inputData.outlet, username: inputData.username, password: inputData.password, level: inputData.level, status: inputData.status };
           break;
         case "REKAM MEDIS":
           switch (tabId) {
@@ -1042,11 +1037,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
               break;
           }
           break;
-        case "DENTIST":
-          submittedData = { secret, idbranch: inputData.cctr, name_dentist: inputData.name, sip: inputData.sip, phone: inputData.phone };
+        case "RESERVATION":
+          if (selectedMode === "update") {
+            submittedData = { secret, status_reservation: inputData.status, status_dp: inputData.statuspayment };
+          } else {
+            submittedData = { secret, idservicetype: inputData.id, name: inputData.name, phone: inputData.phone, email: inputData.email, voucher: inputData.vouchercode, service: inputData.service, typeservice: inputData.sub_service, reservationdate: inputData.date, reservationtime: inputData.time, price: inputData.price, bank_code: inputData.bank_code, note: inputData.note };
+          }
           break;
-        case "DIAGNOSA":
-          submittedData = { secret, diagnosiscode: inputData.diagnosecode, detail: inputData.diagdetail };
+        case "ORDER CUSTOMER":
+          submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
           break;
         default:
           break;
@@ -1083,14 +1082,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
       try {
         let submittedData;
         switch (slug) {
+          case "MANAJEMEN USER":
+            submittedData = { secret, idoutlet: "", username: "", password: "", level: "", status: "" };
+            break;
           case "LAYANAN":
             submittedData = { secret, service: "", layanan: [] };
             break;
           case "CABANG EDENTAL":
             submittedData = { secret, region: "", name: "", address: "", phone: "", mainregion: "", postcode: "", cctr_group: "", cctr: "", coordinate: "" };
-            break;
-          case "MANAJEMEN USER":
-            submittedData = { secret, idoutlet: "", username: "", password: "", level: "", status: "" };
             break;
           default:
             break;
@@ -1370,6 +1369,62 @@ const DashboardSlugPage = ({ parent, slug }) => {
             )}
           </Fragment>
         );
+      case "DIAGNOSA":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Daftar data Diagnosa. Klik opsi ikon pada kolom Action untuk melihat detail data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={diagnoseSearch} onChange={(e) => handleDiagnoseSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isDiagnoseShown} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isExpandable isNoData={!isDiagnoseShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(diagnoseData, setDiagnoseData, "code.diagnosiscodecreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Kode Diagnosa</TH>
+                    <TH>Status Diagnosa</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredDiagnoseData.map((data, index) => (
+                    <TR
+                      key={index}
+                      expandContent={data["detail"].map((subdata, idx) => (
+                        <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
+                          <Input id={`${pageid}-detail-${index}-${idx}`} radius="full" labelText="Detail Diagnosa" value={subdata.diagnosisdetail} isReadonly />
+                          <Input id={`${pageid}-status-${index}-${idx}`} radius="full" labelText="Status Detail Diagnosa" value={subdata.diagnosisdetailstatus} isReadonly />
+                        </Fieldset>
+                      ))}
+                    >
+                      <TD>{newDate(data["code"].diagnosiscodecreate, "id")}</TD>
+                      <TD type="code">{data["code"].diagnosiscode}</TD>
+                      <TD>{data["code"].diagnosiscodestatus}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isFormOpen && (
+              <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Diagnosa" : "Tambah Data Diagnosa"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "adddiagnosis")} loading={isSubmitting} onClose={closeForm}>
+                <Input id={`${pageid}-diagnose-code`} radius="full" labelText="Kode Diagnosa" placeholder="Masukkan kode diagnosa" type="text" name="diagnosecode" value={inputData.diagnosecode} onChange={handleInputChange} errorContent={errors.diagnosecode} isRequired />
+                {inputData.diagdetail.map((detail, index) => (
+                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("diagdetail", index)} isDisabled={index <= 0} />}>
+                    <Input id={`${pageid}-diagnose-detail-${index}`} radius="full" labelText="Detail Diagnosa" placeholder="Masukkan detail diagnosa" type="text" name="diagnosisdetail" value={detail.diagnosisdetail} onChange={(e) => handleRowChange("diagdetail", index, e)} errorContent={errors[`diagdetail.${index}.diagnosisdetail`] ? errors[`diagdetail.${index}.diagnosisdetail`] : ""} isRequired />
+                  </Fieldset>
+                ))}
+                <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Jenis Layanan" onClick={() => handleAddRow("diagdetail")} />
+              </SubmitForm>
+            )}
+          </Fragment>
+        );
       case "DENTIST":
         return (
           <Fragment>
@@ -1434,100 +1489,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardBody>
               <Table isNoData></Table>
             </DashboardBody>
-          </Fragment>
-        );
-      case "STOCK":
-        return (
-          <Fragment>
-            <DashboardHead title={pagetitle} desc="Data Stok berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
-            <DashboardToolbar>
-              <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockSearch} onChange={(e) => handleStockSearch(e.target.value)} startContent={<Search />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
-              </DashboardTool>
-              <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isStockShown} />
-                {level === "admin" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />}
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={!isStockShown} startContent={<Export />} />
-              </DashboardTool>
-            </DashboardToolbar>
-            <DashboardBody>
-              <Table byNumber isClickable page={currentPage} limit={limit} isNoData={!isStockShown} isLoading={isFetching}>
-                <THead>
-                  <TR>
-                    <TH isSorted onSort={() => handleSortDate(stockData, setStockData, "stockcreate")}>
-                      Tanggal Dibuat
-                    </TH>
-                    <TH>Kategori</TH>
-                    <TH>Sub Kategori</TH>
-                    <TH>Kode SKU</TH>
-                    <TH>Nama Item</TH>
-                    <TH>Unit</TH>
-                    <TH>Stok Akhir</TH>
-                    <Fragment>
-                      {level === "admin" && (
-                        <Fragment>
-                          <TH>Harga</TH>
-                          <TH>Total Nilai</TH>
-                        </Fragment>
-                      )}
-                    </Fragment>
-                    <TH>Nama Cabang</TH>
-                  </TR>
-                </THead>
-                <TBody>
-                  {filteredStockData.map((data, index) => (
-                    <TR key={index} onClick={() => openDetail(data.itemname)}>
-                      <TD>{newDate(data.stockcreate, "id")}</TD>
-                      <TD>{toTitleCase(data.categorystock)}</TD>
-                      <TD>{toTitleCase(data.subcategorystock)}</TD>
-                      <TD type="code">{data.sku}</TD>
-                      <TD>{toTitleCase(data.itemname)}</TD>
-                      <TD>{data.unit}</TD>
-                      <TD type="number">{data.lastqty}</TD>
-                      <Fragment>
-                        {level === "admin" && (
-                          <Fragment>
-                            <TD>{newPrice(data.value)}</TD>
-                            <TD>{newPrice(data.totalvalue)}</TD>
-                          </Fragment>
-                        )}
-                      </Fragment>
-                      <TD>{toTitleCase(data.outletname)}</TD>
-                    </TR>
-                  ))}
-                </TBody>
-              </Table>
-            </DashboardBody>
-            {isStockShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
-            {isFormOpen && (
-              <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Stok" : "Tambah Data Stok"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudstock")} loading={isSubmitting} onClose={closeForm}>
-                <Fieldset>
-                  <Input id={`${pageid}-category`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder="Pilih kategori" name="category" value={inputData.category} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "category", value: selectedValue } })} errorContent={errors.category} isRequired />
-                  <Input
-                    id={`${pageid}-subcategory`}
-                    variant="select"
-                    isSearchable
-                    radius="full"
-                    labelText="Sub Kategori"
-                    placeholder={inputData.category ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
-                    name="sub_category"
-                    value={inputData.sub_category}
-                    options={(inputData.category && categoryStockData.find((cat) => cat["category_stok"].categorystockname === inputData.category)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []}
-                    onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_category", value: selectedValue } })}
-                    errorContent={errors.sub_category}
-                    isRequired
-                    isDisabled={!inputData.category}
-                  />
-                  <Input id={`${pageid}-name`} radius="full" labelText="Nama Item" placeholder="STERILISATOR" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                </Fieldset>
-                <Fieldset>
-                  <Input id={`${pageid}-unit`} variant="select" radius="full" labelText="Unit/satuan" placeholder="Pilih satuan/unit" name="unit" value={inputData.unit} options={unitopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "unit", value: selectedValue } })} errorContent={errors.unit} isRequired />
-                  <Input id={`${pageid}-qty`} radius="full" labelText="Jumlah" placeholder="40" type="number" name="count" value={inputData.count} onChange={handleInputChange} errorContent={errors.count} isRequired />
-                  <Input id={`${pageid}-price`} radius="full" labelText="Harga Item Satuan" placeholder="100000" type="number" name="value" value={inputData.value} onChange={handleInputChange} errorContent={errors.value} isRequired />
-                </Fieldset>
-              </SubmitForm>
-            )}
           </Fragment>
         );
       case "STOCK OUT":
@@ -1685,394 +1646,97 @@ const DashboardSlugPage = ({ parent, slug }) => {
             )}
           </Fragment>
         );
-      case "PO MASUK":
+      case "STOCK":
         return (
           <Fragment>
-            <DashboardHead title={pagetitle} desc="Daftar permintaan PO item dari semua cabang. Filter status PO melalui tombol tab, atau klik ikon pada kolom Action untuk memperbarui status PO." />
+            <DashboardHead title={pagetitle} desc="Data Stok berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={inPOSearch} onChange={(e) => handleInPOSearch(e.target.value)} startContent={<Search />} />
-              </DashboardTool>
-              <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isInPOShown} />
-              </DashboardTool>
-            </DashboardToolbar>
-            <TabGroup buttons={postatus} />
-            <DashboardBody>
-              <Table byNumber isExpandable isEditable page={currentPage} limit={limit} isNoData={!isInPOShown} isLoading={isFetching}>
-                <THead>
-                  <TR>
-                    <TH isSorted onSort={() => handleSortDate(inPOData, setInPOData, "PO Stock.postockcreate")}>
-                      Tanggal Dibuat
-                    </TH>
-                    <TH>Kode PO</TH>
-                    <TH>Nama Admin</TH>
-                    <TH>Nama Cabang</TH>
-                    <TH>Status PO</TH>
-                  </TR>
-                </THead>
-                <TBody>
-                  {filteredInPOData.map((data, index) => (
-                    <TR
-                      key={index}
-                      expandContent={
-                        <Fragment>
-                          {data["Detail PO"].map((subdata, idx) => (
-                            <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
-                              <Input id={`item-name-${index}-${idx}`} radius="full" labelText="Nama Item" value={subdata.itemname} isReadonly />
-                              <Input id={`item-sku-${index}-${idx}`} radius="full" labelText="Kode SKU" value={subdata.sku} isReadonly />
-                              <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item" value={subdata.qty} isReadonly />
-                              <Input id={`item-note-${index}-${idx}`} variant="textarea" labelText="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." isReadonly />
-                            </Fieldset>
-                          ))}
-                        </Fragment>
-                      }
-                      onEdit={() => openEdit(data["PO Stock"].idpostock)}
-                    >
-                      <TD>{newDate(data["PO Stock"].postockcreate, "id")}</TD>
-                      <TD type="code">{data["PO Stock"].postockcode}</TD>
-                      <TD>{toTitleCase(data["PO Stock"].username)}</TD>
-                      <TD>{toTitleCase(data["PO Stock"].outletname)}</TD>
-                      <TD>{poAlias(data["PO Stock"].statusstock)}</TD>
-                    </TR>
-                  ))}
-                </TBody>
-              </Table>
-            </DashboardBody>
-            {isInPOShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
-            {isFormOpen && (
-              <SubmitForm size="sm" formTitle="Ubah Status PO" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "updatepostock")} loading={isSubmitting} onClose={closeForm}>
-                <Fieldset>
-                  <Input id={`${pageid}-po-status`} variant="select" noEmptyValue radius="full" labelText="Status PO" placeholder="Set status" name="status" value={inputData.status} options={postatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
-                </Fieldset>
-              </SubmitForm>
-            )}
-          </Fragment>
-        );
-      case "PO KELUAR":
-        return (
-          <Fragment>
-            <DashboardHead title={pagetitle} />
-            <DashboardToolbar>
-              <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" startContent={<Search />} />
-              </DashboardTool>
-              <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly />
-              </DashboardTool>
-            </DashboardToolbar>
-            <DashboardBody>
-              <Table isNoData></Table>
-            </DashboardBody>
-          </Fragment>
-        );
-      case "DIAGNOSA":
-        return (
-          <Fragment>
-            <DashboardHead title={pagetitle} desc="Daftar data Diagnosa. Klik opsi ikon pada kolom Action untuk melihat detail data." />
-            <DashboardToolbar>
-              <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={diagnoseSearch} onChange={(e) => handleDiagnoseSearch(e.target.value)} startContent={<Search />} />
-              </DashboardTool>
-              <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isDiagnoseShown} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
-              </DashboardTool>
-            </DashboardToolbar>
-            <DashboardBody>
-              <Table byNumber isExpandable isNoData={!isDiagnoseShown} isLoading={isFetching}>
-                <THead>
-                  <TR>
-                    <TH isSorted onSort={() => handleSortDate(diagnoseData, setDiagnoseData, "code.diagnosiscodecreate")}>
-                      Tanggal Dibuat
-                    </TH>
-                    <TH>Kode Diagnosa</TH>
-                    <TH>Status Diagnosa</TH>
-                  </TR>
-                </THead>
-                <TBody>
-                  {filteredDiagnoseData.map((data, index) => (
-                    <TR
-                      key={index}
-                      expandContent={data["detail"].map((subdata, idx) => (
-                        <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
-                          <Input id={`${pageid}-detail-${index}-${idx}`} radius="full" labelText="Detail Diagnosa" value={subdata.diagnosisdetail} isReadonly />
-                          <Input id={`${pageid}-status-${index}-${idx}`} radius="full" labelText="Status Detail Diagnosa" value={subdata.diagnosisdetailstatus} isReadonly />
-                        </Fieldset>
-                      ))}
-                    >
-                      <TD>{newDate(data["code"].diagnosiscodecreate, "id")}</TD>
-                      <TD type="code">{data["code"].diagnosiscode}</TD>
-                      <TD>{data["code"].diagnosiscodestatus}</TD>
-                    </TR>
-                  ))}
-                </TBody>
-              </Table>
-            </DashboardBody>
-            {isFormOpen && (
-              <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Diagnosa" : "Tambah Data Diagnosa"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "adddiagnosis")} loading={isSubmitting} onClose={closeForm}>
-                <Input id={`${pageid}-diagnose-code`} radius="full" labelText="Kode Diagnosa" placeholder="Masukkan kode diagnosa" type="text" name="diagnosecode" value={inputData.diagnosecode} onChange={handleInputChange} errorContent={errors.diagnosecode} isRequired />
-                {inputData.diagdetail.map((detail, index) => (
-                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("diagdetail", index)} isDisabled={index <= 0} />}>
-                    <Input id={`${pageid}-diagnose-detail-${index}`} radius="full" labelText="Detail Diagnosa" placeholder="Masukkan detail diagnosa" type="text" name="diagnosisdetail" value={detail.diagnosisdetail} onChange={(e) => handleRowChange("diagdetail", index, e)} errorContent={errors[`diagdetail.${index}.diagnosisdetail`] ? errors[`diagdetail.${index}.diagnosisdetail`] : ""} isRequired />
-                  </Fieldset>
-                ))}
-                <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Jenis Layanan" onClick={() => handleAddRow("diagdetail")} />
-              </SubmitForm>
-            )}
-          </Fragment>
-        );
-      case "RESERVATION":
-        return (
-          <Fragment>
-            <DashboardHead title={pagetitle} desc="Data Reservasi customer. Klik Tambah Baru untuk membuat data reservasi baru, atau klik ikon di kolom Action untuk memperbarui data." />
-            <DashboardToolbar>
-              <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={reservSearch} onChange={(e) => handleReservSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockSearch} onChange={(e) => handleStockSearch(e.target.value)} startContent={<Search />} />
                 {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isReservShown} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)} isDisabled={!isReservShown} startContent={<Export />} />
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isStockShown} />
+                {level === "admin" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />}
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={!isStockShown} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
+              <Table byNumber isClickable page={currentPage} limit={limit} isNoData={!isStockShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
+                    <TH isSorted onSort={() => handleSortDate(stockData, setStockData, "stockcreate")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Tanggal Reservasi</TH>
-                    <TH>Jam Reservasi</TH>
-                    <TH>Kode Reservasi</TH>
-                    <TH>Nama Customer</TH>
-                    <TH>Nomor Telepon</TH>
-                    <TH>Alamat Email</TH>
-                    <TH>Status Reservasi</TH>
-                    <TH>Status DP</TH>
-                    <TH>Layanan</TH>
-                    <TH>Jenis Layanan</TH>
-                    <TH>Biaya DP</TH>
-                    <TH>Kode Voucher</TH>
-                    <TH>Nama Cabang</TH>
-                    <TH>Catatan</TH>
-                  </TR>
-                </THead>
-                <TBody>
-                  {filteredReservData.map((data, index) => (
-                    <TR key={index} onEdit={() => openEdit(data.idreservation)} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
-                      <TD>{newDate(data.datetimecreate, "id")}</TD>
-                      <TD>{data.reservationdate}</TD>
-                      <TD>{data.reservationtime}</TD>
-                      <TD type="code">{data.rscode}</TD>
-                      <TD>{toTitleCase(data.name)}</TD>
-                      <TD type="number" isCopy>
-                        {data.phone}
-                      </TD>
-                      <TD>{data.email}</TD>
-                      <TD>{reservAlias(data.status_reservation)}</TD>
-                      <TD>{paymentAlias(data.status_dp)}</TD>
-                      <TD>{toTitleCase(data.service)}</TD>
-                      <TD>{toTitleCase(data.typeservice)}</TD>
-                      <TD>{newPrice(data.price_reservation)}</TD>
-                      <TD type="code">{data.voucher}</TD>
-                      <TD>{toTitleCase(data.outlet_name)}</TD>
-                      <TD>{data.note}</TD>
-                    </TR>
-                  ))}
-                </TBody>
-              </Table>
-            </DashboardBody>
-            {isReservShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
-            {isFormOpen && (
-              <SubmitForm size={selectedMode === "update" ? "sm" : "lg"} formTitle={selectedMode === "update" ? "Ubah Status Reservasi" : "Tambah Data Reservasi"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudreservation")} loading={isSubmitting} onClose={closeForm}>
-                {selectedMode === "update" ? (
-                  <Fieldset>
-                    <Input id={`${pageid}-reserv-status`} variant="select" noEmptyValue radius="full" labelText="Status Reservasi" placeholder="Set status" name="status" value={inputData.status} options={reservstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
-                    {inputData.statuspayment !== "1" && <Input id={`${pageid}-dp-status`} variant="select" noEmptyValue radius="full" labelText="Status DP" placeholder="Set status" name="statuspayment" value={inputData.statuspayment} options={paymentstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "statuspayment", value: selectedValue } })} />}
-                  </Fieldset>
-                ) : (
-                  <Fragment>
-                    <Fieldset>
-                      <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} infoContent={custExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""} errorContent={errors.phone} isRequired />
-                      <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired isReadonly={custExist} />
-                      <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired isReadonly={custExist} />
-                    </Fieldset>
-                    <Fieldset>
-                      <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={inputData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
-                      <Input
-                        id={`${pageid}-subservice`}
-                        variant="select"
-                        isSearchable
-                        radius="full"
-                        labelText="Jenis Layanan"
-                        placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
-                        name="sub_service"
-                        value={inputData.sub_service}
-                        options={(inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
-                        onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_service", value: selectedValue } })}
-                        errorContent={errors.sub_service}
-                        isRequired
-                        isDisabled={!inputData.service}
-                      />
-                      <Input id={`${pageid}-voucher`} radius="full" labelText="Kode Voucher" placeholder="e.g 598RE3" type="text" name="vouchercode" value={inputData.vouchercode} onChange={handleInputChange} errorContent={errors.vouchercode} />
-                    </Fieldset>
-                    <Fieldset>
-                      <Input id={`${pageid}-date`} radius="full" labelText="Tanggal Reservasi" placeholder="Atur tanggal" type="date" name="date" min={getCurrentDate()} value={inputData.date} onChange={handleInputChange} errorContent={errors.date} isRequired />
-                      <Input id={`${pageid}-time`} variant="select" isSearchable radius="full" labelText="Jam Reservasi" placeholder={inputData.date ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"} name="time" value={inputData.time} options={availHoursData.map((hour) => ({ value: hour, label: hour }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "time", value: selectedValue } })} errorContent={errors.time} isRequired isDisabled={!inputData.date} />
-                    </Fieldset>
-                    <Input id={`${pageid}-note`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan/keterangan ..." name="note" rows={4} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
-                    {inputData.service === "RESERVATION" && inputData.sub_service === "RESERVATION" && (
-                      <Fieldset>
-                        <Input id={`${pageid}-price`} radius="full" labelText="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleInputChange} errorContent={errors.price} />
-                        <Input id={`${pageid}-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder="Pilih metode pembayaran" name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} />
-                      </Fieldset>
-                    )}
-                  </Fragment>
-                )}
-              </SubmitForm>
-            )}
-          </Fragment>
-        );
-      case "ORDER CUSTOMER":
-        const exportToPDF = () => {
-          const element = printRef.current;
-          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData.transactionname)}-${selectedOrderData.rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
-          html2pdf().from(element).set(opt).save();
-        };
-
-        const contactWhatsApp = (number) => {
-          const wanumber = getNormalPhoneNumber(number);
-          window.open(`https://wa.me/${wanumber}`, "_blank");
-        };
-
-        return (
-          <Fragment>
-            <DashboardHead title={pagetitle} desc="Data order customer ini dibuat otomatis saat proses reservasi dilakukan. Klik baris data untuk melihat masing-masing detail layanan & produk terpakai." />
-            <DashboardToolbar>
-              <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderSearch} onChange={(e) => handleOrderSearch(e.target.value)} startContent={<Search />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
-              </DashboardTool>
-              <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isOrderShown} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)} isDisabled={!isOrderShown} startContent={<Export />} />
-              </DashboardTool>
-            </DashboardToolbar>
-            <DashboardBody>
-              <Table byNumber isClickable isEditable isPrintable isContactable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
-                <THead>
-                  <TR>
-                    <TH isSorted onSort={() => handleSortDate(orderData, setOrderData, "transactioncreate")}>
-                      Tanggal Dibuat
-                    </TH>
-                    <TH>Nama Pengguna</TH>
-                    <TH>Kode Reservasi</TH>
-                    <TH>Nomor Invoice</TH>
-                    <TH>Nomor Telepon</TH>
-                    <TH>Metode Pembayaran</TH>
-                    <TH>Total Pembayaran</TH>
-                    <TH>Status Pembayaran</TH>
-                    <TH>Kode Voucher</TH>
-                    <TH>Nama Dokter</TH>
-                    <TH>Nama Outlet</TH>
-                  </TR>
-                </THead>
-                <TBody>
-                  {filteredOrderData.map((data, index) => (
-                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
-                      <TD>{newDate(data.transactioncreate, "id")}</TD>
-                      <TD>{toTitleCase(data.transactionname)}</TD>
-                      <TD type="code">{data.rscode}</TD>
-                      <TD type="code">{data.noinvoice}</TD>
-                      <TD type="number" isCopy>
-                        {data.transactionphone}
-                      </TD>
-                      <TD>{data.payment}</TD>
-                      <TD>{newPrice(data.totalpay)}</TD>
-                      <TD>{orderAlias(data.transactionstatus)}</TD>
-                      <TD type="code">{data.voucher}</TD>
-                      <TD>{toTitleCase(data.dentist)}</TD>
-                      <TD>{toTitleCase(data.outlet_name)}</TD>
-                    </TR>
-                  ))}
-                </TBody>
-              </Table>
-            </DashboardBody>
-            {isOrderShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
-            {isFormOpen && (
-              <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Order" : "Tambah Data Order"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudorder")} loading={isSubmitting} onClose={closeForm}>
-                <Fieldset>
-                  <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
-                  <Input id={`${pageid}-type-payments`} variant="select" noEmptyValue radius="full" labelText="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errorContent={errors.typepayment} isRequired />
-                  {inputData.typepayment && (
+                    <TH>Kategori</TH>
+                    <TH>Sub Kategori</TH>
+                    <TH>Kode SKU</TH>
+                    <TH>Nama Item</TH>
+                    <TH>Unit</TH>
+                    <TH>Stok Akhir</TH>
                     <Fragment>
-                      {inputData.typepayment === "cashless" ? (
-                        <Input
-                          id={`${pageid}-method-payments`}
-                          variant="select"
-                          isSearchable
-                          radius="full"
-                          labelText="Metode Pembayaran"
-                          placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"}
-                          name="bank_code"
-                          value={inputData.bank_code}
-                          options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
-                          onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })}
-                          errorContent={errors.bank_code}
-                          isDisabled={!inputData.typepayment}
-                        />
-                      ) : (
-                        <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />
+                      {level === "admin" && (
+                        <Fragment>
+                          <TH>Harga</TH>
+                          <TH>Total Nilai</TH>
+                        </Fragment>
                       )}
                     </Fragment>
-                  )}
+                    <TH>Nama Cabang</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredStockData.map((data, index) => (
+                    <TR key={index} onClick={() => openDetail(data.itemname)}>
+                      <TD>{newDate(data.stockcreate, "id")}</TD>
+                      <TD>{toTitleCase(data.categorystock)}</TD>
+                      <TD>{toTitleCase(data.subcategorystock)}</TD>
+                      <TD type="code">{data.sku}</TD>
+                      <TD>{toTitleCase(data.itemname)}</TD>
+                      <TD>{data.unit}</TD>
+                      <TD type="number">{data.lastqty}</TD>
+                      <Fragment>
+                        {level === "admin" && (
+                          <Fragment>
+                            <TD>{newPrice(data.value)}</TD>
+                            <TD>{newPrice(data.totalvalue)}</TD>
+                          </Fragment>
+                        )}
+                      </Fragment>
+                      <TD>{toTitleCase(data.outletname)}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isStockShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Stok" : "Tambah Data Stok"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudstock")} loading={isSubmitting} onClose={closeForm}>
+                <Fieldset>
+                  <Input id={`${pageid}-category`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder="Pilih kategori" name="category" value={inputData.category} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "category", value: selectedValue } })} errorContent={errors.category} isRequired />
+                  <Input
+                    id={`${pageid}-subcategory`}
+                    variant="select"
+                    isSearchable
+                    radius="full"
+                    labelText="Sub Kategori"
+                    placeholder={inputData.category ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
+                    name="sub_category"
+                    value={inputData.sub_category}
+                    options={(inputData.category && categoryStockData.find((cat) => cat["category_stok"].categorystockname === inputData.category)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []}
+                    onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_category", value: selectedValue } })}
+                    errorContent={errors.sub_category}
+                    isRequired
+                    isDisabled={!inputData.category}
+                  />
+                  <Input id={`${pageid}-name`} radius="full" labelText="Nama Item" placeholder="STERILISATOR" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
                 </Fieldset>
-                {inputData.order.map((subservice, index) => (
-                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("order", index)} isDisabled={index <= 0} />}>
-                    <Input
-                      id={`${pageid}-name-${index}`}
-                      variant="select"
-                      isSearchable
-                      radius="full"
-                      labelText="Nama Layanan"
-                      placeholder="Pilih Layanan"
-                      name="service"
-                      value={subservice.service}
-                      options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))}
-                      onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })}
-                      errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""}
-                      isRequired
-                      isReadonly={inputData.order[index].service === "RESERVATION"}
-                    />
-                    <Input
-                      id={`${pageid}-type-name-${index}`}
-                      variant="select"
-                      isSearchable
-                      radius="full"
-                      labelText="Jenis Layanan"
-                      placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
-                      name="servicetype"
-                      value={subservice.servicetype}
-                      options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
-                      onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })}
-                      errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
-                      isRequired
-                      isDisabled={!inputData.order[index].service}
-                      isReadonly={inputData.order[index].service === "RESERVATION"}
-                    />
-                    <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
-                  </Fieldset>
-                ))}
-                <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Layanan" onClick={() => handleAddRow("order")} />
+                <Fieldset>
+                  <Input id={`${pageid}-unit`} variant="select" radius="full" labelText="Unit/satuan" placeholder="Pilih satuan/unit" name="unit" value={inputData.unit} options={unitopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "unit", value: selectedValue } })} errorContent={errors.unit} isRequired />
+                  <Input id={`${pageid}-qty`} radius="full" labelText="Jumlah" placeholder="40" type="number" name="count" value={inputData.count} onChange={handleInputChange} errorContent={errors.count} isRequired />
+                  <Input id={`${pageid}-price`} radius="full" labelText="Harga Item Satuan" placeholder="100000" type="number" name="value" value={inputData.value} onChange={handleInputChange} errorContent={errors.value} isRequired />
+                </Fieldset>
               </SubmitForm>
-            )}
-            {selectedOrderData && orderDetailData && isFileOpen && (
-              <FileForm fetching={isFormFetching} onNext={exportToPDF} onClose={closeFile}>
-                <Invoice ref={printRef} data={selectedOrderData} items={orderDetailData} />
-              </FileForm>
             )}
           </Fragment>
         );
@@ -2168,92 +1832,85 @@ const DashboardSlugPage = ({ parent, slug }) => {
             )}
           </Fragment>
         );
-      case "CALENDAR RESERVATION":
-        const daysofweek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu"];
-        const getDaysMonth = (year, month) => {
-          return new Date(year, month + 1, 0).getDate();
-        };
-        const getFirstDayMonth = (year, month) => {
-          return new Date(year, month, 1).getDay();
-        };
-        const formatDate = (year, month, day) => {
-          return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        };
-
-        const generateCalendar = () => {
-          const year = currentDate.getFullYear();
-          const month = currentDate.getMonth();
-          const daysmonth = getDaysMonth(year, month);
-          const firstdaymonth = getFirstDayMonth(year, month);
-          const daysprevmonth = getDaysMonth(year, month - 1);
-          const calendardays = [];
-          let dayCounter = 1;
-
-          for (let i = firstdaymonth - 1; i >= 0; i--) {
-            const day = daysprevmonth - i;
-            const date = formatDate(year, month - 1, day);
-            calendardays.push({ day, events: eventsData[date] || [], isCurrentMonth: false, date });
-          }
-          while (dayCounter <= daysmonth) {
-            const date = formatDate(year, month, dayCounter);
-            calendardays.push({ day: dayCounter, events: eventsData[date] || [], isCurrentMonth: true, date });
-            dayCounter++;
-          }
-          const anotherdaysmonth = 42 - calendardays.length;
-          for (let i = 1; i <= anotherdaysmonth; i++) {
-            const date = formatDate(year, month + 1, i);
-            calendardays.push({ day: i, events: eventsData[date] || [], isCurrentMonth: false, date });
-          }
-
-          const openEvent = (dayObj) => {
-            if (dayObj) {
-              setSelectedDayEvents(dayObj.events);
-              setIsModalOpen(true);
-            }
-          };
-
-          return calendardays.map((dayObj, index) => (
-            <CalendarDate key={index} date={dayObj.day} isDisabled={!dayObj.isCurrentMonth} hasEvent={dayObj.events.length > 0} onClick={() => openEvent(dayObj)}>
-              {dayObj.events.slice(0, 3).map((event, i) => (
-                <DateEvent key={i} label={event.label} status={event.status} isDisabled={!dayObj.isCurrentMonth} />
-              ))}
-              {dayObj.events.length > 3 && <DateEvent label={`+${dayObj.events.length - 3} more events`} />}
-            </CalendarDate>
-          ));
-        };
-
-        const handlePrevMonth = () => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
-        const handleNextMonth = () => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
-        const handleToday = () => {
-          const todayWIB = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
-          setCurrentDate(new Date(todayWIB));
-        };
-
-        const closeEvent = () => {
-          setIsModalOpen(false);
-          setSelectedDayEvents([]);
-        };
-
+      case "PO MASUK":
         return (
           <Fragment>
-            <DashboardHead title={`Jadwal Reservasi ${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}`} desc="Data visual jadwal reservasi, klik kolom tanggal untuk melihat daftar jadwal reservasi harian." />
+            <DashboardHead title={pagetitle} desc="Daftar permintaan PO item dari semua cabang. Filter status PO melalui tombol tab, atau klik ikon pada kolom Action untuk memperbarui status PO." />
             <DashboardToolbar>
-              <DashboardTool>{level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}</DashboardTool>
               <DashboardTool>
-                <Button id={`${pageid}-today`} radius="full" buttonText="Hari Ini" onClick={handleToday} />
-                <Button id={`${pageid}-prev-month`} radius="full" variant="line" color="var(--color-primary)" buttonText="Prev Month" onClick={handlePrevMonth} startContent={<HChevron direction="left" />} />
-                <Button id={`${pageid}-next-month`} radius="full" buttonText="Next Month" onClick={handleNextMonth} endContent={<HChevron />} />
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={inPOSearch} onChange={(e) => handleInPOSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isInPOShown} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <TabGroup buttons={postatus} />
+            <DashboardBody>
+              <Table byNumber isExpandable isEditable page={currentPage} limit={limit} isNoData={!isInPOShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(inPOData, setInPOData, "PO Stock.postockcreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Kode PO</TH>
+                    <TH>Nama Admin</TH>
+                    <TH>Nama Cabang</TH>
+                    <TH>Status PO</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredInPOData.map((data, index) => (
+                    <TR
+                      key={index}
+                      expandContent={
+                        <Fragment>
+                          {data["Detail PO"].map((subdata, idx) => (
+                            <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
+                              <Input id={`item-name-${index}-${idx}`} radius="full" labelText="Nama Item" value={subdata.itemname} isReadonly />
+                              <Input id={`item-sku-${index}-${idx}`} radius="full" labelText="Kode SKU" value={subdata.sku} isReadonly />
+                              <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item" value={subdata.qty} isReadonly />
+                              <Input id={`item-note-${index}-${idx}`} variant="textarea" labelText="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." isReadonly />
+                            </Fieldset>
+                          ))}
+                        </Fragment>
+                      }
+                      onEdit={() => openEdit(data["PO Stock"].idpostock)}
+                    >
+                      <TD>{newDate(data["PO Stock"].postockcreate, "id")}</TD>
+                      <TD type="code">{data["PO Stock"].postockcode}</TD>
+                      <TD>{toTitleCase(data["PO Stock"].username)}</TD>
+                      <TD>{toTitleCase(data["PO Stock"].outletname)}</TD>
+                      <TD>{poAlias(data["PO Stock"].statusstock)}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isInPOShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle="Ubah Status PO" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "updatepostock")} loading={isSubmitting} onClose={closeForm}>
+                <Fieldset>
+                  <Input id={`${pageid}-po-status`} variant="select" noEmptyValue radius="full" labelText="Status PO" placeholder="Set status" name="status" value={inputData.status} options={postatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
+                </Fieldset>
+              </SubmitForm>
+            )}
+          </Fragment>
+        );
+      case "PO KELUAR":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" startContent={<Search />} />
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Calendar>
-                {daysofweek.map((day) => (
-                  <CalendarDay key={day}>{day}</CalendarDay>
-                ))}
-                {generateCalendar()}
-              </Calendar>
+              <Table isNoData></Table>
             </DashboardBody>
-            {isModalOpen && <EventModal events={selectedDayEvents} onClose={closeEvent} />}
           </Fragment>
         );
       case "REKAM MEDIS":
@@ -2982,6 +2639,348 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <TabSwitch buttons={tabbutton} />
             {tabId !== "4" && <TabGroup buttons={subTabButton(tabId)} />}
             <DashboardBody>{renderSection()}</DashboardBody>
+          </Fragment>
+        );
+      case "RESERVATION":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data Reservasi customer. Klik Tambah Baru untuk membuat data reservasi baru, atau klik ikon di kolom Action untuk memperbarui data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={reservSearch} onChange={(e) => handleReservSearch(e.target.value)} startContent={<Search />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isReservShown} />
+                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)} isDisabled={!isReservShown} startContent={<Export />} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Tanggal Reservasi</TH>
+                    <TH>Jam Reservasi</TH>
+                    <TH>Kode Reservasi</TH>
+                    <TH>Nama Customer</TH>
+                    <TH>Nomor Telepon</TH>
+                    <TH>Alamat Email</TH>
+                    <TH>Status Reservasi</TH>
+                    <TH>Status DP</TH>
+                    <TH>Layanan</TH>
+                    <TH>Jenis Layanan</TH>
+                    <TH>Biaya DP</TH>
+                    <TH>Kode Voucher</TH>
+                    <TH>Nama Cabang</TH>
+                    <TH>Catatan</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredReservData.map((data, index) => (
+                    <TR key={index} onEdit={() => openEdit(data.idreservation)} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
+                      <TD>{newDate(data.datetimecreate, "id")}</TD>
+                      <TD>{data.reservationdate}</TD>
+                      <TD>{data.reservationtime}</TD>
+                      <TD type="code">{data.rscode}</TD>
+                      <TD>{toTitleCase(data.name)}</TD>
+                      <TD type="number" isCopy>
+                        {data.phone}
+                      </TD>
+                      <TD>{data.email}</TD>
+                      <TD>{reservAlias(data.status_reservation)}</TD>
+                      <TD>{paymentAlias(data.status_dp)}</TD>
+                      <TD>{toTitleCase(data.service)}</TD>
+                      <TD>{toTitleCase(data.typeservice)}</TD>
+                      <TD>{newPrice(data.price_reservation)}</TD>
+                      <TD type="code">{data.voucher}</TD>
+                      <TD>{toTitleCase(data.outlet_name)}</TD>
+                      <TD>{data.note}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isReservShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm size={selectedMode === "update" ? "sm" : "lg"} formTitle={selectedMode === "update" ? "Ubah Status Reservasi" : "Tambah Data Reservasi"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudreservation")} loading={isSubmitting} onClose={closeForm}>
+                {selectedMode === "update" ? (
+                  <Fieldset>
+                    <Input id={`${pageid}-reserv-status`} variant="select" noEmptyValue radius="full" labelText="Status Reservasi" placeholder="Set status" name="status" value={inputData.status} options={reservstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
+                    {inputData.statuspayment !== "1" && <Input id={`${pageid}-dp-status`} variant="select" noEmptyValue radius="full" labelText="Status DP" placeholder="Set status" name="statuspayment" value={inputData.statuspayment} options={paymentstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "statuspayment", value: selectedValue } })} />}
+                  </Fieldset>
+                ) : (
+                  <Fragment>
+                    <Fieldset>
+                      <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} infoContent={custExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""} errorContent={errors.phone} isRequired />
+                      <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired isReadonly={custExist} />
+                      <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired isReadonly={custExist} />
+                    </Fieldset>
+                    <Fieldset>
+                      <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={inputData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
+                      <Input
+                        id={`${pageid}-subservice`}
+                        variant="select"
+                        isSearchable
+                        radius="full"
+                        labelText="Jenis Layanan"
+                        placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
+                        name="sub_service"
+                        value={inputData.sub_service}
+                        options={(inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
+                        onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_service", value: selectedValue } })}
+                        errorContent={errors.sub_service}
+                        isRequired
+                        isDisabled={!inputData.service}
+                      />
+                      <Input id={`${pageid}-voucher`} radius="full" labelText="Kode Voucher" placeholder="e.g 598RE3" type="text" name="vouchercode" value={inputData.vouchercode} onChange={handleInputChange} errorContent={errors.vouchercode} />
+                    </Fieldset>
+                    <Fieldset>
+                      <Input id={`${pageid}-date`} radius="full" labelText="Tanggal Reservasi" placeholder="Atur tanggal" type="date" name="date" min={getCurrentDate()} value={inputData.date} onChange={handleInputChange} errorContent={errors.date} isRequired />
+                      <Input id={`${pageid}-time`} variant="select" isSearchable radius="full" labelText="Jam Reservasi" placeholder={inputData.date ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"} name="time" value={inputData.time} options={availHoursData.map((hour) => ({ value: hour, label: hour }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "time", value: selectedValue } })} errorContent={errors.time} isRequired isDisabled={!inputData.date} />
+                    </Fieldset>
+                    <Input id={`${pageid}-note`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan/keterangan ..." name="note" rows={4} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
+                    {inputData.service === "RESERVATION" && inputData.sub_service === "RESERVATION" && (
+                      <Fieldset>
+                        <Input id={`${pageid}-price`} radius="full" labelText="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleInputChange} errorContent={errors.price} />
+                        <Input id={`${pageid}-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder="Pilih metode pembayaran" name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} />
+                      </Fieldset>
+                    )}
+                  </Fragment>
+                )}
+              </SubmitForm>
+            )}
+          </Fragment>
+        );
+      case "ORDER CUSTOMER":
+        const exportToPDF = () => {
+          const element = printRef.current;
+          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData.transactionname)}-${selectedOrderData.rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
+          html2pdf().from(element).set(opt).save();
+        };
+
+        const contactWhatsApp = (number) => {
+          const wanumber = getNormalPhoneNumber(number);
+          window.open(`https://wa.me/${wanumber}`, "_blank");
+        };
+
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data order customer ini dibuat otomatis saat proses reservasi dilakukan. Klik baris data untuk melihat masing-masing detail layanan & produk terpakai." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderSearch} onChange={(e) => handleOrderSearch(e.target.value)} startContent={<Search />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isOrderShown} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)} isDisabled={!isOrderShown} startContent={<Export />} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isClickable isEditable isPrintable isContactable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(orderData, setOrderData, "transactioncreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Nama Pengguna</TH>
+                    <TH>Kode Reservasi</TH>
+                    <TH>Nomor Invoice</TH>
+                    <TH>Nomor Telepon</TH>
+                    <TH>Metode Pembayaran</TH>
+                    <TH>Total Pembayaran</TH>
+                    <TH>Status Pembayaran</TH>
+                    <TH>Kode Voucher</TH>
+                    <TH>Nama Dokter</TH>
+                    <TH>Nama Outlet</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredOrderData.map((data, index) => (
+                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
+                      <TD>{newDate(data.transactioncreate, "id")}</TD>
+                      <TD>{toTitleCase(data.transactionname)}</TD>
+                      <TD type="code">{data.rscode}</TD>
+                      <TD type="code">{data.noinvoice}</TD>
+                      <TD type="number" isCopy>
+                        {data.transactionphone}
+                      </TD>
+                      <TD>{data.payment}</TD>
+                      <TD>{newPrice(data.totalpay)}</TD>
+                      <TD>{orderAlias(data.transactionstatus)}</TD>
+                      <TD type="code">{data.voucher}</TD>
+                      <TD>{toTitleCase(data.dentist)}</TD>
+                      <TD>{toTitleCase(data.outlet_name)}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isOrderShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Order" : "Tambah Data Order"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudorder")} loading={isSubmitting} onClose={closeForm}>
+                <Fieldset>
+                  <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
+                  <Input id={`${pageid}-type-payments`} variant="select" noEmptyValue radius="full" labelText="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errorContent={errors.typepayment} isRequired />
+                  {inputData.typepayment && (
+                    <Fragment>
+                      {inputData.typepayment === "cashless" ? (
+                        <Input
+                          id={`${pageid}-method-payments`}
+                          variant="select"
+                          isSearchable
+                          radius="full"
+                          labelText="Metode Pembayaran"
+                          placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"}
+                          name="bank_code"
+                          value={inputData.bank_code}
+                          options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
+                          onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })}
+                          errorContent={errors.bank_code}
+                          isDisabled={!inputData.typepayment}
+                        />
+                      ) : (
+                        <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />
+                      )}
+                    </Fragment>
+                  )}
+                </Fieldset>
+                {inputData.order.map((subservice, index) => (
+                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="dashed" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("order", index)} isDisabled={index <= 0} />}>
+                    <Input
+                      id={`${pageid}-name-${index}`}
+                      variant="select"
+                      isSearchable
+                      radius="full"
+                      labelText="Nama Layanan"
+                      placeholder="Pilih Layanan"
+                      name="service"
+                      value={subservice.service}
+                      options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))}
+                      onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })}
+                      errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""}
+                      isRequired
+                      isReadonly={inputData.order[index].service === "RESERVATION"}
+                    />
+                    <Input
+                      id={`${pageid}-type-name-${index}`}
+                      variant="select"
+                      isSearchable
+                      radius="full"
+                      labelText="Jenis Layanan"
+                      placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
+                      name="servicetype"
+                      value={subservice.servicetype}
+                      options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
+                      onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })}
+                      errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
+                      isRequired
+                      isDisabled={!inputData.order[index].service}
+                      isReadonly={inputData.order[index].service === "RESERVATION"}
+                    />
+                    <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
+                  </Fieldset>
+                ))}
+                <Button id={`${pageid}-add-row`} variant="dashed" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Layanan" onClick={() => handleAddRow("order")} />
+              </SubmitForm>
+            )}
+            {selectedOrderData && orderDetailData && isFileOpen && (
+              <FileForm fetching={isFormFetching} onNext={exportToPDF} onClose={closeFile}>
+                <Invoice ref={printRef} data={selectedOrderData} items={orderDetailData} />
+              </FileForm>
+            )}
+          </Fragment>
+        );
+      case "CALENDAR RESERVATION":
+        const daysofweek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu"];
+        const getDaysMonth = (year, month) => {
+          return new Date(year, month + 1, 0).getDate();
+        };
+        const getFirstDayMonth = (year, month) => {
+          return new Date(year, month, 1).getDay();
+        };
+        const formatDate = (year, month, day) => {
+          return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        };
+
+        const generateCalendar = () => {
+          const year = currentDate.getFullYear();
+          const month = currentDate.getMonth();
+          const daysmonth = getDaysMonth(year, month);
+          const firstdaymonth = getFirstDayMonth(year, month);
+          const daysprevmonth = getDaysMonth(year, month - 1);
+          const calendardays = [];
+          let dayCounter = 1;
+
+          for (let i = firstdaymonth - 1; i >= 0; i--) {
+            const day = daysprevmonth - i;
+            const date = formatDate(year, month - 1, day);
+            calendardays.push({ day, events: eventsData[date] || [], isCurrentMonth: false, date });
+          }
+          while (dayCounter <= daysmonth) {
+            const date = formatDate(year, month, dayCounter);
+            calendardays.push({ day: dayCounter, events: eventsData[date] || [], isCurrentMonth: true, date });
+            dayCounter++;
+          }
+          const anotherdaysmonth = 42 - calendardays.length;
+          for (let i = 1; i <= anotherdaysmonth; i++) {
+            const date = formatDate(year, month + 1, i);
+            calendardays.push({ day: i, events: eventsData[date] || [], isCurrentMonth: false, date });
+          }
+
+          const openEvent = (dayObj) => {
+            if (dayObj) {
+              setSelectedDayEvents(dayObj.events);
+              setIsModalOpen(true);
+            }
+          };
+
+          return calendardays.map((dayObj, index) => (
+            <CalendarDate key={index} date={dayObj.day} isDisabled={!dayObj.isCurrentMonth} hasEvent={dayObj.events.length > 0} onClick={() => openEvent(dayObj)}>
+              {dayObj.events.slice(0, 3).map((event, i) => (
+                <DateEvent key={i} label={event.label} status={event.status} isDisabled={!dayObj.isCurrentMonth} />
+              ))}
+              {dayObj.events.length > 3 && <DateEvent label={`+${dayObj.events.length - 3} more events`} />}
+            </CalendarDate>
+          ));
+        };
+
+        const handlePrevMonth = () => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
+        const handleNextMonth = () => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
+        const handleToday = () => {
+          const todayWIB = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
+          setCurrentDate(new Date(todayWIB));
+        };
+
+        const closeEvent = () => {
+          setIsModalOpen(false);
+          setSelectedDayEvents([]);
+        };
+
+        return (
+          <Fragment>
+            <DashboardHead title={`Jadwal Reservasi ${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}`} desc="Data visual jadwal reservasi, klik kolom tanggal untuk melihat daftar jadwal reservasi harian." />
+            <DashboardToolbar>
+              <DashboardTool>{level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}</DashboardTool>
+              <DashboardTool>
+                <Button id={`${pageid}-today`} radius="full" buttonText="Hari Ini" onClick={handleToday} />
+                <Button id={`${pageid}-prev-month`} radius="full" variant="line" color="var(--color-primary)" buttonText="Prev Month" onClick={handlePrevMonth} startContent={<HChevron direction="left" />} />
+                <Button id={`${pageid}-next-month`} radius="full" buttonText="Next Month" onClick={handleNextMonth} endContent={<HChevron />} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Calendar>
+                {daysofweek.map((day) => (
+                  <CalendarDay key={day}>{day}</CalendarDay>
+                ))}
+                {generateCalendar()}
+              </Calendar>
+            </DashboardBody>
+            {isModalOpen && <EventModal events={selectedDayEvents} onClose={closeEvent} />}
           </Fragment>
         );
       default:
