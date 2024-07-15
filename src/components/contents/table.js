@@ -12,7 +12,6 @@ const AtnIcon = ({ children, onClick }) => {
 
 export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => {
   const [copied, setCopied] = useState(false);
-
   const copyToClipboard = () => {
     const el = document.createElement("textarea");
     el.value = children;
@@ -29,7 +28,6 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
     let color;
     let justifyContent;
     let fontWeight;
-
     switch (type) {
       case "num":
         width = "var(--pixel-100)";
@@ -63,12 +61,7 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
         break;
     }
 
-    return {
-      width,
-      color,
-      justifyContent,
-      fontWeight,
-    };
+    return { width, color, justifyContent, fontWeight };
   };
 
   const handleClick = () => {
@@ -89,11 +82,7 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
 
   return (
     <Fragment>
-      <div
-        className={`${styles.thReg} ${type === "custom" ? styles.custom : ""} ${isClickable ? (type === "atn" ? "" : styles.click) : ""}`}
-        style={tdstyle()}
-        onClick={handleClick}
-      >
+      <div className={`${styles.thReg} ${type === "custom" ? styles.custom : ""} ${isClickable ? (type === "atn" ? "" : styles.click) : ""}`} style={tdstyle()} onClick={handleClick}>
         {type === "atn" || type === "custom" ? (
           children
         ) : (
@@ -109,10 +98,7 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
               </Fragment>
             ) : type === "code" ? (
               <Fragment>
-                <code
-                  className={`${styles.regText} ${styles.code} ${copied ? styles.copied : ""}`}
-                  style={copied ? { opacity: "0.5" } : { opacity: "1" }}
-                >
+                <code className={`${styles.regText} ${styles.code} ${copied ? styles.copied : ""}`} style={copied ? { opacity: "0.5" } : { opacity: "1" }}>
                   {copied ? "Copied!" : children}
                 </code>
                 <AtnIcon onClick={copyToClipboard}>
@@ -121,10 +107,7 @@ export const TD = ({ type = "reg", isCopy, isClickable, onClick, children }) => 
               </Fragment>
             ) : type === "number" ? (
               <Fragment>
-                <h5
-                  className={`${styles.regText} ${styles.number} ${copied ? styles.copied : ""}`}
-                  style={copied ? { opacity: "0.5" } : { opacity: "1" }}
-                >
+                <h5 className={`${styles.regText} ${styles.number} ${copied ? styles.copied : ""}`} style={copied ? { opacity: "0.5" } : { opacity: "1" }}>
                   {copied ? "Copied!" : children}
                 </h5>
                 {isCopy && (
@@ -159,7 +142,6 @@ export const TH = ({ type = "reg", isSorted, onSort, children }) => {
     let color;
     let justifyContent;
     let fontWeight;
-
     switch (type) {
       case "num":
         width = "var(--pixel-100)";
@@ -187,12 +169,7 @@ export const TH = ({ type = "reg", isSorted, onSort, children }) => {
         break;
     }
 
-    return {
-      width,
-      color,
-      justifyContent,
-      fontWeight,
-    };
+    return { width, color, justifyContent, fontWeight };
   };
 
   return (
@@ -210,29 +187,7 @@ export const TH = ({ type = "reg", isSorted, onSort, children }) => {
   );
 };
 
-export const TR = ({
-  children,
-  byNumber,
-  rowIndex,
-  isComplete,
-  isWarning,
-  isDanger,
-  isDeletable,
-  onDelete,
-  isEditable,
-  onEdit,
-  isExpandable,
-  onExpand = () => {},
-  isCancelable,
-  onCancel,
-  isPrintable,
-  isContactable,
-  onContact,
-  onPrint,
-  expandContent,
-  isClickable,
-  onClick,
-}) => {
+export const TR = ({ children, byNumber, rowIndex, isComplete, isWarning, isDanger, isDeletable, onDelete, isEditable, onEdit, isExpandable, onExpand = () => {}, isCancelable, onCancel, isPrintable, isContactable, onContact, onPrint, expandContent, isClickable, onClick }) => {
   const ref = useRef();
   const [expanded, setExpanded] = useState(false);
 
@@ -331,34 +286,12 @@ export const TR = ({
   );
 };
 
-export const TBody = ({
-  children,
-  byNumber,
-  page,
-  limit,
-  isDeletable,
-  isEditable,
-  isExpandable,
-  isClickable,
-  isCancelable,
-  isPrintable,
-  isContactable,
-}) => {
+export const TBody = ({ children, byNumber, page, limit, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isContactable }) => {
   return (
     <main className={styles.tableBody}>
       {React.Children.map(children, (child, index) => {
         const rowIndex = page !== undefined && limit !== undefined ? (page - 1) * limit + index + 1 : index + 1;
-        return React.cloneElement(child, {
-          byNumber,
-          rowIndex,
-          isDeletable,
-          isEditable,
-          isExpandable,
-          isClickable,
-          isCancelable,
-          isPrintable,
-          isContactable,
-        });
+        return React.cloneElement(child, { byNumber, rowIndex, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isContactable });
       })}
     </main>
   );
@@ -374,24 +307,7 @@ export const THead = ({ children, byNumber, isDeletable, isEditable, isExpandabl
   );
 };
 
-const Table = ({
-  id,
-  byNumber,
-  page,
-  limit,
-  isLoading,
-  loadingPlacholder,
-  isNoData,
-  noDataPlaceholder,
-  isDeletable,
-  isEditable,
-  isExpandable,
-  isClickable,
-  isCancelable,
-  isPrintable,
-  isContactable,
-  children,
-}) => {
+const Table = ({ id, byNumber, page, limit, isLoading, loadingPlacholder, isNoData, noDataPlaceholder, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isContactable, children }) => {
   const isDataPaging = page !== undefined && limit !== undefined;
 
   return (
@@ -403,18 +319,7 @@ const Table = ({
       ) : (
         <div className={styles.table}>
           {React.Children.map(children, (child) => {
-            return React.cloneElement(child, {
-              byNumber,
-              page: isDataPaging ? page : undefined,
-              limit: isDataPaging ? limit : undefined,
-              isDeletable,
-              isEditable,
-              isExpandable,
-              isClickable,
-              isCancelable,
-              isPrintable,
-              isContactable,
-            });
+            return React.cloneElement(child, { byNumber, page: isDataPaging ? page : undefined, limit: isDataPaging ? limit : undefined, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isContactable });
           })}
         </div>
       )}

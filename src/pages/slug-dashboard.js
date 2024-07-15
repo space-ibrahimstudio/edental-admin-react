@@ -104,6 +104,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [recipeData, setRecipeData] = useState([]);
   const [diagnoseData, setDiagnoseData] = useState([]);
   const [allDiagnoseData, setAllDiagnoseData] = useState([]);
+  const [rkmDiagnosaData, setRkmDiagnosaData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -459,10 +460,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
           break;
         case "PO PUSAT":
           addtFormData.append("data", JSON.stringify({ secret, limit, hal: offset, status }));
-          addtdata = await apiRead(addtFormData, "office", "viewpostock");
-          if (addtdata && addtdata.data && addtdata.data.length > 0) {
-            setCentralPOData(addtdata.data);
-            setTotalPages(addtdata.TTLPage);
+          data = await apiRead(addtFormData, "office", "viewpostock");
+          if (data && data.data && data.data.length > 0) {
+            setCentralPOData(data.data);
+            setTotalPages(data.TTLPage);
           } else {
             setCentralPOData([]);
             setTotalPages(0);
@@ -470,10 +471,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
           break;
         case "PO MASUK":
           addtFormData.append("data", JSON.stringify({ secret, limit, hal: offset, status }));
-          addtdata = await apiRead(addtFormData, "office", "viewpostock");
-          if (addtdata && addtdata.data && addtdata.data.length > 0) {
-            setInPOData(addtdata.data);
-            setTotalPages(addtdata.TTLPage);
+          data = await apiRead(addtFormData, "office", "viewpostock");
+          if (data && data.data && data.data.length > 0) {
+            setInPOData(data.data);
+            setTotalPages(data.TTLPage);
           } else {
             setInPOData([]);
             setTotalPages(0);
@@ -487,9 +488,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "2":
                   if (selectedCust) {
                     addtFormData.append("data", JSON.stringify({ secret, noktp: nikno.noktp }));
-                    addtdata = await apiRead(addtFormData, "office", "viewhistoryresev");
-                    if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                      setHistoryReservData(addtdata.data);
+                    data = await apiRead(addtFormData, "office", "viewhistoryresev");
+                    if (data && data.data && data.data.length > 0) {
+                      setHistoryReservData(data.data);
                     } else {
                       setHistoryReservData([]);
                     }
@@ -500,9 +501,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "3":
                   if (selectedCust) {
                     addtFormData.append("data", JSON.stringify({ secret, noktp: nikno.noktp }));
-                    addtdata = await apiRead(addtFormData, "office", "viewhistoryorder");
-                    if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                      setHistoryOrderData(addtdata.data);
+                    data = await apiRead(addtFormData, "office", "viewhistoryorder");
+                    if (data && data.data && data.data.length > 0) {
+                      setHistoryOrderData(data.data);
                     } else {
                       setHistoryOrderData([]);
                     }
@@ -512,9 +513,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   break;
                 case "4":
                   addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
-                  addtdata = await apiRead(addtFormData, "office", "viewmedics");
-                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                    setMedicRcdData(addtdata.data);
+                  data = await apiRead(addtFormData, "office", "viewmedics");
+                  if (data && data.data && data.data.length > 0) {
+                    setMedicRcdData(data.data);
                   } else {
                     setMedicRcdData([]);
                   }
@@ -527,33 +528,33 @@ const DashboardSlugPage = ({ parent, slug }) => {
               addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
               switch (subTabId) {
                 case "1":
-                  addtdata = await apiRead(addtFormData, "office", "viewanamnesa");
-                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                    setAnamesaData(addtdata.data);
+                  data = await apiRead(addtFormData, "office", "viewanamnesa");
+                  if (data && data.data && data.data.length > 0) {
+                    setAnamesaData(data.data);
                   } else {
                     setAnamesaData([]);
                   }
                   break;
                 case "2":
-                  addtdata = await apiRead(addtFormData, "office", "viewodontogram");
-                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                    setOdontogramData(addtdata.data);
+                  data = await apiRead(addtFormData, "office", "viewodontogram");
+                  if (data && data.data && data.data.length > 0) {
+                    setOdontogramData(data.data);
                   } else {
                     setOdontogramData([]);
                   }
                   break;
                 case "3":
-                  addtdata = await apiRead(addtFormData, "office", "viewinspection");
-                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                    setInspectData(addtdata.data);
+                  data = await apiRead(addtFormData, "office", "viewinspection");
+                  if (data && data.data && data.data.length > 0) {
+                    setInspectData(data.data);
                   } else {
                     setInspectData([]);
                   }
                   break;
                 case "4":
-                  addtdata = await apiRead(addtFormData, "office", "viewphoto");
-                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                    setPhotoMedic(addtdata.data);
+                  data = await apiRead(addtFormData, "office", "viewphoto");
+                  if (data && data.data && data.data.length > 0) {
+                    setPhotoMedic(data.data);
                   } else {
                     setPhotoMedic([]);
                   }
@@ -564,12 +565,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
               break;
             case "3":
               switch (subTabId) {
+                case "2":
+                  addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
+                  data = await apiRead(addtFormData, "office", "viewdiagnosisuser");
+                  if (data && data.data && data.data.length > 0) {
+                    setRkmDiagnosaData(data.data);
+                  } else {
+                    setRkmDiagnosaData([]);
+                  }
+                  break;
                 case "3":
                   if (selectedCust) {
                     addtFormData.append("data", JSON.stringify({ secret, noktp: nikno.noktp }));
-                    addtdata = await apiRead(addtFormData, "office", "viewhistoryorder");
-                    if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                      setHistoryOrderData(addtdata.data);
+                    data = await apiRead(addtFormData, "office", "viewhistoryorder");
+                    if (data && data.data && data.data.length > 0) {
+                      setHistoryOrderData(data.data);
                     } else {
                       setHistoryOrderData([]);
                     }
@@ -579,9 +589,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   break;
                 case "4":
                   addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
-                  addtdata = await apiRead(addtFormData, "office", "viewstockoutdetail");
-                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                    setAlkesData(addtdata.data);
+                  data = await apiRead(addtFormData, "office", "viewstockoutdetail");
+                  if (data && data.data && data.data.length > 0) {
+                    setAlkesData(data.data);
                   } else {
                     setAlkesData([]);
                   }
@@ -592,9 +602,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
               break;
             case "4":
               addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
-              addtdata = await apiRead(addtFormData, "office", "viewrecipe");
-              if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                setRecipeData(addtdata.data);
+              data = await apiRead(addtFormData, "office", "viewrecipe");
+              if (data && data.data && data.data.length > 0) {
+                setRecipeData(data.data);
               } else {
                 setRecipeData([]);
               }
@@ -907,6 +917,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
             break;
           case "3":
             switch (subTabId) {
+              case "2":
+                requiredFields = ["rscode", "diagnose", "diagnosecode", "diagnosedetail"];
+                break;
               case "3":
                 if (selectedMode === "update") {
                   requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
@@ -1021,6 +1034,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
               break;
             case "3":
               switch (subTabId) {
+                case "2":
+                  submittedData = { secret, type: inputData.diagnose, code: inputData.diagnosecode, detail: inputData.diagnosedetail, rscode: inputData.rscode, note: inputData.note, iduser: selectedCust };
+                  break;
                 case "3":
                   const nikno = allCustData.find((data) => data.idauthuser === selectedCust);
                   const noktp = nikno.noktp;
@@ -2346,9 +2362,35 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 case "2":
                   return (
                     <Fragment>
-                      <Table isNoData={true}></Table>
+                      <Table byNumber isNoData={rkmDiagnosaData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                        <THead>
+                          <TR>
+                            <TH isSorted onSort={() => handleSortDate(rkmDiagnosaData, setRkmDiagnosaData, "diagnosiscreate")}>
+                              Tanggal Dibuat
+                            </TH>
+                            <TH>Kode Reservasi</TH>
+                            <TH>Tipe Diagnosa</TH>
+                            <TH>Kode Diagnosa</TH>
+                            <TH>Detail Diagnosa</TH>
+                            <TH>Catatan</TH>
+                          </TR>
+                        </THead>
+                        <TBody>
+                          {rkmDiagnosaData.map((data, index) => (
+                            <TR key={index}>
+                              <TD>{newDate(data.diagnosiscreate, "id")}</TD>
+                              <TD>{data.rscode}</TD>
+                              <TD>{data.diagnosistype}</TD>
+                              <TD>{data.diagnosiscode}</TD>
+                              <TD>{data.diagnosisdetail}</TD>
+                              <TD>{data.diagnosisnote}</TD>
+                            </TR>
+                          ))}
+                        </TBody>
+                      </Table>
                       {isFormOpen && (
-                        <SubmitForm size="sm" formTitle="Tambah Data Diagnosa" operation="add" fetching={isFormFetching} onSubmit={() => {}} loading={isSubmitting} onClose={closeForm}>
+                        <SubmitForm size="sm" formTitle="Tambah Data Diagnosa" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "adddiagnosisuser")} loading={isSubmitting} onClose={closeForm}>
+                          <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
                           <Input id={`${pageid}-diagnose`} variant="select" noEmptyValue radius="full" labelText="Jenis Diagnosa" placeholder="Pilih jenis diagnosa" name="diagnose" value={inputData.diagnose} options={diagnoseopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnose", value: selectedValue } })} errorContent={errors.diagnose} isRequired />
                           <Input
                             id={`${pageid}-diagnose-code`}
@@ -2380,7 +2422,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                             isRequired
                             isDisabled={!inputData.diagnosecode}
                           />
-                          <Input id={`${pageid}-note`} variant="textarea" labelText="Keterangan" placeholder="Masukkan keterangan diagnosa" name="note" rows={5} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} isRequired />
+                          <Input id={`${pageid}-note`} variant="textarea" labelText="Keterangan" placeholder="Masukkan keterangan diagnosa" name="note" rows={5} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
                         </SubmitForm>
                       )}
                     </Fragment>
