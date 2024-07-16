@@ -84,7 +84,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
           break;
         case "STOCK":
           const offset = (currentPage - 1) * limit;
-          formData.append("data", JSON.stringify({ secret, stockname: params, limit, hal: offset, idoutlet: selectedBranch }));
+          formData.append("data", JSON.stringify({ secret, stockname: params.toUpperCase(), limit, hal: offset, idoutlet: selectedBranch }));
           data = await apiRead(formData, "office", "logstock");
           if (data && data.data && data.data.length > 0) {
             setStockHistoryData(data.data);

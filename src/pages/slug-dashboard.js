@@ -113,7 +113,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const handlePageChange = (page) => setCurrentPage(page);
   const handleBranchChange = (value) => setSelectedBranch(value);
   const handleImageSelect = (file) => setSelectedImage(file);
-  const openDetail = (params) => navigate(`${pagepath}/${toPathname(params)}`);
+  const openDetail = (params) => navigate(`${pagepath}/${params.toLowerCase()}`);
 
   const getAvailHours = async (date) => {
     try {
