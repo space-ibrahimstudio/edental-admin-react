@@ -955,7 +955,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
         requiredFields = [];
         break;
     }
-    const validationErrors = inputValidator(inputData, requiredFields);
+    let validationErrors;
+    if (slug === "REKAM MEDIS" && tabId === "1" && subTabId === "1") {
+      validationErrors = inputValidator(onpageData, requiredFields);
+    } else {
+      validationErrors = inputValidator(inputData, requiredFields);
+    }
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -1950,7 +1955,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (custFind) {
             setOnpageData({ ...onpageData, name: matchedData.username, address: matchedData.address, email: matchedData.useremail, phone: matchedData.userphone, gender: matchedData.gender, nik: matchedData.noktp, image: matchedData.imgktp, birth: matchedData.birthday });
           } else {
-            setOnpageData({ name: "", address: "", email: "", phone: "", gender: "", nik: "", image: null, birth: "" });
+            setOnpageData({ ...onpageData, name: "", address: "", email: "", phone: "", gender: "", nik: "", image: null, birth: "" });
           }
         };
 

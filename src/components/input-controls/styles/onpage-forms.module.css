@@ -33,7 +33,6 @@
   align-self: stretch;
   border-radius: var(--pixel-20);
   background-color: var(--color-secondlight);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
