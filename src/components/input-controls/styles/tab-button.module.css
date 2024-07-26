@@ -34,8 +34,8 @@
 }
 
 .active {
-  border: 1px dashed var(--color-primary);
   color: var(--color-primary);
+  background-color: var(--color-primary-10);
 }
 
 .dropdownButtonText {

@@ -11,7 +11,7 @@ const Fieldset = ({ type = "reg", gap = "var(--pixel-10)", markers, children, st
       <div className={`${styles.wrapBody} ${type === "row" ? styles.row : ""}`} style={fieldsetstyles}>
         {children}
       </div>
-      {type === "row" && endContent}
+      {type === "row" && <div className={styles.wrapEndContent}>{endContent}</div>}
     </section>
   );
 };

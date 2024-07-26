@@ -14,7 +14,6 @@ const MobileMenu = ({ tabMenus, onClose }) => {
   const navigate = useNavigate();
   const { toPathname, toTitleCase } = useContent();
   const [isClosing, setIsClosing] = useState(false);
-  const [subTabOpen, setSubTabOpen] = useState(false);
   const ref = useRef(null);
 
   const handleClose = () => setIsClosing(true);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@ibrahimstudio/button";
 import { LoadingContent } from "../feedbacks/screens";
@@ -72,7 +72,7 @@ export const SubmitForm = ({ size, formTitle, formSubtitle, fetching = false, lo
       <section className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
         <form className={`${styles.form} ${isClosing ? styles.close : ""}`} style={getFormStyles()} onSubmit={onSubmit}>
           <header className={styles.formHead}>
-            <img className={styles.formLogoIcon} loading="lazy" alt="Form Logo" src="/svg/logo-primary.svg" />
+            {/* <img className={styles.formLogoIcon} loading="lazy" alt="Form Logo" src="/svg/logo-primary.svg" /> */}
             <b className={styles.formTitle}>{formTitle}</b>
             {formSubtitle && <div className={styles.formSubtitle}>{formSubtitle}</div>}
           </header>
@@ -86,7 +86,7 @@ export const SubmitForm = ({ size, formTitle, formSubtitle, fetching = false, lo
             </div>
           )}
           <footer className={styles.formFooter}>
-            <Button id="cancel-form-submit" variant="dashed" radius="full" color="var(--color-hint)" buttonText={cancelText} onClick={handleClose} startContent={<Close />} />
+            <Button id="cancel-form-submit" variant="hollow" radius="full" color="var(--color-hint)" buttonText={cancelText} onClick={handleClose} startContent={<Close />} />
             <Button id="handle-form-submit" radius="full" type="submit" action={operation} buttonText={saveText} startContent={<Check />} isLoading={loading} loadingContent={<LoadingContent />} />
           </footer>
         </form>
