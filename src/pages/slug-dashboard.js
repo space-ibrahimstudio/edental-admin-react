@@ -1534,7 +1534,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isClickable page={currentPage} limit={limit} isNoData={!isStockOutShown} isLoading={isFetching}>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isStockOutShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(stockOutData, setStockOutData, "stockoutcreate")}>
@@ -1544,21 +1544,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH>Sub Kategori</TH>
                     <TH>Kode SKU</TH>
                     <TH>Nama Item</TH>
+                    <TH>Stok Keluar</TH>
                     <TH>Unit</TH>
-                    <TH>Stok Akhir</TH>
                     <TH>Nama Cabang</TH>
                   </TR>
                 </THead>
                 <TBody>
                   {filteredStockOutData.map((data, index) => (
-                    <TR key={index} onClick={() => openDetail(data.itemname)}>
+                    <TR key={index}>
                       <TD>{newDate(data.stockoutcreate, "id")}</TD>
                       <TD>{toTitleCase(data.categorystock)}</TD>
                       <TD>{toTitleCase(data.subcategorystock)}</TD>
                       <TD type="code">{data.sku}</TD>
                       <TD>{toTitleCase(data.itemname)}</TD>
-                      <TD>{data.unit}</TD>
                       <TD>{data.lastqty}</TD>
+                      <TD>{data.unit}</TD>
                       <TD>{toTitleCase(data.outletname)}</TD>
                     </TR>
                   ))}
@@ -1584,7 +1584,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isClickable page={currentPage} limit={limit} isNoData={!isStockExpShown} isLoading={isFetching}>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isStockExpShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(stockExpData, setStockExpData, "stockexpirecreate")}>
@@ -1594,21 +1594,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH>Sub Kategori</TH>
                     <TH>Kode SKU</TH>
                     <TH>Nama Item</TH>
+                    <TH>Stock Expire</TH>
                     <TH>Unit</TH>
-                    <TH>Stok Akhir</TH>
                     <TH>Nama Cabang</TH>
                   </TR>
                 </THead>
                 <TBody>
                   {filteredStockExpData.map((data, index) => (
-                    <TR key={index} onClick={() => openDetail(data.itemname)}>
+                    <TR key={index}>
                       <TD>{newDate(data.stockexpirecreate, "id")}</TD>
                       <TD>{toTitleCase(data.categorystock)}</TD>
                       <TD>{toTitleCase(data.subcategorystock)}</TD>
                       <TD type="code">{data.sku}</TD>
                       <TD>{toTitleCase(data.itemname)}</TD>
-                      <TD>{data.unit}</TD>
                       <TD>{data.lastqty}</TD>
+                      <TD>{data.unit}</TD>
                       <TD>{toTitleCase(data.outletname)}</TD>
                     </TR>
                   ))}
@@ -1700,8 +1700,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH>Sub Kategori</TH>
                     <TH>Kode SKU</TH>
                     <TH>Nama Item</TH>
-                    <TH>Unit</TH>
                     <TH>Stok Akhir</TH>
+                    <TH>Unit</TH>
                     <Fragment>
                       {level === "admin" && (
                         <Fragment>
@@ -1721,8 +1721,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD>{toTitleCase(data.subcategorystock)}</TD>
                       <TD type="code">{data.sku}</TD>
                       <TD>{toTitleCase(data.itemname)}</TD>
-                      <TD>{data.unit}</TD>
                       <TD type="number">{data.lastqty}</TD>
+                      <TD>{data.unit}</TD>
                       <Fragment>
                         {level === "admin" && (
                           <Fragment>

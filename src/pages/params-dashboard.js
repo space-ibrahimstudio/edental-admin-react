@@ -172,7 +172,6 @@ const DashboardParamsPage = ({ parent, slug }) => {
             <DashboardToolbar>
               <DashboardTool>
                 <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} startContent={<Arrow direction="left" />} />
-                {/* <Button id={`export-data-${pageid}`} buttonText="Export" radius="full" bgColor="var(--color-green)" onClick={() => exportToExcel(filterData(), pageTitle, `${toPathname(pageTitle)}`)} startContent={<Export />} isDisabled={!isDataShown} /> */}
                 {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isDataShown} />
               </DashboardTool>
@@ -182,16 +181,16 @@ const DashboardParamsPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isNoData={!isDataShown} isLoading={isFetching}>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSortDate(stockHistoryData, setStockHistoryData, "logstockcreate")}>
                       Tanggal Dibuat
                     </TH>
                     <TH>Status</TH>
-                    <Fragment>{level === "admin" && <TH>Harga Satuan</TH>}</Fragment>
+                    {/* <Fragment>{level === "admin" && <TH>Harga Satuan</TH>}</Fragment> */}
                     <TH>Jumlah</TH>
-                    <Fragment>{level === "admin" && <TH>Total Harga</TH>}</Fragment>
+                    {/* <Fragment>{level === "admin" && <TH>Total Harga</TH>}</Fragment> */}
                     <TH>Cabang</TH>
                   </TR>
                 </THead>
@@ -200,9 +199,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
                     <TR key={index}>
                       <TD>{newDate(data.logstockcreate, "id")}</TD>
                       <TD>{data.status}</TD>
-                      <Fragment>{level === "admin" && <TD>{newPrice(data.value)}</TD>}</Fragment>
+                      {/* <Fragment>{level === "admin" && <TD>{newPrice(data.value)}</TD>}</Fragment> */}
                       <TD type="number">{data.qty}</TD>
-                      <Fragment>{level === "admin" && <TD>{newPrice(data.totalvalue)}</TD>}</Fragment>
+                      {/* <Fragment>{level === "admin" && <TD>{newPrice(data.totalvalue)}</TD>}</Fragment> */}
                       <TD>{toTitleCase(data.outletname)}</TD>
                     </TR>
                   ))}
@@ -219,7 +218,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
 
   useEffect(() => {
     fetchData();
-  }, [slug, params, startDate, endDate, limit, selectedBranch]);
+  }, [slug, params, startDate, endDate, currentPage, limit, selectedBranch]);
 
   useEffect(() => {
     if (slug === "STOCK") {
