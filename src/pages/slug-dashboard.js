@@ -105,6 +105,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [diagnoseData, setDiagnoseData] = useState([]);
   const [allDiagnoseData, setAllDiagnoseData] = useState([]);
   const [rkmDiagnosaData, setRkmDiagnosaData] = useState([]);
+  const [dentistRData, setDentistRData] = useState([]);
+  const [orderRData, setOrderRData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -428,6 +430,26 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
           }
           break;
+        case "ORDER REPORT":
+          addtFormData.append("data", JSON.stringify({ secret, idoutlet: selectedBranch }));
+          addtdata = await apiRead(formData, "office", "vieworderreport");
+          if (addtdata && addtdata.data && addtdata.data.length > 0) {
+            setOrderRData(addtdata.data);
+            // setTotalPages(data.TTLPage);
+          } else {
+            setOrderRData([]);
+            // setTotalPages(0);
+          }
+          break;
+        case "DENTIST REPORT":
+          data = await apiRead(formData, "office", "viewdentistreport");
+          if (data && data.data && data.data.length > 0) {
+            setDentistRData(data.data);
+            setTotalPages(data.TTLPage);
+          } else {
+            setDentistRData([]);
+            setTotalPages(0);
+          }
         case "STOCK OUT":
           data = await apiRead(formData, "office", "viewstockout");
           if (data && data.data && data.data.length > 0) {
@@ -1149,6 +1171,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: centralPOSearch, handleSearch: handleCentralPOSearch, filteredData: filteredCentralPOData, isDataShown: isCentralPOShown } = useSearch(centralPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: userSearch, handleSearch: handleUserSearch, filteredData: filteredUserData, isDataShown: isUserShown } = useSearch(userData, ["username", "cctr", "outlet_name"]);
   const { searchTerm: diagnoseSearch, handleSearch: handleDiagnoseSearch, filteredData: filteredDiagnoseData, isDataShown: isDiagnoseShown } = useSearch(diagnoseData, ["code.diagnosiscode"]);
+  const { searchTerm: orderRSearch, handleSearch: handleOrderRSearch, filteredData: filteredOrderRData, isDataShown: isOrderRShown } = useSearch(orderRData, ["order.noktp"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -1500,6 +1523,68 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </Fieldset>
               </SubmitForm>
             )}
+          </Fragment>
+        );
+      case "ORDER REPORT":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data report Order yang telah selesai. Data ini dibuat otomatis saat proses transaksi dilakukan." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderRSearch} onChange={(e) => handleOrderRSearch(e.target.value)} startContent={<Search />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+              </DashboardTool>
+              <DashboardTool>
+                {/* <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isOrderRShown} /> */}
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredOrderRData, "Order Report", `order_report_${getCurrentDate()}`)} isDisabled={!isOrderRShown} startContent={<Export />} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isExpandable isNoData={!isOrderRShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSortDate(orderRData, setOrderRData, "order.transactioncreate")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH>Nama Customer</TH>
+                    <TH>Nomor Telepon</TH>
+                    <TH>Nomor KTP</TH>
+                    <TH>Kode Reservasi</TH>
+                    <TH>Nomor Invoice</TH>
+                    <TH>Total Nilai</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredOrderRData.map((data, index) => (
+                    <TR
+                      key={index}
+                      expandContent={data["stock"].map((subdata, idx) => (
+                        <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
+                          <Input id={`item-cat-${index}-${idx}`} radius="full" labelText="Kategori Item" value={subdata.categorystock} isReadonly />
+                          <Input id={`item-name-${index}-${idx}`} radius="full" labelText="Nama Item" value={subdata.itemname} isReadonly />
+                          <Input id={`item-sku-${index}-${idx}`} radius="full" labelText="Kode SKU" value={subdata.sku} isReadonly />
+                          <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item Terpakai" value={subdata.lastqty} isReadonly />
+                          <Input id={`item-unit-${index}-${idx}`} radius="full" labelText="Satuan/Unit" value={subdata.unit} isReadonly />
+                        </Fieldset>
+                      ))}
+                    >
+                      <TD>{newDate(data["order"].transactioncreate, "id")}</TD>
+                      <TD>{toTitleCase(data["order"].transactionname)}</TD>
+                      <TD type="number" isCopy>
+                        {data["order"].transactionphone}
+                      </TD>
+                      <TD type="number" isCopy>
+                        {data["order"].noktp}
+                      </TD>
+                      <TD type="code">{data["order"].rscode}</TD>
+                      <TD type="code">{data["order"].noinvoice}</TD>
+                      <TD>{newPrice(data["order"].totalpay)}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {/* {isCustShown > 0 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />} */}
           </Fragment>
         );
       case "KAS":
@@ -2792,7 +2877,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredReservData.map((data, index) => (
-                    <TR key={index} onEdit={() => openEdit(data.idreservation)} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
+                    <TR key={index} onEdit={data.status_reservation === "0" ? () => openEdit(data.idreservation) : () => showNotifications("danger", "Reservasi dengan status yang telah selesai, reschedule atau dibatalkan tidak dapat diperbarui.")} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
                       <TD>{newDate(data.datetimecreate, "id")}</TD>
                       <TD>{data.reservationdate}</TD>
                       <TD>{data.reservationtime}</TD>
@@ -2912,7 +2997,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredOrderData.map((data, index) => (
-                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
+                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
                       <TD>{newDate(data.transactioncreate, "id")}</TD>
                       <TD>{toTitleCase(data.transactionname)}</TD>
                       <TD type="code">{data.rscode}</TD>
