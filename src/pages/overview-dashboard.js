@@ -58,7 +58,9 @@ const DashboardOverviewPage = () => {
         setLoading(false);
       }
     };
-    fetchData();
+    if (isLoggedin) {
+      fetchData();
+    }
   }, []);
 
   if (!isLoggedin) {
