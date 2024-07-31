@@ -904,7 +904,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           case "1":
             switch (subTabId) {
               case "1":
-                requiredFields = ["name", "phone", "email", "birth", "nik", "address", "gender", "room", "service", "sub_service", "dentist"];
+                requiredFields = ["name", "phone", "email", "birth", "nik", "address", "gender"];
                 break;
               default:
                 break;
@@ -1026,7 +1026,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             case "1":
               switch (subTabId) {
                 case "1":
-                  submittedData = { secret, iduser: selectedCust, name: onpageData.name, phone: onpageData.phone, email: onpageData.email, birthday: onpageData.birth, noktp: onpageData.nik, address: onpageData.address, gender: onpageData.gender, room: onpageData.room, ageyear: onpageData.ageyear, agemonth: onpageData.agemonth, ageday: onpageData.ageday, service: onpageData.service, servicetype: onpageData.sub_category, dentist: onpageData.dentist };
+                  submittedData = { secret, iduser: selectedCust, name: onpageData.name, phone: onpageData.phone, email: onpageData.email, birthday: onpageData.birth, noktp: onpageData.nik, address: onpageData.address, gender: onpageData.gender, ageyear: onpageData.ageyear, agemonth: onpageData.agemonth, ageday: onpageData.ageday };
                   break;
                 default:
                   break;
@@ -2133,27 +2133,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Input id={`${pageid}-ageyear`} radius="full" labelText="Umur (tahun)" placeholder="24" fallbackValue="24" type="number" name="ageyear" value={onpageData.ageyear} isReadonly />
                         <Input id={`${pageid}-agemonth`} radius="full" labelText="Umur (bulan)" placeholder="5" fallbackValue="5" type="number" name="agemonth" value={onpageData.agemonth} isReadonly />
                         <Input id={`${pageid}-ageday`} radius="full" labelText="Umur (hari)" placeholder="10" fallbackValue="10" type="number" name="ageday" value={onpageData.ageday} isReadonly />
-                      </Fieldset>
-                      <FormHead title="Layanan Klinik" />
-                      <Fieldset>
-                        <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={onpageData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
-                        <Input
-                          id={`${pageid}-subservice`}
-                          variant="select"
-                          isSearchable
-                          radius="full"
-                          labelText="Jenis Layanan"
-                          placeholder={onpageData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
-                          name="sub_service"
-                          value={onpageData.sub_service}
-                          options={(onpageData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === onpageData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
-                          onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_service", value: selectedValue } })}
-                          errorContent={errors.sub_service}
-                          isRequired
-                          isDisabled={!onpageData.service}
-                        />
-                        <Input id={`${pageid}-room`} radius="full" labelText="Ruang Pemeriksaan" placeholder="Poli Gigi" type="text" name="room" value={onpageData.room} onChange={handleInputChange} errorContent={errors.room} isRequired />
-                        <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter Pemeriksa" placeholder="Pilih Dokter" name="dentist" value={onpageData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
                       </Fieldset>
                       <FormFooter>
                         <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText={selectedCust ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
