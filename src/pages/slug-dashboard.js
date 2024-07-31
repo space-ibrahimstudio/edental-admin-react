@@ -105,7 +105,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [diagnoseData, setDiagnoseData] = useState([]);
   const [allDiagnoseData, setAllDiagnoseData] = useState([]);
   const [rkmDiagnosaData, setRkmDiagnosaData] = useState([]);
-  const [dentistRData, setDentistRData] = useState([]);
   const [orderRData, setOrderRData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
@@ -441,15 +440,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
             // setTotalPages(0);
           }
           break;
-        case "DENTIST REPORT":
-          data = await apiRead(formData, "office", "viewdentistreport");
-          if (data && data.data && data.data.length > 0) {
-            setDentistRData(data.data);
-            setTotalPages(data.TTLPage);
-          } else {
-            setDentistRData([]);
-            setTotalPages(0);
-          }
         case "STOCK OUT":
           data = await apiRead(formData, "office", "viewstockout");
           if (data && data.data && data.data.length > 0) {
@@ -718,7 +708,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
       } else {
         setFvaListData([]);
       }
-      const allcustdata = await apiRead(formData, "office", "searchcustomer");
+      addtFormData.append("data", JSON.stringify({ secret, idoutlet: selectedBranch }));
+      const allcustdata = await apiRead(addtFormData, "office", "searchcustomer");
       if (allcustdata && allcustdata.data && allcustdata.data.length > 0) {
         setAllCustData(allcustdata.data);
       } else {
@@ -817,7 +808,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "PO MASUK":
           switchedData = currentData(inPOData, "PO Stock.idpostock");
           log(`id ${slug} data switched:`, switchedData["PO Stock"].idpostock);
-          setInputData({ id: switchedData["PO Stock"].idpostock, status: switchedData["PO Stock"].statusstock, postock: switchedData["Detail PO"].map((item) => ({ idstock: item.idstock, itemname: item.itemname, sku: item.sku, stockin: item.qty, note: item.note })) });
+          setInputData({ id: switchedData["PO Stock"].idpostock, status: switchedData["PO Stock"].statusstock, postock: switchedData["Detail PO"].map((item) => ({ idstock: item.idpostockdetail, itemname: item.itemname, sku: item.sku, stockin: item.qty, note: item.note })) });
           break;
         case "REKAM MEDIS":
           switch (tabId) {
@@ -1028,7 +1019,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "PO MASUK":
-          submittedData = { secret, idpostock: selectedData, status: inputData.status };
+          submittedData = { secret, idpostock: inputData.id, status: inputData.status, stock: inputData.postock.map((item) => ({ idpostockdetail: item.idstock, qty: item.stockin })) };
           break;
         case "REKAM MEDIS":
           switch (tabId) {
@@ -1091,7 +1082,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (selectedMode === "update") {
             submittedData = { secret, status_reservation: inputData.status, status_dp: inputData.statuspayment };
           } else {
-            submittedData = { secret, idservicetype: inputData.id, name: inputData.name, phone: inputData.phone, email: inputData.email, voucher: inputData.vouchercode, service: inputData.service, typeservice: inputData.sub_service, reservationdate: inputData.date, reservationtime: inputData.time, price: inputData.price, bank_code: inputData.bank_code, note: inputData.note };
+            submittedData = { secret, idoutlet: selectedBranch, idservicetype: inputData.id, name: inputData.name, phone: inputData.phone, email: inputData.email, voucher: inputData.vouchercode, service: inputData.service, typeservice: inputData.sub_service, reservationdate: inputData.date, reservationtime: inputData.time, price: inputData.price, bank_code: inputData.bank_code, note: inputData.note };
           }
           break;
         case "ORDER CUSTOMER":
@@ -2011,10 +2002,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isInPOShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
-              <SubmitForm formTitle="Ubah Status PO" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "updatepostock")} loading={isSubmitting} onClose={closeForm}>
+              <SubmitForm formTitle="Ubah Status PO" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "editstockpo")} loading={isSubmitting} onClose={closeForm}>
                 <Input id={`${pageid}-po-status`} variant="select" noEmptyValue radius="full" labelText="Status PO" placeholder="Set status" name="status" value={inputData.status} options={postatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
                 {inputData.postock.map((po, index) => (
-                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="line" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("postock", index)} isDisabled={index <= 0} />}>
+                  <Fieldset key={index} type="row" markers={`${index + 1}.`}>
                     <Input
                       id={`${pageid}-item-name-${index}`}
                       variant="select"
@@ -3224,7 +3215,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   useEffect(() => {
     fetchAdditionalData();
-  }, []);
+  }, [slug === "RESERVATION" ? selectedBranch : slug === "REKAM MEDIS" ? selectedBranch : null]);
 
   useEffect(() => {
     setLimit(5);
