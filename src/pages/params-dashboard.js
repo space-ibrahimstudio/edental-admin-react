@@ -48,13 +48,27 @@ const DashboardParamsPage = ({ parent, slug }) => {
     setLimit(value);
     setCurrentPage(1);
   };
-  const handleSortDate = (data, setData, params) => {
+
+  const handleSort = (data, setData, params, type) => {
     const newData = [...data];
+    const compare = (a, b) => {
+      const valueA = getNestedValue(a, params);
+      const valueB = getNestedValue(b, params);
+      if (type === "date") {
+        return new Date(valueA) - new Date(valueB);
+      } else if (type === "number") {
+        return valueA - valueB;
+      } else if (type === "text") {
+        return valueA.localeCompare(valueB);
+      } else {
+        return 0;
+      }
+    };
     if (!sortOrder || sortOrder === "desc") {
-      newData.sort((a, b) => new Date(getNestedValue(a, params)) - new Date(getNestedValue(b, params)));
+      newData.sort(compare);
       setSortOrder("asc");
     } else {
-      newData.sort((a, b) => new Date(getNestedValue(b, params)) - new Date(getNestedValue(a, params)));
+      newData.sort((a, b) => compare(b, a));
       setSortOrder("desc");
     }
     setData(newData);
@@ -143,12 +157,18 @@ const DashboardParamsPage = ({ parent, slug }) => {
               <Table byNumber isNoData={!isDataShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(orderDetailData, setOrderDetailData, "usercreate")}>
+                    <TH isSorted onSort={() => handleSort(orderDetailData, setOrderDetailData, "transactiondetailcreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Layanan</TH>
-                    <TH>Jenis Layanan</TH>
-                    <TH>Harga</TH>
+                    <TH isSorted onSort={() => handleSort(orderDetailData, setOrderDetailData, "service", "text")}>
+                      Layanan
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderDetailData, setOrderDetailData, "servicetype", "text")}>
+                      Jenis Layanan
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderDetailData, setOrderDetailData, "price", "number")}>
+                      Harga
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -184,14 +204,20 @@ const DashboardParamsPage = ({ parent, slug }) => {
               <Table byNumber page={currentPage} limit={limit} isNoData={!isDataShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(stockHistoryData, setStockHistoryData, "logstockcreate")}>
+                    <TH isSorted onSort={() => handleSort(stockHistoryData, setStockHistoryData, "logstockcreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Status</TH>
+                    <TH isSorted onSort={() => handleSort(stockHistoryData, setStockHistoryData, "status", "number")}>
+                      Status
+                    </TH>
                     {/* <Fragment>{level === "admin" && <TH>Harga Satuan</TH>}</Fragment> */}
-                    <TH>Jumlah</TH>
+                    <TH isSorted onSort={() => handleSort(stockHistoryData, setStockHistoryData, "qty", "number")}>
+                      Jumlah
+                    </TH>
                     {/* <Fragment>{level === "admin" && <TH>Total Harga</TH>}</Fragment> */}
-                    <TH>Cabang</TH>
+                    <TH isSorted onSort={() => handleSort(stockHistoryData, setStockHistoryData, "outletname", "text")}>
+                      Cabang
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>

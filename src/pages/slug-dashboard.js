@@ -300,13 +300,26 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setErrors({ ...errors, [field]: updatedrowerror });
   };
 
-  const handleSortDate = (data, setData, params) => {
+  const handleSort = (data, setData, params, type) => {
     const newData = [...data];
+    const compare = (a, b) => {
+      const valueA = getNestedValue(a, params);
+      const valueB = getNestedValue(b, params);
+      if (type === "date") {
+        return new Date(valueA) - new Date(valueB);
+      } else if (type === "number") {
+        return valueA - valueB;
+      } else if (type === "text") {
+        return valueA.localeCompare(valueB);
+      } else {
+        return 0;
+      }
+    };
     if (!sortOrder || sortOrder === "desc") {
-      newData.sort((a, b) => new Date(getNestedValue(a, params)) - new Date(getNestedValue(b, params)));
+      newData.sort(compare);
       setSortOrder("asc");
     } else {
-      newData.sort((a, b) => new Date(getNestedValue(b, params)) - new Date(getNestedValue(a, params)));
+      newData.sort((a, b) => compare(b, a));
       setSortOrder("desc");
     }
     setData(newData);
@@ -1191,13 +1204,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber page={currentPage} limit={limit} isNoData={!isCustShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(custData, setCustData, "usercreate")}>
+                    <TH isSorted onSort={() => handleSort(custData, setCustData, "usercreate", "date")}>
                       Tanggal Bergabung
                     </TH>
-                    <TH>Nama Pengguna</TH>
-                    <TH>Alamat Email</TH>
-                    <TH>Nomor Telepon</TH>
-                    <TH>Alamat</TH>
+                    <TH isSorted onSort={() => handleSort(custData, setCustData, "username", "text")}>
+                      Nama Pengguna
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(custData, setCustData, "useremail", "text")}>
+                      Alamat Email
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(custData, setCustData, "userphone", "number")}>
+                      Nomor Telepon
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(custData, setCustData, "address", "text")}>
+                      Alamat
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1235,14 +1256,24 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isEditable isDeletable page={currentPage} limit={limit} isNoData={!isUserShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(userData, setUserData, "apiauthcreate")}>
+                    <TH isSorted onSort={() => handleSort(userData, setUserData, "apiauthcreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Username</TH>
-                    <TH>Level</TH>
-                    <TH>Status</TH>
-                    <TH>Nama Cabang</TH>
-                    <TH>Kode Cabang</TH>
+                    <TH isSorted onSort={() => handleSort(userData, setUserData, "username", "text")}>
+                      Username
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(userData, setUserData, "level", "text")}>
+                      Level
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(userData, setUserData, "apiauth_status", "number")}>
+                      Status
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(userData, setUserData, "outlet_name", "text")}>
+                      Nama Cabang
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(userData, setUserData, "cctr", "text")}>
+                      Kode Cabang
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1292,15 +1323,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isExpandable isEditable isDeletable page={currentPage} limit={limit} isNoData={!isServiceShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(servicedata, setservicedata, "Nama Layanan.servicecreate")}>
+                    <TH isSorted onSort={() => handleSort(servicedata, setservicedata, "Nama Layanan.servicecreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Nama Layanan</TH>
-                    <TH>Nomor ID Layanan</TH>
-                    <TH isSorted onSort={() => handleSortDate(servicedata, setservicedata, "Nama Layanan.serviceupdate")}>
+                    <TH isSorted onSort={() => handleSort(servicedata, setservicedata, "Nama Layanan.servicename", "text")}>
+                      Nama Layanan
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(servicedata, setservicedata, "Nama Layanan.idservice", "number")}>
+                      Nomor ID Layanan
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(servicedata, setservicedata, "Nama Layanan.serviceupdate", "date")}>
                       Terakhir Diperbarui
                     </TH>
-                    <TH>Status Layanan</TH>
+                    <TH isSorted onSort={() => handleSort(servicedata, setservicedata, "Nama Layanan.servicestatus", "number")}>
+                      Status Layanan
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1373,18 +1410,36 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isEditable isDeletable page={currentPage} limit={limit} isNoData={!isBranchShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(branchData, setBranchData, "outletcreate")}>
+                    <TH isSorted onSort={() => handleSort(branchData, setBranchData, "outletcreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Nama Cabang</TH>
-                    <TH>Alamat Cabang</TH>
-                    <TH>Main Region</TH>
-                    <TH>Region</TH>
-                    <TH>CCTR Group</TH>
-                    <TH>CCTR</TH>
-                    <TH>Nomor Kontak</TH>
-                    <TH>Kode POS</TH>
-                    <TH>Titik Koordinat</TH>
+                    <TH isSorted onSort={() => handleSort(branchData, setBranchData, "outlet_name", "text")}>
+                      Nama Cabang
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(branchData, setBranchData, "outlet_address", "text")}>
+                      Alamat Cabang
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(branchData, setBranchData, "mainregion", "text")}>
+                      Main Region
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(branchData, setBranchData, "outlet_region", "text")}>
+                      Region
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(branchData, setBranchData, "cctr_group", "text")}>
+                      CCTR Group
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(branchData, setBranchData, "cctr", "text")}>
+                      CCTR
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(branchData, setBranchData, "outlet_phone", "number")}>
+                      Nomor Kontak
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(branchData, setBranchData, "postcode", "number")}>
+                      Kode POS
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(branchData, setBranchData, "coordinate", "number")}>
+                      Titik Koordinat
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1444,11 +1499,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isExpandable isNoData={!isDiagnoseShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(diagnoseData, setDiagnoseData, "code.diagnosiscodecreate")}>
+                    <TH isSorted onSort={() => handleSort(diagnoseData, setDiagnoseData, "code.diagnosiscodecreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Kode Diagnosa</TH>
-                    <TH>Status Diagnosa</TH>
+                    <TH isSorted onSort={() => handleSort(diagnoseData, setDiagnoseData, "code.diagnosiscode", "text")}>
+                      Kode Diagnosa
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(diagnoseData, setDiagnoseData, "code.diagnosiscodestatus", "number")}>
+                      Status Diagnosa
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1510,10 +1569,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isDentistShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH>Kode Cabang</TH>
-                    <TH>Nama Dokter</TH>
-                    <TH>Nomor SIP</TH>
-                    <TH>Nomor Telepon</TH>
+                    <TH isSorted onSort={() => handleSort(dentistData, setDentistData, "id_branch", "text")}>
+                      Kode Cabang
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistData, setDentistData, "name_dentist", "text")}>
+                      Nama Dokter
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistData, setDentistData, "sip", "number")}>
+                      Nomor SIP
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistData, setDentistData, "phone", "number")}>
+                      Nomor Telepon
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1559,15 +1626,27 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isExpandable isNoData={!isOrderRShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(orderRData, setOrderRData, "order.transactioncreate")}>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.transactioncreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Nama Customer</TH>
-                    <TH>Nomor Telepon</TH>
-                    <TH>Nomor KTP</TH>
-                    <TH>Kode Reservasi</TH>
-                    <TH>Nomor Invoice</TH>
-                    <TH>Total Nilai</TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.transactionname", "text")}>
+                      Nama Customer
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.transactionphone", "number")}>
+                      Nomor Telepon
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.noktp", "number")}>
+                      Nomor KTP
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.rscode", "text")}>
+                      Kode Reservasi
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.noinvoice", "number")}>
+                      Nomor Invoice
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.totalpay", "number")}>
+                      Total Nilai
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1638,16 +1717,30 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber page={currentPage} limit={limit} isNoData={!isStockOutShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(stockOutData, setStockOutData, "stockoutcreate")}>
+                    <TH isSorted onSort={() => handleSort(stockOutData, setStockOutData, "stockoutcreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Kategori</TH>
-                    <TH>Sub Kategori</TH>
-                    <TH>Kode SKU</TH>
-                    <TH>Nama Item</TH>
-                    <TH>Stok Keluar</TH>
-                    <TH>Unit</TH>
-                    <TH>Nama Cabang</TH>
+                    <TH isSorted onSort={() => handleSort(stockOutData, setStockOutData, "categorystock", "text")}>
+                      Kategori
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockOutData, setStockOutData, "subcategorystock", "text")}>
+                      Sub Kategori
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockOutData, setStockOutData, "sku", "text")}>
+                      Kode SKU
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockOutData, setStockOutData, "itemname", "text")}>
+                      Nama Item
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockOutData, setStockOutData, "lastqty", "number")}>
+                      Stok Keluar
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockOutData, setStockOutData, "unit", "text")}>
+                      Unit
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockOutData, setStockOutData, "outletname", "text")}>
+                      Nama Cabang
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1688,16 +1781,30 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber page={currentPage} limit={limit} isNoData={!isStockExpShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(stockExpData, setStockExpData, "stockexpirecreate")}>
+                    <TH isSorted onSort={() => handleSort(stockExpData, setStockExpData, "stockexpirecreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Kategori</TH>
-                    <TH>Sub Kategori</TH>
-                    <TH>Kode SKU</TH>
-                    <TH>Nama Item</TH>
-                    <TH>Stock Expire</TH>
-                    <TH>Unit</TH>
-                    <TH>Nama Cabang</TH>
+                    <TH isSorted onSort={() => handleSort(stockExpData, setStockExpData, "categorystock", "text")}>
+                      Kategori
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockExpData, setStockExpData, "subcategorystock", "text")}>
+                      Sub Kategori
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockExpData, setStockExpData, "sku", "text")}>
+                      Kode SKU
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockExpData, setStockExpData, "itemname", "text")}>
+                      Nama Item
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockExpData, setStockExpData, "lastqty", "number")}>
+                      Stock Expire
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockExpData, setStockExpData, "unit", "text")}>
+                      Unit
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockExpData, setStockExpData, "outletname", "text")}>
+                      Nama Cabang
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1803,24 +1910,42 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isClickable page={currentPage} limit={limit} isNoData={!isStockShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(stockData, setStockData, "stockcreate")}>
+                    <TH isSorted onSort={() => handleSort(stockData, setStockData, "stockcreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Kategori</TH>
-                    <TH>Sub Kategori</TH>
-                    <TH>Kode SKU</TH>
-                    <TH>Nama Item</TH>
-                    <TH>Stok Akhir</TH>
-                    <TH>Unit</TH>
+                    <TH isSorted onSort={() => handleSort(stockData, setStockData, "categorystock", "text")}>
+                      Kategori
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockData, setStockData, "subcategorystock", "text")}>
+                      Sub Kategori
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockData, setStockData, "sku", "text")}>
+                      Kode SKU
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockData, setStockData, "itemname", "text")}>
+                      Nama Item
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockData, setStockData, "lastqty", "number")}>
+                      Stok Akhir
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(stockData, setStockData, "unit", "text")}>
+                      Unit
+                    </TH>
                     <Fragment>
                       {level === "admin" && (
                         <Fragment>
-                          <TH>Harga</TH>
-                          <TH>Total Nilai</TH>
+                          <TH isSorted onSort={() => handleSort(stockData, setStockData, "value", "number")}>
+                            Harga
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(stockData, setStockData, "totalvalue", "number")}>
+                            Total Nilai
+                          </TH>
                         </Fragment>
                       )}
                     </Fragment>
-                    <TH>Nama Cabang</TH>
+                    <TH isSorted onSort={() => handleSort(stockData, setStockData, "outletname", "text")}>
+                      Nama Cabang
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1896,12 +2021,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isExpandable isEditable={status === 2} page={currentPage} limit={limit} isNoData={!isCentralPOShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(centralPOData, setCentralPOData, "PO Stock.postockcreate")}>
+                    <TH isSorted onSort={() => handleSort(centralPOData, setCentralPOData, "PO Stock.postockcreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Kode PO</TH>
-                    <TH>Nama Admin</TH>
-                    <TH>Status PO</TH>
+                    <TH isSorted onSort={() => handleSort(centralPOData, setCentralPOData, "PO Stock.postockcode", "text")}>
+                      Kode PO
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(centralPOData, setCentralPOData, "PO Stock.username", "text")}>
+                      Nama Admin
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(centralPOData, setCentralPOData, "PO Stock.statusstock", "number")}>
+                      Status PO
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1996,13 +2127,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isExpandable isEditable isDeletable page={currentPage} limit={limit} isNoData={!isInPOShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(inPOData, setInPOData, "PO Stock.postockcreate")}>
+                    <TH isSorted onSort={() => handleSort(inPOData, setInPOData, "PO Stock.postockcreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Kode PO</TH>
-                    <TH>Nama Admin</TH>
-                    <TH>Nama Cabang</TH>
-                    <TH>Status PO</TH>
+                    <TH isSorted onSort={() => handleSort(inPOData, setInPOData, "PO Stock.postockcode", "text")}>
+                      Kode PO
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(inPOData, setInPOData, "PO Stock.username", "text")}>
+                      Nama Admin
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(inPOData, setInPOData, "PO Stock.outletname", "text")}>
+                      Nama Cabang
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(inPOData, setInPOData, "PO Stock.statusstock", "number")}>
+                      Status PO
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -2178,21 +2317,45 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Table byNumber isNoData={historyReservData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                       <THead>
                         <TR>
-                          <TH isSorted onSort={() => handleSortDate(historyReservData, setHistoryReservData, "datetimecreate")}>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "datetimecreate", "date")}>
                             Tanggal Dibuat
                           </TH>
-                          <TH>Tanggal Reservasi</TH>
-                          <TH>Jam Reservasi</TH>
-                          <TH>Kode Reservasi</TH>
-                          <TH>Nama Customer</TH>
-                          <TH>Nomor Telepon</TH>
-                          <TH>Alamat Email</TH>
-                          <TH>Status Reservasi</TH>
-                          <TH>Status DP</TH>
-                          <TH>Layanan</TH>
-                          <TH>Jenis Layanan</TH>
-                          <TH>Biaya DP</TH>
-                          <TH>Kode Voucher</TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "reservationdate", "number")}>
+                            Tanggal Reservasi
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "reservationtime", "number")}>
+                            Jam Reservasi
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "rscode", "text")}>
+                            Kode Reservasi
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "name", "text")}>
+                            Nama Customer
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "phone", "number")}>
+                            Nomor Telepon
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "email", "text")}>
+                            Alamat Email
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "status_reservation", "number")}>
+                            Status Reservasi
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "status_dp", "number")}>
+                            Status DP
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "service", "text")}>
+                            Layanan
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "typeservice", "text")}>
+                            Jenis Layanan
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "price_reservation", "number")}>
+                            Biaya DP
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "voucher", "text")}>
+                            Kode Voucher
+                          </TH>
                         </TR>
                       </THead>
                       <TBody>
@@ -2223,18 +2386,36 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Table byNumber isClickable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                       <THead>
                         <TR>
-                          <TH isSorted onSort={() => handleSortDate(historyOrderData, setHistoryOrderData, "transactioncreate")}>
+                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactioncreate", "date")}>
                             Tanggal Dibuat
                           </TH>
-                          <TH>Nama Pengguna</TH>
-                          <TH>Kode Reservasi</TH>
-                          <TH>Nomor Invoice</TH>
-                          <TH>Nomor Telepon</TH>
-                          <TH>Metode Pembayaran</TH>
-                          <TH>Total Pembayaran</TH>
-                          <TH>Status Pembayaran</TH>
-                          <TH>Kode Voucher</TH>
-                          <TH>Nama Dokter</TH>
+                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionname", "text")}>
+                            Nama Pengguna
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "rscode", "text")}>
+                            Kode Reservasi
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "noinvoice", "number")}>
+                            Nomor Invoice
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionphone", "number")}>
+                            Nomor Telepon
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "payment", "text")}>
+                            Metode Pembayaran
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "totalpay", "number")}>
+                            Total Pembayaran
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionstatus", "number")}>
+                            Status Pembayaran
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "voucher", "text")}>
+                            Kode Voucher
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "dentist", "text")}>
+                            Nama Dokter
+                          </TH>
                         </TR>
                       </THead>
                       <TBody>
@@ -2262,12 +2443,24 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Table byNumber isNoData={medicRcdData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                       <THead>
                         <TR>
-                          <TH>ID Rekam Medis</TH>
-                          <TH>Usia Pasien</TH>
-                          <TH>Ruang Pemeriksaan</TH>
-                          <TH>Layanan</TH>
-                          <TH>Jenis Layanan</TH>
-                          <TH>Dokter Pemeriksa</TH>
+                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "idmedicalrecords", "number")}>
+                            ID Rekam Medis
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "ageyear", "number")}>
+                            Usia Pasien
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "room", "text")}>
+                            Ruang Pemeriksaan
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "service", "text")}>
+                            Layanan
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "servicetype", "text")}>
+                            Jenis Layanan
+                          </TH>
+                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "dentist", "text")}>
+                            Dokter Pemeriksa
+                          </TH>
                         </TR>
                       </THead>
                       <TBody>
@@ -2300,17 +2493,39 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Table byNumber isNoData={anamesaData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
-                            <TH>ID Rekam Medis</TH>
-                            <TH>Riwayat Penyakit</TH>
-                            <TH>Keluhan Utama</TH>
-                            <TH>Keluhan Tambahan</TH>
-                            <TH>Penyakit Saat Ini</TH>
-                            <TH>Gravida</TH>
-                            <TH>Alergi Gatal</TH>
-                            <TH>Alergi Debu</TH>
-                            <TH>Alergi Obat</TH>
-                            <TH>Alergi Makanan</TH>
-                            <TH>Alergi Lainnya</TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "idmedicalrecords", "text")}>
+                              ID Rekam Medis
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "histori_illness", "text")}>
+                              Riwayat Penyakit
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "main_complaint", "text")}>
+                              Keluhan Utama
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "additional_complaint", "text")}>
+                              Keluhan Tambahan
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "current_illness", "text")}>
+                              Penyakit Saat Ini
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "gravida", "text")}>
+                              Gravida
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "alergi_gatal", "text")}>
+                              Alergi Gatal
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "alergi_debu", "text")}>
+                              Alergi Debu
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "alergi_obat", "text")}>
+                              Alergi Obat
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "alergi_makanan", "text")}>
+                              Alergi Makanan
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "alergi_lainnya", "text")}>
+                              Alergi Lainnya
+                            </TH>
                           </TR>
                         </THead>
                         <TBody>
@@ -2409,17 +2624,39 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Table byNumber isNoData={inspectData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
-                            <TH>ID Rekam Medis</TH>
-                            <TH>Deskripsi Pemeriksaan</TH>
-                            <TH>Nadi</TH>
-                            <TH>Tensi Darah</TH>
-                            <TH>Suhu Badan</TH>
-                            <TH>Berat Badan</TH>
-                            <TH>Tinggi Badan</TH>
-                            <TH>Pernapasan</TH>
-                            <TH>Mata</TH>
-                            <TH>Gigi & Mulut</TH>
-                            <TH>Kulit</TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "idmedicalrecords", "text")}>
+                              ID Rekam Medis
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "desciption", "text")}>
+                              Deskripsi Pemeriksaan
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "pulse", "number")}>
+                              Nadi
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "tension", "number")}>
+                              Tensi Darah
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "temperature", "number")}>
+                              Suhu Badan
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "weight", "number")}>
+                              Berat Badan
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "height", "number")}>
+                              Tinggi Badan
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "breath", "number")}>
+                              Pernapasan
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "eye", "text")}>
+                              Mata
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "mouth", "text")}>
+                              Gigi & Mulut
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "skin", "text")}>
+                              Kulit
+                            </TH>
                           </TR>
                         </THead>
                         <TBody>
@@ -2488,14 +2725,24 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Table byNumber isNoData={rkmDiagnosaData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
-                            <TH isSorted onSort={() => handleSortDate(rkmDiagnosaData, setRkmDiagnosaData, "diagnosiscreate")}>
+                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "diagnosiscreate", "date")}>
                               Tanggal Dibuat
                             </TH>
-                            <TH>Kode Reservasi</TH>
-                            <TH>Tipe Diagnosa</TH>
-                            <TH>Kode Diagnosa</TH>
-                            <TH>Detail Diagnosa</TH>
-                            <TH>Catatan</TH>
+                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "rscode", "text")}>
+                              Kode Reservasi
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "diagnosistype", "text")}>
+                              Tipe Diagnosa
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "diagnosiscode", "text")}>
+                              Kode Diagnosa
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "diagnosisdetail", "text")}>
+                              Detail Diagnosa
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "diagnosisnote", "text")}>
+                              Catatan
+                            </TH>
                           </TR>
                         </THead>
                         <TBody>
@@ -2556,18 +2803,36 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Table byNumber isEditable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
-                            <TH isSorted onSort={() => handleSortDate(historyOrderData, setHistoryOrderData, "transactioncreate")}>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactioncreate", "date")}>
                               Tanggal Dibuat
                             </TH>
-                            <TH>Nama Pengguna</TH>
-                            <TH>Kode Reservasi</TH>
-                            <TH>Nomor Invoice</TH>
-                            <TH>Nomor Telepon</TH>
-                            <TH>Metode Pembayaran</TH>
-                            <TH>Total Pembayaran</TH>
-                            <TH>Status Pembayaran</TH>
-                            <TH>Kode Voucher</TH>
-                            <TH>Nama Dokter</TH>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionname", "text")}>
+                              Nama Pengguna
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "rscode", "text")}>
+                              Kode Reservasi
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "noinvoice", "number")}>
+                              Nomor Invoice
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionphone", "number")}>
+                              Nomor Telepon
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "payment", "text")}>
+                              Metode Pembayaran
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "totalpay", "number")}>
+                              Total Pembayaran
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionstatus", "number")}>
+                              Status Pembayaran
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "voucher", "text")}>
+                              Kode Voucher
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "dentist", "text")}>
+                              Nama Dokter
+                            </TH>
                           </TR>
                         </THead>
                         <TBody>
@@ -2676,17 +2941,33 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Table byNumber isNoData={alkesData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                         <THead>
                           <TR>
-                            <TH isSorted onSort={() => handleSortDate(alkesData, setAlkesData, "stockoutcreate")}>
+                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "stockoutcreate", "date")}>
                               Tanggal Dibuat
                             </TH>
-                            <TH>Kode Reservasi</TH>
-                            <TH>Kategori</TH>
-                            <TH>Sub Kategori</TH>
-                            <TH>Kode SKU</TH>
-                            <TH>Nama Item</TH>
-                            <TH>Unit</TH>
-                            <TH>Stok Terpakai</TH>
-                            <TH>Nama Cabang</TH>
+                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "rscode", "text")}>
+                              Kode Reservasi
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "categorystock", "text")}>
+                              Kategori
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "subcategorystock", "text")}>
+                              Sub Kategori
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "sku", "text")}>
+                              Kode SKU
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "itemname", "text")}>
+                              Nama Item
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "unit", "text")}>
+                              Unit
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "lastqty", "number")}>
+                              Stok Terpakai
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "outletname", "text")}>
+                              Nama Cabang
+                            </TH>
                           </TR>
                         </THead>
                         <TBody>
@@ -2783,13 +3064,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   <Table byNumber isNoData={recipeData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                     <THead>
                       <TR>
-                        <TH isSorted onSort={() => handleSortDate(recipeData, setRecipeData, "recipecreate")}>
+                        <TH isSorted onSort={() => handleSort(recipeData, setRecipeData, "recipecreate", "date")}>
                           Tanggal Dibuat
                         </TH>
-                        <TH>Kode Reservasi</TH>
-                        <TH>Dokter Pemeriksa</TH>
-                        <TH>Resep</TH>
-                        <TH>Nama Cabang</TH>
+                        <TH isSorted onSort={() => handleSort(recipeData, setRecipeData, "rscode", "text")}>
+                          Kode Reservasi
+                        </TH>
+                        <TH isSorted onSort={() => handleSort(recipeData, setRecipeData, "dentist", "text")}>
+                          Dokter Pemeriksa
+                        </TH>
+                        <TH isSorted onSort={() => handleSort(recipeData, setRecipeData, "recipe", "text")}>
+                          Resep
+                        </TH>
+                        <TH isSorted onSort={() => handleSort(recipeData, setRecipeData, "outletname", "text")}>
+                          Nama Cabang
+                        </TH>
                       </TR>
                     </THead>
                     <TBody>
@@ -2869,23 +3158,51 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(reservData, setReservData, "datetimecreate")}>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "datetimecreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Tanggal Reservasi</TH>
-                    <TH>Jam Reservasi</TH>
-                    <TH>Kode Reservasi</TH>
-                    <TH>Nama Customer</TH>
-                    <TH>Nomor Telepon</TH>
-                    <TH>Alamat Email</TH>
-                    <TH>Status Reservasi</TH>
-                    <TH>Status DP</TH>
-                    <TH>Layanan</TH>
-                    <TH>Jenis Layanan</TH>
-                    <TH>Biaya DP</TH>
-                    <TH>Kode Voucher</TH>
-                    <TH>Nama Cabang</TH>
-                    <TH>Catatan</TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "reservationdate", "date")}>
+                      Tanggal Reservasi
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "reservationtime", "number")}>
+                      Jam Reservasi
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "rscode", "text")}>
+                      Kode Reservasi
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "name", "text")}>
+                      Nama Customer
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "phone", "number")}>
+                      Nomor Telepon
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "email", "text")}>
+                      Alamat Email
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "status_reservation", "number")}>
+                      Status Reservasi
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "status_dp", "number")}>
+                      Status DP
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "service", "text")}>
+                      Layanan
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "typeservice", "text")}>
+                      Jenis Layanan
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "price_reservation", "number")}>
+                      Biaya DP
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "voucher", "text")}>
+                      Kode Voucher
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "outlet_name", "text")}>
+                      Nama Cabang
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "note", "text")}>
+                      Catatan
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -2993,19 +3310,39 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isClickable isEditable isPrintable isContactable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSortDate(orderData, setOrderData, "transactioncreate")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactioncreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH>Nama Pengguna</TH>
-                    <TH>Kode Reservasi</TH>
-                    <TH>Nomor Invoice</TH>
-                    <TH>Nomor Telepon</TH>
-                    <TH>Metode Pembayaran</TH>
-                    <TH>Total Pembayaran</TH>
-                    <TH>Status Pembayaran</TH>
-                    <TH>Kode Voucher</TH>
-                    <TH>Nama Dokter</TH>
-                    <TH>Nama Outlet</TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionname", "text")}>
+                      Nama Pengguna
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "rscode", "text")}>
+                      Kode Reservasi
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "noinvoice", "number")}>
+                      Nomor Invoice
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionphone", "number")}>
+                      Nomor Telepon
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "payment", "text")}>
+                      Metode Pembayaran
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "totalpay", "number")}>
+                      Total Pembayaran
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionstatus", "number")}>
+                      Status Pembayaran
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "voucher", "text")}>
+                      Kode Voucher
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "dentist", "text")}>
+                      Nama Dokter
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "outlet_name", "text")}>
+                      Nama Outlet
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
