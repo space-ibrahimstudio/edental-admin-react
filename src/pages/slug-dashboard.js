@@ -1252,7 +1252,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isReservShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isUserShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm size="sm" formTitle={selectedMode === "update" ? "Ubah Data Pengguna" : "Tambah Data Pengguna"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cuduser")} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
