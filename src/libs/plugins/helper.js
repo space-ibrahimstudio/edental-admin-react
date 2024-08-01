@@ -70,6 +70,9 @@ export const useAlias = () => {
   const orderAlias = (status) => {
     return status === "1" ? "Paid" : status === "2" ? "Canceled" : "Open";
   };
+  const invoiceAlias = (status) => {
+    return status === "1" ? "Lunas" : status === "2" ? "Dibatalkan" : "Belum Lunas";
+  };
   const poAlias = (status) => {
     return status === "1" ? "Pending" : status === "2" ? "Sent" : status === "3" ? "Done" : status === "4" ? "Rejected" : "Open";
   };
@@ -79,5 +82,5 @@ export const useAlias = () => {
   const reservAlias = (status) => {
     return status === "1" ? "Completed" : status === "2" ? "Reschedule" : status === "3" ? "Canceled" : "Pending";
   };
-  return { paymentAlias, orderAlias, poAlias, usrstatAlias, reservAlias };
+  return { paymentAlias, orderAlias, invoiceAlias, poAlias, usrstatAlias, reservAlias };
 };

@@ -8,7 +8,7 @@ const InvoiceContent = ({ data, items }) => {
   const { toTitleCase } = useContent();
   const { newDate, newPrice } = useFormat();
   const { username } = useAuth();
-  const { orderAlias } = useAlias();
+  const { invoiceAlias } = useAlias();
 
   return (
     <Fragment>
@@ -30,7 +30,7 @@ const InvoiceContent = ({ data, items }) => {
         <div className={styles.subHeaderLeft}>
           <span className={styles.headerOutlet}>Informasi Dokter</span>
           <span className={styles.headerName}>{data.dentist === "" ? "Not set" : `${toTitleCase(data.dentist)}`}</span>
-          <span className={styles.headerOutlet}>084127432</span>
+          <span className={styles.headerOutlet}>{`Nomor SIP : ${data.sip ? data.sip : "-"}`}</span>
         </div>
         <div className={styles.headerRight}>
           <span className={styles.headerOutlet}>Informasi Terkait</span>
@@ -117,7 +117,7 @@ const InvoiceContent = ({ data, items }) => {
           <div className={styles.paymentValue}>
             <div className={styles.labelWrap}>
               <span className={styles.th1Text}>{data.payment === "" ? "Not set" : data.payment}</span>
-              <span className={styles.th1Text}>{orderAlias(data.transactionstatus)}</span>
+              <span className={styles.th1Text}>{invoiceAlias(data.transactionstatus)}</span>
             </div>
           </div>
         </div>

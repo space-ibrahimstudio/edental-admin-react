@@ -166,24 +166,31 @@ const DashboardSlugPage = ({ parent, slug }) => {
       }
     } else if (slug === "RESERVATION") {
       if (name === "phone") {
-        let phoneexists = false;
-        let matcheddata = null;
-        allCustData.forEach((item) => {
-          if (item.userphone === value) {
-            phoneexists = true;
-            matcheddata = item;
+        const phoneRegex = /^0\d*$/;
+        if (phoneRegex.test(value)) {
+          let phoneexists = false;
+          let matcheddata = null;
+          allCustData.forEach((item) => {
+            if (item.userphone === value) {
+              phoneexists = true;
+              matcheddata = item;
+            }
+          });
+          if (phoneexists) {
+            setCustExist(true);
+            setInputData((prevState) => ({ ...prevState, name: matcheddata.username, email: matcheddata.useremail }));
+          } else {
+            setCustExist(false);
+            setInputData((prevState) => ({ ...prevState, name: "", email: "" }));
           }
-        });
-        if (phoneexists) {
-          setCustExist(true);
-          setInputData((prevState) => ({ ...prevState, name: matcheddata.username, email: matcheddata.useremail }));
+          setErrors((prevErrors) => ({ ...prevErrors, phone: "" }));
         } else {
-          setCustExist(false);
-          setInputData((prevState) => ({ ...prevState, name: "", email: "" }));
+          setInputData((prevState) => ({ ...prevState, [name]: value }));
+          setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone number must start with 0 and contain only numbers." }));
         }
       } else if (name === "email") {
         if (!emailValidator(value)) {
-          setErrors((prevErrors) => ({ ...prevErrors, email: "Invalid email format" }));
+          setErrors((prevErrors) => ({ ...prevErrors, email: "Format email salah" }));
         } else {
           setErrors((prevErrors) => ({ ...prevErrors, email: "" }));
         }
@@ -1329,12 +1336,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Layanan" : "Tambah Data Layanan"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudservice")} loading={isSubmitting} onClose={closeForm}>
                 <Input id={`${pageid}-name`} radius="full" labelText="Nama Layanan" placeholder="Masukkan nama layanan" type="text" name="service" value={inputData.service} onChange={handleInputChange} errorContent={errors.service} isRequired />
                 {inputData.layanan.map((subservice, index) => (
-                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="line" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("layanan", index)} isDisabled={index <= 0} />}>
+                  <Fieldset
+                    key={index}
+                    type="row"
+                    markers={`${index + 1}.`}
+                    endContent={
+                      <Fragment>
+                        <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.layanan.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("layanan", index)} isDisabled={inputData.layanan.length <= 1} />
+                        {index + 1 === inputData.layanan.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("layanan")} />}
+                      </Fragment>
+                    }
+                  >
                     <Input id={`${pageid}-type-name-${index}`} radius="full" labelText="Jenis Layanan" placeholder="e.g. Scaling gigi" type="text" name="servicetype" value={subservice.servicetype} onChange={(e) => handleRowChange("layanan", index, e)} errorContent={errors[`layanan.${index}.servicetype`] ? errors[`layanan.${index}.servicetype`] : ""} isRequired />
                     <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("layanan", index, e)} errorContent={errors[`layanan.${index}.price`] ? errors[`layanan.${index}.price`] : ""} isRequired />
                   </Fieldset>
                 ))}
-                <Button id={`${pageid}-add-row`} variant="line" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Jenis Layanan" onClick={() => handleAddRow("layanan")} />
               </SubmitForm>
             )}
           </Fragment>
@@ -1458,11 +1474,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Diagnosa" : "Tambah Data Diagnosa"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "adddiagnosis")} loading={isSubmitting} onClose={closeForm}>
                 <Input id={`${pageid}-diagnose-code`} radius="full" labelText="Kode Diagnosa" placeholder="Masukkan kode diagnosa" type="text" name="diagnosecode" value={inputData.diagnosecode} onChange={handleInputChange} errorContent={errors.diagnosecode} isRequired />
                 {inputData.diagdetail.map((detail, index) => (
-                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="line" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("diagdetail", index)} isDisabled={index <= 0} />}>
+                  <Fieldset
+                    key={index}
+                    type="row"
+                    markers={`${index + 1}.`}
+                    endContent={
+                      <Fragment>
+                        <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.diagdetail.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("diagdetail", index)} isDisabled={inputData.diagdetail.length <= 1} />
+                        {index + 1 === inputData.diagdetail.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("diagdetail")} />}
+                      </Fragment>
+                    }
+                  >
                     <Input id={`${pageid}-diagnose-detail-${index}`} radius="full" labelText="Detail Diagnosa" placeholder="Masukkan detail diagnosa" type="text" name="diagnosisdetail" value={detail.diagnosisdetail} onChange={(e) => handleRowChange("diagdetail", index, e)} errorContent={errors[`diagdetail.${index}.diagnosisdetail`] ? errors[`diagdetail.${index}.diagnosisdetail`] : ""} isRequired />
                   </Fieldset>
                 ))}
-                <Button id={`${pageid}-add-row`} variant="line" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Jenis Layanan" onClick={() => handleAddRow("diagdetail")} />
               </SubmitForm>
             )}
           </Fragment>
@@ -1693,9 +1718,19 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isStockExpShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
-              <SubmitForm formTitle="Tambah Data Stok Kadaluwarsa" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addstockexpire")} loading={isSubmitting} onClose={closeForm}>
+              <SubmitForm formTitle="Tambah Data Stok Expire" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addstockexpire")} loading={isSubmitting} onClose={closeForm}>
                 {inputData.stockexp.map((alkes, index) => (
-                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="line" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("stockexp", index)} isDisabled={index <= 0} />}>
+                  <Fieldset
+                    key={index}
+                    type="row"
+                    markers={`${index + 1}.`}
+                    endContent={
+                      <Fragment>
+                        <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.stockexp.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("stockexp", index)} isDisabled={inputData.stockexp.length <= 1} />
+                        {index + 1 === inputData.stockexp.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("stockexp")} />}
+                      </Fragment>
+                    }
+                  >
                     <Input
                       id={`${pageid}-categorystock-${index}`}
                       variant="select"
@@ -1745,7 +1780,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="qty" value={alkes.qty} onChange={(e) => handleRowChange("stockexp", index, e)} errorContent={errors[`stockexp.${index}.qty`] ? errors[`stockexp.${index}.qty`] : ""} isRequired isDisabled={!alkes.itemname} />
                   </Fieldset>
                 ))}
-                <Button id={`${pageid}-add-row`} variant="line" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("stockexp")} />
               </SubmitForm>
             )}
           </Fragment>
@@ -2675,7 +2709,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <SubmitForm size="md" formTitle="Tambah Data Pemakaian Alkes" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addstockout")} loading={isSubmitting} onClose={closeForm}>
                           <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
                           {inputData.alkesitem.map((alkes, index) => (
-                            <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="line" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("alkesitem", index)} isDisabled={index <= 0} />}>
+                            <Fieldset
+                              key={index}
+                              type="row"
+                              markers={`${index + 1}.`}
+                              endContent={
+                                <Fragment>
+                                  <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.alkesitem.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("alkesitem", index)} isDisabled={inputData.alkesitem.length <= 1} />
+                                  {index + 1 === inputData.alkesitem.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("alkesitem")} />}
+                                </Fragment>
+                              }
+                            >
                               <Input
                                 id={`${pageid}-categorystock-${index}`}
                                 variant="select"
@@ -2726,7 +2770,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                               <Input id={`${pageid}-item-status-${index}`} variant="select" radius="full" labelText="Status Item" placeholder="Pilih status" name="status" value={alkes.status} options={stockoutstatopt} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "status", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.status`] ? errors[`alkesitem.${index}.status`] : ""} isRequired isDisabled={!alkes.itemname} />
                             </Fieldset>
                           ))}
-                          <Button id={`${pageid}-add-row`} variant="line" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Item" onClick={() => handleAddRow("alkesitem")} />
                         </SubmitForm>
                       )}
                     </Fragment>
@@ -3016,7 +3059,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   )}
                 </Fieldset>
                 {inputData.order.map((subservice, index) => (
-                  <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="line" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("order", index)} isDisabled={index <= 0} />}>
+                  <Fieldset
+                    key={index}
+                    type="row"
+                    markers={`${index + 1}.`}
+                    endContent={
+                      <Fragment>
+                        <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.order.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("order", index)} isDisabled={inputData.order.length <= 1} />
+                        {index + 1 === inputData.order.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("order")} />}
+                      </Fragment>
+                    }
+                  >
                     <Input
                       id={`${pageid}-name-${index}`}
                       variant="select"
@@ -3051,7 +3104,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
                   </Fieldset>
                 ))}
-                <Button id={`${pageid}-add-row`} variant="line" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Layanan" onClick={() => handleAddRow("order")} />
               </SubmitForm>
             )}
             {selectedOrderData && orderDetailData && isFileOpen && (
