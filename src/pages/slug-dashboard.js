@@ -1838,50 +1838,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       </Fragment>
                     }
                   >
-                    <Input
-                      id={`${pageid}-categorystock-${index}`}
-                      variant="select"
-                      isSearchable
-                      radius="full"
-                      labelText="Kategori"
-                      placeholder="Pilih kategori"
-                      name="categorystock"
-                      value={alkes.categorystock}
-                      options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))}
-                      onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "categorystock", value: selectedValue } })}
-                      errorContent={errors[`stockexp.${index}.categorystock`] ? errors[`stockexp.${index}.categorystock`] : ""}
-                      isRequired
-                    />
-                    <Input
-                      id={`${pageid}-subcategorystock-${index}`}
-                      variant="select"
-                      isSearchable
-                      radius="full"
-                      labelText="Sub Kategori"
-                      placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
-                      name="subcategorystock"
-                      value={alkes.subcategorystock}
-                      options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []}
-                      onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "subcategorystock", value: selectedValue } })}
-                      errorContent={errors[`stockexp.${index}.subcategorystock`] ? errors[`stockexp.${index}.subcategorystock`] : ""}
-                      isRequired
-                      isDisabled={!alkes.categorystock}
-                    />
-                    <Input
-                      id={`${pageid}-item-name-${index}`}
-                      variant="select"
-                      isSearchable
-                      radius="full"
-                      labelText="Nama Item"
-                      placeholder="Pilih Item"
-                      name="itemname"
-                      value={alkes.itemname}
-                      options={(alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))) || []}
-                      onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "itemname", value: selectedValue } })}
-                      errorContent={errors[`stockexp.${index}.itemname`] ? errors[`stockexp.${index}.itemname`] : ""}
-                      isRequired
-                      isDisabled={!alkes.subcategorystock}
-                    />
+                    <Input id={`${pageid}-categorystock-${index}`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder="Pilih kategori" name="categorystock" value={alkes.categorystock} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "categorystock", value: selectedValue } })} errorContent={errors[`stockexp.${index}.categorystock`] ? errors[`stockexp.${index}.categorystock`] : ""} isRequired />
+                    <Input id={`${pageid}-subcategorystock-${index}`} variant="select" isSearchable radius="full" labelText="Sub Kategori" placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"} name="subcategorystock" value={alkes.subcategorystock} options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []} onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "subcategorystock", value: selectedValue } })} errorContent={errors[`stockexp.${index}.subcategorystock`] ? errors[`stockexp.${index}.subcategorystock`] : ""} isRequired isDisabled={!alkes.categorystock} />
+                    <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={alkes.itemname} options={(alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))) || []} onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`stockexp.${index}.itemname`] ? errors[`stockexp.${index}.itemname`] : ""} isRequired isDisabled={!alkes.subcategorystock} />
                     <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="AL2" type="text" name="sku" value={alkes.sku} onChange={(e) => handleRowChange("stockexp", index, e)} errorContent={errors[`stockexp.${index}.sku`] ? errors[`stockexp.${index}.sku`] : ""} isRequired isDisabled={!alkes.itemname} />
                     <Input id={`${pageid}-item-unit-${index}`} radius="full" labelText="Unit Item" placeholder="PCS" type="text" name="unit" value={alkes.unit} onChange={(e) => handleRowChange("stockexp", index, e)} errorContent={errors[`stockexp.${index}.unit`] ? errors[`stockexp.${index}.unit`] : ""} isRequired isDisabled={!alkes.itemname} />
                     <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="qty" value={alkes.qty} onChange={(e) => handleRowChange("stockexp", index, e)} errorContent={errors[`stockexp.${index}.qty`] ? errors[`stockexp.${index}.qty`] : ""} isRequired isDisabled={!alkes.itemname} />
@@ -1977,21 +1936,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Stok" : "Tambah Data Stok"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudstock")} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
                   <Input id={`${pageid}-category`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder="Pilih kategori" name="category" value={inputData.category} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "category", value: selectedValue } })} errorContent={errors.category} isRequired />
-                  <Input
-                    id={`${pageid}-subcategory`}
-                    variant="select"
-                    isSearchable
-                    radius="full"
-                    labelText="Sub Kategori"
-                    placeholder={inputData.category ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
-                    name="sub_category"
-                    value={inputData.sub_category}
-                    options={(inputData.category && categoryStockData.find((cat) => cat["category_stok"].categorystockname === inputData.category)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []}
-                    onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_category", value: selectedValue } })}
-                    errorContent={errors.sub_category}
-                    isRequired
-                    isDisabled={!inputData.category}
-                  />
+                  <Input id={`${pageid}-subcategory`} variant="select" isSearchable radius="full" labelText="Sub Kategori" placeholder={inputData.category ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"} name="sub_category" value={inputData.sub_category} options={(inputData.category && categoryStockData.find((cat) => cat["category_stok"].categorystockname === inputData.category)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_category", value: selectedValue } })} errorContent={errors.sub_category} isRequired isDisabled={!inputData.category} />
                   <Input id={`${pageid}-name`} radius="full" labelText="Nama Item" placeholder="STERILISATOR" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
                 </Fieldset>
                 <Fieldset>
@@ -2085,20 +2030,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           </Fragment>
                         }
                       >
-                        <Input
-                          id={`${pageid}-item-name-${index}`}
-                          variant="select"
-                          isSearchable
-                          radius="full"
-                          labelText="Nama Item"
-                          placeholder="Pilih Item"
-                          name="itemname"
-                          value={po.itemname}
-                          options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))}
-                          onSelect={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })}
-                          errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""}
-                          isRequired
-                        />
+                        <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={po.itemname} options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))} onSelect={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""} isRequired />
                         <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
                         <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
                         <Input id={`${pageid}-item-note-${index}`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
@@ -2179,20 +2111,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <Input id={`${pageid}-po-status`} variant="select" noEmptyValue radius="full" labelText="Status PO" placeholder="Set status" name="status" value={inputData.status} options={postatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
                 {inputData.postock.map((po, index) => (
                   <Fieldset key={index} type="row" markers={`${index + 1}.`}>
-                    <Input
-                      id={`${pageid}-item-name-${index}`}
-                      variant="select"
-                      isSearchable
-                      radius="full"
-                      labelText="Nama Item"
-                      placeholder="Pilih Item"
-                      name="itemname"
-                      value={po.itemname}
-                      options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))}
-                      onSelect={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })}
-                      errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""}
-                      isRequired
-                    />
+                    <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={po.itemname} options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))} onSelect={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""} isRequired />
                     <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
                     <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
                     <Input id={`${pageid}-item-note-${index}`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
@@ -2762,36 +2681,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <SubmitForm size="sm" formTitle="Tambah Data Diagnosa" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "adddiagnosisuser")} loading={isSubmitting} onClose={closeForm}>
                           <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
                           <Input id={`${pageid}-diagnose`} variant="select" noEmptyValue radius="full" labelText="Jenis Diagnosa" placeholder="Pilih jenis diagnosa" name="diagnose" value={inputData.diagnose} options={diagnoseopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnose", value: selectedValue } })} errorContent={errors.diagnose} isRequired />
-                          <Input
-                            id={`${pageid}-diagnose-code`}
-                            variant="select"
-                            isSearchable
-                            radius="full"
-                            labelText="Kode Diagnosa"
-                            placeholder="Pilih kode diagnosa"
-                            name="diagnosecode"
-                            value={inputData.diagnosecode}
-                            options={allDiagnoseData.map((diag) => ({ value: diag["code"].diagnosiscode, label: diag["code"].diagnosiscode }))}
-                            onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnosecode", value: selectedValue } })}
-                            errorContent={errors.diagnosecode}
-                            isRequired
-                            isDisabled={!inputData.diagnose}
-                          />
-                          <Input
-                            id={`${pageid}-diagnose-detail`}
-                            variant="select"
-                            isSearchable
-                            radius="full"
-                            labelText="Rincian Diagnosa"
-                            placeholder={inputData.diagnosecode ? "Pilih rincian diagnosa" : "Mohon pilih kode diagnosa dahulu"}
-                            name="diagnosedetail"
-                            value={inputData.diagnosedetail}
-                            options={(inputData.diagnosecode && allDiagnoseData.find((s) => s["code"].diagnosiscode === inputData.diagnosecode)?.["detail"].map((det) => ({ value: det.diagnosisdetail, label: det.diagnosisdetail }))) || []}
-                            onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnosedetail", value: selectedValue } })}
-                            errorContent={errors.diagnosedetail}
-                            isRequired
-                            isDisabled={!inputData.diagnosecode}
-                          />
+                          <Input id={`${pageid}-diagnose-code`} variant="select" isSearchable radius="full" labelText="Kode Diagnosa" placeholder="Pilih kode diagnosa" name="diagnosecode" value={inputData.diagnosecode} options={allDiagnoseData.map((diag) => ({ value: diag["code"].diagnosiscode, label: diag["code"].diagnosiscode }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnosecode", value: selectedValue } })} errorContent={errors.diagnosecode} isRequired isDisabled={!inputData.diagnose} />
+                          <Input id={`${pageid}-diagnose-detail`} variant="select" isSearchable radius="full" labelText="Rincian Diagnosa" placeholder={inputData.diagnosecode ? "Pilih rincian diagnosa" : "Mohon pilih kode diagnosa dahulu"} name="diagnosedetail" value={inputData.diagnosedetail} options={(inputData.diagnosecode && allDiagnoseData.find((s) => s["code"].diagnosiscode === inputData.diagnosecode)?.["detail"].map((det) => ({ value: det.diagnosisdetail, label: det.diagnosisdetail }))) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnosedetail", value: selectedValue } })} errorContent={errors.diagnosedetail} isRequired isDisabled={!inputData.diagnosecode} />
                           <Input id={`${pageid}-note`} variant="textarea" labelText="Keterangan" placeholder="Masukkan keterangan diagnosa" name="note" rows={5} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
                         </SubmitForm>
                       )}
@@ -2868,20 +2759,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                                 {inputData.typepayment && (
                                   <Fragment>
                                     {inputData.typepayment === "cashless" ? (
-                                      <Input
-                                        id={`${pageid}-method-payments`}
-                                        variant="select"
-                                        isSearchable
-                                        radius="full"
-                                        labelText="Metode Pembayaran"
-                                        placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"}
-                                        name="bank_code"
-                                        value={inputData.bank_code}
-                                        options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
-                                        onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })}
-                                        errorContent={errors.bank_code}
-                                        isDisabled={!inputData.typepayment}
-                                      />
+                                      <Input id={`${pageid}-method-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"} name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isDisabled={!inputData.typepayment} />
                                     ) : (
                                       <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />
                                     )}
@@ -2890,37 +2768,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                               </Fieldset>
                               {inputData.order.map((subservice, index) => (
                                 <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="line" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("order", index)} isDisabled={index <= 0} />}>
-                                  <Input
-                                    id={`${pageid}-name-${index}`}
-                                    variant="select"
-                                    isSearchable
-                                    radius="full"
-                                    labelText="Nama Layanan"
-                                    placeholder="Pilih Layanan"
-                                    name="service"
-                                    value={subservice.service}
-                                    options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))}
-                                    onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })}
-                                    errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""}
-                                    isRequired
-                                    isReadonly={inputData.order[index].service === "RESERVATION"}
-                                  />
-                                  <Input
-                                    id={`${pageid}-type-name-${index}`}
-                                    variant="select"
-                                    isSearchable
-                                    radius="full"
-                                    labelText="Jenis Layanan"
-                                    placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
-                                    name="servicetype"
-                                    value={subservice.servicetype}
-                                    options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
-                                    onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })}
-                                    errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
-                                    isRequired
-                                    isDisabled={!inputData.order[index].service}
-                                    isReadonly={inputData.order[index].service === "RESERVATION"}
-                                  />
+                                  <Input id={`${pageid}-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih Layanan" name="service" value={subservice.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })} errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
+                                  <Input id={`${pageid}-type-name-${index}`} variant="select" isSearchable radius="full" labelText="Jenis Layanan" placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="servicetype" value={subservice.servicetype} options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })} errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""} isRequired isDisabled={!inputData.order[index].service} isReadonly={inputData.order[index].service === "RESERVATION"} />
                                   <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
                                 </Fieldset>
                               ))}
@@ -3001,51 +2850,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                                 </Fragment>
                               }
                             >
-                              <Input
-                                id={`${pageid}-categorystock-${index}`}
-                                variant="select"
-                                isSearchable
-                                radius="full"
-                                labelText="Kategori"
-                                placeholder={inputData.rscode ? "Pilih kategori" : "Mohon isi kode reservasi dahulu"}
-                                name="categorystock"
-                                value={alkes.categorystock}
-                                options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))}
-                                onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "categorystock", value: selectedValue } })}
-                                errorContent={errors[`alkesitem.${index}.categorystock`] ? errors[`alkesitem.${index}.categorystock`] : ""}
-                                isRequired
-                                isDisabled={!inputData.rscode}
-                              />
-                              <Input
-                                id={`${pageid}-subcategorystock-${index}`}
-                                variant="select"
-                                isSearchable
-                                radius="full"
-                                labelText="Sub Kategori"
-                                placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"}
-                                name="subcategorystock"
-                                value={alkes.subcategorystock}
-                                options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []}
-                                onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "subcategorystock", value: selectedValue } })}
-                                errorContent={errors[`alkesitem.${index}.subcategorystock`] ? errors[`alkesitem.${index}.subcategorystock`] : ""}
-                                isRequired
-                                isDisabled={!alkes.categorystock}
-                              />
-                              <Input
-                                id={`${pageid}-item-name-${index}`}
-                                variant="select"
-                                isSearchable
-                                radius="full"
-                                labelText="Nama Item"
-                                placeholder="Pilih Item"
-                                name="itemname"
-                                value={alkes.itemname}
-                                options={alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))}
-                                onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "itemname", value: selectedValue } })}
-                                errorContent={errors[`alkesitem.${index}.itemname`] ? errors[`alkesitem.${index}.itemname`] : ""}
-                                isRequired
-                                isDisabled={!alkes.subcategorystock}
-                              />
+                              <Input id={`${pageid}-categorystock-${index}`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder={inputData.rscode ? "Pilih kategori" : "Mohon isi kode reservasi dahulu"} name="categorystock" value={alkes.categorystock} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "categorystock", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.categorystock`] ? errors[`alkesitem.${index}.categorystock`] : ""} isRequired isDisabled={!inputData.rscode} />
+                              <Input id={`${pageid}-subcategorystock-${index}`} variant="select" isSearchable radius="full" labelText="Sub Kategori" placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"} name="subcategorystock" value={alkes.subcategorystock} options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "subcategorystock", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.subcategorystock`] ? errors[`alkesitem.${index}.subcategorystock`] : ""} isRequired isDisabled={!alkes.categorystock} />
+                              <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={alkes.itemname} options={alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.itemname`] ? errors[`alkesitem.${index}.itemname`] : ""} isRequired isDisabled={!alkes.subcategorystock} />
                               <Input id={`${pageid}-item-unit-${index}`} radius="full" labelText="Unit Item" placeholder="PCS" type="text" name="unit" value={alkes.unit} onChange={(e) => handleRowChange("alkesitem", index, e)} errorContent={errors[`alkesitem.${index}.unit`] ? errors[`alkesitem.${index}.unit`] : ""} isRequired isDisabled={!alkes.itemname} />
                               <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="qty" value={alkes.qty} onChange={(e) => handleRowChange("alkesitem", index, e)} errorContent={errors[`alkesitem.${index}.qty`] ? errors[`alkesitem.${index}.qty`] : ""} isRequired isDisabled={!alkes.itemname} />
                               <Input id={`${pageid}-item-status-${index}`} variant="select" radius="full" labelText="Status Item" placeholder="Pilih status" name="status" value={alkes.status} options={stockoutstatopt} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "status", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.status`] ? errors[`alkesitem.${index}.status`] : ""} isRequired isDisabled={!alkes.itemname} />
@@ -3207,7 +3014,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredReservData.map((data, index) => (
-                    <TR key={index} onEdit={data.status_reservation === "0" ? () => openEdit(data.idreservation) : () => showNotifications("danger", "Reservasi dengan status yang telah selesai, reschedule atau dibatalkan tidak dapat diperbarui.")} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
+                    // <TR key={index} onEdit={data.status_reservation === "0" ? () => openEdit(data.idreservation) : () => showNotifications("danger", "Reservasi dengan status yang telah selesai, reschedule atau dibatalkan tidak dapat diperbarui.")} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
+                    <TR key={index} onEdit={() => openEdit(data.idreservation)} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
                       <TD>{newDate(data.datetimecreate, "id")}</TD>
                       <TD>{data.reservationdate}</TD>
                       <TD>{data.reservationtime}</TD>
@@ -3247,21 +3055,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     </Fieldset>
                     <Fieldset>
                       <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={inputData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
-                      <Input
-                        id={`${pageid}-subservice`}
-                        variant="select"
-                        isSearchable
-                        radius="full"
-                        labelText="Jenis Layanan"
-                        placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
-                        name="sub_service"
-                        value={inputData.sub_service}
-                        options={(inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
-                        onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_service", value: selectedValue } })}
-                        errorContent={errors.sub_service}
-                        isRequired
-                        isDisabled={!inputData.service}
-                      />
+                      <Input id={`${pageid}-subservice`} variant="select" isSearchable radius="full" labelText="Jenis Layanan" placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="sub_service" value={inputData.sub_service} options={(inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_service", value: selectedValue } })} errorContent={errors.sub_service} isRequired isDisabled={!inputData.service} />
                       <Input id={`${pageid}-voucher`} radius="full" labelText="Kode Voucher" placeholder="e.g 598RE3" type="text" name="vouchercode" value={inputData.vouchercode} onChange={handleInputChange} errorContent={errors.vouchercode} />
                     </Fieldset>
                     <Fieldset>
@@ -3347,7 +3141,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredOrderData.map((data, index) => (
-                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
+                    // <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
+                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={() => openEdit(data.idtransaction)} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
                       <TD>{newDate(data.transactioncreate, "id")}</TD>
                       <TD>{toTitleCase(data.transactionname)}</TD>
                       <TD type="code">{data.rscode}</TD>
@@ -3374,24 +3169,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   <Input id={`${pageid}-type-payments`} variant="select" noEmptyValue radius="full" labelText="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errorContent={errors.typepayment} isRequired />
                   {inputData.typepayment && (
                     <Fragment>
-                      {inputData.typepayment === "cashless" ? (
-                        <Input
-                          id={`${pageid}-method-payments`}
-                          variant="select"
-                          isSearchable
-                          radius="full"
-                          labelText="Metode Pembayaran"
-                          placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"}
-                          name="bank_code"
-                          value={inputData.bank_code}
-                          options={fvaListData.map((va) => ({ value: va.code, label: va.name }))}
-                          onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })}
-                          errorContent={errors.bank_code}
-                          isDisabled={!inputData.typepayment}
-                        />
-                      ) : (
-                        <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />
-                      )}
+                      {inputData.typepayment === "cashless" ? <Input id={`${pageid}-method-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"} name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isDisabled={!inputData.typepayment} /> : <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />}
                     </Fragment>
                   )}
                 </Fieldset>
@@ -3407,37 +3185,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       </Fragment>
                     }
                   >
-                    <Input
-                      id={`${pageid}-name-${index}`}
-                      variant="select"
-                      isSearchable
-                      radius="full"
-                      labelText="Nama Layanan"
-                      placeholder="Pilih Layanan"
-                      name="service"
-                      value={subservice.service}
-                      options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))}
-                      onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })}
-                      errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""}
-                      isRequired
-                      isReadonly={inputData.order[index].service === "RESERVATION"}
-                    />
-                    <Input
-                      id={`${pageid}-type-name-${index}`}
-                      variant="select"
-                      isSearchable
-                      radius="full"
-                      labelText="Jenis Layanan"
-                      placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"}
-                      name="servicetype"
-                      value={subservice.servicetype}
-                      options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []}
-                      onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })}
-                      errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""}
-                      isRequired
-                      isDisabled={!inputData.order[index].service}
-                      isReadonly={inputData.order[index].service === "RESERVATION"}
-                    />
+                    <Input id={`${pageid}-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih Layanan" name="service" value={subservice.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })} errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
+                    <Input id={`${pageid}-type-name-${index}`} variant="select" isSearchable radius="full" labelText="Jenis Layanan" placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="servicetype" value={subservice.servicetype} options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })} errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""} isRequired isDisabled={!inputData.order[index].service} isReadonly={inputData.order[index].service === "RESERVATION"} />
                     <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
                   </Fieldset>
                 ))}
@@ -3583,7 +3332,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   useEffect(() => {
     fetchAdditionalData();
-  }, [slug === "RESERVATION" ? selectedBranch : slug === "REKAM MEDIS" ? selectedBranch : null]);
+  }, [slug === "RESERVATION" ? selectedBranch : null]);
 
   useEffect(() => {
     setLimit(5);
