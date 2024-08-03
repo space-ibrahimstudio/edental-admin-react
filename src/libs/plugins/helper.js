@@ -4,6 +4,7 @@ export const useOptions = () => {
     { value: 10, label: "Baris per Halaman: 10" },
     { value: 20, label: "Baris per Halaman: 20" },
     { value: 50, label: "Baris per Halaman: 50" },
+    { value: 100, label: "Baris per Halaman: 100" },
   ];
   const genderopt = [
     { value: "male", label: "Laki-laki" },
