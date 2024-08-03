@@ -75,7 +75,7 @@ const DashboardOverviewPage = () => {
           <div>Loading ...</div>
         ) : (
           <Fragment>
-            <SummarySet title="Reservasi" row="3">
+            <SummarySet title="Reservasi" count={summaryData.reservation.totalrs} row="3">
               <SummaryCard summaryLabel="Reservasi Berlangsung" summaryValue={summaryData.reservation.pending} />
               <SummaryCard summaryLabel="Reservasi Selesai" summaryValue={summaryData.reservation.complete} />
               <SummaryCard summaryLabel="Reservasi Terbayar" summaryValue={summaryData.reservation.paid} />
@@ -83,7 +83,7 @@ const DashboardOverviewPage = () => {
               <SummaryCard summaryLabel="Reservasi Dijadwalkan Ulang" summaryValue={summaryData.reservation.reschedule} />
               <SummaryCard summaryLabel="Pendapatan Total" summaryValue={newPrice(summaryData.reservation.totalpaid)} />
             </SummarySet>
-            <SummarySet title="Transaksi" row="4">
+            <SummarySet title="Transaksi" count={summaryData.order.totalorder} row="4">
               <SummaryCard summaryLabel="Transaksi Berlangsung" summaryValue={summaryData.order.pending} />
               <SummaryCard summaryLabel="Transaksi Selesai" summaryValue={summaryData.order.paid} />
               <SummaryCard summaryLabel="Transaksi Dibatalkan" summaryValue={summaryData.order.cancel} />

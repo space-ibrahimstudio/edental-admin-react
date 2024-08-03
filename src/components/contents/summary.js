@@ -11,10 +11,13 @@ export const SummaryCard = ({ summaryValue, summaryLabel }) => {
   );
 };
 
-const SummarySet = ({ title, row = "3", children }) => {
+const SummarySet = ({ title, count = "0", row = "3", children }) => {
   return (
     <section className={styles.summarySet}>
-      <h1 className={styles.setTitle}>{title}</h1>
+      <h1 className={styles.setTitle}>
+        {`${title} `}
+        <span style={{ color: "var(--color-primary)" }}>{count}</span>
+      </h1>
       <section className={styles.setContent} style={{ gridTemplateColumns: `repeat(${row}, 1fr)` }}>
         {children}
       </section>

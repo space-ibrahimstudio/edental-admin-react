@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = (method = "manual") => {
     try {
       sessionStorage.removeItem("logged-in");
       sessionStorage.removeItem("username");
@@ -78,18 +78,25 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.removeItem("outlet-name");
       sessionStorage.removeItem("outlet-code");
       sessionStorage.removeItem("ip-address");
-      setIsLoggedin(false);
       log("successfully logged out");
-      showNotifications("success", "Kamu berhasil logout. Mohon login ulang untuk mengakses Dashboard.");
+      if (method === "ipkick") {
+        showNotifications("danger", "Alamat IP berubah. Mohon login ulang.");
+      } else if (method === "secretkick") {
+        showNotifications("danger", "Terdeteksi login di 2 sesi yang berbeda. Mohon login ulang.");
+      } else {
+        showNotifications("success", "Kamu berhasil logout. Mohon login ulang untuk mengakses Dashboard.");
+      }
+      setIsLoggedin(false);
     } catch (error) {
-      showNotifications("danger", "Permintaan tidak dapat di proses. Mohon coba sesaat lagi.");
       console.error("error occurred during logout:", error);
+      showNotifications("danger", "Permintaan tidak dapat di proses. Mohon coba sesaat lagi.");
     } finally {
       setLoading(false);
     }
   };
 
   const auth = async () => {
+    const formData = new FormData();
     try {
       const loggedin = sessionStorage.getItem("logged-in");
       const secret = sessionStorage.getItem("secret");
@@ -105,20 +112,19 @@ export const AuthProvider = ({ children }) => {
       }
       if (loggedin === "true" && secret && level) {
         if (currentip === ip_address) {
-          log("user logged in and ip-address matched");
+          log("user logged in and ip-address matched", `${currentip} -> ${ip_address}`);
           setIsLoggedin(true);
         } else {
-          sessionStorage.removeItem("logged-in");
-          sessionStorage.removeItem("username");
-          sessionStorage.removeItem("secret");
-          sessionStorage.removeItem("level");
-          sessionStorage.removeItem("outlet-id");
-          sessionStorage.removeItem("outlet-name");
-          sessionStorage.removeItem("outlet-code");
-          sessionStorage.removeItem("ip-address");
-          log("ip address not match, logging out ...");
-          showNotifications("danger", "Alamat IP berubah. Mohon login ulang.");
-          setIsLoggedin(false);
+          logout("ipkick");
+        }
+        formData.append("secret", secret);
+        const authurl = `${apiURL}/authapi/auth`;
+        const authresponse = await axios.post(authurl, formData, { headers: { "Content-Type": "multipart/form-data" } });
+        if (authresponse && authresponse.data.status === 202) {
+          log("user logged in and secret session matched", authresponse);
+          setIsLoggedin(true);
+        } else {
+          logout("secretkick");
         }
       } else {
         sessionStorage.removeItem("logged-in");
