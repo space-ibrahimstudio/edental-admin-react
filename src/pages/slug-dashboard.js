@@ -1356,8 +1356,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         </Fragment>
                       }
                       onEdit={() => openEdit(data["Nama Layanan"].idservice)}
-                      onDelete={() => handleDelete(data["Nama Layanan"].idservice, "cudservice")}
-                    >
+                      onDelete={() => handleDelete(data["Nama Layanan"].idservice, "cudservice")}>
                       <TD>{newDate(data["Nama Layanan"].servicecreate, "id")}</TD>
                       <TD>{data["Nama Layanan"].servicename}</TD>
                       <TD type="number">{data["Nama Layanan"].idservice}</TD>
@@ -1382,8 +1381,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.layanan.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("layanan", index)} isDisabled={inputData.layanan.length <= 1} />
                         {index + 1 === inputData.layanan.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("layanan")} />}
                       </Fragment>
-                    }
-                  >
+                    }>
                     <Input id={`${pageid}-type-name-${index}`} radius="full" labelText="Jenis Layanan" placeholder="e.g. Scaling gigi" type="text" name="servicetype" value={subservice.servicetype} onChange={(e) => handleRowChange("layanan", index, e)} errorContent={errors[`layanan.${index}.servicetype`] ? errors[`layanan.${index}.servicetype`] : ""} isRequired />
                     <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("layanan", index, e)} errorContent={errors[`layanan.${index}.price`] ? errors[`layanan.${index}.price`] : ""} isRequired />
                   </Fieldset>
@@ -1519,8 +1517,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           <Input id={`${pageid}-detail-${index}-${idx}`} radius="full" labelText="Detail Diagnosa" value={subdata.diagnosisdetail} isReadonly />
                           <Input id={`${pageid}-status-${index}-${idx}`} radius="full" labelText="Status Detail Diagnosa" value={subdata.diagnosisdetailstatus} isReadonly />
                         </Fieldset>
-                      ))}
-                    >
+                      ))}>
                       <TD>{newDate(data["code"].diagnosiscodecreate, "id")}</TD>
                       <TD type="code">{data["code"].diagnosiscode}</TD>
                       <TD>{data["code"].diagnosiscodestatus}</TD>
@@ -1542,8 +1539,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.diagdetail.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("diagdetail", index)} isDisabled={inputData.diagdetail.length <= 1} />
                         {index + 1 === inputData.diagdetail.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("diagdetail")} />}
                       </Fragment>
-                    }
-                  >
+                    }>
                     <Input id={`${pageid}-diagnose-detail-${index}`} radius="full" labelText="Detail Diagnosa" placeholder="Masukkan detail diagnosa" type="text" name="diagnosisdetail" value={detail.diagnosisdetail} onChange={(e) => handleRowChange("diagdetail", index, e)} errorContent={errors[`diagdetail.${index}.diagnosisdetail`] ? errors[`diagdetail.${index}.diagnosisdetail`] : ""} isRequired />
                   </Fieldset>
                 ))}
@@ -1661,8 +1657,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item Terpakai" value={subdata.lastqty} isReadonly />
                           <Input id={`item-unit-${index}-${idx}`} radius="full" labelText="Satuan/Unit" value={subdata.unit} isReadonly />
                         </Fieldset>
-                      ))}
-                    >
+                      ))}>
                       <TD>{newDate(data["order"].transactioncreate, "id")}</TD>
                       <TD>{toTitleCase(data["order"].transactionname)}</TD>
                       <TD type="number" isCopy>
@@ -1836,8 +1831,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.stockexp.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("stockexp", index)} isDisabled={inputData.stockexp.length <= 1} />
                         {index + 1 === inputData.stockexp.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("stockexp")} />}
                       </Fragment>
-                    }
-                  >
+                    }>
                     <Input id={`${pageid}-categorystock-${index}`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder="Pilih kategori" name="categorystock" value={alkes.categorystock} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "categorystock", value: selectedValue } })} errorContent={errors[`stockexp.${index}.categorystock`] ? errors[`stockexp.${index}.categorystock`] : ""} isRequired />
                     <Input id={`${pageid}-subcategorystock-${index}`} variant="select" isSearchable radius="full" labelText="Sub Kategori" placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"} name="subcategorystock" value={alkes.subcategorystock} options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []} onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "subcategorystock", value: selectedValue } })} errorContent={errors[`stockexp.${index}.subcategorystock`] ? errors[`stockexp.${index}.subcategorystock`] : ""} isRequired isDisabled={!alkes.categorystock} />
                     <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={alkes.itemname} options={(alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))) || []} onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`stockexp.${index}.itemname`] ? errors[`stockexp.${index}.itemname`] : ""} isRequired isDisabled={!alkes.subcategorystock} />
@@ -1996,8 +1990,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           ))}
                         </Fragment>
                       }
-                      onEdit={() => openEdit(data["PO Stock"].idpostock)}
-                    >
+                      onEdit={() => openEdit(data["PO Stock"].idpostock)}>
                       <TD>{newDate(data["PO Stock"].postockcreate, "id")}</TD>
                       <TD type="code">{data["PO Stock"].postockcode}</TD>
                       <TD>{toTitleCase(data["PO Stock"].username)}</TD>
@@ -2028,8 +2021,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                             <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.postock.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("postock", index)} isDisabled={inputData.postock.length <= 1} />
                             {index + 1 === inputData.postock.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("postock")} />}
                           </Fragment>
-                        }
-                      >
+                        }>
                         <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={po.itemname} options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))} onSelect={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""} isRequired />
                         <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
                         <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
@@ -2093,8 +2085,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         </Fragment>
                       }
                       onEdit={() => openEdit(data["PO Stock"].idpostock)}
-                      onDelete={() => {}}
-                    >
+                      onDelete={() => {}}>
                       <TD>{newDate(data["PO Stock"].postockcreate, "id")}</TD>
                       <TD type="code">{data["PO Stock"].postockcode}</TD>
                       <TD>{toTitleCase(data["PO Stock"].username)}</TD>
@@ -2848,8 +2839,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                                   <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.alkesitem.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("alkesitem", index)} isDisabled={inputData.alkesitem.length <= 1} />
                                   {index + 1 === inputData.alkesitem.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("alkesitem")} />}
                                 </Fragment>
-                              }
-                            >
+                              }>
                               <Input id={`${pageid}-categorystock-${index}`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder={inputData.rscode ? "Pilih kategori" : "Mohon isi kode reservasi dahulu"} name="categorystock" value={alkes.categorystock} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "categorystock", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.categorystock`] ? errors[`alkesitem.${index}.categorystock`] : ""} isRequired isDisabled={!inputData.rscode} />
                               <Input id={`${pageid}-subcategorystock-${index}`} variant="select" isSearchable radius="full" labelText="Sub Kategori" placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"} name="subcategorystock" value={alkes.subcategorystock} options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "subcategorystock", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.subcategorystock`] ? errors[`alkesitem.${index}.subcategorystock`] : ""} isRequired isDisabled={!alkes.categorystock} />
                               <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={alkes.itemname} options={alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.itemname`] ? errors[`alkesitem.${index}.itemname`] : ""} isRequired isDisabled={!alkes.subcategorystock} />
@@ -3183,8 +3173,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.order.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("order", index)} isDisabled={inputData.order.length <= 1} />
                         {index + 1 === inputData.order.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("order")} />}
                       </Fragment>
-                    }
-                  >
+                    }>
                     <Input id={`${pageid}-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih Layanan" name="service" value={subservice.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })} errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
                     <Input id={`${pageid}-type-name-${index}`} variant="select" isSearchable radius="full" labelText="Jenis Layanan" placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="servicetype" value={subservice.servicetype} options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })} errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""} isRequired isDisabled={!inputData.order[index].service} isReadonly={inputData.order[index].service === "RESERVATION"} />
                     <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
