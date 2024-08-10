@@ -1,7 +1,6 @@
-import React, { Fragment, useState, useEffect, useRef } from "react";
+import React, { Fragment, useState, useEffect, useRef, useCallback } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useContent, useFormat, useDevmode } from "@ibrahimstudio/react";
-import { ISTrash } from "@ibrahimstudio/icons";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
 import html2pdf from "html2pdf.js";
@@ -16,13 +15,11 @@ import { useOptions, useAlias } from "../libs/plugins/helper";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
 import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
-import Grid, { GridItem } from "../components/contents/grid";
 import Calendar, { CalendarDay, CalendarDate, DateEvent, EventModal } from "../components/contents/calendar";
 import { SubmitForm, FileForm } from "../components/input-controls/forms";
 import OnpageForm, { FormHead, FormFooter } from "../components/input-controls/onpage-forms";
 import Fieldset from "../components/input-controls/inputs";
 import TabGroup from "../components/input-controls/tab-group";
-import TabSwitch from "../components/input-controls/tab-switch";
 import { Search, Plus, Export, HChevron, Check, NewTrash } from "../components/contents/icons";
 import { LoadingContent } from "../components/feedbacks/screens";
 import Pagination from "../components/navigations/pagination";
@@ -37,7 +34,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { isLoggedin, secret, cctr, idoutlet, level } = useAuth();
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
-  const { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt, stockoutstatopt, diagnoseopt } = useOptions();
+  const { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt } = useOptions();
   const { paymentAlias, orderAlias, poAlias, usrstatAlias, reservAlias } = useAlias();
 
   const pageid = parent && slug ? `slug-${toPathname(parent)}-${toPathname(slug)}` : "slug-dashboard";
@@ -80,7 +77,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [inPOData, setInPOData] = useState([]);
   const [centralPOData, setCentralPOData] = useState([]);
   const [reservData, setReservData] = useState([]);
-  const [rscodeData, setRscodeData] = useState([]);
   const [bookedHoursData, setBookedHoursData] = useState([]);
   const [availHoursData, setAvailHoursData] = useState([]);
   const [orderData, setOrderData] = useState([]);
@@ -89,22 +85,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [orderDetailData, setOrderDetailData] = useState(null);
   const [eventsData, setEventsData] = useState([]);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
-  const [tabId, setTabId] = useState("1");
-  const [subTabId, setSubTabId] = useState("1");
+  const [onPageTabId, setOnpageTabId] = useState("1");
   const [medicRcdData, setMedicRcdData] = useState([]);
-  const [anamesaData, setAnamesaData] = useState([]);
-  const [odontogramData, setOdontogramData] = useState([]);
-  const [inspectData, setInspectData] = useState([]);
   const [historyReservData, setHistoryReservData] = useState([]);
   const [historyOrderData, setHistoryOrderData] = useState([]);
-  const [photoMedic, setPhotoMedic] = useState([]);
   const [userData, setUserData] = useState([]);
-  const [alkesData, setAlkesData] = useState([]);
   const [stockExpData, setStockExpData] = useState([]);
-  const [recipeData, setRecipeData] = useState([]);
   const [diagnoseData, setDiagnoseData] = useState([]);
-  const [allDiagnoseData, setAllDiagnoseData] = useState([]);
-  const [rkmDiagnosaData, setRkmDiagnosaData] = useState([]);
   const [orderRData, setOrderRData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
@@ -148,35 +135,27 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setCurrentPage(1);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setInputData((prevState) => ({ ...prevState, [name]: value }));
-    setOnpageData((prevState) => ({ ...prevState, [name]: value }));
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-    if (slug === "LAYANAN") {
-      if (name === "service") {
+  const handleInputChange = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      setInputData((prevState) => ({ ...prevState, [name]: value }));
+      setOnpageData((prevState) => ({ ...prevState, [name]: value }));
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+      const validateServiceName = () => {
         const newvalue = value.toLowerCase();
-        let serviceexists = allservicedata.some((item) => {
+        const serviceexists = allservicedata.some((item) => {
           const servicename = (item["Nama Layanan"] && item["Nama Layanan"].servicename).toLowerCase();
           return servicename === newvalue;
         });
         if (serviceexists) {
           setErrors((prevErrors) => ({ ...prevErrors, service: "Layanan dengan nama yang sama sudah ada." }));
         }
-      }
-    } else if (slug === "RESERVATION") {
-      if (name === "phone") {
+      };
+      const validatePhone = () => {
         const phoneRegex = /^0\d*$/;
         if (phoneRegex.test(value)) {
-          let phoneexists = false;
-          let matcheddata = null;
-          allCustData.forEach((item) => {
-            if (item.userphone === value) {
-              phoneexists = true;
-              matcheddata = item;
-            }
-          });
-          if (phoneexists) {
+          const matcheddata = allCustData.find((item) => item.userphone === value);
+          if (matcheddata) {
             setCustExist(true);
             setInputData((prevState) => ({ ...prevState, name: matcheddata.username, email: matcheddata.useremail }));
           } else {
@@ -185,43 +164,65 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           setErrors((prevErrors) => ({ ...prevErrors, phone: "" }));
         } else {
-          setInputData((prevState) => ({ ...prevState, [name]: value }));
           setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone number must start with 0 and contain only numbers." }));
         }
-      } else if (name === "email") {
+      };
+      const validateEmail = () => {
         if (!emailValidator(value)) {
           setErrors((prevErrors) => ({ ...prevErrors, email: "Format email salah" }));
-        } else {
-          setErrors((prevErrors) => ({ ...prevErrors, email: "" }));
         }
-      } else if (name === "sub_service") {
+      };
+      const updateSubService = () => {
         const selectedservice = allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service);
         const selectedsubservice = selectedservice["Jenis Layanan"].find((type) => type.servicetypename === value);
-        if (value === "RESERVATION") {
-          setInputData((prevState) => ({ ...prevState, id: selectedsubservice.idservicetype, price: 100000 }));
-        } else {
-          setInputData((prevState) => ({ ...prevState, id: selectedsubservice.idservicetype, price: 0 }));
-        }
+        setInputData((prevState) => ({ ...prevState, id: selectedsubservice.idservicetype, price: value === "RESERVATION" ? 100000 : 0 }));
         log(`id servicetype set to ${selectedsubservice.idservicetype}`);
-      } else if (name === "date") {
-        getAvailHours(value);
-      } else if (name === "price") {
+      };
+      const validatePrice = () => {
         if (value < MIN_AMOUNT) {
           setErrors((prevErrors) => ({ ...prevErrors, price: `The minimum amount is ${MIN_AMOUNT.toLocaleString("id-ID", { style: "currency", currency: "IDR" })}` }));
-        } else {
-          setErrors((prevErrors) => ({ ...prevErrors, price: "" }));
         }
-      }
-    } else if (slug === "ORDER CUSTOMER") {
-      if (name === "typepayment") {
-        if (value === "cash") {
-          setInputData((prevState) => ({ ...prevState, bank_code: "CASH" }));
+      };
+      const validateMedicalRecords = () => {
+        const phoneRegex = /^0\d*$/;
+        if (phoneRegex.test(value)) {
+          const matcheddata = allCustData.find((item) => item.userphone === value);
+          if (matcheddata) {
+            setCustExist(true);
+            setOnpageData((prevState) => ({ ...prevState, name: matcheddata.username, email: matcheddata.useremail }));
+            setSelectedCust(matcheddata.idauthuser);
+          } else {
+            setCustExist(false);
+            setOnpageData((prevState) => ({ ...prevState, name: "", email: "" }));
+            setSelectedCust("");
+          }
+          setErrors((prevErrors) => ({ ...prevErrors, phone: "" }));
         } else {
-          setInputData((prevState) => ({ ...prevState, status: "0" }));
+          setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone number must start with 0 and contain only numbers." }));
         }
+      };
+      if (slug === "LAYANAN" && name === "service") {
+        validateServiceName();
+      } else if (slug === "RESERVATION") {
+        if (name === "phone") {
+          validatePhone();
+        } else if (name === "email") {
+          validateEmail();
+        } else if (name === "sub_service") {
+          updateSubService();
+        } else if (name === "date") {
+          getAvailHours(value);
+        } else if (name === "price") {
+          validatePrice();
+        }
+      } else if (slug === "ORDER CUSTOMER" && name === "typepayment") {
+        setInputData((prevState) => ({ ...prevState, [value === "cash" ? "bank_code" : "status"]: value === "cash" ? "CASH" : "0" }));
+      } else if (slug === "REKAM MEDIS" && onPageTabId === "1" && name === "phone") {
+        validateMedicalRecords();
       }
-    }
-  };
+    },
+    [setInputData, setOnpageData, setErrors, setCustExist, slug, onPageTabId, inputData, allservicedata, allCustData, MIN_AMOUNT]
+  );
 
   const handleRowChange = (field, index, e) => {
     const { name, value } = e.target;
@@ -513,136 +514,36 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "REKAM MEDIS":
-          const nikno = allCustData.find((data) => data.idauthuser === selectedCust);
-          switch (tabId) {
-            case "1":
-              switch (subTabId) {
-                case "2":
-                  if (selectedCust) {
-                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno.noktp }));
-                    data = await apiRead(addtFormData, "office", "viewhistoryresev");
-                    if (data && data.data && data.data.length > 0) {
-                      setHistoryReservData(data.data);
-                    } else {
-                      setHistoryReservData([]);
-                    }
-                  } else {
-                    setHistoryReservData([]);
-                  }
-                  break;
-                case "3":
-                  if (selectedCust) {
-                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno.noktp }));
-                    data = await apiRead(addtFormData, "office", "viewhistoryorder");
-                    if (data && data.data && data.data.length > 0) {
-                      setHistoryOrderData(data.data);
-                    } else {
-                      setHistoryOrderData([]);
-                    }
-                  } else {
-                    setHistoryOrderData([]);
-                  }
-                  break;
-                case "4":
-                  addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
-                  data = await apiRead(addtFormData, "office", "viewmedics");
-                  if (data && data.data && data.data.length > 0) {
-                    setMedicRcdData(data.data);
-                  } else {
-                    setMedicRcdData([]);
-                  }
-                  break;
-                default:
-                  break;
-              }
-              break;
-            case "2":
-              addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
-              switch (subTabId) {
-                case "1":
-                  data = await apiRead(addtFormData, "office", "viewanamnesa");
-                  if (data && data.data && data.data.length > 0) {
-                    setAnamesaData(data.data);
-                  } else {
-                    setAnamesaData([]);
-                  }
-                  break;
-                case "2":
-                  data = await apiRead(addtFormData, "office", "viewodontogram");
-                  if (data && data.data && data.data.length > 0) {
-                    setOdontogramData(data.data);
-                  } else {
-                    setOdontogramData([]);
-                  }
-                  break;
-                case "3":
-                  data = await apiRead(addtFormData, "office", "viewinspection");
-                  if (data && data.data && data.data.length > 0) {
-                    setInspectData(data.data);
-                  } else {
-                    setInspectData([]);
-                  }
-                  break;
-                case "4":
-                  data = await apiRead(addtFormData, "office", "viewphoto");
-                  if (data && data.data && data.data.length > 0) {
-                    setPhotoMedic(data.data);
-                  } else {
-                    setPhotoMedic([]);
-                  }
-                  break;
-                default:
-                  break;
-              }
-              break;
-            case "3":
-              switch (subTabId) {
-                case "2":
-                  addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
-                  data = await apiRead(addtFormData, "office", "viewdiagnosisuser");
-                  if (data && data.data && data.data.length > 0) {
-                    setRkmDiagnosaData(data.data);
-                  } else {
-                    setRkmDiagnosaData([]);
-                  }
-                  break;
-                case "3":
-                  if (selectedCust) {
-                    addtFormData.append("data", JSON.stringify({ secret, noktp: nikno.noktp }));
-                    data = await apiRead(addtFormData, "office", "viewhistoryorder");
-                    if (data && data.data && data.data.length > 0) {
-                      setHistoryOrderData(data.data);
-                    } else {
-                      setHistoryOrderData([]);
-                    }
-                  } else {
-                    setHistoryOrderData([]);
-                  }
-                  break;
-                case "4":
-                  addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
-                  data = await apiRead(addtFormData, "office", "viewstockoutdetail");
-                  if (data && data.data && data.data.length > 0) {
-                    setAlkesData(data.data);
-                  } else {
-                    setAlkesData([]);
-                  }
-                  break;
-                default:
-                  break;
-              }
-              break;
-            case "4":
-              addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
-              data = await apiRead(addtFormData, "office", "viewrecipe");
-              if (data && data.data && data.data.length > 0) {
-                setRecipeData(data.data);
-              } else {
-                setRecipeData([]);
-              }
-              break;
-            default:
-              break;
+          if (selectedCust) {
+            addtFormData.append("data", JSON.stringify({ secret, iduser: selectedCust }));
+            switch (onPageTabId) {
+              case "2":
+                data = await apiRead(addtFormData, "office", "viewhistoryresev");
+                if (data && data.data && data.data.length > 0) {
+                  setHistoryReservData(data.data);
+                } else {
+                  setHistoryReservData([]);
+                }
+                break;
+              case "3":
+                data = await apiRead(addtFormData, "office", "viewhistoryorder2");
+                if (data && data.data && data.data.length > 0) {
+                  setHistoryOrderData(data.data);
+                } else {
+                  setHistoryOrderData([]);
+                }
+                break;
+              case "4":
+                data = await apiRead(addtFormData, "office", "viewmedics");
+                if (data && data.data && data.data.length > 0) {
+                  setMedicRcdData(data.data);
+                } else {
+                  setMedicRcdData([]);
+                }
+                break;
+              default:
+                break;
+            }
           }
           break;
         case "RESERVATION":
@@ -754,18 +655,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
       } else {
         setAllStockData([]);
       }
-      const rscodedata = await apiRead(formData, "office", "searchrscode");
-      if (rscodedata && rscodedata.data && rscodedata.data.length > 0) {
-        setRscodeData(rscodedata.data);
-      } else {
-        setRscodeData([]);
-      }
-      const diagdata = await apiRead(formData, "office", "viewdiagnosis");
-      if (diagdata && diagdata.data && diagdata.data.length > 0) {
-        setAllDiagnoseData(diagdata.data);
-      } else {
-        setAllDiagnoseData([]);
-      }
     } catch (error) {
       showNotifications("danger", errormsg);
       console.error(errormsg, error);
@@ -829,32 +718,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           switchedData = currentData(inPOData, "PO Stock.idpostock");
           log(`id ${slug} data switched:`, switchedData["PO Stock"].idpostock);
           setInputData({ id: switchedData["PO Stock"].idpostock, status: switchedData["PO Stock"].statusstock, postock: switchedData["Detail PO"].map((item) => ({ idstock: item.idpostockdetail, itemname: item.itemname, sku: item.sku, stockin: item.qty, note: item.note })) });
-          break;
-        case "REKAM MEDIS":
-          switch (tabId) {
-            case "3":
-              switch (subTabId) {
-                case "3":
-                  switchedData = currentData(historyOrderData, "idtransaction");
-                  log(`id ${slug} data switched:`, switchedData.idtransaction);
-                  formData.append("data", JSON.stringify({ secret, idtransaction: params }));
-                  data = await apiRead(formData, "office", "viewdetailorder");
-                  const orderdetaildata = data.data;
-                  if (data && orderdetaildata && orderdetaildata.length > 0) {
-                    if (switchedData.payment === "CASH") {
-                      setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
-                    } else {
-                      setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
-                    }
-                  }
-                  break;
-                default:
-                  break;
-              }
-              break;
-            default:
-              break;
-          }
           break;
         case "RESERVATION":
           switchedData = currentData(reservData, "idreservation");
@@ -920,55 +783,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
         }
         break;
       case "REKAM MEDIS":
-        switch (tabId) {
+        switch (onPageTabId) {
           case "1":
-            switch (subTabId) {
-              case "1":
-                requiredFields = ["name", "phone", "email", "birth", "nik", "address", "gender"];
-                break;
-              default:
-                break;
-            }
-            break;
-          case "2":
-            switch (subTabId) {
-              case "1":
-                requiredFields = ["histori_illness", "main_complaint", "additional_complaint", "current_illness", "gravida"];
-                break;
-              case "2":
-                requiredFields = ["occlusi", "palatinus", "mandibularis", "palatum", "diastema", "anomali"];
-                break;
-              case "3":
-                requiredFields = ["desc", "nadi", "tensi", "suhu", "berat_badan", "tinggi_badan", "pernapasan", "mata", "mulut_gigi", "kulit"];
-                break;
-              case "4":
-                requiredFields = [];
-                break;
-              default:
-                break;
-            }
-            break;
-          case "3":
-            switch (subTabId) {
-              case "2":
-                requiredFields = ["rscode", "diagnose", "diagnosecode", "diagnosedetail"];
-                break;
-              case "3":
-                if (selectedMode === "update") {
-                  requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
-                } else {
-                  requiredFields = ["rscode"];
-                }
-                break;
-              case "4":
-                requiredFields = ["rscode", "alkesitem.categorystock", "alkesitem.subcategorystock", "alkesitem.itemname", "alkesitem.unit", "alkesitem.qty", "alkesitem.status"];
-                break;
-              default:
-                break;
-            }
+            requiredFields = ["name", "phone", "email", "birth", "nik", "address", "gender"];
             break;
           case "4":
-            requiredFields = ["rscode", "recipe"];
+            requiredFields = ["birth"];
             break;
           default:
             break;
@@ -989,7 +809,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         break;
     }
     let validationErrors;
-    if (slug === "REKAM MEDIS" && tabId === "1" && subTabId === "1") {
+    if (slug === "REKAM MEDIS" && onPageTabId === "1") {
       validationErrors = inputValidator(onpageData, requiredFields);
     } else {
       validationErrors = inputValidator(inputData, requiredFields);
@@ -1042,57 +862,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
           submittedData = { secret, idpostock: inputData.id, status: inputData.status, stock: inputData.postock.map((item) => ({ idpostockdetail: item.idstock, qty: item.stockin })) };
           break;
         case "REKAM MEDIS":
-          switch (tabId) {
+          switch (onPageTabId) {
             case "1":
-              switch (subTabId) {
-                case "1":
-                  submittedData = { secret, iduser: selectedCust, name: onpageData.name, phone: onpageData.phone, email: onpageData.email, birthday: onpageData.birth, noktp: onpageData.nik, address: onpageData.address, gender: onpageData.gender, ageyear: onpageData.ageyear, agemonth: onpageData.agemonth, ageday: onpageData.ageday };
-                  break;
-                default:
-                  break;
-              }
-              break;
-            case "2":
-              switch (subTabId) {
-                case "1":
-                  submittedData = { secret, iduser: selectedCust, histori_illness: inputData.histori_illness, main_complaint: inputData.main_complaint, additional_complaint: inputData.additional_complaint, current_illness: inputData.current_illness, gravida: inputData.gravida, alergi_gatal: inputData.alergi_gatal, alergi_debu: inputData.alergi_debu, alergi_obat: inputData.alergi_obat, alergi_makanan: inputData.alergi_makanan, alergi_lainnya: inputData.alergi_lainnya };
-                  break;
-                case "2":
-                  submittedData = { secret, iduser: selectedCust, occlusi: inputData.occlusi, palatinus: inputData.palatinus, mandibularis: inputData.mandibularis, palatum: inputData.palatum, diastema: inputData.diastema, anomali: inputData.anomali, other: inputData.other_odontogram };
-                  break;
-                case "3":
-                  submittedData = { secret, iduser: selectedCust, desciption: inputData.desc, pulse: inputData.nadi, tension: inputData.tensi, temperature: inputData.suhu, weight: inputData.berat_badan, height: inputData.tinggi_badan, breath: inputData.pernapasan, eye: inputData.mata, mouth: inputData.mulut_gigi, skin: inputData.kulit };
-                  break;
-                case "4":
-                  submittedData = { secret, iduser: selectedCust };
-                  break;
-                default:
-                  break;
-              }
-              break;
-            case "3":
-              switch (subTabId) {
-                case "2":
-                  submittedData = { secret, type: inputData.diagnose, code: inputData.diagnosecode, detail: inputData.diagnosedetail, rscode: inputData.rscode, note: inputData.note, iduser: selectedCust };
-                  break;
-                case "3":
-                  const nikno = allCustData.find((data) => data.idauthuser === selectedCust);
-                  const noktp = nikno.noktp;
-                  if (selectedMode === "update") {
-                    submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
-                  } else {
-                    submittedData = { secret, noktp, rscode: inputData.rscode };
-                  }
-                  break;
-                case "4":
-                  submittedData = { secret, iduser: selectedCust, rscode: inputData.rscode, stock: inputData.alkesitem };
-                  break;
-                default:
-                  break;
-              }
+              submittedData = { secret, iduser: selectedCust, name: onpageData.name, phone: onpageData.phone, email: onpageData.email, birthday: onpageData.birth, noktp: onpageData.nik, address: onpageData.address, gender: onpageData.gender };
               break;
             case "4":
-              submittedData = { secret, iduser: selectedCust, rscode: inputData.rscode, recipe: inputData.recipe };
+              submittedData = { secret, iduser: selectedCust, ageyear: inputData.ageyear, agemonth: inputData.agemonth, ageday: inputData.ageday };
               break;
             default:
               break;
@@ -1102,7 +877,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (selectedMode === "update") {
             submittedData = { secret, status_reservation: inputData.status, status_dp: inputData.statuspayment };
           } else {
-            submittedData = { secret, idoutlet: selectedBranch, idservicetype: inputData.id, name: inputData.name, phone: inputData.phone, email: inputData.email, voucher: inputData.vouchercode, service: inputData.service, typeservice: inputData.sub_service, reservationdate: inputData.date, reservationtime: inputData.time, price: inputData.price, bank_code: inputData.bank_code, note: inputData.note };
+            submittedData = { secret, idservicetype: inputData.id, name: inputData.name, phone: inputData.phone, email: inputData.email, voucher: inputData.vouchercode, service: inputData.service, typeservice: inputData.sub_service, reservationdate: inputData.date, reservationtime: inputData.time, price: inputData.price, bank_code: inputData.bank_code, note: inputData.note, idoutlet: selectedBranch };
           }
           break;
         case "ORDER CUSTOMER":
@@ -1119,6 +894,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       }
       await apiCrud(formData, "office", endpoint);
       showNotifications("success", successmsg);
+      log("submitted data:", submittedData);
       if (action === "add") {
         closeForm();
       } else {
@@ -2142,758 +1918,241 @@ const DashboardSlugPage = ({ parent, slug }) => {
           });
           if (custFind) {
             setOnpageData({ ...onpageData, name: matchedData.username, address: matchedData.address, email: matchedData.useremail, phone: matchedData.userphone, gender: matchedData.gender, nik: matchedData.noktp, image: matchedData.imgktp, birth: matchedData.birthday });
+            log("selected cust ID:", matchedData.idauthuser);
           } else {
             setOnpageData({ ...onpageData, name: "", address: "", email: "", phone: "", gender: "", nik: "", image: null, birth: "" });
           }
         };
 
-        const subTabButton = (id) => {
-          if (id === "1") {
-            return subTab1Button;
-          } else if (id === "2") {
-            return subTab2Button;
-          } else if (id === "3") {
-            return subTab3Button;
-          } else {
-            return [];
-          }
-        };
-
         const handleAddError = () => showNotifications("danger", "Mohon pilih Customer terlebih dahulu sebelum menambahkan data.");
-        const handleSubTabChange = (id) => setSubTabId(id);
-        const handleTabChange = (id) => {
-          setTabId(id);
-          setSubTabId("1");
-          subTabButton(id);
-        };
+        const handleOnpageTabChange = (id) => setOnpageTabId(id);
 
-        const tabbutton = [
-          { label: "Informasi Pribadi", onClick: () => handleTabChange("1"), active: tabId === "1" },
-          { label: "Catatan Klinik", onClick: () => handleTabChange("2"), active: tabId === "2" },
-          { label: "Diagnosa & Tindakan", onClick: () => handleTabChange("3"), active: tabId === "3" },
-          { label: "Resep", onClick: () => handleTabChange("4"), active: tabId === "4" },
-        ];
-        const subTab1Button = [
-          { label: "Profil", onClick: () => handleSubTabChange("1"), active: subTabId === "1" },
-          { label: "Histori Reservasi", onClick: () => handleSubTabChange("2"), active: subTabId === "2" },
-          { label: "Histori Order", onClick: () => handleSubTabChange("3"), active: subTabId === "3" },
-          { label: "Histori Rekam Medis", onClick: () => handleSubTabChange("4"), active: subTabId === "4" },
-        ];
-        const subTab2Button = [
-          { label: "Anamesa", onClick: () => handleSubTabChange("1"), active: subTabId === "1" },
-          { label: "Anamesa Odontogram", onClick: () => handleSubTabChange("2"), active: subTabId === "2" },
-          { label: "Pemeriksaan Umum", onClick: () => handleSubTabChange("3"), active: subTabId === "3" },
-          { label: "Foto Pasien", onClick: () => handleSubTabChange("4"), active: subTabId === "4" },
-        ];
-        const subTab3Button = [
-          { label: "Kondisi", onClick: () => handleSubTabChange("1"), active: subTabId === "1" },
-          { label: "Diagnosa", onClick: () => handleSubTabChange("2"), active: subTabId === "2" },
-          { label: "Tindakan Medis", onClick: () => handleSubTabChange("3"), active: subTabId === "3" },
-          { label: "Pemakaian Alkes", onClick: () => handleSubTabChange("4"), active: subTabId === "4" },
+        const onPageTabButton = [
+          { label: "Profil", onClick: () => handleOnpageTabChange("1"), active: onPageTabId === "1" },
+          { label: "Histori Rekam Medis", onClick: () => handleOnpageTabChange("4"), active: onPageTabId === "4" },
+          { label: "Histori Reservasi", onClick: () => handleOnpageTabChange("2"), active: onPageTabId === "2" },
+          { label: "Histori Order", onClick: () => handleOnpageTabChange("3"), active: onPageTabId === "3" },
         ];
 
         const renderSection = () => {
-          switch (tabId) {
+          switch (onPageTabId) {
             case "1":
-              switch (subTabId) {
-                case "1":
-                  return (
-                    <OnpageForm onSubmit={(e) => handleSubmit(e, "edituser")}>
-                      <FormHead title="Informasi Pribadi" />
-                      <Fieldset>
-                        <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={onpageData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                        <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={onpageData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
-                        <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={onpageData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
-                      </Fieldset>
-                      <Fieldset>
-                        <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={onpageData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
-                        <Input id={`${pageid}-gender`} variant="select" radius="full" labelText="Jenis Kelamin" placeholder="Pilih jenis kelamin" name="gender" value={onpageData.gender} options={genderopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "gender", value: selectedValue } })} errorContent={errors.gender} isRequired />
-                        <Input id={`${pageid}-nik`} radius="full" labelText="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={onpageData.nik} onChange={handleInputChange} errorContent={errors.nik} isRequired />
-                        <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" name="image" initialFile={onpageData.image} onSelect={handleImageSelect} />
-                      </Fieldset>
-                      <Fieldset>
-                        <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth" max={getCurrentDate()} value={onpageData.birth} onChange={handleInputChange} errorContent={errors.birth} isRequired />
-                        <Input id={`${pageid}-ageyear`} radius="full" labelText="Umur (tahun)" placeholder="24" fallbackValue="24" type="number" name="ageyear" value={onpageData.ageyear} isReadonly />
-                        <Input id={`${pageid}-agemonth`} radius="full" labelText="Umur (bulan)" placeholder="5" fallbackValue="5" type="number" name="agemonth" value={onpageData.agemonth} isReadonly />
-                        <Input id={`${pageid}-ageday`} radius="full" labelText="Umur (hari)" placeholder="10" fallbackValue="10" type="number" name="ageday" value={onpageData.ageday} isReadonly />
-                      </Fieldset>
-                      <FormFooter>
-                        <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText={selectedCust ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
-                      </FormFooter>
-                    </OnpageForm>
-                  );
-                case "2":
-                  return (
-                    <Table byNumber isNoData={historyReservData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
-                      <THead>
-                        <TR>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "datetimecreate", "date")}>
-                            Tanggal Dibuat
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "reservationdate", "number")}>
-                            Tanggal Reservasi
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "reservationtime", "number")}>
-                            Jam Reservasi
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "rscode", "text")}>
-                            Kode Reservasi
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "name", "text")}>
-                            Nama Customer
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "phone", "number")}>
-                            Nomor Telepon
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "email", "text")}>
-                            Alamat Email
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "status_reservation", "number")}>
-                            Status Reservasi
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "status_dp", "number")}>
-                            Status DP
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "service", "text")}>
-                            Layanan
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "typeservice", "text")}>
-                            Jenis Layanan
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "price_reservation", "number")}>
-                            Biaya DP
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "voucher", "text")}>
-                            Kode Voucher
-                          </TH>
-                        </TR>
-                      </THead>
-                      <TBody>
-                        {historyReservData.map((data, index) => (
-                          <TR key={index} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
-                            <TD>{newDate(data.datetimecreate, "id")}</TD>
-                            <TD>{data.reservationdate}</TD>
-                            <TD>{data.reservationtime}</TD>
-                            <TD type="code">{data.rscode}</TD>
-                            <TD>{toTitleCase(data.name)}</TD>
-                            <TD type="number" isCopy>
-                              {data.phone}
-                            </TD>
-                            <TD>{data.email}</TD>
-                            <TD>{reservAlias(data.status_reservation)}</TD>
-                            <TD>{paymentAlias(data.status_dp)}</TD>
-                            <TD>{toTitleCase(data.service)}</TD>
-                            <TD>{toTitleCase(data.typeservice)}</TD>
-                            <TD>{newPrice(data.price_reservation)}</TD>
-                            <TD type="code">{data.voucher}</TD>
-                          </TR>
-                        ))}
-                      </TBody>
-                    </Table>
-                  );
-                case "3":
-                  return (
-                    <Table byNumber isClickable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
-                      <THead>
-                        <TR>
-                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactioncreate", "date")}>
-                            Tanggal Dibuat
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionname", "text")}>
-                            Nama Pengguna
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "rscode", "text")}>
-                            Kode Reservasi
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "noinvoice", "number")}>
-                            Nomor Invoice
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionphone", "number")}>
-                            Nomor Telepon
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "payment", "text")}>
-                            Metode Pembayaran
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "totalpay", "number")}>
-                            Total Pembayaran
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionstatus", "number")}>
-                            Status Pembayaran
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "voucher", "text")}>
-                            Kode Voucher
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "dentist", "text")}>
-                            Nama Dokter
-                          </TH>
-                        </TR>
-                      </THead>
-                      <TBody>
-                        {historyOrderData.map((data, index) => (
-                          <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => navigate(`/${toPathname(parent)}/order-customer/${toPathname(data.idtransaction)}`)}>
-                            <TD>{newDate(data.transactioncreate, "id")}</TD>
-                            <TD>{toTitleCase(data.transactionname)}</TD>
-                            <TD type="code">{data.rscode}</TD>
-                            <TD type="code">{data.noinvoice}</TD>
-                            <TD type="number" isCopy>
-                              {data.transactionphone}
-                            </TD>
-                            <TD>{data.payment}</TD>
-                            <TD>{newPrice(data.totalpay)}</TD>
-                            <TD>{orderAlias(data.transactionstatus)}</TD>
-                            <TD type="code">{data.voucher}</TD>
-                            <TD>{toTitleCase(data.dentist)}</TD>
-                          </TR>
-                        ))}
-                      </TBody>
-                    </Table>
-                  );
-                case "4":
-                  return (
-                    <Table byNumber isNoData={medicRcdData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
-                      <THead>
-                        <TR>
-                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "idmedicalrecords", "number")}>
-                            ID Rekam Medis
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "ageyear", "number")}>
-                            Usia Pasien
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "room", "text")}>
-                            Ruang Pemeriksaan
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "service", "text")}>
-                            Layanan
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "servicetype", "text")}>
-                            Jenis Layanan
-                          </TH>
-                          <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "dentist", "text")}>
-                            Dokter Pemeriksa
-                          </TH>
-                        </TR>
-                      </THead>
-                      <TBody>
-                        {medicRcdData.map((data, index) => (
-                          <TR key={index}>
-                            <TD type="number">{data.idmedicalrecords}</TD>
-                            <TD>{`${data.ageyear} tahun, ${data.agemonth} bulan, ${data.ageday} hari`}</TD>
-                            <TD>{toTitleCase(data.room)}</TD>
-                            <TD>{toTitleCase(data.service)}</TD>
-                            <TD>{toTitleCase(data.servicetype)}</TD>
-                            <TD>{toTitleCase(data.dentist)}</TD>
-                          </TR>
-                        ))}
-                      </TBody>
-                    </Table>
-                  );
-                default:
-                  return <Table isNoData={true}></Table>;
-              }
+              return (
+                <OnpageForm onSubmit={(e) => handleSubmit(e, "edituser")}>
+                  <FormHead title="Informasi Pribadi" />
+                  <Fieldset>
+                    <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={onpageData.name} onChange={handleInputChange} errorContent={errors.name} isRequired isReadonly={custExist} />
+                    <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={onpageData.phone} onChange={handleInputChange} infoContent={custExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""} errorContent={errors.phone} isRequired />
+                    <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={onpageData.email} onChange={handleInputChange} errorContent={errors.email} isRequired isReadonly={custExist} />
+                    <Input id={`${pageid}-nik`} radius="full" labelText="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={onpageData.nik} onChange={handleInputChange} errorContent={errors.nik} isRequired />
+                  </Fieldset>
+                  <Fieldset>
+                    <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth" max={getCurrentDate()} value={onpageData.birth} onChange={handleInputChange} errorContent={errors.birth} isRequired />
+                    <Input id={`${pageid}-gender`} variant="select" radius="full" labelText="Jenis Kelamin" placeholder="Pilih jenis kelamin" name="gender" value={onpageData.gender} options={genderopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "gender", value: selectedValue } })} errorContent={errors.gender} isRequired />
+                    <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={onpageData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
+                    <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" name="image" initialFile={onpageData.image} onSelect={handleImageSelect} />
+                  </Fieldset>
+                  <FormFooter>
+                    <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText={selectedCust ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
+                  </FormFooter>
+                </OnpageForm>
+              );
             case "2":
-              switch (subTabId) {
-                case "1":
-                  const renderAllergies = (alergi) => {
-                    const alergidata = JSON.parse(alergi);
-                    return `${alergidata.alergi} - ${alergidata.note}`;
-                  };
-
-                  return (
-                    <Fragment>
-                      <Table byNumber isNoData={anamesaData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
-                        <THead>
-                          <TR>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "idmedicalrecords", "text")}>
-                              ID Rekam Medis
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "histori_illness", "text")}>
-                              Riwayat Penyakit
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "main_complaint", "text")}>
-                              Keluhan Utama
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "additional_complaint", "text")}>
-                              Keluhan Tambahan
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "current_illness", "text")}>
-                              Penyakit Saat Ini
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "gravida", "text")}>
-                              Gravida
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "alergi_gatal", "text")}>
-                              Alergi Gatal
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "alergi_debu", "text")}>
-                              Alergi Debu
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "alergi_obat", "text")}>
-                              Alergi Obat
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "alergi_makanan", "text")}>
-                              Alergi Makanan
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(anamesaData, setAnamesaData, "alergi_lainnya", "text")}>
-                              Alergi Lainnya
-                            </TH>
-                          </TR>
-                        </THead>
-                        <TBody>
-                          {anamesaData.map((data, index) => (
-                            <TR key={index}>
-                              <TD type="number">{data.idmedicalrecords}</TD>
-                              <TD>{data.histori_illness}</TD>
-                              <TD>{data.main_complaint}</TD>
-                              <TD>{data.additional_complaint}</TD>
-                              <TD>{data.current_illness}</TD>
-                              <TD>{data.gravida}</TD>
-                              <TD>{renderAllergies(data.alergi_gatal)}</TD>
-                              <TD>{renderAllergies(data.alergi_debu)}</TD>
-                              <TD>{renderAllergies(data.alergi_obat)}</TD>
-                              <TD>{renderAllergies(data.alergi_makanan)}</TD>
-                              <TD>{renderAllergies(data.alergi_lainnya)}</TD>
-                            </TR>
-                          ))}
-                        </TBody>
-                      </Table>
-                      {isFormOpen && (
-                        <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Anamesa" : "Tambah Data Anamesa"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudanamnesa")} loading={isSubmitting} onClose={closeForm}>
-                          <Fieldset>
-                            <Input id={`${pageid}-history-illines`} radius="full" labelText="Riwayat Penyakit" placeholder="Tulis riwayat penyakit" type="text" name="histori_illness" value={inputData.histori_illness} onChange={handleInputChange} errorContent={errors.histori_illness} isRequired />
-                            <Input id={`${pageid}-current-illines`} radius="full" labelText="Penyakit Saat Ini" placeholder="Tulis penyakit saat ini" type="text" name="current_illness" value={inputData.current_illness} onChange={handleInputChange} errorContent={errors.current_illness} isRequired />
-                            <Input id={`${pageid}-gravida`} radius="full" labelText="Gravida" placeholder="Tulis gravida" type="text" name="gravida" value={inputData.gravida} onChange={handleInputChange} errorContent={errors.gravida} isRequired />
-                          </Fieldset>
-                          <Fieldset>
-                            <Input id={`${pageid}-complaint`} variant="textarea" rows={4} labelText="Keluhan Utama" placeholder="Tulis keluhan utama" name="main_complaint" value={inputData.main_complaint} onChange={handleInputChange} errorContent={errors.main_complaint} isRequired />
-                            <Input id={`${pageid}-addt-complaint`} variant="textarea" rows={4} labelText="Keluhan Tambahan" placeholder="Tulis keluhan tambahan" name="additional_complaint" value={inputData.additional_complaint} onChange={handleInputChange} errorContent={errors.additional_complaint} isRequired />
-                          </Fieldset>
-                          <Fieldset>
-                            <Input id={`${pageid}-allergi-gatal`} variant="textarea" rows={3} labelText="Alergi Gatal" placeholder="Masukkan catatan alergi" name="alergi_gatal" value={JSON.parse(inputData.alergi_gatal).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_gatal: JSON.stringify({ alergi: "gatal", note: e.target.value }) }))} />
-                            <Input id={`${pageid}-allergi-debu`} variant="textarea" rows={3} labelText="Alergi Debu" placeholder="Masukkan catatan alergi" name="alergi_debu" value={JSON.parse(inputData.alergi_debu).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_debu: JSON.stringify({ alergi: "debu", note: e.target.value }) }))} />
-                          </Fieldset>
-                          <Fieldset>
-                            <Input id={`${pageid}-allergi-obat`} variant="textarea" rows={3} labelText="Alergi Obat" placeholder="Masukkan catatan alergi" name="alergi_obat" value={JSON.parse(inputData.alergi_obat).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_obat: JSON.stringify({ alergi: "obat", note: e.target.value }) }))} />
-                            <Input id={`${pageid}-allergi-makanan`} variant="textarea" rows={3} labelText="Alergi Makanan" placeholder="Masukkan catatan alergi" name="alergi_makanan" value={JSON.parse(inputData.alergi_makanan).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_makanan: JSON.stringify({ alergi: "makanan", note: e.target.value }) }))} />
-                          </Fieldset>
-                          <Input id={`${pageid}-allergi-lainnya`} variant="textarea" rows={3} labelText="Alergi Lainnya" placeholder="Masukkan catatan alergi" name="alergi_lainnya" value={JSON.parse(inputData.alergi_lainnya).note} onChange={(e) => setInputData((prevState) => ({ ...prevState, alergi_lainnya: JSON.stringify({ alergi: "lainnya", note: e.target.value }) }))} />
-                        </SubmitForm>
-                      )}
-                    </Fragment>
-                  );
-                case "2":
-                  return (
-                    <Fragment>
-                      <Table byNumber isNoData={odontogramData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
-                        <THead>
-                          <TR>
-                            <TH>ID Rekam Medis</TH>
-                            <TH>Occlusi</TH>
-                            <TH>Torus Platinus</TH>
-                            <TH>Torus Mandibularis</TH>
-                            <TH>Palatum</TH>
-                            <TH>Diastema</TH>
-                            <TH>Gigi Anomali</TH>
-                            <TH>Lain-lain</TH>
-                          </TR>
-                        </THead>
-                        <TBody>
-                          {odontogramData.map((data, index) => (
-                            <TR key={index}>
-                              <TD type="number">{data.idmedicalrecords}</TD>
-                              <TD>{data.occlusi}</TD>
-                              <TD>{data.palatinus}</TD>
-                              <TD>{data.mandibularis}</TD>
-                              <TD>{data.palatum}</TD>
-                              <TD>{data.diastema}</TD>
-                              <TD>{data.anomali}</TD>
-                              <TD>{data.other}</TD>
-                            </TR>
-                          ))}
-                        </TBody>
-                      </Table>
-                      {isFormOpen && (
-                        <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Odontogram" : "Tambah Data Odontogram"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudodontogram")} loading={isSubmitting} onClose={closeForm}>
-                          <Fieldset>
-                            <Input id={`${pageid}-occlusi`} radius="full" labelText="Occlusi" placeholder="Masukkan occlusi" type="text" name="occlusi" value={inputData.occlusi} onChange={handleInputChange} errorContent={errors.occlusi} isRequired />
-                            <Input id={`${pageid}-palatinus`} radius="full" labelText="Torus Platinus" placeholder="Masukkan torus platinus" type="text" name="palatinus" value={inputData.palatinus} onChange={handleInputChange} errorContent={errors.palatinus} isRequired />
-                            <Input id={`${pageid}-mandibularis`} radius="full" labelText="Torus Mandibularis" placeholder="Masukkan torus mandibularis" type="text" name="mandibularis" value={inputData.mandibularis} onChange={handleInputChange} errorContent={errors.mandibularis} isRequired />
-                          </Fieldset>
-                          <Fieldset>
-                            <Input id={`${pageid}-palatum`} radius="full" labelText="Palatum" placeholder="Masukkan palatum" type="text" name="palatum" value={inputData.palatum} onChange={handleInputChange} errorContent={errors.palatum} isRequired />
-                            <Input id={`${pageid}-diastema`} radius="full" labelText="Diastema" placeholder="Nasukkan diastema" type="text" name="diastema" value={inputData.diastema} onChange={handleInputChange} errorContent={errors.diastema} isRequired />
-                            <Input id={`${pageid}-anomali`} radius="full" labelText="Gigi Anomali" placeholder="Masukkan gigi anomali" type="text" name="anomali" value={inputData.anomali} onChange={handleInputChange} errorContent={errors.anomali} isRequired />
-                          </Fieldset>
-                          <Input id={`${pageid}-other`} radius="full" labelText="Lain-lain" placeholder="Masukkan odontogram lainnya" type="text" name="other_odontogram" value={inputData.other_odontogram} onChange={handleInputChange} />
-                        </SubmitForm>
-                      )}
-                    </Fragment>
-                  );
-                case "3":
-                  return (
-                    <Fragment>
-                      <Table byNumber isNoData={inspectData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
-                        <THead>
-                          <TR>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "idmedicalrecords", "text")}>
-                              ID Rekam Medis
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "desciption", "text")}>
-                              Deskripsi Pemeriksaan
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "pulse", "number")}>
-                              Nadi
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "tension", "number")}>
-                              Tensi Darah
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "temperature", "number")}>
-                              Suhu Badan
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "weight", "number")}>
-                              Berat Badan
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "height", "number")}>
-                              Tinggi Badan
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "breath", "number")}>
-                              Pernapasan
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "eye", "text")}>
-                              Mata
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "mouth", "text")}>
-                              Gigi & Mulut
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(inspectData, setInspectData, "skin", "text")}>
-                              Kulit
-                            </TH>
-                          </TR>
-                        </THead>
-                        <TBody>
-                          {inspectData.map((data, index) => (
-                            <TR key={index}>
-                              <TD type="number">{data.idmedicalrecords}</TD>
-                              <TD>{data.desciption}</TD>
-                              <TD>{data.pulse}</TD>
-                              <TD>{data.tension}</TD>
-                              <TD>{data.temperature}</TD>
-                              <TD>{data.weight}</TD>
-                              <TD>{data.height}</TD>
-                              <TD>{data.breath}</TD>
-                              <TD>{data.eye}</TD>
-                              <TD>{data.mouth}</TD>
-                              <TD>{data.skin}</TD>
-                            </TR>
-                          ))}
-                        </TBody>
-                      </Table>
-                      {isFormOpen && (
-                        <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Pemeriksaan" : "Tambah Data Pemeriksaan"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudinspection")} loading={isSubmitting} onClose={closeForm}>
-                          <Input id={`${pageid}-desc`} radius="full" labelText="Deskripsi Pemeriksaan" placeholder="Tulis deskripsi pemeriksaan" type="text" name="desc" value={inputData.desc} onChange={handleInputChange} errorContent={errors.desc} isRequired />
-                          <Fieldset>
-                            <Input id={`${pageid}-nadi`} radius="full" labelText="Nadi" placeholder="Tulis hasil pemeriksaan nadi" type="text" name="nadi" value={inputData.nadi} onChange={handleInputChange} errorContent={errors.nadi} isRequired />
-                            <Input id={`${pageid}-tensi`} radius="full" labelText="Tensi Darah" placeholder="Tulis tensi darah" type="text" name="tensi" value={inputData.tensi} onChange={handleInputChange} errorContent={errors.tensi} isRequired />
-                            <Input id={`${pageid}-suhu`} radius="full" labelText="Suhu Badan" placeholder="Tulis suhu badan" type="text" name="suhu" value={inputData.suhu} onChange={handleInputChange} errorContent={errors.suhu} isRequired />
-                          </Fieldset>
-                          <Fieldset>
-                            <Input id={`${pageid}-berat_badan`} radius="full" labelText="Berat Badan (kg)" placeholder="Tulis berat badan" type="number" name="berat_badan" value={inputData.berat_badan} onChange={handleInputChange} errorContent={errors.berat_badan} isRequired />
-                            <Input id={`${pageid}-tinggi_badan`} radius="full" labelText="Tinggi Badan (cm)" placeholder="Tulis tinggi badan" type="number" name="tinggi_badan" value={inputData.tinggi_badan} onChange={handleInputChange} errorContent={errors.tinggi_badan} isRequired />
-                            <Input id={`${pageid}-pernapasan`} radius="full" labelText="Pernapasan" placeholder="Tulis hasil pemeriksaan pernapasan" type="text" name="pernapasan" value={inputData.pernapasan} onChange={handleInputChange} errorContent={errors.pernapasan} isRequired />
-                          </Fieldset>
-                          <Fieldset>
-                            <Input id={`${pageid}-mata`} radius="full" labelText="Mata" placeholder="Tulis hasil pemeriksaan mata" type="text" name="mata" value={inputData.mata} onChange={handleInputChange} errorContent={errors.mata} isRequired />
-                            <Input id={`${pageid}-mulut_gigi`} radius="full" labelText="Mulut & Gigi" placeholder="Tulis hasil pemeriksaan mulut & gigi" type="text" name="mulut_gigi" value={inputData.mulut_gigi} onChange={handleInputChange} errorContent={errors.mulut_gigi} isRequired />
-                            <Input id={`${pageid}-kulit`} radius="full" labelText="Kulit" placeholder="Tulis hasil pemeriksaan kulit" type="text" name="kulit" value={inputData.kulit} onChange={handleInputChange} errorContent={errors.kulit} isRequired />
-                          </Fieldset>
-                        </SubmitForm>
-                      )}
-                    </Fragment>
-                  );
-                case "4":
-                  return (
-                    <Fragment>
-                      <Grid>
-                        {photoMedic.map((photo) => (
-                          <GridItem key={photo.idmedicalrecords} type="img" label={photo.idmedicalrecords} src={photo.photo} />
-                        ))}
-                      </Grid>
-                      {isFormOpen && (
-                        <SubmitForm size="sm" formTitle="Tambah Foto Pasien" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudphoto")} loading={isSubmitting} onClose={closeForm}>
-                          <Input id={`${pageid}-medic-photo`} variant="upload" isPreview isLabeled={false} onSelect={handleImageSelect} />
-                        </SubmitForm>
-                      )}
-                    </Fragment>
-                  );
-                default:
-                  return <Table isNoData={true}></Table>;
-              }
+              return (
+                <Table byNumber isNoData={historyReservData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                  <THead>
+                    <TR>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "datetimecreate", "date")}>
+                        Tanggal Dibuat
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "reservationdate", "number")}>
+                        Tanggal Reservasi
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "reservationtime", "number")}>
+                        Jam Reservasi
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "rscode", "text")}>
+                        Kode Reservasi
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "name", "text")}>
+                        Nama Customer
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "phone", "number")}>
+                        Nomor Telepon
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "email", "text")}>
+                        Alamat Email
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "status_reservation", "number")}>
+                        Status Reservasi
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "status_dp", "number")}>
+                        Status DP
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "service", "text")}>
+                        Layanan
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "typeservice", "text")}>
+                        Jenis Layanan
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "price_reservation", "number")}>
+                        Biaya DP
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyReservData, setHistoryReservData, "voucher", "text")}>
+                        Kode Voucher
+                      </TH>
+                    </TR>
+                  </THead>
+                  <TBody>
+                    {historyReservData.map((data, index) => (
+                      <TR key={index} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
+                        <TD>{newDate(data.datetimecreate, "id")}</TD>
+                        <TD>{data.reservationdate}</TD>
+                        <TD>{data.reservationtime}</TD>
+                        <TD type="code">{data.rscode}</TD>
+                        <TD>{toTitleCase(data.name)}</TD>
+                        <TD type="number" isCopy>
+                          {data.phone}
+                        </TD>
+                        <TD>{data.email}</TD>
+                        <TD>{reservAlias(data.status_reservation)}</TD>
+                        <TD>{paymentAlias(data.status_dp)}</TD>
+                        <TD>{toTitleCase(data.service)}</TD>
+                        <TD>{toTitleCase(data.typeservice)}</TD>
+                        <TD>{newPrice(data.price_reservation)}</TD>
+                        <TD type="code">{data.voucher}</TD>
+                      </TR>
+                    ))}
+                  </TBody>
+                </Table>
+              );
             case "3":
-              switch (subTabId) {
-                case "2":
-                  return (
-                    <Fragment>
-                      <Table byNumber isNoData={rkmDiagnosaData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
-                        <THead>
-                          <TR>
-                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "diagnosiscreate", "date")}>
-                              Tanggal Dibuat
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "rscode", "text")}>
-                              Kode Reservasi
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "diagnosistype", "text")}>
-                              Tipe Diagnosa
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "diagnosiscode", "text")}>
-                              Kode Diagnosa
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "diagnosisdetail", "text")}>
-                              Detail Diagnosa
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(rkmDiagnosaData, setRkmDiagnosaData, "diagnosisnote", "text")}>
-                              Catatan
-                            </TH>
-                          </TR>
-                        </THead>
-                        <TBody>
-                          {rkmDiagnosaData.map((data, index) => (
-                            <TR key={index}>
-                              <TD>{newDate(data.diagnosiscreate, "id")}</TD>
-                              <TD>{data.rscode}</TD>
-                              <TD>{data.diagnosistype}</TD>
-                              <TD>{data.diagnosiscode}</TD>
-                              <TD>{data.diagnosisdetail}</TD>
-                              <TD>{data.diagnosisnote}</TD>
-                            </TR>
-                          ))}
-                        </TBody>
-                      </Table>
-                      {isFormOpen && (
-                        <SubmitForm size="sm" formTitle="Tambah Data Diagnosa" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "adddiagnosisuser")} loading={isSubmitting} onClose={closeForm}>
-                          <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
-                          <Input id={`${pageid}-diagnose`} variant="select" noEmptyValue radius="full" labelText="Jenis Diagnosa" placeholder="Pilih jenis diagnosa" name="diagnose" value={inputData.diagnose} options={diagnoseopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnose", value: selectedValue } })} errorContent={errors.diagnose} isRequired />
-                          <Input id={`${pageid}-diagnose-code`} variant="select" isSearchable radius="full" labelText="Kode Diagnosa" placeholder="Pilih kode diagnosa" name="diagnosecode" value={inputData.diagnosecode} options={allDiagnoseData.map((diag) => ({ value: diag["code"].diagnosiscode, label: diag["code"].diagnosiscode }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnosecode", value: selectedValue } })} errorContent={errors.diagnosecode} isRequired isDisabled={!inputData.diagnose} />
-                          <Input id={`${pageid}-diagnose-detail`} variant="select" isSearchable radius="full" labelText="Rincian Diagnosa" placeholder={inputData.diagnosecode ? "Pilih rincian diagnosa" : "Mohon pilih kode diagnosa dahulu"} name="diagnosedetail" value={inputData.diagnosedetail} options={(inputData.diagnosecode && allDiagnoseData.find((s) => s["code"].diagnosiscode === inputData.diagnosecode)?.["detail"].map((det) => ({ value: det.diagnosisdetail, label: det.diagnosisdetail }))) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "diagnosedetail", value: selectedValue } })} errorContent={errors.diagnosedetail} isRequired isDisabled={!inputData.diagnosecode} />
-                          <Input id={`${pageid}-note`} variant="textarea" labelText="Keterangan" placeholder="Masukkan keterangan diagnosa" name="note" rows={5} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
-                        </SubmitForm>
-                      )}
-                    </Fragment>
-                  );
-                case "3":
-                  return (
-                    <Fragment>
-                      <Table byNumber isEditable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
-                        <THead>
-                          <TR>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactioncreate", "date")}>
-                              Tanggal Dibuat
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionname", "text")}>
-                              Nama Pengguna
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "rscode", "text")}>
-                              Kode Reservasi
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "noinvoice", "number")}>
-                              Nomor Invoice
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionphone", "number")}>
-                              Nomor Telepon
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "payment", "text")}>
-                              Metode Pembayaran
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "totalpay", "number")}>
-                              Total Pembayaran
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionstatus", "number")}>
-                              Status Pembayaran
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "voucher", "text")}>
-                              Kode Voucher
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "dentist", "text")}>
-                              Nama Dokter
-                            </TH>
-                          </TR>
-                        </THead>
-                        <TBody>
-                          {historyOrderData.map((data, index) => (
-                            <TR key={index} onEdit={data.transactionstatus === "1" ? () => {} : () => openEdit(data.idtransaction)}>
-                              <TD>{newDate(data.transactioncreate, "id")}</TD>
-                              <TD>{toTitleCase(data.transactionname)}</TD>
-                              <TD type="code">{data.rscode}</TD>
-                              <TD type="code">{data.noinvoice}</TD>
-                              <TD type="number" isCopy>
-                                {data.transactionphone}
-                              </TD>
-                              <TD>{data.payment}</TD>
-                              <TD>{newPrice(data.totalpay)}</TD>
-                              <TD>{orderAlias(data.transactionstatus)}</TD>
-                              <TD type="code">{data.voucher}</TD>
-                              <TD>{toTitleCase(data.dentist)}</TD>
-                            </TR>
-                          ))}
-                        </TBody>
-                      </Table>
-                      {isFormOpen && (
-                        <Fragment>
-                          {selectedMode === "update" ? (
-                            <SubmitForm formTitle="Perbarui Data Order" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudorder")} loading={isSubmitting} onClose={closeForm}>
-                              <Fieldset>
-                                <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                                <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
-                              </Fieldset>
-                              <Fieldset>
-                                <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
-                                <Input id={`${pageid}-type-payments`} variant="select" noEmptyValue radius="full" labelText="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errorContent={errors.typepayment} isRequired />
-                                {inputData.typepayment && (
-                                  <Fragment>
-                                    {inputData.typepayment === "cashless" ? (
-                                      <Input id={`${pageid}-method-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"} name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isDisabled={!inputData.typepayment} />
-                                    ) : (
-                                      <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />
-                                    )}
-                                  </Fragment>
-                                )}
-                              </Fieldset>
-                              {inputData.order.map((subservice, index) => (
-                                <Fieldset key={index} type="row" markers={`${index + 1}.`} endContent={<Button id={`${pageid}-delete-row-${index}`} variant="line" subVariant="icon" isTooltip size="sm" radius="full" color={index <= 0 ? "var(--color-red-30)" : "var(--color-red)"} iconContent={<ISTrash />} tooltipText="Hapus" onClick={() => handleRmvRow("order", index)} isDisabled={index <= 0} />}>
-                                  <Input id={`${pageid}-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih Layanan" name="service" value={subservice.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })} errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
-                                  <Input id={`${pageid}-type-name-${index}`} variant="select" isSearchable radius="full" labelText="Jenis Layanan" placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="servicetype" value={subservice.servicetype} options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })} errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""} isRequired isDisabled={!inputData.order[index].service} isReadonly={inputData.order[index].service === "RESERVATION"} />
-                                  <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
-                                </Fieldset>
-                              ))}
-                              <Button id={`${pageid}-add-row`} variant="line" size="sm" radius="full" color="var(--color-hint)" buttonText="Tambah Layanan" onClick={() => handleAddRow("order")} />
-                            </SubmitForm>
-                          ) : (
-                            <SubmitForm size="sm" formTitle="Tambah Tindakan Medis" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addmedis")} loading={isSubmitting} onClose={closeForm}>
-                              <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
-                            </SubmitForm>
-                          )}
-                        </Fragment>
-                      )}
-                    </Fragment>
-                  );
-                case "4":
-                  return (
-                    <Fragment>
-                      <Table byNumber isNoData={alkesData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
-                        <THead>
-                          <TR>
-                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "stockoutcreate", "date")}>
-                              Tanggal Dibuat
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "rscode", "text")}>
-                              Kode Reservasi
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "categorystock", "text")}>
-                              Kategori
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "subcategorystock", "text")}>
-                              Sub Kategori
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "sku", "text")}>
-                              Kode SKU
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "itemname", "text")}>
-                              Nama Item
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "unit", "text")}>
-                              Unit
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "lastqty", "number")}>
-                              Stok Terpakai
-                            </TH>
-                            <TH isSorted onSort={() => handleSort(alkesData, setAlkesData, "outletname", "text")}>
-                              Nama Cabang
-                            </TH>
-                          </TR>
-                        </THead>
-                        <TBody>
-                          {alkesData.map((data, index) => (
-                            <TR key={index}>
-                              <TD>{newDate(data.stockoutcreate, "id")}</TD>
-                              <TD>{data.rscode}</TD>
-                              <TD>{toTitleCase(data.categorystock)}</TD>
-                              <TD>{toTitleCase(data.subcategorystock)}</TD>
-                              <TD type="code">{data.sku}</TD>
-                              <TD>{toTitleCase(data.itemname)}</TD>
-                              <TD>{data.unit}</TD>
-                              <TD type="number">{data.lastqty}</TD>
-                              <TD>{toTitleCase(data.outletname)}</TD>
-                            </TR>
-                          ))}
-                        </TBody>
-                      </Table>
-                      {isFormOpen && (
-                        <SubmitForm size="md" formTitle="Tambah Data Pemakaian Alkes" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addstockout")} loading={isSubmitting} onClose={closeForm}>
-                          <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
-                          {inputData.alkesitem.map((alkes, index) => (
-                            <Fieldset
-                              key={index}
-                              type="row"
-                              markers={`${index + 1}.`}
-                              endContent={
-                                <Fragment>
-                                  <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.alkesitem.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("alkesitem", index)} isDisabled={inputData.alkesitem.length <= 1} />
-                                  {index + 1 === inputData.alkesitem.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("alkesitem")} />}
-                                </Fragment>
-                              }>
-                              <Input id={`${pageid}-categorystock-${index}`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder={inputData.rscode ? "Pilih kategori" : "Mohon isi kode reservasi dahulu"} name="categorystock" value={alkes.categorystock} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "categorystock", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.categorystock`] ? errors[`alkesitem.${index}.categorystock`] : ""} isRequired isDisabled={!inputData.rscode} />
-                              <Input id={`${pageid}-subcategorystock-${index}`} variant="select" isSearchable radius="full" labelText="Sub Kategori" placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"} name="subcategorystock" value={alkes.subcategorystock} options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "subcategorystock", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.subcategorystock`] ? errors[`alkesitem.${index}.subcategorystock`] : ""} isRequired isDisabled={!alkes.categorystock} />
-                              <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={alkes.itemname} options={alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.itemname`] ? errors[`alkesitem.${index}.itemname`] : ""} isRequired isDisabled={!alkes.subcategorystock} />
-                              <Input id={`${pageid}-item-unit-${index}`} radius="full" labelText="Unit Item" placeholder="PCS" type="text" name="unit" value={alkes.unit} onChange={(e) => handleRowChange("alkesitem", index, e)} errorContent={errors[`alkesitem.${index}.unit`] ? errors[`alkesitem.${index}.unit`] : ""} isRequired isDisabled={!alkes.itemname} />
-                              <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="qty" value={alkes.qty} onChange={(e) => handleRowChange("alkesitem", index, e)} errorContent={errors[`alkesitem.${index}.qty`] ? errors[`alkesitem.${index}.qty`] : ""} isRequired isDisabled={!alkes.itemname} />
-                              <Input id={`${pageid}-item-status-${index}`} variant="select" radius="full" labelText="Status Item" placeholder="Pilih status" name="status" value={alkes.status} options={stockoutstatopt} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "status", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.status`] ? errors[`alkesitem.${index}.status`] : ""} isRequired isDisabled={!alkes.itemname} />
-                            </Fieldset>
-                          ))}
-                        </SubmitForm>
-                      )}
-                    </Fragment>
-                  );
-                default:
-                  return <Table isNoData={true}></Table>;
-              }
+              return (
+                <Table byNumber isClickable isNoData={historyOrderData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                  <THead>
+                    <TR>
+                      <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactioncreate", "date")}>
+                        Tanggal Dibuat
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionname", "text")}>
+                        Nama Pengguna
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "rscode", "text")}>
+                        Kode Reservasi
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "noinvoice", "number")}>
+                        Nomor Invoice
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionphone", "number")}>
+                        Nomor Telepon
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "payment", "text")}>
+                        Metode Pembayaran
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "totalpay", "number")}>
+                        Total Pembayaran
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionstatus", "number")}>
+                        Status Pembayaran
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "voucher", "text")}>
+                        Kode Voucher
+                      </TH>
+                      <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "dentist", "text")}>
+                        Nama Dokter
+                      </TH>
+                    </TR>
+                  </THead>
+                  <TBody>
+                    {historyOrderData.map((data, index) => (
+                      <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => navigate(`/${toPathname(parent)}/order-customer/${toPathname(data.idtransaction)}`)}>
+                        <TD>{newDate(data.transactioncreate, "id")}</TD>
+                        <TD>{toTitleCase(data.transactionname)}</TD>
+                        <TD type="code">{data.rscode}</TD>
+                        <TD type="code">{data.noinvoice}</TD>
+                        <TD type="number" isCopy>
+                          {data.transactionphone}
+                        </TD>
+                        <TD>{data.payment}</TD>
+                        <TD>{newPrice(data.totalpay)}</TD>
+                        <TD>{orderAlias(data.transactionstatus)}</TD>
+                        <TD type="code">{data.voucher}</TD>
+                        <TD>{toTitleCase(data.dentist)}</TD>
+                      </TR>
+                    ))}
+                  </TBody>
+                </Table>
+              );
             case "4":
+              const handleRMDelete = async (params) => {
+                const confirmmsg = `Apakah anda yakin untuk menghapus data terpilih dari ${toTitleCase(slug)}?`;
+                const successmsg = `Selamat! Data terpilih dari ${toTitleCase(slug)} berhasil dihapus.`;
+                const errormsg = "Terjadi kesalahan saat menghapus data. Mohon periksa koneksi internet anda dan coba lagi.";
+                const confirm = window.confirm(confirmmsg);
+                if (!confirm) {
+                  return;
+                }
+                try {
+                  const formData = new FormData();
+                  formData.append("data", JSON.stringify({ secret, idmedics: params }));
+                  await apiCrud(formData, "office", "delmedics");
+                  showNotifications("success", successmsg);
+                  await fetchData();
+                  await fetchAdditionalData();
+                } catch (error) {
+                  showNotifications("danger", errormsg);
+                  console.error(errormsg, error);
+                }
+              };
+
               return (
                 <Fragment>
-                  <Table byNumber isNoData={recipeData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
+                  <Table byNumber isEditable isDeletable isNoData={medicRcdData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                     <THead>
                       <TR>
-                        <TH isSorted onSort={() => handleSort(recipeData, setRecipeData, "recipecreate", "date")}>
-                          Tanggal Dibuat
+                        <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "idmedicalrecords", "number")}>
+                          ID Rekam Medis
                         </TH>
-                        <TH isSorted onSort={() => handleSort(recipeData, setRecipeData, "rscode", "text")}>
-                          Kode Reservasi
+                        <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "ageyear", "number")}>
+                          Usia Pasien
                         </TH>
-                        <TH isSorted onSort={() => handleSort(recipeData, setRecipeData, "dentist", "text")}>
+                        <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "room", "text")}>
+                          Ruang Pemeriksaan
+                        </TH>
+                        <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "service", "text")}>
+                          Layanan
+                        </TH>
+                        <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "servicetype", "text")}>
+                          Jenis Layanan
+                        </TH>
+                        <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "dentist", "text")}>
                           Dokter Pemeriksa
-                        </TH>
-                        <TH isSorted onSort={() => handleSort(recipeData, setRecipeData, "recipe", "text")}>
-                          Resep
-                        </TH>
-                        <TH isSorted onSort={() => handleSort(recipeData, setRecipeData, "outletname", "text")}>
-                          Nama Cabang
                         </TH>
                       </TR>
                     </THead>
                     <TBody>
-                      {recipeData.map((data, index) => (
-                        <TR key={index}>
-                          <TD>{newDate(data.recipecreate, "id")}</TD>
-                          <TD type="code">{data.rscode}</TD>
+                      {medicRcdData.map((data, index) => (
+                        <TR key={index} onEdit={() => navigate(`${pagepath}/${data.idmedicalrecords}`)} onDelete={() => handleRMDelete(data.idmedicalrecords)}>
+                          <TD type="number">{data.idmedicalrecords}</TD>
+                          <TD>{`${data.ageyear} tahun, ${data.agemonth} bulan, ${data.ageday} hari`}</TD>
+                          <TD>{toTitleCase(data.room)}</TD>
+                          <TD>{toTitleCase(data.service)}</TD>
+                          <TD>{toTitleCase(data.servicetype)}</TD>
                           <TD>{toTitleCase(data.dentist)}</TD>
-                          <TD>{data.recipe}</TD>
-                          <TD>{toTitleCase(data.outletname)}</TD>
                         </TR>
                       ))}
                     </TBody>
                   </Table>
                   {isFormOpen && (
-                    <SubmitForm size="sm" formTitle="Tambah Resep" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addrecipe")} loading={isSubmitting} onClose={closeForm}>
-                      <Input id={`${pageid}-rscode`} variant="select" isSearchable radius="full" labelText="Kode Reservasi" placeholder="Pilih kode reservasi" name="rscode" value={inputData.rscode} options={rscodeData.map((rscode) => ({ value: rscode.rscode, label: rscode.rscode })) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "rscode", value: selectedValue } })} errorContent={errors.rscode} isRequired />
-                      <Input id={`${pageid}-recipe`} variant="textarea" labelText="Resep" placeholder="Tulis resep" name="recipe" rows={5} value={inputData.recipe} onChange={handleInputChange} errorContent={errors.recipe} isRequired />
+                    <SubmitForm size="md" formTitle="Tambah Data Rekam Medis" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addmedics")} loading={isSubmitting} onClose={closeForm}>
+                      <Fieldset>
+                        <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth" max={getCurrentDate()} value={inputData.birth} onChange={handleInputChange} errorContent={errors.birth} isRequired />
+                        <Input id={`${pageid}-ageyear`} radius="full" labelText="Umur (tahun)" placeholder="24" fallbackValue="24" type="number" name="ageyear" value={inputData.ageyear} isReadonly />
+                      </Fieldset>
+                      <Fieldset>
+                        <Input id={`${pageid}-agemonth`} radius="full" labelText="Umur (bulan)" placeholder="5" fallbackValue="5" type="number" name="agemonth" value={inputData.agemonth} isReadonly />
+                        <Input id={`${pageid}-ageday`} radius="full" labelText="Umur (hari)" placeholder="10" fallbackValue="10" type="number" name="ageday" value={inputData.ageday} isReadonly />
+                      </Fieldset>
                     </SubmitForm>
                   )}
                 </Fragment>
@@ -2906,15 +2165,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
         const addtCustData = [{ idauthuser: "", username: "Tambah Baru" }];
         const mergedCustData = [...addtCustData, ...allCustData];
 
-        const disableButton = () => {
-          if (tabId === "3") {
-            if (subTabId === "1") {
-              return true;
-            } else {
-              return false;
-            }
+        const openRMForm = () => {
+          setSelectedMode("add");
+          setIsFormOpen(true);
+          const selecteduser = allCustData.find((data) => data.idauthuser === selectedCust);
+          if (selecteduser) {
+            setInputData({ ...inputData, birth: selecteduser.birthday });
           } else {
-            return false;
+            setInputData({ ...inputData });
           }
         };
 
@@ -2925,14 +2183,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <DashboardTool>
                 <Input id={`cust-select-${pageid}`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Customer" name="id" options={mergedCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onSelect={handleCustChange} />
               </DashboardTool>
-              {tabId !== "1" && (
-                <DashboardTool>
-                  <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={selectedCust ? openForm : handleAddError} startContent={<Plus />} isDisabled={disableButton()} />
-                </DashboardTool>
-              )}
+              {onPageTabId === "4" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={selectedCust ? openRMForm : handleAddError} startContent={<Plus />} />}
             </DashboardToolbar>
-            <TabSwitch buttons={tabbutton} />
-            {tabId !== "4" && <TabGroup buttons={subTabButton(tabId)} />}
+            <TabGroup buttons={onPageTabButton} />
             <DashboardBody>{renderSection()}</DashboardBody>
           </Fragment>
         );
@@ -3091,7 +2344,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isClickable isEditable isPrintable isContactable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
+              <Table byNumber isClickable isPrintable isContactable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactioncreate", "date")}>
@@ -3132,7 +2385,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <TBody>
                   {filteredOrderData.map((data, index) => (
                     // <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
-                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={() => openEdit(data.idtransaction)} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
+                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
                       <TD>{newDate(data.transactioncreate, "id")}</TD>
                       <TD>{toTitleCase(data.transactionname)}</TD>
                       <TD type="code">{data.rscode}</TD>
@@ -3283,15 +2536,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   useEffect(() => {
     const calculateAge = () => {
-      if (onpageData.birth) {
+      if (inputData.birth) {
         try {
-          const birthDate = moment(onpageData.birth, moment.ISO_8601, true);
+          const birthDate = moment(inputData.birth, moment.ISO_8601, true);
           if (birthDate.isValid()) {
             const today = moment().tz("Asia/Jakarta");
             const years = today.diff(birthDate, "years", true);
             const months = today.diff(birthDate, "months") % 12;
             const days = today.diff(birthDate, "days") % 30 || 0;
-            setOnpageData({ ...onpageData, ageyear: Math.floor(years), agemonth: months, ageday: days });
+            setInputData({ ...inputData, ageyear: Math.floor(years), agemonth: months, ageday: days });
           } else {
             console.warn("Invalid birth date format. Please use YYYY-MM-DD.");
           }
@@ -3299,11 +2552,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           console.error("Error calculating age:", error);
         }
       } else {
-        setOnpageData({ ...onpageData, ageyear: "", agemonth: "", ageday: "" });
+        setInputData({ ...inputData, ageyear: "", agemonth: "", ageday: "" });
       }
     };
     calculateAge();
-  }, [onpageData.birth]);
+  }, [inputData.birth]);
 
   useEffect(() => {
     if (slug === "RESERVATION") {
@@ -3317,7 +2570,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setSelectedData(null);
     setSelectedImage(null);
     fetchData();
-  }, [slug, currentPage, limit, status, selectedBranch, selectedCust, tabId, subTabId]);
+  }, [slug, currentPage, limit, status, selectedBranch, selectedCust, onPageTabId]);
 
   useEffect(() => {
     fetchAdditionalData();

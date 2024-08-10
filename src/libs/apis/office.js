@@ -11,7 +11,14 @@ export const ApiProvider = ({ children }) => {
     try {
       const url = `${apiURL}/${scope}/${endpoint}`;
       const res = await axios.post(url, formData, { headers: { "Content-Type": "multipart/form-data" }, ...config });
-      log(`crud ${endpoint} response:`, res.data);
+      const apires = res.data;
+      if (!apires.error) {
+        log(`crud ${endpoint} response:`, apires);
+        return apires;
+      } else {
+        log(`failed to crud ${endpoint}`);
+        return null;
+      }
     } catch (error) {
       console.error(`error during crud ${endpoint}:`, error);
     }

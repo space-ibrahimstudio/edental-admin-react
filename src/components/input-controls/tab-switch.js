@@ -3,7 +3,7 @@ import styles from "./styles/tab-switch.module.css";
 
 const TabButton = ({ buttonText, onClick, isActive }) => {
   return (
-    <button className={`${styles.tabButton} ${isActive ? styles.active : ""}`} onClick={onClick}>
+    <button type="button" className={`${styles.tabButton} ${isActive ? styles.active : ""}`} onClick={onClick}>
       <b className={styles.buttonText}>{buttonText}</b>
     </button>
   );
