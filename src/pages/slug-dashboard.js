@@ -2257,8 +2257,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredReservData.map((data, index) => (
-                    // <TR key={index} onEdit={data.status_reservation === "0" ? () => openEdit(data.idreservation) : () => showNotifications("danger", "Reservasi dengan status yang telah selesai, reschedule atau dibatalkan tidak dapat diperbarui.")} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
-                    <TR key={index} onEdit={() => openEdit(data.idreservation)} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
+                    <TR key={index} onEdit={data.status_reservation === "0" ? () => openEdit(data.idreservation) : () => showNotifications("danger", "Reservasi dengan status yang telah selesai, reschedule atau dibatalkan tidak dapat diperbarui.")} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
                       <TD>{newDate(data.datetimecreate, "id")}</TD>
                       <TD>{data.reservationdate}</TD>
                       <TD>{data.reservationtime}</TD>
