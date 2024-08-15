@@ -798,7 +798,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
         if (selectedMode === "update") {
           requiredFields = [];
         } else {
-          requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time"];
+          if (inputData.sub_service === "RESERVATION") {
+            requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time", "price", "bank_code"];
+          } else {
+            requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time"];
+          }
         }
         break;
       case "ORDER CUSTOMER":
