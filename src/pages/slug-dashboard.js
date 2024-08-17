@@ -2308,7 +2308,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Input id={`${pageid}-date`} radius="full" labelText="Tanggal Reservasi" placeholder="Atur tanggal" type="date" name="date" min={getCurrentDate()} value={inputData.date} onChange={handleInputChange} errorContent={errors.date} isRequired />
                       <Input id={`${pageid}-time`} variant="select" isSearchable radius="full" labelText="Jam Reservasi" placeholder={inputData.date ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"} name="time" value={inputData.time} options={availHoursData.map((hour) => ({ value: hour, label: hour }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "time", value: selectedValue } })} errorContent={errors.time} isRequired isDisabled={!inputData.date} />
                     </Fieldset>
-                    <Input id={`${pageid}-note`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan/keterangan ..." name="note" rows={4} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
+                    <Input id={`${pageid}-note`} variant="textarea" labelText="Catatan" placeholder="format: Sumber Informasi / Nama Layanan / Catatan" name="note" rows={4} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
                     {inputData.service === "RESERVATION" && inputData.sub_service === "RESERVATION" && (
                       <Fieldset>
                         <Input id={`${pageid}-price`} radius="full" labelText="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleInputChange} errorContent={errors.price} />

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { Navigate } from "react-router-dom";
-import { useFormat } from "@ibrahimstudio/react";
 import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useLoading } from "../components/feedbacks/context/loading-context";
@@ -34,8 +33,7 @@ export const DashboardContainer = ({ children }) => {
 };
 
 const DashboardOverviewPage = () => {
-  const { isLoggedin, secret } = useAuth();
-  const { newPrice } = useFormat();
+  const { isLoggedin, secret, idoutlet } = useAuth();
   const { apiRead } = useApi();
   const { setLoading } = useLoading();
   const [summaryData, setSummaryData] = useState(null);
@@ -44,8 +42,10 @@ const DashboardOverviewPage = () => {
     const fetchData = async () => {
       setLoading(true);
       const formData = new FormData();
+      const currentDateTime = new Date();
+      const formattedDateTime = `${currentDateTime.getFullYear()}-${String(currentDateTime.getMonth() + 1).padStart(2, "0")}-${String(currentDateTime.getDate()).padStart(2, "0")} ${String(currentDateTime.getHours()).padStart(2, "0")}:${String(currentDateTime.getMinutes()).padStart(2, "0")}:${String(currentDateTime.getSeconds()).padStart(2, "0")}`;
       try {
-        formData.append("data", JSON.stringify({ secret, idoutlet: "1", date: "2024-07-29 12:24:10" }));
+        formData.append("data", JSON.stringify({ secret, idoutlet, date: formattedDateTime }));
         const summarydata = await apiRead(formData, "office", "viewdashboard");
         if (summarydata && summarydata.data) {
           setSummaryData(summarydata.data);
@@ -81,13 +81,11 @@ const DashboardOverviewPage = () => {
               <SummaryCard summaryLabel="Reservasi Terbayar" summaryValue={summaryData.reservation.paid} />
               <SummaryCard summaryLabel="Reservasi Dibatalkan" summaryValue={summaryData.reservation.cancel} />
               <SummaryCard summaryLabel="Reservasi Dijadwalkan Ulang" summaryValue={summaryData.reservation.reschedule} />
-              <SummaryCard summaryLabel="Pendapatan Total" summaryValue={newPrice(summaryData.reservation.totalpaid)} />
             </SummarySet>
-            <SummarySet title="Transaksi" count={summaryData.order.totalorder} row="4">
+            <SummarySet title="Transaksi" count={summaryData.order.totalorder} row="3">
               <SummaryCard summaryLabel="Transaksi Berlangsung" summaryValue={summaryData.order.pending} />
               <SummaryCard summaryLabel="Transaksi Selesai" summaryValue={summaryData.order.paid} />
               <SummaryCard summaryLabel="Transaksi Dibatalkan" summaryValue={summaryData.order.cancel} />
-              <SummaryCard summaryLabel="Pendapatan Total" summaryValue={newPrice(summaryData.order.totalpaid)} />
             </SummarySet>
           </Fragment>
         )}
