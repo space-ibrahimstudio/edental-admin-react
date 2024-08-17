@@ -72,6 +72,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const [allStockData, setAllStockData] = useState([]);
   const [categoryStockData, setCategoryStockData] = useState([]);
   const [fvaListData, setFvaListData] = useState([]);
+  const [labData, setLabData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
@@ -317,6 +318,15 @@ const DashboardParamsPage = ({ parent, slug }) => {
                     setAlkesData([]);
                   }
                   break;
+                case "5":
+                  addtFormData.append("data", JSON.stringify({ secret, idmedics: params }));
+                  data = await apiRead(addtFormData, "office", "viewlab");
+                  if (data && data.data && data.data.length > 0) {
+                    setLabData(data.data);
+                  } else {
+                    setLabData([]);
+                  }
+                  break;
                 default:
                   break;
               }
@@ -474,6 +484,11 @@ const DashboardParamsPage = ({ parent, slug }) => {
                     }
                   }
                   break;
+                case "5":
+                  switchedData = currentData(labData, "idlab");
+                  log(`id ${slug} data switched:`, switchedData.idlab);
+                  setInputData({ name: switchedData.labname, address: switchedData.labaddress, price: switchedData.labprice });
+                  break;
                 default:
                   break;
               }
@@ -537,6 +552,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
                 break;
               case "4":
                 requiredFields = ["alkesitem.categorystock", "alkesitem.subcategorystock", "alkesitem.itemname", "alkesitem.unit", "alkesitem.qty", "alkesitem.status"];
+                break;
+              case "5":
+                requiredFields = ["name", "price", "address"];
                 break;
               default:
                 break;
@@ -604,6 +622,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
                   break;
                 case "4":
                   submittedData = { secret, idmedics: params, stock: inputData.alkesitem };
+                  break;
+                case "5":
+                  submittedData = { secret, idmedics: params, name: inputData.name, price: inputData.price, address: inputData.address };
                   break;
                 default:
                   break;
@@ -783,6 +804,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
           { label: "Diagnosa", onClick: () => handleSubTabChange("2"), active: subTabId === "2" },
           { label: "Tindakan Medis", onClick: () => handleSubTabChange("3"), active: subTabId === "3" },
           { label: "Pemakaian Alkes", onClick: () => handleSubTabChange("4"), active: subTabId === "4" },
+          { label: "Lab", onClick: () => handleSubTabChange("5"), active: subTabId === "5" },
         ];
 
         const renderSection = () => {
@@ -1241,6 +1263,48 @@ const DashboardParamsPage = ({ parent, slug }) => {
                               <Input id={`${pageid}-item-status-${index}`} variant="select" radius="full" labelText="Status Item" placeholder="Pilih status" name="status" value={alkes.status} options={stockoutstatopt} onSelect={(selectedValue) => handleRowChange("alkesitem", index, { target: { name: "status", value: selectedValue } })} errorContent={errors[`alkesitem.${index}.status`] ? errors[`alkesitem.${index}.status`] : ""} isRequired isDisabled={!alkes.itemname} />
                             </Fieldset>
                           ))}
+                        </SubmitForm>
+                      )}
+                    </Fragment>
+                  );
+                case "5":
+                  return (
+                    <Fragment>
+                      <Table byNumber isEditable isNoData={labData.length > 0 ? false : true} isLoading={isFetching}>
+                        <THead>
+                          <TR>
+                            <TH isSorted onSort={() => handleSort(labData, setLabData, "labcreate", "date")}>
+                              Tanggal Dibuat
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(labData, setLabData, "labname", "text")}>
+                              Nama Lab
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(labData, setLabData, "labaddress", "text")}>
+                              Alamat Lab
+                            </TH>
+                            <TH isSorted onSort={() => handleSort(labData, setLabData, "labprice", "number")}>
+                              Harga
+                            </TH>
+                          </TR>
+                        </THead>
+                        <TBody>
+                          {labData.map((data, index) => (
+                            <TR key={index} onEdit={() => openEdit(data.idlab)}>
+                              <TD>{newDate(data.labcreate, "id")}</TD>
+                              <TD>{data.labname}</TD>
+                              <TD>{data.labaddress}</TD>
+                              <TD>{newPrice(data.labprice)}</TD>
+                            </TR>
+                          ))}
+                        </TBody>
+                      </Table>
+                      {isFormOpen && (
+                        <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Lab" : "Tambah Data Lab"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addlab")} loading={isSubmitting} onClose={closeForm}>
+                          <Fieldset>
+                            <Input id={`${pageid}-lab-name`} radius="full" labelText="Nama Lab" placeholder="Masukkan nama lab" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                            <Input id={`${pageid}-lab-price`} radius="full" labelText="Harga" placeholder="Masukkan harga" type="number" name="price" value={inputData.price} onChange={handleInputChange} errorContent={errors.price} isRequired />
+                          </Fieldset>
+                          <Input id={`${pageid}-address`} variant="textarea" rows={4} labelText="Alamat Lab" placeholder="Masukkan alamat lab" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
                         </SubmitForm>
                       )}
                     </Fragment>
