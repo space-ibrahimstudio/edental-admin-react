@@ -141,8 +141,12 @@ const DashboardParamsPage = ({ parent, slug }) => {
     if (name === "typepayment") {
       if (value === "cash") {
         setInputData((prevState) => ({ ...prevState, bank_code: "CASH" }));
+      } else if (value === "indodana") {
+        setInputData((prevState) => ({ ...prevState, bank_code: "INDODANA" }));
+      } else if (value === "rata") {
+        setInputData((prevState) => ({ ...prevState, bank_code: "RATA" }));
       } else {
-        setInputData((prevState) => ({ ...prevState, status: "0" }));
+        setInputData((prevState) => ({ ...prevState, bank_code: "", status: "0" }));
       }
     }
   };
@@ -545,7 +549,11 @@ const DashboardParamsPage = ({ parent, slug }) => {
                 break;
               case "3":
                 if (selectedMode === "update") {
-                  requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
+                  if (inputData.typepayment === "cashless" || inputData.typepayment === "insurance") {
+                    requiredFields = ["name", "phone", "dentist", "bank_code", "order.service", "order.servicetype", "order.price"];
+                  } else {
+                    requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
+                  }
                 } else {
                   requiredFields = ["rscode"];
                 }
@@ -1151,16 +1159,19 @@ const DashboardParamsPage = ({ parent, slug }) => {
                               <Fieldset>
                                 <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
                                 <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
+                                <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
                               </Fieldset>
                               <Fieldset>
-                                <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
                                 <Input id={`${pageid}-type-payments`} variant="select" noEmptyValue radius="full" labelText="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errorContent={errors.typepayment} isRequired />
                                 {inputData.typepayment && (
                                   <Fragment>
                                     {inputData.typepayment === "cashless" ? (
                                       <Input id={`${pageid}-method-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"} name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isDisabled={!inputData.typepayment} />
                                     ) : (
-                                      <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />
+                                      <Fragment>
+                                        {inputData.typepayment === "insurance" && <Input id={`${pageid}-insurance`} radius="full" labelText="Nama Asuransi" placeholder="Masukkan nama asuransi" type="text" name="bank_code" value={inputData.bank_code} onChange={handleInputChange} errorContent={errors.bank_code} isRequired />}
+                                        <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />
+                                      </Fragment>
                                     )}
                                   </Fragment>
                                 )}
@@ -1371,12 +1382,28 @@ const DashboardParamsPage = ({ parent, slug }) => {
           }
         };
 
+        const handleClick = () => {
+          if (tabId === "2") {
+            if (subTabId === "3") {
+              if (historyOrderData.length > 0) {
+                showNotifications("danger", "Data Tindakan Medis sudah ada. Tidak dapat menambah data baru.");
+              } else {
+                openForm();
+              }
+            } else {
+              openForm();
+            }
+          } else {
+            openForm();
+          }
+        };
+
         return (
           <Fragment>
             <DashboardHead title={`Rekam Medis #${params}`} desc="Panel untuk memperbarui profil data dan menambah histori catatan medis pasien." />
             <DashboardToolbar>
               <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} startContent={<Arrow direction="left" />} />
-              <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} isDisabled={disableButton()} />
+              <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={handleClick} startContent={<Plus />} isDisabled={disableButton()} />
             </DashboardToolbar>
             <TabSwitch buttons={tabbutton} />
             {tabId !== "3" && <TabGroup buttons={subTabButton(tabId)} />}

@@ -4,7 +4,7 @@ export const useOptions = () => {
     { value: 10, label: "Baris per Halaman: 10" },
     { value: 20, label: "Baris per Halaman: 20" },
     { value: 50, label: "Baris per Halaman: 50" },
-    { value: 100, label: "Baris per Halaman: 100" },
+    { value: 500, label: "Baris per Halaman: 500" },
   ];
   const genderopt = [
     { value: "male", label: "Laki-laki" },
@@ -46,6 +46,9 @@ export const useOptions = () => {
   const paymenttypeopt = [
     { value: "cash", label: "Cash in Store" },
     { value: "cashless", label: "Cashless (via Xendit)" },
+    { value: "insurance", label: "Asuransi" },
+    { value: "indodana", label: "Indodana" },
+    { value: "rata", label: "RATA" },
   ];
   const orderstatopt = [
     { value: "0", label: "Pending" },
