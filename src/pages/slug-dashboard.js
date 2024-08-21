@@ -93,6 +93,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [stockExpData, setStockExpData] = useState([]);
   const [diagnoseData, setDiagnoseData] = useState([]);
   const [orderRData, setOrderRData] = useState([]);
+  const [conditionData, setConditionData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -440,6 +441,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setDiagnoseData([]);
           }
           break;
+        case "KONDISI GIGI":
+          addtFormData.append("data", JSON.stringify({ secret }));
+          data = await apiRead(addtFormData, "office", "viewtooth");
+          if (data && data.data && data.data.length > 0) {
+            setConditionData(data.data);
+          } else {
+            setConditionData([]);
+          }
+          break;
         case "DENTIST":
           data = await apiRead(formData, "office", "viewdentist");
           if (data && data.data && data.data.length > 0) {
@@ -704,6 +714,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
           log(`id ${slug} data switched:`, switchedData.idoutlet);
           setInputData({ name: switchedData.outlet_name, phone: switchedData.outlet_phone, address: switchedData.outlet_address, postcode: switchedData.postcode, main_region: switchedData.mainregion, region: switchedData.outlet_region, cctr_group: switchedData.cctr_group, cctr: switchedData.cctr, coordinate: switchedData.coordinate });
           break;
+        case "KONDISI GIGI":
+          switchedData = currentData(conditionData, "idtooth");
+          log(`id ${slug} data switched:`, switchedData.idtooth);
+          setInputData({ name: switchedData.singkatan, desc: switchedData.arti, note: switchedData.keterangan });
+          break;
         case "DENTIST":
           switchedData = currentData(dentistData, "id_dentist");
           log(`id ${slug} data switched:`, switchedData.id_dentist);
@@ -765,6 +780,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
         break;
       case "DIAGNOSA":
         requiredFields = ["diagnosecode", "diagdetail.diagnosisdetail"];
+        break;
+      case "KONDISI GIGI":
+        requiredFields = ["name", "desc"];
         break;
       case "DENTIST":
         requiredFields = ["cctr", "name", "sip", "phone"];
@@ -845,6 +863,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           break;
         case "DIAGNOSA":
           submittedData = { secret, diagnosiscode: inputData.diagnosecode, detail: inputData.diagdetail };
+          break;
+        case "KONDISI GIGI":
+          submittedData = { secret, nama: inputData.name, arti: inputData.desc, note: inputData.note };
           break;
         case "DENTIST":
           submittedData = { secret, idbranch: inputData.cctr, name_dentist: inputData.name, sip: inputData.sip, phone: inputData.phone };
@@ -932,6 +953,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           case "CABANG EDENTAL":
             submittedData = { secret, region: "", name: "", address: "", phone: "", mainregion: "", postcode: "", cctr_group: "", cctr: "", coordinate: "" };
             break;
+          case "KONDISI GIGI":
+            submittedData = { secret, nama: "", arti: "", note: "" };
+            break;
           default:
             break;
         }
@@ -963,6 +987,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: userSearch, handleSearch: handleUserSearch, filteredData: filteredUserData, isDataShown: isUserShown } = useSearch(userData, ["username", "cctr", "outlet_name"]);
   const { searchTerm: diagnoseSearch, handleSearch: handleDiagnoseSearch, filteredData: filteredDiagnoseData, isDataShown: isDiagnoseShown } = useSearch(diagnoseData, ["code.diagnosiscode"]);
   const { searchTerm: orderRSearch, handleSearch: handleOrderRSearch, filteredData: filteredOrderRData, isDataShown: isOrderRShown } = useSearch(orderRData, ["order.noktp"]);
+  const { searchTerm: conditionSearch, handleSearch: handleConditionSearch, filteredData: filteredConditionData, isDataShown: isConditionShown } = useSearch(conditionData, ["singkatan", "arti", "keterangan"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -1268,10 +1293,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <DashboardTool>
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={diagnoseSearch} onChange={(e) => handleDiagnoseSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
-              <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isDiagnoseShown} />
-                <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
-              </DashboardTool>
+              <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
             </DashboardToolbar>
             <DashboardBody>
               <Table byNumber isExpandable isNoData={!isDiagnoseShown} isLoading={isFetching}>
@@ -1323,6 +1345,53 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Input id={`${pageid}-diagnose-detail-${index}`} radius="full" labelText="Detail Diagnosa" placeholder="Masukkan detail diagnosa" type="text" name="diagnosisdetail" value={detail.diagnosisdetail} onChange={(e) => handleRowChange("diagdetail", index, e)} errorContent={errors[`diagdetail.${index}.diagnosisdetail`] ? errors[`diagdetail.${index}.diagnosisdetail`] : ""} isRequired />
                   </Fieldset>
                 ))}
+              </SubmitForm>
+            )}
+          </Fragment>
+        );
+      case "KONDISI GIGI":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data master kondisi gigi. Klik Tambah Baru untuk membuat data baru, atau klik ikon di kolom Action untuk memperbarui/menghapus data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={conditionSearch} onChange={(e) => handleConditionSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isEditable isDeletable page={currentPage} limit={limit} isNoData={!isConditionShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSort(conditionData, setConditionData, "singkatan", "text")}>
+                      Nama Kondisi
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(conditionData, setConditionData, "arti", "text")}>
+                      Arti Kondisi
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(conditionData, setConditionData, "keterangan", "text")}>
+                      Keterangan
+                    </TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredConditionData.map((data, index) => (
+                    <TR key={index} onEdit={() => openEdit(data.idtooth)} onDelete={() => handleDelete(data.idtooth, "cudtooth")}>
+                      <TD>{data.singkatan}</TD>
+                      <TD>{data.arti}</TD>
+                      <TD>{data.keterangan}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle={selectedMode === "update" ? "Ubah Data Kondisi" : "Tambah Data Kondisi"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudtooth")} loading={isSubmitting} onClose={closeForm}>
+                <Fieldset>
+                  <Input id={`${pageid}-singkatan`} radius="full" labelText="Nama Kondisi" placeholder="sou" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                  <Input id={`${pageid}-arti`} radius="full" labelText="Arti Kondisi" placeholder="Gigi sehat, normal, tanpa kelainan" type="text" name="desc" value={inputData.desc} onChange={handleInputChange} errorContent={errors.desc} isRequired />
+                </Fieldset>
+                <Input id={`${pageid}-note`} variant="textarea" labelText="Keterangan" placeholder="Masukkan keterangan ..." name="note" rows={4} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
               </SubmitForm>
             )}
           </Fragment>
@@ -2114,8 +2183,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   <Table byNumber isEditable isDeletable isNoData={medicRcdData.length > 0 ? false : true || selectedCust === null || selectedCust === ""} isLoading={isFetching}>
                     <THead>
                       <TR>
-                        <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "idmedicalrecords", "number")}>
-                          ID Rekam Medis
+                        <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "datemedical", "date")}>
+                          Tanggal Dibuat
                         </TH>
                         <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "ageyear", "number")}>
                           Usia Pasien
@@ -2137,7 +2206,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TBody>
                       {medicRcdData.map((data, index) => (
                         <TR key={index} onEdit={() => navigate(`${pagepath}/${data.idmedicalrecords}`)} onDelete={() => handleRMDelete(data.idmedicalrecords)}>
-                          <TD type="number">{data.idmedicalrecords}</TD>
+                          <TD>{newDate(data.datemedical, "id")}</TD>
                           <TD>{`${data.ageyear} tahun, ${data.agemonth} bulan, ${data.ageday} hari`}</TD>
                           <TD>{toTitleCase(data.room)}</TD>
                           <TD>{toTitleCase(data.service)}</TD>
@@ -2215,6 +2284,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH isSorted onSort={() => handleSort(reservData, setReservData, "datetimecreate", "date")}>
                       Tanggal Dibuat
                     </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "status_dp", "number")}>
+                      Status DP
+                    </TH>
                     <TH isSorted onSort={() => handleSort(reservData, setReservData, "reservationdate", "date")}>
                       Tanggal Reservasi
                     </TH>
@@ -2235,9 +2307,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     </TH>
                     <TH isSorted onSort={() => handleSort(reservData, setReservData, "status_reservation", "number")}>
                       Status Reservasi
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "status_dp", "number")}>
-                      Status DP
                     </TH>
                     <TH isSorted onSort={() => handleSort(reservData, setReservData, "service", "text")}>
                       Layanan
@@ -2263,6 +2332,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   {filteredReservData.map((data, index) => (
                     <TR key={index} onEdit={data.status_reservation === "0" ? () => openEdit(data.idreservation) : () => showNotifications("danger", "Reservasi dengan status yang telah selesai, reschedule atau dibatalkan tidak dapat diperbarui.")} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
                       <TD>{newDate(data.datetimecreate, "id")}</TD>
+                      <TD>{paymentAlias(data.status_dp)}</TD>
                       <TD>{data.reservationdate}</TD>
                       <TD>{data.reservationtime}</TD>
                       <TD type="code">{data.rscode}</TD>
@@ -2272,7 +2342,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       </TD>
                       <TD>{data.email}</TD>
                       <TD>{reservAlias(data.status_reservation)}</TD>
-                      <TD>{paymentAlias(data.status_dp)}</TD>
                       <TD>{toTitleCase(data.service)}</TD>
                       <TD>{toTitleCase(data.typeservice)}</TD>
                       <TD>{newPrice(data.price_reservation)}</TD>
@@ -2308,11 +2377,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Input id={`${pageid}-date`} radius="full" labelText="Tanggal Reservasi" placeholder="Atur tanggal" type="date" name="date" min={getCurrentDate()} value={inputData.date} onChange={handleInputChange} errorContent={errors.date} isRequired />
                       <Input id={`${pageid}-time`} variant="select" isSearchable radius="full" labelText="Jam Reservasi" placeholder={inputData.date ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"} name="time" value={inputData.time} options={availHoursData.map((hour) => ({ value: hour, label: hour }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "time", value: selectedValue } })} errorContent={errors.time} isRequired isDisabled={!inputData.date} />
                     </Fieldset>
-                    <Input id={`${pageid}-note`} variant="textarea" labelText="Catatan" placeholder="format: Sumber Informasi / Nama Layanan / Catatan" name="note" rows={4} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
+                    <Input id={`${pageid}-note`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan/sumber informasi ..." name="note" rows={4} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
                     {inputData.service === "RESERVATION" && inputData.sub_service === "RESERVATION" && (
                       <Fieldset>
-                        <Input id={`${pageid}-price`} radius="full" labelText="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleInputChange} errorContent={errors.price} />
-                        <Input id={`${pageid}-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder="Pilih metode pembayaran" name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} />
+                        <Input id={`${pageid}-price`} radius="full" labelText="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleInputChange} errorContent={errors.price} isRequired={inputData.sub_service === "RESERVATION"} />
+                        <Input id={`${pageid}-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder="Pilih metode pembayaran" name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isRequired={inputData.sub_service === "RESERVATION"} />
                       </Fieldset>
                     )}
                   </Fragment>
@@ -2328,9 +2397,22 @@ const DashboardSlugPage = ({ parent, slug }) => {
           html2pdf().from(element).set(opt).save();
         };
 
-        const contactWhatsApp = (number) => {
+        const sendPDFLink = async (number, name) => {
+          const element = printRef.current;
+          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData.transactionname)}-${selectedOrderData.rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
+          try {
+            const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
+            const pdfURL = URL.createObjectURL(pdfBlob);
+            contactWhatsApp(number, name, pdfURL);
+            setTimeout(() => URL.revokeObjectURL(pdfURL), 30 * 60 * 1000);
+          } catch (error) {
+            console.error("Failed to generate and copy PDF link:", error);
+          }
+        };
+
+        const contactWhatsApp = (number, name, invLink) => {
           const wanumber = getNormalPhoneNumber(number);
-          window.open(`https://wa.me/${wanumber}`, "_blank");
+          window.open(`https://wa.me/${wanumber}?text=Halo%20${name}!%0ATerima%20kasih%20sudah%20melakukan%20transaksi%20di%20Edental.%20Klik%20link%20dibawah%20untuk%20mengunduh%20Invoice%20transaksimu%20%3A%0A%0A${invLink}%0A%0A*Link%20diatas%20berlaku%20selama%2030%20menit.%20Hubungi%20kami%20jika%20link%20tidak%20dapat%20diakses.%20Terima%20kasih!`, "_blank");
         };
 
         return (
@@ -2347,11 +2429,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isClickable isPrintable isContactable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
+              <Table byNumber isClickable isPrintable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactioncreate", "date")}>
                       Tanggal Dibuat
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionstatus", "number")}>
+                      Status Pembayaran
                     </TH>
                     <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionname", "text")}>
                       Nama Pengguna
@@ -2371,9 +2456,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH isSorted onSort={() => handleSort(orderData, setOrderData, "totalpay", "number")}>
                       Total Pembayaran
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionstatus", "number")}>
-                      Status Pembayaran
-                    </TH>
                     <TH isSorted onSort={() => handleSort(orderData, setOrderData, "voucher", "text")}>
                       Kode Voucher
                     </TH>
@@ -2388,8 +2470,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <TBody>
                   {filteredOrderData.map((data, index) => (
                     // <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
-                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
+                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)}>
                       <TD>{newDate(data.transactioncreate, "id")}</TD>
+                      <TD>{orderAlias(data.transactionstatus)}</TD>
                       <TD>{toTitleCase(data.transactionname)}</TD>
                       <TD type="code">{data.rscode}</TD>
                       <TD type="code">{data.noinvoice}</TD>
@@ -2398,7 +2481,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       </TD>
                       <TD>{data.payment}</TD>
                       <TD>{newPrice(data.totalpay)}</TD>
-                      <TD>{orderAlias(data.transactionstatus)}</TD>
                       <TD type="code">{data.voucher}</TD>
                       <TD>{toTitleCase(data.dentist)}</TD>
                       <TD>{toTitleCase(data.outlet_name)}</TD>
@@ -2438,7 +2520,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </SubmitForm>
             )}
             {selectedOrderData && orderDetailData && isFileOpen && (
-              <FileForm fetching={isFormFetching} onNext={exportToPDF} onClose={closeFile}>
+              <FileForm fetching={isFormFetching} onNext={exportToPDF} onSend={() => sendPDFLink(selectedOrderData.transactionphone, selectedOrderData.transactionname)} onClose={closeFile}>
                 <Invoice ref={printRef} data={selectedOrderData} items={orderDetailData} />
               </FileForm>
             )}

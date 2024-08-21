@@ -78,6 +78,12 @@ export const inputSchema = {
   diagnosecode: "",
   diagnosedetail: "",
   diagdetail: [{ diagnosisdetail: "" }],
+  dmf_d: "",
+  dmf_m: "",
+  dmf_f: "",
+  def_d: "",
+  def_e: "",
+  def_f: "",
 };
 
 export const errorSchema = {
@@ -160,4 +166,10 @@ export const errorSchema = {
   diagnosecode: "",
   diagnosedetail: "",
   diagdetail: [{ diagnosisdetail: "" }],
+  dmf_d: "",
+  dmf_m: "",
+  dmf_f: "",
+  def_d: "",
+  def_e: "",
+  def_f: "",
 };

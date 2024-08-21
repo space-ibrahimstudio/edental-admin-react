@@ -7,10 +7,11 @@ import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { getNestedValue, inputValidator } from "../libs/plugins/controller";
-import { useOptions, useAlias } from "../libs/plugins/helper";
+import { useOptions, useAlias, useOdontogram } from "../libs/plugins/helper";
 import { inputSchema, errorSchema } from "../libs/sources/common";
 import Pages from "../components/frames/pages";
 import { DashboardContainer, DashboardHead, DashboardToolbar, DashboardTool, DashboardBody } from "./overview-dashboard";
+import OdontoForm, { OdontoHistory, HistoryTr, OdontoGram, GramSet, GramRows, GramBlock, GramMarker, OdontoCondition, ConditionLi } from "../components/contents/odonto-form";
 import Grid, { GridItem } from "../components/contents/grid";
 import Fieldset from "../components/input-controls/inputs";
 import { SubmitForm } from "../components/input-controls/forms";
@@ -30,6 +31,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
   const { limitopt, paymenttypeopt, orderstatopt, stockoutstatopt, diagnoseopt } = useOptions();
+  const { topleft, topright, centertopleft, centertopright, centerbotleft, centerbotright, botleft, botright } = useOdontogram();
   const { orderAlias } = useAlias();
 
   const pageid = parent && slug && params ? `params-${toPathname(parent)}-${toPathname(slug)}-${toPathname(params)}` : "params-dashboard";
@@ -37,6 +39,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const [pageTitle, setPageTitle] = useState("");
   const [isFetching, setIsFetching] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isDataShown, setIsDataShown] = useState(true);
   const [sortOrder, setSortOrder] = useState("asc");
   const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1)));
@@ -73,9 +76,16 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const [categoryStockData, setCategoryStockData] = useState([]);
   const [fvaListData, setFvaListData] = useState([]);
   const [labData, setLabData] = useState([]);
+  const [selectedCondition, setSelectedCondition] = useState(null);
+  const [conditionData, setConditionData] = useState([]);
+  const [userConditionData, setUserConditionData] = useState(null);
+  const [odontoHistoryData, setOdontoHistoryData] = useState([]);
+  const [selectedToothNo, setSelectedToothNo] = useState(null);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
+  const [dmfT, setDmfT] = useState("0");
+  const [defT, setDefT] = useState("0");
 
   const goBack = () => navigate(-1);
   const handlePageChange = (page) => setCurrentPage(page);
@@ -255,9 +265,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
           break;
         case "REKAM MEDIS":
           setPageTitle(`Rekam Medis #${params}`);
-          formData.append("data", JSON.stringify({ secret, iduser: params }));
           switch (tabId) {
             case "1":
+              formData.append("data", JSON.stringify({ secret, iduser: params }));
               switch (subTabId) {
                 case "1":
                   data = await apiRead(formData, "office", "viewanamnesa");
@@ -297,7 +307,30 @@ const DashboardParamsPage = ({ parent, slug }) => {
               break;
             case "2":
               switch (subTabId) {
+                case "1":
+                  formData.append("data", JSON.stringify({ secret, idmedics: params }));
+                  data = await apiRead(formData, "office", "viewtoothuser");
+                  if (data && data.data && data.data.length > 0) {
+                    const conditiondata = data.data[0]["condition"][0];
+                    const historydata = data.data[0]["detail"];
+                    setUserConditionData(conditiondata);
+                    setInputData({ ...inputData, dmf_d: conditiondata.D, dmf_m: conditiondata.M, dmf_f: conditiondata.F, def_d: conditiondata.De, def_e: conditiondata.E, def_f: conditiondata.eF });
+                    setOdontoHistoryData(historydata);
+                  } else {
+                    setUserConditionData(null);
+                    setInputData({ ...inputData, dmf_d: "", dmf_m: "", dmf_f: "", def_d: "", def_e: "", def_f: "" });
+                    setOdontoHistoryData([]);
+                  }
+                  addtFormData.append("data", JSON.stringify({ secret }));
+                  addtdata = await apiRead(addtFormData, "office", "viewtooth");
+                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
+                    setConditionData(addtdata.data);
+                  } else {
+                    setConditionData([]);
+                  }
+                  break;
                 case "2":
+                  formData.append("data", JSON.stringify({ secret, iduser: params }));
                   data = await apiRead(formData, "office", "viewdiagnosisuser");
                   if (data && data.data && data.data.length > 0) {
                     setRkmDiagnosaData(data.data);
@@ -315,6 +348,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                   }
                   break;
                 case "4":
+                  formData.append("data", JSON.stringify({ secret, iduser: params }));
                   data = await apiRead(formData, "office", "viewstockoutdetail");
                   if (data && data.data && data.data.length > 0) {
                     setAlkesData(data.data);
@@ -336,6 +370,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
               }
               break;
             case "3":
+              formData.append("data", JSON.stringify({ secret, iduser: params }));
               data = await apiRead(formData, "office", "viewrecipe");
               if (data && data.data && data.data.length > 0) {
                 setRecipeData(data.data);
@@ -544,6 +579,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
             break;
           case "2":
             switch (subTabId) {
+              case "1":
+                requiredFields = ["dmf_d", "dmf_m", "dmf_f", "def_d", "def_e", "def_f"];
+                break;
               case "2":
                 requiredFields = ["diagnose", "diagnosecode", "diagnosedetail"];
                 break;
@@ -581,7 +619,11 @@ const DashboardParamsPage = ({ parent, slug }) => {
     }
     const validationErrors = inputValidator(inputData, requiredFields);
     if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+      if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "1") {
+        showNotifications("danger", "Mohon isi semua nilai DMF dan DeF sebelum menyimpan.");
+      } else {
+        setErrors(validationErrors);
+      }
       return;
     }
     const action = e.nativeEvent.submitter.getAttribute("data-action");
@@ -618,6 +660,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
               break;
             case "2":
               switch (subTabId) {
+                case "1":
+                  submittedData = { secret, idmedics: params, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoHistoryData.filter((allitem) => allitem["tooth"].idconditiontooth === "").map((item) => ({ nomergigi: item["tooth"].tooth, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan })) })) };
+                  break;
                 case "2":
                   submittedData = { secret, type: inputData.diagnose, code: inputData.diagnosecode, detail: inputData.diagnosedetail, idmedics: params, note: inputData.note };
                   break;
@@ -658,9 +703,17 @@ const DashboardParamsPage = ({ parent, slug }) => {
       showNotifications("success", successmsg);
       log("submitted data:", submittedData);
       if (action === "add") {
-        closeForm();
+        if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "1") {
+          setOdontoHistoryData(odontoHistoryData.filter((item) => item["tooth"].idconditiontooth !== ""));
+        } else {
+          closeForm();
+        }
       } else {
-        closeEdit();
+        if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "1") {
+          setOdontoHistoryData(odontoHistoryData.filter((item) => item["tooth"].idconditiontooth !== ""));
+        } else {
+          closeEdit();
+        }
       }
       await fetchData();
       await fetchAdditionalData();
@@ -1046,6 +1099,200 @@ const DashboardParamsPage = ({ parent, slug }) => {
               }
             case "2":
               switch (subTabId) {
+                case "1":
+                  const handleToothClick = (toothNumber) => {
+                    if (selectedCondition) {
+                      setOdontoHistoryData((prevResults) => {
+                        const existingTooth = prevResults.find((tooth) => tooth["tooth"].tooth === toothNumber);
+                        if (existingTooth) {
+                          if (selectedMode === "update") {
+                            showNotifications("danger", `Tidak dapat menambahkan data kondisi baru pada riwayat dengan nomor gigi yang sudah ada. Mohon hapus riwayat gigi no.${toothNumber} terlebih dahulu.`);
+                            return prevResults;
+                          } else {
+                            const updatedResults = prevResults.map((tooth) => {
+                              if (tooth["tooth"].tooth === toothNumber) {
+                                return { ...tooth, detailgigi: [...tooth.detailgigi, { singkatan: selectedCondition.singkatan, arti: selectedCondition.arti, keterangan: selectedCondition.keterangan }] };
+                              } else {
+                                return tooth;
+                              }
+                            });
+                            return updatedResults;
+                          }
+                        } else {
+                          return [...prevResults, { tooth: { idconditiontooth: "", tooth: toothNumber }, detailgigi: [{ singkatan: selectedCondition.singkatan, arti: selectedCondition.arti, keterangan: selectedCondition.keterangan }] }];
+                        }
+                      });
+                    } else {
+                      showNotifications("danger", "Mohon pilih salah satu data kondisi terlebih dahulu.");
+                    }
+                  };
+
+                  const handleDeleteHistory = async (label, iddetail, index) => {
+                    const confirmmsg = `Apakah anda yakin untuk menghapus data riwayat Odontogram no.${label}?`;
+                    const successmsg = `Selamat! Data riwayat Odontogram no.${label} berhasil dihapus.`;
+                    const errormsg = "Terjadi kesalahan saat menghapus data. Mohon periksa koneksi internet anda dan coba lagi.";
+                    const confirm = window.confirm(confirmmsg);
+                    if (!confirm) {
+                      return;
+                    }
+                    setIsDeleting(true);
+                    try {
+                      if (iddetail === "") {
+                        setOdontoHistoryData((prevResults) => prevResults.filter((_, idx) => idx !== index));
+                      } else {
+                        const formData = new FormData();
+                        const submittedData = { secret, idmedics: params, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoHistoryData.filter((allitem) => allitem["tooth"].idconditiontooth === "").map((item) => ({ nomergigi: item["tooth"].tooth, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan })) })) };
+                        formData.append("data", JSON.stringify(submittedData));
+                        formData.append("iddelete", iddetail);
+                        await apiCrud(formData, "office", "addtooth");
+                        setOdontoHistoryData((prevResults) => prevResults.filter((_, idx) => idx !== index));
+                        await fetchData();
+                      }
+                      showNotifications("success", successmsg);
+                    } catch (error) {
+                      showNotifications("danger", errormsg);
+                      console.error(errormsg, error);
+                    } finally {
+                      setIsDeleting(false);
+                    }
+                  };
+
+                  const openToothForm = async (params) => {
+                    const formData = new FormData();
+                    formData.append("data", JSON.stringify({ secret, idtooth: params.idconditiontooth }));
+                    setSelectedToothNo(params);
+                    setIsFormOpen(true);
+                    setIsFormFetching(true);
+                    try {
+                      const data = await apiRead(formData, "office", "viewtoothdesc");
+                      if (data && data.data && data.data.length > 0) {
+                        setInputData({ ...inputData, desc: data.data[0].description });
+                      } else {
+                        setInputData({ ...inputData, desc: "" });
+                      }
+                    } catch (error) {
+                      showNotifications("danger", "Terjadi kesalahan saat memuat data deskripsi. Mohon periksa koneksi internet anda dan coba lagi.");
+                      console.error("Terjadi kesalahan saat memuat data deskripsi. Mohon periksa koneksi internet anda dan coba lagi.", error);
+                    } finally {
+                      setIsFormFetching(false);
+                    }
+                  };
+
+                  const closeToothForm = () => {
+                    setSelectedToothNo(null);
+                    setIsFormOpen(false);
+                    setInputData({ ...inputData, desc: "" });
+                    setErrors({ ...errors, desc: "" });
+                  };
+
+                  const handleSubmitToothDesc = async (e) => {
+                    e.preventDefault();
+                    const validationErrors = inputValidator(inputData, ["desc"]);
+                    if (Object.keys(validationErrors).length > 0) {
+                      setErrors(validationErrors);
+                      return;
+                    }
+                    const confirmmsg = `Apakah anda yakin untuk menyimpan perubahan pada deskripsi pada riwayat gigi no.${selectedToothNo.tooth}?`;
+                    const successmsg = `Selamat! Perubahan deskripsi pada riwayat gigi no.${selectedToothNo.tooth} berhasil disimpan.`;
+                    const errormsg = "Terjadi kesalahan saat menyimpan perubahan. Mohon periksa koneksi internet anda dan coba lagi.";
+                    const confirm = window.confirm(confirmmsg);
+                    if (!confirm) {
+                      return;
+                    }
+                    setIsSubmitting(true);
+                    try {
+                      const formData = new FormData();
+                      formData.append("data", JSON.stringify({ secret, desc: inputData.desc }));
+                      formData.append("idedit", selectedToothNo.idconditiontooth);
+                      await apiCrud(formData, "office", "updatetoothdesc");
+                      showNotifications("success", successmsg);
+                      await fetchData();
+                      closeToothForm();
+                    } catch (error) {
+                      showNotifications("danger", errormsg);
+                      console.error(errormsg, error);
+                    } finally {
+                      setIsSubmitting(false);
+                    }
+                  };
+
+                  return (
+                    <Fragment>
+                      <OdontoForm onSubmit={(e) => handleSubmit(e, "addtooth")} submitting={isSubmitting} deleting={isDeleting}>
+                        <OdontoHistory onDeleteAll={() => {}}>
+                          {odontoHistoryData.map((item, index) => (
+                            <HistoryTr key={index} no={item["tooth"].tooth} label={item["detailgigi"]} isEditable={item["tooth"].idconditiontooth !== ""} onEdit={() => openToothForm(item["tooth"])} onDelete={() => handleDeleteHistory(item["tooth"].tooth, item["tooth"].idconditiontooth, index)} />
+                          ))}
+                        </OdontoHistory>
+                        <OdontoGram inputData={inputData} setInputData={setInputData} dmfT={dmfT} defT={defT} action={selectedMode}>
+                          <GramSet type="top">
+                            <GramRows>
+                              {topleft.map((item, index) => (
+                                <GramBlock key={index} topLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                              ))}
+                            </GramRows>
+                            <GramMarker alt="top" src="/svg/down-marker.svg" />
+                            <GramRows>
+                              {topright.map((item, index) => (
+                                <GramBlock key={index} topLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                              ))}
+                            </GramRows>
+                          </GramSet>
+                          <GramSet type="center">
+                            <GramSet type="center-child">
+                              <GramRows>
+                                {centertopleft.map((item, index) => (
+                                  <GramBlock key={index} topLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                ))}
+                              </GramRows>
+                              <GramRows>
+                                {centertopright.map((item, index) => (
+                                  <GramBlock key={index} topLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                ))}
+                              </GramRows>
+                            </GramSet>
+                            <GramMarker alt="center-top" src="/svg/up-marker.svg" />
+                            <GramMarker alt="center-bot" src="/svg/down-marker.svg" />
+                            <GramSet type="center-child">
+                              <GramRows>
+                                {centerbotleft.map((item, index) => (
+                                  <GramBlock key={index} botLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                ))}
+                              </GramRows>
+                              <GramRows>
+                                {centerbotright.map((item, index) => (
+                                  <GramBlock key={index} botLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                ))}
+                              </GramRows>
+                            </GramSet>
+                          </GramSet>
+                          <GramSet type="bot">
+                            <GramRows>
+                              {botleft.map((item, index) => (
+                                <GramBlock key={index} botLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                              ))}
+                            </GramRows>
+                            <GramMarker alt="bot" src="/svg/up-marker.svg" />
+                            <GramRows>
+                              {botright.map((item, index) => (
+                                <GramBlock key={index} botLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                              ))}
+                            </GramRows>
+                          </GramSet>
+                        </OdontoGram>
+                        <OdontoCondition>
+                          {conditionData.map((item, index) => (
+                            <ConditionLi key={index} label={item.singkatan} name={item.arti} onClick={() => setSelectedCondition(item)} isActive={selectedCondition && selectedCondition.idtooth === item.idtooth} />
+                          ))}
+                        </OdontoCondition>
+                      </OdontoForm>
+                      {isFormOpen && selectedToothNo && (
+                        <SubmitForm size="sm" formTitle={`Perbarui Deskripsi no.${selectedToothNo.idconditiontooth}`} fetching={isFormFetching} onSubmit={handleSubmitToothDesc} loading={isSubmitting} onClose={closeToothForm}>
+                          <Input id={`${pageid}-note`} variant="textarea" labelText="Deskripsi" placeholder="Masukkan deskripsi" name="desc" rows={5} value={inputData.desc} onChange={handleInputChange} errorContent={errors.desc} isRequired />
+                        </SubmitForm>
+                      )}
+                    </Fragment>
+                  );
                 case "2":
                   return (
                     <Fragment>
@@ -1166,7 +1413,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                                 {inputData.typepayment && (
                                   <Fragment>
                                     {inputData.typepayment === "cashless" ? (
-                                      <Input id={`${pageid}-method-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"} name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isDisabled={!inputData.typepayment} />
+                                      <Input id={`${pageid}-method-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"} name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isDisabled={!inputData.typepayment} isRequired />
                                     ) : (
                                       <Fragment>
                                         {inputData.typepayment === "insurance" && <Input id={`${pageid}-insurance`} radius="full" labelText="Nama Asuransi" placeholder="Masukkan nama asuransi" type="text" name="bank_code" value={inputData.bank_code} onChange={handleInputChange} errorContent={errors.bank_code} isRequired />}
@@ -1426,6 +1673,17 @@ const DashboardParamsPage = ({ parent, slug }) => {
   }, [slug, stockHistoryData, startDate, endDate]);
 
   useEffect(() => {
+    if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "1") {
+      const dmfTotal = (parseInt(inputData.dmf_d || "0", 10) + parseInt(inputData.dmf_m || "0", 10) + parseInt(inputData.dmf_f || "0", 10)).toString();
+      const defTotal = (parseInt(inputData.def_d || "0", 10) + parseInt(inputData.def_e || "0", 10) + parseInt(inputData.def_f || "0", 10)).toString();
+      setDmfT(dmfTotal);
+      setDefT(defTotal);
+      setSelectedMode(userConditionData ? "update" : "add");
+      setSelectedData(userConditionData ? userConditionData.idcondition : null);
+    }
+  }, [slug, tabId, subTabId, inputData, userConditionData]);
+
+  useEffect(() => {
     if (slug === "REKAM MEDIS") {
       fetchAdditionalData();
     }
@@ -1438,6 +1696,15 @@ const DashboardParamsPage = ({ parent, slug }) => {
       setEndDate(new Date());
     }
   }, [slug]);
+
+  useEffect(() => {
+    log("new history array:", odontoHistoryData);
+  }, [odontoHistoryData]);
+
+  useEffect(() => {
+    log("selected mode:", selectedMode);
+    log("selected data:", selectedData);
+  }, [selectedMode, selectedData]);
 
   if (!isLoggedin) {
     return <Navigate to="/login" />;
