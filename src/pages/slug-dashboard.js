@@ -94,6 +94,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [diagnoseData, setDiagnoseData] = useState([]);
   const [orderRData, setOrderRData] = useState([]);
   const [conditionData, setConditionData] = useState([]);
+  const [practiciData, setPracticiData] = useState([]);
+  const [selectedPract, setSelectedPract] = useState(null);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -598,6 +600,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setEventsData([]);
           }
           break;
+        case "PRACTITIONER":
+          addtFormData.append("data", JSON.stringify({ secret }));
+          data = await apiRead(addtFormData, "satusehat", "viewpractitioner");
+          if (data && data.data && data.data.length > 0) {
+            setPracticiData(data.data);
+          } else {
+            setPracticiData([]);
+          }
+          break;
         default:
           setTotalPages(0);
           break;
@@ -765,7 +776,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     }
   };
 
-  const handleSubmit = async (e, endpoint) => {
+  const handleSubmit = async (e, endpoint, scope = "office") => {
     e.preventDefault();
     let requiredFields = [];
     switch (slug) {
@@ -825,6 +836,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
         break;
       case "ORDER CUSTOMER":
         requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
+        break;
+      case "PRACTITIONER":
+        requiredFields = ["city", "province", "district", "village", "rt", "rw", "address", "birth_date", "gender"];
         break;
       default:
         requiredFields = [];
@@ -908,6 +922,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "ORDER CUSTOMER":
           submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
           break;
+        case "PRACTITIONER":
+          submittedData = { secret, city: inputData.city, province: inputData.province, district: inputData.district, village: inputData.village, rt: inputData.rt, rw: inputData.rw, address: inputData.address, birthDate: inputData.birth_date, gender: inputData.gender, id: inputData.id, str: inputData.str };
+          break;
         default:
           break;
       }
@@ -917,7 +934,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       if (action === "update") {
         formData.append("idedit", selectedData);
       }
-      await apiCrud(formData, "office", endpoint);
+      await apiCrud(formData, scope, endpoint);
       showNotifications("success", successmsg);
       log("submitted data:", submittedData);
       if (action === "add") {
@@ -988,6 +1005,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: diagnoseSearch, handleSearch: handleDiagnoseSearch, filteredData: filteredDiagnoseData, isDataShown: isDiagnoseShown } = useSearch(diagnoseData, ["code.diagnosiscode"]);
   const { searchTerm: orderRSearch, handleSearch: handleOrderRSearch, filteredData: filteredOrderRData, isDataShown: isOrderRShown } = useSearch(orderRData, ["order.noktp"]);
   const { searchTerm: conditionSearch, handleSearch: handleConditionSearch, filteredData: filteredConditionData, isDataShown: isConditionShown } = useSearch(conditionData, ["singkatan", "arti", "keterangan"]);
+  const { searchTerm: practiSearch, handleSearch: handlePractiSearch, filteredData: filteredPractiData, isDataShown: isPractiShown } = useSearch(practiciData, ["gender"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -2612,6 +2630,132 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </Calendar>
             </DashboardBody>
             {isModalOpen && <EventModal events={selectedDayEvents} onClose={closeEvent} />}
+          </Fragment>
+        );
+      case "PRACTITIONER":
+        const handlePInputChange = async (e) => {
+          const { name, value } = e.target;
+          const formData = new FormData();
+          setInputData((prevState) => ({ ...prevState, [name]: value }));
+          setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+          if (name === "practici_id" && value !== "") {
+            formData.append("secret", secret);
+            formData.append("nik", value);
+            setIsSubmitting(true);
+            try {
+              const practicidata = await apiRead(formData, "satusehat", "searchpractitioner");
+              if (practicidata && practicidata.data) {
+                const aliasedpractic = practicidata.data;
+                setSelectedPract(aliasedpractic);
+                setInputData((prevState) => ({ ...prevState, city: aliasedpractic.entry[0].resource.address[0].extension[0].extension[1].valueCode, province: aliasedpractic.entry[0].resource.address[0].extension[0].extension[0].valueCode, district: aliasedpractic.entry[0].resource.address[0].extension[0].extension[2].valueCode, village: aliasedpractic.entry[0].resource.address[0].extension[0].extension[3].valueCode, rt: aliasedpractic.entry[0].resource.address[0].extension[0].extension[4].valueCode, rw: aliasedpractic.entry[0].resource.address[0].extension[0].extension[5].valueCode, address: aliasedpractic.entry[0].resource.address[0].line[0], birth_date: aliasedpractic.entry[0].resource.birthDate, gender: aliasedpractic.entry[0].resource.gender, id: aliasedpractic.entry[0].resource.id, str: aliasedpractic.entry[0].resource.qualification[0].identifier[0].value }));
+              } else {
+                setInputData((prevState) => ({ ...prevState, city: "", province: "", district: "", village: "", rt: "", rw: "", address: "", birth_date: "", gender: "", id: "", str: "" }));
+              }
+            } catch (error) {
+              console.error("error:", error);
+            } finally {
+              setIsSubmitting(false);
+            }
+          }
+        };
+
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={practiSearch} onChange={(e) => handlePractiSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isNoData={!isPractiShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "city", "number")}>
+                      City
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "province", "number")}>
+                      Province
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "district", "number")}>
+                      District
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "village", "number")}>
+                      Village
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "rt", "number")}>
+                      RT
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "rw", "number")}>
+                      RW
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "postalCode", "number")}>
+                      Postal Code
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "address", "text")}>
+                      Address
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "birthDate", "number")}>
+                      Birthdate
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "gender", "text")}>
+                      Gender
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "id", "number")}>
+                      ID
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "str", "number")}>
+                      STR
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "phone", "number")}>
+                      Phone
+                    </TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredPractiData.map((data, index) => (
+                    <TR key={index}>
+                      <TD>{data.city}</TD>
+                      <TD>{data.province}</TD>
+                      <TD>{data.district}</TD>
+                      <TD>{data.village}</TD>
+                      <TD>{data.rt}</TD>
+                      <TD>{data.rw}</TD>
+                      <TD>{data.postalCode}</TD>
+                      <TD>{data.address}</TD>
+                      <TD>{data.birthDate}</TD>
+                      <TD>{data.gender}</TD>
+                      <TD>{data.id}</TD>
+                      <TD>{data.str}</TD>
+                      <TD>{data.phone}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle="Tambah Data Praktisioner" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addpractitioner", "satusehat")} loading={isSubmitting} onClose={closeForm}>
+                <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="practici_id" value={inputData.practici_id} options={branchDentistData.map((dentist) => ({ value: dentist.nik, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handlePInputChange({ target: { name: "practici_id", value: selectedValue } })} errorContent={errors.practici_id} isRequired />
+                <Fieldset>
+                  <Input id={`${pageid}-city`} radius="full" labelText="City ID" placeholder="e.g 30" type="text" name="city" value={inputData.city} onChange={handlePInputChange} errorContent={errors.city} isRequired />
+                  <Input id={`${pageid}-province`} radius="full" labelText="Province ID" placeholder="e.g 200" type="text" name="province" value={inputData.province} onChange={handlePInputChange} errorContent={errors.province} isRequired />
+                </Fieldset>
+                <Fieldset>
+                  <Input id={`${pageid}-district`} radius="full" labelText="District ID" placeholder="e.g 50" type="text" name="district" value={inputData.district} onChange={handlePInputChange} errorContent={errors.district} isRequired />
+                  <Input id={`${pageid}-village`} radius="full" labelText="Village ID" placeholder="e.g 100" type="text" name="village" value={inputData.village} onChange={handlePInputChange} errorContent={errors.village} isRequired />
+                </Fieldset>
+                <Fieldset>
+                  <Input id={`${pageid}-rt`} radius="full" labelText="RT" placeholder="004" type="text" name="rt" value={inputData.rt} onChange={handlePInputChange} errorContent={errors.rt} isRequired />
+                  <Input id={`${pageid}-rw`} radius="full" labelText="RW" placeholder="006" type="text" name="rw" value={inputData.rw} onChange={handlePInputChange} errorContent={errors.rw} isRequired />
+                </Fieldset>
+                <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handlePInputChange} errorContent={errors.address} isRequired />
+                <Fieldset>
+                  <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth_date" value={inputData.birth_date} onChange={handlePInputChange} errorContent={errors.birth_date} isRequired />
+                  <Input id={`${pageid}-gender`} radius="full" labelText="Jenis Kelamin" placeholder="Perempuan" type="text" name="gender" value={inputData.gender} onChange={handlePInputChange} errorContent={errors.gender} isRequired />
+                </Fieldset>
+              </SubmitForm>
+            )}
           </Fragment>
         );
       default:

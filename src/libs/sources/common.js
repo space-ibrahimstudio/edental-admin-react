@@ -84,6 +84,16 @@ export const inputSchema = {
   def_d: "",
   def_e: "",
   def_f: "",
+  city: "",
+  province: "",
+  district: "",
+  village: "",
+  rt: "",
+  rw: "",
+  postal_code: "",
+  birth_date: "",
+  str: "",
+  practici_id: "",
 };
 
 export const errorSchema = {
@@ -172,4 +182,14 @@ export const errorSchema = {
   def_d: "",
   def_e: "",
   def_f: "",
+  city: "",
+  province: "",
+  district: "",
+  village: "",
+  rt: "",
+  rw: "",
+  postal_code: "",
+  birth_date: "",
+  str: "",
+  practici_id: "",
 };
