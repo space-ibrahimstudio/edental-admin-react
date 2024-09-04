@@ -1,4 +1,4 @@
-name: Edental Office
+name: Edental Office v0.1.0
 
 on:
   push:
@@ -15,27 +15,27 @@ jobs:
         node-version: [20.12.1]
 
     steps:
-      - name: Get latest code
+      - name: 1. Get latest code
         uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: 2. Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@master
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Copying environment variables
-        run: cp .env.prod.example .env
+      - name: 3. Export environment variables
+        run: echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" >> $GITHUB_ENV
 
-      - name: Installing required packages
+      - name: 4. Installing required packages
         run: npm install
 
-      - name: Builds the app for production
+      - name: 5. Builds the app for production
         run: CI= npm run build
 
-      - name: List output files
+      - name: 6. List output files
         run: find build/ -print
 
-      - name: Sync files
+      - name: 7. Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
           server: ${{ secrets.FTP_HOST }}
