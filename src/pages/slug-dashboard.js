@@ -2726,9 +2726,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD>{data.address}</TD>
                       <TD>{data.birthDate}</TD>
                       <TD>{data.gender}</TD>
-                      <TD>{data.id}</TD>
-                      <TD>{data.str}</TD>
-                      <TD>{data.phone}</TD>
+                      <TD isCopy>{data.id}</TD>
+                      <TD isCopy>{data.str}</TD>
+                      <TD isCopy>{data.phone}</TD>
                     </TR>
                   ))}
                 </TBody>
