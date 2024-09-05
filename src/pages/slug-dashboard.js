@@ -95,7 +95,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [orderRData, setOrderRData] = useState([]);
   const [conditionData, setConditionData] = useState([]);
   const [practiciData, setPracticiData] = useState([]);
-  const [selectedPract, setSelectedPract] = useState(null);
+  const [orgData, setOrgData] = useState([]);
+  const [provinceData, setProvinceData] = useState([]);
+  const [cityData, setCityData] = useState([]);
+  const [districtData, setDistrictData] = useState([]);
+  const [villageData, setVillageData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -609,6 +613,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setPracticiData([]);
           }
           break;
+        case "ORGANIZATION":
+          addtFormData.append("data", JSON.stringify({ secret }));
+          data = await apiRead(addtFormData, "satusehat", "vieworganization");
+          if (data && data.data && data.data.length > 0) {
+            setOrgData(data.data);
+          } else {
+            setOrgData([]);
+          }
+          break;
         default:
           setTotalPages(0);
           break;
@@ -675,6 +688,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
         setAllStockData(stockdata.data);
       } else {
         setAllStockData([]);
+      }
+      const provincedata = await apiRead(formData, "satusehat", "viewprovincie");
+      if (provincedata && provincedata.data && provincedata.data.length > 0) {
+        setProvinceData(provincedata.data);
+      } else {
+        setProvinceData([]);
       }
     } catch (error) {
       showNotifications("danger", errormsg);
@@ -840,6 +859,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "PRACTITIONER":
         requiredFields = ["city", "province", "district", "village", "rt", "rw", "address", "birth_date", "gender"];
         break;
+      case "ORGANIZATION":
+        requiredFields = ["name", "phone", "email", "address", "city_name", "postcode", "province", "city", "district", "village"];
+        break;
       default:
         requiredFields = [];
         break;
@@ -925,6 +947,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "PRACTITIONER":
           submittedData = { secret, city: inputData.city, province: inputData.province, district: inputData.district, village: inputData.village, rt: inputData.rt, rw: inputData.rw, address: inputData.address, birthDate: inputData.birth_date, gender: inputData.gender, id: inputData.id, str: inputData.str };
           break;
+        case "ORGANIZATION":
+          submittedData = { secret, name: inputData.name, phone: inputData.phone, email: inputData.email, address: inputData.address, cityname: inputData.city_name, postalcode: inputData.postcode, province: inputData.province, city: inputData.city, district: inputData.district, village: inputData.village };
+          break;
         default:
           break;
       }
@@ -1006,6 +1031,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: orderRSearch, handleSearch: handleOrderRSearch, filteredData: filteredOrderRData, isDataShown: isOrderRShown } = useSearch(orderRData, ["order.noktp"]);
   const { searchTerm: conditionSearch, handleSearch: handleConditionSearch, filteredData: filteredConditionData, isDataShown: isConditionShown } = useSearch(conditionData, ["singkatan", "arti", "keterangan"]);
   const { searchTerm: practiSearch, handleSearch: handlePractiSearch, filteredData: filteredPractiData, isDataShown: isPractiShown } = useSearch(practiciData, ["gender"]);
+  const { searchTerm: orgSearch, handleSearch: handleOrgSearch, filteredData: filteredOrgData, isDataShown: isOrgShown } = useSearch(orgData, ["email"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -2646,7 +2672,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
               const practicidata = await apiRead(formData, "satusehat", "searchpractitioner");
               if (practicidata && practicidata.data) {
                 const aliasedpractic = practicidata.data;
-                setSelectedPract(aliasedpractic);
                 setInputData((prevState) => ({ ...prevState, city: aliasedpractic.entry[0].resource.address[0].extension[0].extension[1].valueCode, province: aliasedpractic.entry[0].resource.address[0].extension[0].extension[0].valueCode, district: aliasedpractic.entry[0].resource.address[0].extension[0].extension[2].valueCode, village: aliasedpractic.entry[0].resource.address[0].extension[0].extension[3].valueCode, rt: aliasedpractic.entry[0].resource.address[0].extension[0].extension[4].valueCode, rw: aliasedpractic.entry[0].resource.address[0].extension[0].extension[5].valueCode, address: aliasedpractic.entry[0].resource.address[0].line[0], birth_date: aliasedpractic.entry[0].resource.birthDate, gender: aliasedpractic.entry[0].resource.gender, id: aliasedpractic.entry[0].resource.id, str: aliasedpractic.entry[0].resource.qualification[0].identifier[0].value }));
               } else {
                 setInputData((prevState) => ({ ...prevState, city: "", province: "", district: "", village: "", rt: "", rw: "", address: "", birth_date: "", gender: "", id: "", str: "" }));
@@ -2758,6 +2783,182 @@ const DashboardSlugPage = ({ parent, slug }) => {
             )}
           </Fragment>
         );
+      case "ORGANIZATION":
+        const getCityID = async (provid) => {
+          const formData = new FormData();
+          formData.append("data", JSON.stringify({ secret, idprovincie: provid }));
+          setIsSubmitting(true);
+          try {
+            const response = await apiRead(formData, "satusehat", "viewcity");
+            setCityData(response && response.data && response.data.length > 0 ? response.data : []);
+          } catch (error) {
+            console.error("error:", error);
+          } finally {
+            setIsSubmitting(false);
+          }
+        };
+
+        const getDistrictID = async (cityid) => {
+          const formData = new FormData();
+          formData.append("data", JSON.stringify({ secret, idcity: cityid }));
+          setIsSubmitting(true);
+          try {
+            const response = await apiRead(formData, "satusehat", "viewdistrict");
+            setDistrictData(response && response.data && response.data.length > 0 ? response.data : []);
+          } catch (error) {
+            console.error("error:", error);
+          } finally {
+            setIsSubmitting(false);
+          }
+        };
+
+        const getVillageID = async (distrid) => {
+          const formData = new FormData();
+          formData.append("data", JSON.stringify({ secret, iddistrict: distrid }));
+          setIsSubmitting(true);
+          try {
+            const response = await apiRead(formData, "satusehat", "viewvillage");
+            setVillageData(response && response.data && response.data.length > 0 ? response.data : []);
+          } catch (error) {
+            console.error("error:", error);
+          } finally {
+            setIsSubmitting(false);
+          }
+        };
+
+        const handleOInputChange = (e) => {
+          const { name, value } = e.target;
+          setInputData((prevState) => ({ ...prevState, [name]: value }));
+          setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+          if (name === "province" && value !== "") {
+            getCityID(value);
+          } else if (name === "city" && value !== "") {
+            getDistrictID(value);
+          } else if (name === "district" && value !== "") {
+            getVillageID(value);
+          }
+        };
+
+        const handleCreateOrg = async (e) => {
+          e.preventDefault();
+          const requiredFields = ["name", "phone", "email", "address", "city_name", "postcode", "province", "city", "district", "village"];
+          const validationErrors = inputValidator(inputData, requiredFields);
+          if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+          }
+          const confirmmsg = `Apakah anda yakin untuk menambahkan data baru pada ${toTitleCase(slug)}?`;
+          const successmsg = `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
+          const errormsg = "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
+          const confirm = window.confirm(confirmmsg);
+          if (!confirm) {
+            return;
+          }
+          setIsSubmitting(true);
+          try {
+            const submittedData = { secret, name: inputData.name, phone: inputData.phone, email: inputData.email, address: inputData.address, cityname: inputData.city_name, postalcode: inputData.postcode, province: inputData.province, city: inputData.city, district: inputData.district, village: inputData.village };
+            const formData = new FormData();
+            const fFormData = new FormData();
+            formData.append("data", JSON.stringify(submittedData));
+            const response = await apiCrud(formData, "satusehat", "addorganization");
+            if (response && !response.error) {
+              const aliasedorg = response.data;
+              const fSubmittedData = { secret, id: aliasedorg.id, cityname: inputData.city_name, province: inputData.province, city: inputData.city, district: inputData.district, village: inputData.village, dept: aliasedorg.type[0].coding[0].display, address: inputData.address, postalCode: inputData.postcode, identifier: aliasedorg.identifier[0].value, reference: aliasedorg.partOf.reference, phone: inputData.phone, email: inputData.email };
+              fFormData.append("data", JSON.stringify(fSubmittedData));
+              await apiCrud(fFormData, "satusehat", "saveorganization");
+              log("added data:", fSubmittedData);
+              showNotifications("success", successmsg);
+              log("created data:", submittedData);
+              closeForm();
+            }
+            await fetchData();
+            await fetchAdditionalData();
+          } catch (error) {
+            showNotifications("danger", errormsg);
+            console.error(errormsg, error);
+          } finally {
+            setIsSubmitting(false);
+          }
+        };
+
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orgSearch} onChange={(e) => handleOrgSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isNoData={!isOrgShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSort(orgData, setOrgData, "id", "number")}>
+                      ID
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orgData, setOrgData, "cityname", "text")}>
+                      Kota
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orgData, setOrgData, "address", "text")}>
+                      Alamat
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orgData, setOrgData, "phone", "number")}>
+                      Telepon
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orgData, setOrgData, "email", "text")}>
+                      Email
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orgData, setOrgData, "identifier", "text")}>
+                      Identifier
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orgData, setOrgData, "reference", "text")}>
+                      Referensi
+                    </TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredOrgData.map((data, index) => (
+                    <TR key={index}>
+                      <TD>{data.id}</TD>
+                      <TD>{data.cityname}</TD>
+                      <TD>{data.address}</TD>
+                      <TD>{data.phone}</TD>
+                      <TD>{data.email}</TD>
+                      <TD>{data.identifier}</TD>
+                      <TD>{data.reference}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle="Tambah Data Organisasi" operation="add" fetching={isFormFetching} onSubmit={handleCreateOrg} loading={isSubmitting} onClose={closeForm}>
+                {level === "admin" && <Input id={`${pageid}-outlet`} labelText="Cabang" variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+                <Fieldset>
+                  <Input id={`${pageid}-orgname`} radius="full" labelText="Nama Organisasi" placeholder="Cabang Jakarta" type="text" name="name" value={inputData.name} onChange={handleOInputChange} errorContent={errors.name} isRequired />
+                  <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleOInputChange} errorContent={errors.phone} isRequired />
+                </Fieldset>
+                <Fieldset>
+                  <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="outlet@gmail.com" type="email" name="email" value={inputData.email} onChange={handleOInputChange} errorContent={errors.email} isRequired />
+                  <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleOInputChange} errorContent={errors.address} isRequired />
+                </Fieldset>
+                <Fieldset>
+                  <Input id={`${pageid}-cityname`} radius="full" labelText="Nama Kota" placeholder="Jakarta" type="text" name="city_name" value={inputData.city_name} onChange={handleOInputChange} errorContent={errors.city_name} isRequired />
+                  <Input id={`${pageid}-postcode`} radius="full" labelText="Kode POS" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleOInputChange} errorContent={errors.postcode} isRequired />
+                </Fieldset>
+                <Fieldset>
+                  <Input id={`${pageid}-province`} variant="select" isSearchable radius="full" labelText="Province ID" placeholder="Pilih Provinsi" name="province" value={inputData.province} options={provinceData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleOInputChange({ target: { name: "province", value: selectedValue } })} errorContent={errors.province} isRequired />
+                  <Input id={`${pageid}-city`} variant="select" isSearchable radius="full" labelText="City ID" placeholder="Pilih Kota" name="city" value={inputData.city} options={cityData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleOInputChange({ target: { name: "city", value: selectedValue } })} errorContent={errors.city} isRequired isDisabled={!inputData.province} />
+                </Fieldset>
+                <Fieldset>
+                  <Input id={`${pageid}-district`} variant="select" isSearchable radius="full" labelText="District ID" placeholder="Pilih Kecamatan" name="district" value={inputData.district} options={districtData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleOInputChange({ target: { name: "district", value: selectedValue } })} errorContent={errors.district} isRequired isDisabled={!inputData.city} />
+                  <Input id={`${pageid}-village`} variant="select" isSearchable radius="full" labelText="Village ID" placeholder="Pilih Kelurahan" name="village" value={inputData.village} options={villageData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleOInputChange({ target: { name: "village", value: selectedValue } })} errorContent={errors.village} isRequired isDisabled={!inputData.district} />
+                </Fieldset>
+              </SubmitForm>
+            )}
+          </Fragment>
+        );
       default:
         return <DashboardHead title={`Halaman Dashboard ${pagetitle} akan segera hadir.`} />;
     }
@@ -2800,6 +3001,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setSelectedImage(null);
     fetchData();
   }, [slug, currentPage, limit, status, selectedBranch, selectedCust, onPageTabId]);
+
+  useEffect(() => {
+    if (slug === "ORGANIZATION") {
+      if (selectedBranch) {
+        const selecteddata = allBranchData.find((item) => item.idoutlet === selectedBranch);
+        if (selecteddata) {
+          setInputData({ ...inputData, name: selecteddata.outlet_name, phone: selecteddata.outlet_phone, address: selecteddata.outlet_address, postcode: selecteddata.postcode });
+        } else {
+          setInputData({ ...inputData, name: "", phone: "", address: "", postcode: "" });
+        }
+      } else {
+        setInputData({ ...inputData, name: "", phone: "", address: "", postcode: "" });
+      }
+    }
+  }, [selectedBranch]);
 
   useEffect(() => {
     fetchAdditionalData();
