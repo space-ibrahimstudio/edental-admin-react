@@ -898,7 +898,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "PO MASUK":
-          submittedData = { secret, idpostock: inputData.id, status: inputData.status, stock: inputData.postock.map((item) => ({ idpostockdetail: item.idstock, qty: item.stockin })) };
+          submittedData = { secret, idpostock: inputData.id, status: inputData.status, stock: inputData.postock.map((item) => ({ idpostockdetail: item.idstock, qty: item.stockin, note: item.note })) };
           break;
         case "REKAM MEDIS":
           switch (onPageTabId) {
