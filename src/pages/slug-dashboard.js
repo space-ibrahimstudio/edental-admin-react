@@ -100,6 +100,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [cityData, setCityData] = useState([]);
   const [districtData, setDistrictData] = useState([]);
   const [villageData, setVillageData] = useState([]);
+  const [locationData, setLocationData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -208,6 +209,45 @@ const DashboardSlugPage = ({ parent, slug }) => {
           setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone number must start with 0 and contain only numbers." }));
         }
       };
+      const getCityID = async (provid) => {
+        const formData = new FormData();
+        formData.append("data", JSON.stringify({ secret, idprovincie: provid }));
+        setIsSubmitting(true);
+        try {
+          const response = await apiRead(formData, "satusehat", "viewcity");
+          setCityData(response && response.data && response.data.length > 0 ? response.data : []);
+        } catch (error) {
+          console.error("error:", error);
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
+      const getDistrictID = async (cityid) => {
+        const formData = new FormData();
+        formData.append("data", JSON.stringify({ secret, idcity: cityid }));
+        setIsSubmitting(true);
+        try {
+          const response = await apiRead(formData, "satusehat", "viewdistrict");
+          setDistrictData(response && response.data && response.data.length > 0 ? response.data : []);
+        } catch (error) {
+          console.error("error:", error);
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
+      const getVillageID = async (distrid) => {
+        const formData = new FormData();
+        formData.append("data", JSON.stringify({ secret, iddistrict: distrid }));
+        setIsSubmitting(true);
+        try {
+          const response = await apiRead(formData, "satusehat", "viewvillage");
+          setVillageData(response && response.data && response.data.length > 0 ? response.data : []);
+        } catch (error) {
+          console.error("error:", error);
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
       if (slug === "LAYANAN" && name === "service") {
         validateServiceName();
       } else if (slug === "RESERVATION") {
@@ -226,6 +266,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
         setInputData((prevState) => ({ ...prevState, [value === "cash" ? "bank_code" : "status"]: value === "cash" ? "CASH" : "0" }));
       } else if (slug === "REKAM MEDIS" && onPageTabId === "1" && name === "phone") {
         validateMedicalRecords();
+      } else if (slug === "ORGANIZATION" || slug === "LOCATION") {
+        if (name === "province" && value !== "") {
+          getCityID(value);
+        } else if (name === "city" && value !== "") {
+          getDistrictID(value);
+        } else if (name === "district" && value !== "") {
+          getVillageID(value);
+        }
       }
     },
     [setInputData, setOnpageData, setErrors, setCustExist, slug, onPageTabId, inputData, allservicedata, allCustData, MIN_AMOUNT]
@@ -622,6 +670,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setOrgData([]);
           }
           break;
+        case "LOCATION":
+          addtFormData.append("data", JSON.stringify({ secret }));
+          data = await apiRead(addtFormData, "satusehat", "viewlocation");
+          addtdata = await apiRead(addtFormData, "satusehat", "vieworganization");
+          setLocationData(data && data.data && data.data.length > 0 ? data.data : []);
+          setOrgData(addtdata && addtdata.data && addtdata.data.length > 0 ? addtdata.data : []);
+          break;
         default:
           setTotalPages(0);
           break;
@@ -782,6 +837,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
               setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
             }
           }
+          break;
+        case "LOCATION":
+          switchedData = currentData(orgData, "id");
+          log(`id ${slug} data switched:`, switchedData.id);
+          setInputData({ id: switchedData.id, phone: switchedData.phone, email: switchedData.email, address: switchedData.address, city_name: switchedData.cityname, postcode: switchedData.postalCode, province: switchedData.province, city: switchedData.city, district: switchedData.district, village: switchedData.village, rt: "", rw: "" });
+          log(`id: ${switchedData.id}, phone: ${switchedData.phone}, email: ${switchedData.email}, address: ${switchedData.address}, city_name: ${switchedData.cityname}, postcode: ${switchedData.postalCode}, province: ${switchedData.province}, city: ${switchedData.city}, district: ${switchedData.district}, village: ${switchedData.village}`);
           break;
         default:
           setSelectedData(null);
@@ -977,7 +1038,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     }
   };
 
-  const handleDelete = async (params, endpoint) => {
+  const handleDelete = async (params, endpoint, scope = "office") => {
     const confirmmsg = `Apakah anda yakin untuk menghapus data terpilih dari ${toTitleCase(slug)}?`;
     const successmsg = `Selamat! Data terpilih dari ${toTitleCase(slug)} berhasil dihapus.`;
     const errormsg = "Terjadi kesalahan saat menghapus data. Mohon periksa koneksi internet anda dan coba lagi.";
@@ -998,13 +1059,30 @@ const DashboardSlugPage = ({ parent, slug }) => {
           case "KONDISI GIGI":
             submittedData = { secret, nama: "", arti: "", note: "" };
             break;
+          case "PRACTITIONER":
+            submittedData = { secret };
+            break;
+          case "ORGANIZATION":
+            submittedData = { secret };
+            break;
+          case "LOCATION":
+            submittedData = { secret };
+            break;
           default:
             break;
         }
         const formData = new FormData();
         formData.append("data", JSON.stringify(submittedData));
-        formData.append("iddelete", params);
-        await apiCrud(formData, "office", endpoint);
+        if (slug === "PRACTITIONER") {
+          formData.append("idpractitioner", params);
+        } else if (slug === "ORGANIZATION") {
+          formData.append("idorganization", params);
+        } else if (slug === "LOCATION") {
+          formData.append("idlocation", params);
+        } else {
+          formData.append("iddelete", params);
+        }
+        await apiCrud(formData, scope, endpoint);
         showNotifications("success", successmsg);
         await fetchData();
         await fetchAdditionalData();
@@ -1032,6 +1110,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: conditionSearch, handleSearch: handleConditionSearch, filteredData: filteredConditionData, isDataShown: isConditionShown } = useSearch(conditionData, ["singkatan", "arti", "keterangan"]);
   const { searchTerm: practiSearch, handleSearch: handlePractiSearch, filteredData: filteredPractiData, isDataShown: isPractiShown } = useSearch(practiciData, ["gender"]);
   const { searchTerm: orgSearch, handleSearch: handleOrgSearch, filteredData: filteredOrgData, isDataShown: isOrgShown } = useSearch(orgData, ["email"]);
+  const { searchTerm: locationSearch, handleSearch: handleLocationSearch, filteredData: filteredLocationData, isDataShown: isLocationShown } = useSearch(locationData, ["cityname"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -2694,7 +2773,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isNoData={!isPractiShown} isLoading={isFetching}>
+              <Table byNumber isDeletable isNoData={!isPractiShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "city", "number")}>
@@ -2740,7 +2819,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredPractiData.map((data, index) => (
-                    <TR key={index}>
+                    <TR key={index} onDelete={() => handleDelete(data.idpractitioner, "delsatusehat", "satusehat")}>
                       <TD>{data.city}</TD>
                       <TD>{data.province}</TD>
                       <TD>{data.district}</TD>
@@ -2784,61 +2863,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "ORGANIZATION":
-        const getCityID = async (provid) => {
-          const formData = new FormData();
-          formData.append("data", JSON.stringify({ secret, idprovincie: provid }));
-          setIsSubmitting(true);
-          try {
-            const response = await apiRead(formData, "satusehat", "viewcity");
-            setCityData(response && response.data && response.data.length > 0 ? response.data : []);
-          } catch (error) {
-            console.error("error:", error);
-          } finally {
-            setIsSubmitting(false);
-          }
-        };
-
-        const getDistrictID = async (cityid) => {
-          const formData = new FormData();
-          formData.append("data", JSON.stringify({ secret, idcity: cityid }));
-          setIsSubmitting(true);
-          try {
-            const response = await apiRead(formData, "satusehat", "viewdistrict");
-            setDistrictData(response && response.data && response.data.length > 0 ? response.data : []);
-          } catch (error) {
-            console.error("error:", error);
-          } finally {
-            setIsSubmitting(false);
-          }
-        };
-
-        const getVillageID = async (distrid) => {
-          const formData = new FormData();
-          formData.append("data", JSON.stringify({ secret, iddistrict: distrid }));
-          setIsSubmitting(true);
-          try {
-            const response = await apiRead(formData, "satusehat", "viewvillage");
-            setVillageData(response && response.data && response.data.length > 0 ? response.data : []);
-          } catch (error) {
-            console.error("error:", error);
-          } finally {
-            setIsSubmitting(false);
-          }
-        };
-
-        const handleOInputChange = (e) => {
-          const { name, value } = e.target;
-          setInputData((prevState) => ({ ...prevState, [name]: value }));
-          setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-          if (name === "province" && value !== "") {
-            getCityID(value);
-          } else if (name === "city" && value !== "") {
-            getDistrictID(value);
-          } else if (name === "district" && value !== "") {
-            getVillageID(value);
-          }
-        };
-
         const handleCreateOrg = async (e) => {
           e.preventDefault();
           const requiredFields = ["name", "phone", "email", "address", "city_name", "postcode", "province", "city", "district", "village"];
@@ -2861,14 +2885,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
             const fFormData = new FormData();
             formData.append("data", JSON.stringify(submittedData));
             const response = await apiCrud(formData, "satusehat", "addorganization");
-            if (response && !response.error) {
+            if (response && response.status !== false) {
               const aliasedorg = response.data;
               const fSubmittedData = { secret, id: aliasedorg.id, cityname: inputData.city_name, province: inputData.province, city: inputData.city, district: inputData.district, village: inputData.village, dept: aliasedorg.type[0].coding[0].display, address: inputData.address, postalCode: inputData.postcode, identifier: aliasedorg.identifier[0].value, reference: aliasedorg.partOf.reference, phone: inputData.phone, email: inputData.email };
               fFormData.append("data", JSON.stringify(fSubmittedData));
               await apiCrud(fFormData, "satusehat", "saveorganization");
               log("added data:", fSubmittedData);
-              showNotifications("success", successmsg);
               log("created data:", submittedData);
+              showNotifications("success", successmsg);
               closeForm();
             }
             await fetchData();
@@ -2891,7 +2915,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isNoData={!isOrgShown} isLoading={isFetching}>
+              <Table byNumber isDeletable isNoData={!isOrgShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(orgData, setOrgData, "id", "number")}>
@@ -2919,7 +2943,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredOrgData.map((data, index) => (
-                    <TR key={index}>
+                    <TR key={index} onDelete={() => handleDelete(data.idorganization, "delsatusehat", "satusehat")}>
                       <TD>{data.id}</TD>
                       <TD>{data.cityname}</TD>
                       <TD>{data.address}</TD>
@@ -2936,24 +2960,146 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <SubmitForm size="sm" formTitle="Tambah Data Organisasi" operation="add" fetching={isFormFetching} onSubmit={handleCreateOrg} loading={isSubmitting} onClose={closeForm}>
                 {level === "admin" && <Input id={`${pageid}-outlet`} labelText="Cabang" variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
                 <Fieldset>
-                  <Input id={`${pageid}-orgname`} radius="full" labelText="Nama Organisasi" placeholder="Cabang Jakarta" type="text" name="name" value={inputData.name} onChange={handleOInputChange} errorContent={errors.name} isRequired />
-                  <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleOInputChange} errorContent={errors.phone} isRequired />
+                  <Input id={`${pageid}-orgname`} radius="full" labelText="Nama Organisasi" placeholder="Cabang Jakarta" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                  <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="outlet@gmail.com" type="email" name="email" value={inputData.email} onChange={handleOInputChange} errorContent={errors.email} isRequired />
-                  <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleOInputChange} errorContent={errors.address} isRequired />
+                  <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="outlet@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
+                  <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-cityname`} radius="full" labelText="Nama Kota" placeholder="Jakarta" type="text" name="city_name" value={inputData.city_name} onChange={handleOInputChange} errorContent={errors.city_name} isRequired />
-                  <Input id={`${pageid}-postcode`} radius="full" labelText="Kode POS" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleOInputChange} errorContent={errors.postcode} isRequired />
+                  <Input id={`${pageid}-cityname`} radius="full" labelText="Nama Kota" placeholder="Jakarta" type="text" name="city_name" value={inputData.city_name} onChange={handleInputChange} errorContent={errors.city_name} isRequired />
+                  <Input id={`${pageid}-postcode`} radius="full" labelText="Kode POS" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleInputChange} errorContent={errors.postcode} isRequired />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-province`} variant="select" isSearchable radius="full" labelText="Province ID" placeholder="Pilih Provinsi" name="province" value={inputData.province} options={provinceData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleOInputChange({ target: { name: "province", value: selectedValue } })} errorContent={errors.province} isRequired />
-                  <Input id={`${pageid}-city`} variant="select" isSearchable radius="full" labelText="City ID" placeholder="Pilih Kota" name="city" value={inputData.city} options={cityData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleOInputChange({ target: { name: "city", value: selectedValue } })} errorContent={errors.city} isRequired isDisabled={!inputData.province} />
+                  <Input id={`${pageid}-province`} variant="select" isSearchable radius="full" labelText="Province ID" placeholder="Pilih Provinsi" name="province" value={inputData.province} options={provinceData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "province", value: selectedValue } })} errorContent={errors.province} isRequired />
+                  <Input id={`${pageid}-city`} variant="select" isSearchable radius="full" labelText="City ID" placeholder="Pilih Kota" name="city" value={inputData.city} options={cityData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "city", value: selectedValue } })} errorContent={errors.city} isRequired isDisabled={!inputData.province} />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-district`} variant="select" isSearchable radius="full" labelText="District ID" placeholder="Pilih Kecamatan" name="district" value={inputData.district} options={districtData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleOInputChange({ target: { name: "district", value: selectedValue } })} errorContent={errors.district} isRequired isDisabled={!inputData.city} />
-                  <Input id={`${pageid}-village`} variant="select" isSearchable radius="full" labelText="Village ID" placeholder="Pilih Kelurahan" name="village" value={inputData.village} options={villageData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleOInputChange({ target: { name: "village", value: selectedValue } })} errorContent={errors.village} isRequired isDisabled={!inputData.district} />
+                  <Input id={`${pageid}-district`} variant="select" isSearchable radius="full" labelText="District ID" placeholder="Pilih Kecamatan" name="district" value={inputData.district} options={districtData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "district", value: selectedValue } })} errorContent={errors.district} isRequired isDisabled={!inputData.city} />
+                  <Input id={`${pageid}-village`} variant="select" isSearchable radius="full" labelText="Village ID" placeholder="Pilih Kelurahan" name="village" value={inputData.village} options={villageData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "village", value: selectedValue } })} errorContent={errors.village} isRequired isDisabled={!inputData.district} />
+                </Fieldset>
+              </SubmitForm>
+            )}
+          </Fragment>
+        );
+      case "LOCATION":
+        const handleCreateLoc = async (e) => {
+          e.preventDefault();
+          const requiredFields = ["phone", "email", "address", "city_name", "postcode", "rt", "rw"];
+          const validationErrors = inputValidator(inputData, requiredFields);
+          if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+          }
+          const confirmmsg = `Apakah anda yakin untuk menambahkan data baru pada ${toTitleCase(slug)}?`;
+          const successmsg = `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
+          const errormsg = "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
+          const confirm = window.confirm(confirmmsg);
+          if (!confirm) {
+            return;
+          }
+          setIsSubmitting(true);
+          try {
+            const selectedorg = orgData[0];
+            const submittedData = { secret, id: inputData.id, phone: inputData.phone, email: inputData.email, address: inputData.address, cityname: inputData.city_name, postalcode: inputData.postcode, province: inputData.province, city: inputData.city, district: inputData.district, village: inputData.village, rt: inputData.rt, rw: inputData.rw };
+            const formData = new FormData();
+            const fFormData = new FormData();
+            formData.append("data", JSON.stringify(submittedData));
+            const response = await apiCrud(formData, "satusehat", "createlocation");
+            if (response && response.status !== false) {
+              const aliasedorg = response.data;
+              const fSubmittedData = { secret, id: aliasedorg.id, name: aliasedorg.name, phone: selectedorg.phone, email: selectedorg.email, address: selectedorg.address, cityname: selectedorg.cityname, province: selectedorg.province, city: selectedorg.city, district: selectedorg.district, village: selectedorg.village, rt: inputData.rt, rw: inputData.rw, description: aliasedorg.description, identifier: aliasedorg.identifier[0].system, reference: aliasedorg.managingOrganization.reference };
+              fFormData.append("data", JSON.stringify(fSubmittedData));
+              await apiCrud(fFormData, "satusehat", "savelocation");
+              log("added data:", fSubmittedData);
+              log("created data:", submittedData);
+              showNotifications("success", successmsg);
+              closeForm();
+            }
+            await fetchData();
+            await fetchAdditionalData();
+          } catch (error) {
+            showNotifications("danger", errormsg);
+            console.error(errormsg, error);
+          } finally {
+            setIsSubmitting(false);
+          }
+        };
+
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={locationSearch} onChange={(e) => handleLocationSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={() => openEdit(orgData[0].id)} startContent={<Plus />} isDisabled={orgData.length < 0} />
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isDeletable isNoData={!isLocationShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSort(locationData, setLocationData, "id", "number")}>
+                      ID
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(locationData, setLocationData, "cityname", "text")}>
+                      Kota
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(locationData, setLocationData, "address", "text")}>
+                      Alamat
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(locationData, setLocationData, "phone", "number")}>
+                      Telepon
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(locationData, setLocationData, "email", "text")}>
+                      Email
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(locationData, setLocationData, "identifier", "text")}>
+                      Identifier
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(locationData, setLocationData, "reference", "text")}>
+                      Referensi
+                    </TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredLocationData.map((data, index) => (
+                    <TR key={index} onDelete={() => handleDelete(data.idlocation, "delsatusehat", "satusehat")}>
+                      <TD>{data.id}</TD>
+                      <TD>{data.cityname}</TD>
+                      <TD>{data.address}</TD>
+                      <TD>{data.phone}</TD>
+                      <TD>{data.email}</TD>
+                      <TD>{data.identifier}</TD>
+                      <TD>{data.reference}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle="Tambah Data Lokasi" operation="add" fetching={isFormFetching} onSubmit={handleCreateLoc} loading={isSubmitting} onClose={closeForm}>
+                <Fieldset>
+                  <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
+                  <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="outlet@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
+                </Fieldset>
+                <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
+                <Fieldset>
+                  <Input id={`${pageid}-cityname`} radius="full" labelText="Nama Kota" placeholder="Jakarta" type="text" name="city_name" value={inputData.city_name} onChange={handleInputChange} errorContent={errors.city_name} isRequired />
+                  <Input id={`${pageid}-postcode`} radius="full" labelText="Kode POS" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleInputChange} errorContent={errors.postcode} isRequired />
+                </Fieldset>
+                {/* <Fieldset>
+                  <Input id={`${pageid}-province`} variant="select" isSearchable radius="full" labelText="Province ID" placeholder="Pilih Provinsi" name="province" value={inputData.province} options={provinceData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "province", value: selectedValue } })} errorContent={errors.province} isRequired />
+                  <Input id={`${pageid}-city`} variant="select" isSearchable radius="full" labelText="City ID" placeholder="Pilih Kota" name="city" value={inputData.city} options={cityData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "city", value: selectedValue } })} errorContent={errors.city} isRequired isDisabled={!inputData.province} />
+                </Fieldset>
+                <Fieldset>
+                  <Input id={`${pageid}-district`} variant="select" isSearchable radius="full" labelText="District ID" placeholder="Pilih Kecamatan" name="district" value={inputData.district} options={districtData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "district", value: selectedValue } })} errorContent={errors.district} isRequired isDisabled={!inputData.city} />
+                  <Input id={`${pageid}-village`} variant="select" isSearchable radius="full" labelText="Village ID" placeholder="Pilih Kelurahan" name="village" value={inputData.village} options={villageData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "village", value: selectedValue } })} errorContent={errors.village} isRequired isDisabled={!inputData.district} />
+                </Fieldset> */}
+                <Fieldset>
+                  <Input id={`${pageid}-rt`} radius="full" labelText="RT" placeholder="005" type="number" name="rt" value={inputData.rt} onChange={handleInputChange} errorContent={errors.rt} isRequired />
+                  <Input id={`${pageid}-rw`} radius="full" labelText="RW" placeholder="006" type="number" name="rw" value={inputData.rw} onChange={handleInputChange} errorContent={errors.rw} isRequired />
                 </Fieldset>
               </SubmitForm>
             )}
