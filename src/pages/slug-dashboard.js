@@ -2404,9 +2404,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "datetimecreate", "date")}>
-                      Tanggal Dibuat
-                    </TH>
                     <TH isSorted onSort={() => handleSort(reservData, setReservData, "status_dp", "number")}>
                       Status DP
                     </TH>
@@ -2449,12 +2446,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH isSorted onSort={() => handleSort(reservData, setReservData, "note", "text")}>
                       Catatan
                     </TH>
+                    <TH isSorted onSort={() => handleSort(reservData, setReservData, "datetimecreate", "date")}>
+                      Tanggal Dibuat
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
                   {filteredReservData.map((data, index) => (
                     <TR key={index} onEdit={data.status_reservation === "0" ? () => openEdit(data.idreservation) : () => showNotifications("danger", "Reservasi dengan status yang telah selesai, reschedule atau dibatalkan tidak dapat diperbarui.")} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
-                      <TD>{newDate(data.datetimecreate, "id")}</TD>
                       <TD>{paymentAlias(data.status_dp)}</TD>
                       <TD>{data.reservationdate}</TD>
                       <TD>{data.reservationtime}</TD>
@@ -2471,6 +2470,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD type="code">{data.voucher}</TD>
                       <TD>{toTitleCase(data.outlet_name)}</TD>
                       <TD>{data.note}</TD>
+                      <TD>{newDate(data.datetimecreate, "id")}</TD>
                     </TR>
                   ))}
                 </TBody>

@@ -1348,8 +1348,8 @@ const DashboardParamsPage = ({ parent, slug }) => {
                       <Table byNumber isEditable isNoData={historyOrderData.length > 0 ? false : true} isLoading={isFetching}>
                         <THead>
                           <TR>
-                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactioncreate", "date")}>
-                              Tanggal Dibuat
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "reservationdate", "number")}>
+                              Tanggal Reservasi
                             </TH>
                             <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactionname", "text")}>
                               Nama Pengguna
@@ -1378,12 +1378,15 @@ const DashboardParamsPage = ({ parent, slug }) => {
                             <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "dentist", "text")}>
                               Nama Dokter
                             </TH>
+                            <TH isSorted onSort={() => handleSort(historyOrderData, setHistoryOrderData, "transactioncreate", "date")}>
+                              Tanggal Dibuat
+                            </TH>
                           </TR>
                         </THead>
                         <TBody>
                           {historyOrderData.map((data, index) => (
                             <TR key={index} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")}>
-                              <TD>{newDate(data.transactioncreate, "id")}</TD>
+                              <TD>{data.reservationdate}</TD>
                               <TD>{toTitleCase(data.transactionname)}</TD>
                               <TD type="code">{data.rscode}</TD>
                               <TD type="code">{data.noinvoice}</TD>
@@ -1395,6 +1398,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                               <TD>{orderAlias(data.transactionstatus)}</TD>
                               <TD type="code">{data.voucher}</TD>
                               <TD>{toTitleCase(data.dentist)}</TD>
+                              <TD>{newDate(data.transactioncreate, "id")}</TD>
                             </TR>
                           ))}
                         </TBody>
