@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useContent } from "@ibrahimstudio/react";
 import { Button } from "@ibrahimstudio/button";
 import { useAlias } from "../../libs/plugins/helper";
-import { Close, Badge, Clock, ShopBag } from "./icons";
+import { Close, Badge, Clock, ShopBag, Note } from "./icons";
 import styles from "./styles/calendar.module.css";
 
 const modalRoot = document.getElementById("modal-root") || document.body;
@@ -74,6 +74,10 @@ export const EventModal = ({ events, onClose }) => {
                   <div className={styles.modalItem}>
                     <ShopBag />
                     <p className={styles.itemText}>{`${toTitleCase(event.service)}, ${toTitleCase(event.typeservice)}`}</p>
+                  </div>
+                  <div className={styles.modalItem}>
+                    <Note />
+                    <p className={styles.itemText}>{event.note}</p>
                   </div>
                 </div>
               </Fragment>

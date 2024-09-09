@@ -5,6 +5,7 @@ import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
 import html2pdf from "html2pdf.js";
 import moment from "moment-timezone";
+import * as XLSX from "xlsx";
 import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
@@ -2007,6 +2008,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "PO MASUK":
+        const exportPOReport = (data) => {
+          const formattedData = [];
+          formattedData.push(data["PO Stock"]);
+          data["Detail PO"].forEach((detail) => {
+            formattedData.push(detail);
+          });
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.json_to_sheet(formattedData);
+          XLSX.utils.book_append_sheet(workbook, worksheet, "PO Data");
+          const postockcreate = data["PO Stock"].postockcreate.split(" ")[0];
+          const filename = `PO_Masuk_${postockcreate}.xlsx`;
+          XLSX.writeFile(workbook, filename);
+        };
+
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Daftar permintaan PO item dari semua cabang. Filter status PO melalui tombol tab, atau klik ikon pada kolom Action untuk memperbarui status PO." />
@@ -2020,7 +2035,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardToolbar>
             <TabGroup buttons={postatus} />
             <DashboardBody>
-              <Table byNumber isExpandable isEditable isDeletable page={currentPage} limit={limit} isNoData={!isInPOShown} isLoading={isFetching}>
+              <Table byNumber isExpandable isXlsxble isEditable isDeletable page={currentPage} limit={limit} isNoData={!isInPOShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(inPOData, setInPOData, "PO Stock.postockcreate", "date")}>
@@ -2057,7 +2072,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         </Fragment>
                       }
                       onEdit={() => openEdit(data["PO Stock"].idpostock)}
-                      onDelete={() => {}}>
+                      onDelete={() => {}}
+                      onXlsx={() => exportPOReport(data)}>
                       <TD>{newDate(data["PO Stock"].postockcreate, "id")}</TD>
                       <TD type="code">{data["PO Stock"].postockcode}</TD>
                       <TD>{toTitleCase(data["PO Stock"].username)}</TD>
