@@ -2017,8 +2017,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const workbook = XLSX.utils.book_new();
           const worksheet = XLSX.utils.json_to_sheet(formattedData);
           XLSX.utils.book_append_sheet(workbook, worksheet, "PO Data");
-          const postockcreate = data["PO Stock"].postockcreate.split(" ")[0];
-          const filename = `PO_Masuk_${postockcreate}.xlsx`;
+          const pocode = data["PO Stock"].postockcode;
+          const filename = `PO_Masuk_${pocode}.xlsx`;
           XLSX.writeFile(workbook, filename);
         };
 
