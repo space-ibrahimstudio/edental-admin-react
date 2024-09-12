@@ -38,12 +38,7 @@ jobs:
       - name: 7. Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
-          # siedental.id
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          # sie-dental.com
-          # server: ${{ secrets.FTP_HOST_ID }}
-          # username: ${{ secrets.FTP_USERNAME_ID }}
-          # password: ${{ secrets.FTP_PASSWORD_ID }}
           local-dir: build/
