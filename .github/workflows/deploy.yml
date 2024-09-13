@@ -1,13 +1,13 @@
-name: Edental Office v0.1.0
+name: Edental Office (ankabuttech) v1.0.0
 
 on:
   push:
     branches:
-      - main
+      - ankabuttech
 
 jobs:
   web-deploy:
-    name: Deploy on Main
+    name: Deploy on ankabuttech
     runs-on: ubuntu-latest
 
     strategy:
@@ -24,7 +24,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: 3. Export environment variables
-        run: echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" >> $GITHUB_ENV
+        run: echo "REACT_APP_API_URL_DEV=${{ secrets.REACT_APP_API_URL_DEV }}" >> $GITHUB_ENV
 
       - name: 4. Installing required packages
         run: npm install
@@ -38,7 +38,7 @@ jobs:
       - name: 7. Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: ${{ secrets.FTP_HOST_ANKABUTTECH }}
+          username: ${{ secrets.FTP_USERNAME_ANKABUTTECH }}
+          password: ${{ secrets.FTP_PASSWORD_ANKABUTTECH }}
           local-dir: build/

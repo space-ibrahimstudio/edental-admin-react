@@ -6,7 +6,7 @@ import { useNotifications } from "../../components/feedbacks/context/notificatio
 import LoadingScreen from "../../components/feedbacks/screens";
 
 const AuthContext = createContext();
-const apiURL = process.env.REACT_APP_API_URL;
+const apiURL = process.env.REACT_APP_API_URL_DEV;
 
 export const AuthProvider = ({ children }) => {
   const location = useLocation();

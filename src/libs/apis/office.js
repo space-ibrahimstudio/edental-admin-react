@@ -3,7 +3,7 @@ import axios from "axios";
 import { useDevmode } from "@ibrahimstudio/react";
 
 const ApiContext = createContext();
-const apiURL = process.env.REACT_APP_API_URL;
+const apiURL = process.env.REACT_APP_API_URL_DEV;
 
 export const ApiProvider = ({ children }) => {
   const { log } = useDevmode();
