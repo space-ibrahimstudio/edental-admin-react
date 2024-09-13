@@ -1,13 +1,13 @@
-name: Edental Office v0.1.0
+name: Edental Office (siedental) v1.0.0
 
 on:
   push:
     branches:
-      - main
+      - siedental
 
 jobs:
   web-deploy:
-    name: Deploy on Main
+    name: Deploy on siedental
     runs-on: ubuntu-latest
 
     strategy:
@@ -38,7 +38,7 @@ jobs:
       - name: 7. Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: ${{ secrets.FTP_HOST_SIEDENTAL }}
+          username: ${{ secrets.FTP_USERNAME_SIEDENTAL }}
+          password: ${{ secrets.FTP_PASSWORD_SIEDENTAL }}
           local-dir: build/
