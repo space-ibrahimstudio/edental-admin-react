@@ -18,16 +18,16 @@ export const AuthProvider = ({ children }) => {
   const login = async (reqdata) => {
     try {
       const formData = new FormData();
-      const logFormData = new FormData();
+      // const logFormData = new FormData();
       formData.append("data", JSON.stringify({ username: reqdata.username, password: reqdata.password }));
       const url = `${apiURL}/authapi/login`;
-      const logurl = `${apiURL}/authapi/loginlog`;
-      const ipurl = "https://api.ipify.org?format=json";
+      // const logurl = `${apiURL}/authapi/loginlog`;
       const response = await axios.post(url, formData, { headers: { "Content-Type": "multipart/form-data" } });
       const loginresponse = response.data;
       if (!loginresponse.error) {
         const userdata = loginresponse.data[0];
         const { username, secret, level, idoutlet, outlet_name, cctr } = userdata;
+        const ipurl = "https://api.ipify.org?format=json";
         const ipresponse = await axios.get(ipurl);
         let ip_address;
         if (!ipresponse.data.error) {
@@ -35,8 +35,8 @@ export const AuthProvider = ({ children }) => {
         } else {
           ip_address = "0.0.0.0";
         }
-        logFormData.append("data", JSON.stringify({ username, level, activity: "login", ip: ip_address }));
-        const logresponse = await axios.post(logurl, logFormData, { headers: { "Content-Type": "multipart/form-data" } });
+        // logFormData.append("data", JSON.stringify({ username, level, activity: "login", ip: ip_address }));
+        // const logresponse = await axios.post(logurl, logFormData, { headers: { "Content-Type": "multipart/form-data" } });
         sessionStorage.setItem("logged-in", "true");
         sessionStorage.setItem("username", username);
         sessionStorage.setItem("secret", secret);
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.setItem("ip-address", ip_address);
         log("successfully logged in:", loginresponse);
         log("your current ip address:", ip_address);
-        log("logging your current activity:", logresponse.data);
+        // log("logging your current activity:", logresponse.data);
         showNotifications("success", `Kamu berhasil login. Selamat datang kembali, ${username}!`);
         setIsLoggedin(true);
       } else if (!loginresponse.status) {
