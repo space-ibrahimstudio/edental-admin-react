@@ -1130,7 +1130,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: practiSearch, handleSearch: handlePractiSearch, filteredData: filteredPractiData, isDataShown: isPractiShown } = useSearch(practiciData, ["gender"]);
   const { searchTerm: orgSearch, handleSearch: handleOrgSearch, filteredData: filteredOrgData, isDataShown: isOrgShown } = useSearch(orgData, ["email"]);
   const { searchTerm: locationSearch, handleSearch: handleLocationSearch, filteredData: filteredLocationData, isDataShown: isLocationShown } = useSearch(locationData, ["cityname"]);
-  const { searchTerm: patientSearch, handleSearch: handlePatientSearch, filteredData: filteredPatientData, isDataShown: isPatientShown } = useSearch(patientData, ["dentist"]);
+  const { searchTerm: patientSearch, handleSearch: handlePatientSearch, filteredData: filteredPatientData, isDataShown: isPatientShown } = useSearch(patientData, ["transaction.dentist"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -3116,8 +3116,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
         );
       case "PATIENT":
         const handleSSSubmit = async (params) => {
-          const confirmmsg = `Apakah anda yakin untuk menambahkan data baru pada ${toTitleCase(slug)}?`;
-          const successmsg = `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
+          const confirmmsg = "Apakah anda yakin untuk menambahkan data terpilih ke SatuSehat?";
+          const successmsg = "Selamat! Data terpilih berhasil ditambahkan ke SatuSehat.";
           const faileddmsg = "Data Praktisioner, Organisasi, dan Lokasi tidak valid. Mohon lengkapi terlebih dahulu dan coba lagi.";
           const errormsg = "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
           const confirm = window.confirm(confirmmsg);
@@ -3128,7 +3128,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           try {
             const formData = new FormData();
             if (practiciData.length > 0 && orgData.length > 0 && locationData.length > 0) {
-              const submittedData = { secret, practitioner: practiciData[0].id, location: locationData[0].id, description: locationData[0].description, organization: orgData[0].id, idtransaction: params.idtransaction, nik: params.noktp };
+              const submittedData = { secret, practitioner: practiciData[0].id, location: locationData[0].id, description: locationData[0].description, organization: orgData[0].reference.replace("Organization/", ""), idtransaction: "610", nik: params.noktp };
               formData.append("data", JSON.stringify(submittedData));
               await apiCrud(formData, "satusehat", "satusehat");
               showNotifications("success", successmsg);
@@ -3182,14 +3182,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredPatientData.map((data, index) => (
-                    <TR key={index} onSS={() => handleSSSubmit(data)}>
-                      <TD type="code">{data.rscode}</TD>
-                      <TD type="code">{data.noinvoice}</TD>
-                      <TD>{data.transactionname}</TD>
-                      <TD type="code">{data.transactionphone}</TD>
-                      <TD>{data.payment}</TD>
-                      <TD>{newPrice(data.totalpay)}</TD>
-                      <TD></TD>
+                    <TR key={index} onSS={() => handleSSSubmit(data)} isDanger={data["status"].length > 0 ? false : true}>
+                      <TD type="code">{data["transaction"].rscode}</TD>
+                      <TD type="code">{data["transaction"].noinvoice}</TD>
+                      <TD>{data["transaction"].transactionname}</TD>
+                      <TD type="code">{data["transaction"].transactionphone}</TD>
+                      <TD>{data["transaction"].payment}</TD>
+                      <TD>{newPrice(data["transaction"].totalpay)}</TD>
+                      <TD>{data["status"].length > 0 ? "Terdaftar" : "Pending"}</TD>
                     </TR>
                   ))}
                 </TBody>
