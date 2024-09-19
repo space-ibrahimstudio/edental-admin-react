@@ -680,7 +680,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
           setOrgData(addtdata && addtdata.data && addtdata.data.length > 0 ? addtdata.data : []);
           break;
         case "PATIENT":
+          addtFormData.append("data", JSON.stringify({ secret }));
           data = await apiRead(formData, "satusehat", "viewpatient");
+          const practidata = await apiRead(addtFormData, "satusehat", "viewpractitioner");
+          const organidata = await apiRead(addtFormData, "satusehat", "vieworganization");
+          const locatidata = await apiRead(addtFormData, "satusehat", "viewlocation");
+          setPracticiData(practidata && practidata.data && practidata.data.length > 0 ? practidata.data : []);
+          setOrgData(organidata && organidata.data && organidata.data.length > 0 ? organidata.data : []);
+          setLocationData(locatidata && locatidata.data && locatidata.data.length > 0 ? locatidata.data : []);
           if (data && data.data && data.data.length > 0) {
             setPatientData(data.data);
             setTotalPages(data.TTLPage);
@@ -3108,6 +3115,35 @@ const DashboardSlugPage = ({ parent, slug }) => {
           </Fragment>
         );
       case "PATIENT":
+        const handleSSSubmit = async (params) => {
+          const confirmmsg = `Apakah anda yakin untuk menambahkan data baru pada ${toTitleCase(slug)}?`;
+          const successmsg = `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
+          const faileddmsg = "Data Praktisioner, Organisasi, dan Lokasi tidak valid. Mohon lengkapi terlebih dahulu dan coba lagi.";
+          const errormsg = "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
+          const confirm = window.confirm(confirmmsg);
+          if (!confirm) {
+            return;
+          }
+          setIsSubmitting(true);
+          try {
+            const formData = new FormData();
+            if (practiciData.length > 0 && orgData.length > 0 && locationData.length > 0) {
+              const submittedData = { secret, practitioner: practiciData[0].id, location: locationData[0].id, description: locationData[0].description, organization: orgData[0].id, idtransaction: params.idtransaction, nik: params.noktp };
+              formData.append("data", JSON.stringify(submittedData));
+              await apiCrud(formData, "satusehat", "satusehat");
+              showNotifications("success", successmsg);
+              log("submitted data:", submittedData);
+            } else {
+              showNotifications("danger", faileddmsg);
+              return;
+            }
+          } catch (error) {
+            console.error(errormsg, error);
+          } finally {
+            setIsSubmitting(false);
+          }
+        };
+
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
@@ -3120,7 +3156,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber page={currentPage} limit={limit} isNoData={!isPatientShown} isLoading={isFetching}>
+              <Table byNumber isSSable page={currentPage} limit={limit} isNoData={!isPatientShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(patientData, setPatientData, "rscode", "text")}>
@@ -3141,20 +3177,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH isSorted onSort={() => handleSort(patientData, setPatientData, "totalpay", "number")}>
                       Total Bayar
                     </TH>
-                    <TH>Submit Satu Sehat</TH>
                     <TH>Status Satu Sehat</TH>
                   </TR>
                 </THead>
                 <TBody>
                   {filteredPatientData.map((data, index) => (
-                    <TR key={index}>
+                    <TR key={index} onSS={() => handleSSSubmit(data)}>
                       <TD type="code">{data.rscode}</TD>
                       <TD type="code">{data.noinvoice}</TD>
                       <TD>{data.transactionname}</TD>
                       <TD type="code">{data.transactionphone}</TD>
                       <TD>{data.payment}</TD>
                       <TD>{newPrice(data.totalpay)}</TD>
-                      <TD></TD>
                       <TD></TD>
                     </TR>
                   ))}

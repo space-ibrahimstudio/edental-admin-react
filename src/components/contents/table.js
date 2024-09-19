@@ -1,5 +1,5 @@
 import React, { Fragment, useRef, useState, useEffect } from "react";
-import { Expand, Edit, Trash, Copy, Sort, Cancel, Print, Contact, Excel } from "./icons";
+import { Expand, Edit, Trash, Copy, Sort, Cancel, Print, Contact, Excel, SatuSehat } from "./icons";
 import styles from "./styles/table.module.css";
 
 const AtnIcon = ({ children, onClick }) => {
@@ -187,7 +187,7 @@ export const TH = ({ type = "reg", isSorted, onSort, children }) => {
   );
 };
 
-export const TR = ({ children, byNumber, rowIndex, isComplete, isWarning, isDanger, isDeletable, onDelete, isEditable, onEdit, isExpandable, onExpand = () => {}, isCancelable, onCancel, isPrintable, isXlsxble, onXlsx, isContactable, onContact, onPrint, expandContent, isClickable, onClick }) => {
+export const TR = ({ children, byNumber, rowIndex, isComplete, isWarning, isDanger, isDeletable, onDelete, isEditable, onEdit, isExpandable, onExpand = () => {}, isCancelable, onCancel, isPrintable, onPrint, isXlsxble, onXlsx, isContactable, onContact, isSSable, onSS, expandContent, isClickable, onClick }) => {
   const ref = useRef();
   const [expanded, setExpanded] = useState(false);
 
@@ -211,7 +211,7 @@ export const TR = ({ children, byNumber, rowIndex, isComplete, isWarning, isDang
   };
 
   const renderAtnCell = () => {
-    if (isDeletable || isEditable || isExpandable || isCancelable || isPrintable || isXlsxble || isContactable) {
+    if (isDeletable || isEditable || isExpandable || isCancelable || isPrintable || isXlsxble || isContactable || isSSable) {
       if (React.Children.toArray(children).some((child) => child.type === TD)) {
         return (
           <TD type="atn">
@@ -248,6 +248,11 @@ export const TR = ({ children, byNumber, rowIndex, isComplete, isWarning, isDang
             {isContactable && (
               <AtnIcon onClick={onContact}>
                 <Contact color="var(--color-green)" />
+              </AtnIcon>
+            )}
+            {isSSable && (
+              <AtnIcon onClick={onSS}>
+                <SatuSehat />
               </AtnIcon>
             )}
           </TD>
@@ -291,28 +296,28 @@ export const TR = ({ children, byNumber, rowIndex, isComplete, isWarning, isDang
   );
 };
 
-export const TBody = ({ children, byNumber, page, limit, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isXlsxble, isContactable }) => {
+export const TBody = ({ children, byNumber, page, limit, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isXlsxble, isContactable, isSSable }) => {
   return (
     <main className={styles.tableBody}>
       {React.Children.map(children, (child, index) => {
         const rowIndex = page !== undefined && limit !== undefined ? (page - 1) * limit + index + 1 : index + 1;
-        return React.cloneElement(child, { byNumber, rowIndex, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isXlsxble, isContactable });
+        return React.cloneElement(child, { byNumber, rowIndex, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isXlsxble, isContactable, isSSable });
       })}
     </main>
   );
 };
 
-export const THead = ({ children, byNumber, isDeletable, isEditable, isExpandable, isCancelable, isPrintable, isXlsxble, isContactable }) => {
+export const THead = ({ children, byNumber, isDeletable, isEditable, isExpandable, isCancelable, isPrintable, isXlsxble, isContactable, isSSable }) => {
   return (
     <header className={styles.tableHead}>
       {React.Children.map(children, (child) => {
-        return React.cloneElement(child, { byNumber, isDeletable, isEditable, isExpandable, isCancelable, isPrintable, isXlsxble, isContactable });
+        return React.cloneElement(child, { byNumber, isDeletable, isEditable, isExpandable, isCancelable, isPrintable, isXlsxble, isContactable, isSSable });
       })}
     </header>
   );
 };
 
-const Table = ({ id, byNumber, page, limit, isLoading, loadingPlacholder, isNoData, noDataPlaceholder, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isXlsxble, isContactable, children }) => {
+const Table = ({ id, byNumber, page, limit, isLoading, loadingPlacholder, isNoData, noDataPlaceholder, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isXlsxble, isContactable, isSSable, children }) => {
   const isDataPaging = page !== undefined && limit !== undefined;
 
   return (
@@ -324,7 +329,7 @@ const Table = ({ id, byNumber, page, limit, isLoading, loadingPlacholder, isNoDa
       ) : (
         <div className={styles.table}>
           {React.Children.map(children, (child) => {
-            return React.cloneElement(child, { byNumber, page: isDataPaging ? page : undefined, limit: isDataPaging ? limit : undefined, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isXlsxble, isContactable });
+            return React.cloneElement(child, { byNumber, page: isDataPaging ? page : undefined, limit: isDataPaging ? limit : undefined, isDeletable, isEditable, isExpandable, isClickable, isCancelable, isPrintable, isXlsxble, isContactable, isSSable });
           })}
         </div>
       )}

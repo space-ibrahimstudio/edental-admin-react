@@ -98,6 +98,9 @@ export const inputSchema = {
   dept: "",
   identifier: "",
   reference: "",
+  id_location: "",
+  id_org: "",
+  id_order: "",
 };
 
 export const errorSchema = {
@@ -200,4 +203,7 @@ export const errorSchema = {
   dept: "",
   identifier: "",
   reference: "",
+  id_location: "",
+  id_org: "",
+  id_order: "",
 };
