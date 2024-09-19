@@ -3166,24 +3166,36 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isSSable page={currentPage} limit={limit} isNoData={!isPatientShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH>Status Satu Sehat</TH>
-                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "rscode", "number")}>
-                      Nomor KTP
+                    <TH>Satu Sehat</TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.noktp", "number")}>
+                      NIK
                     </TH>
-                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "rscode", "text")}>
-                      Kode Reservasi
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.transactionupdate", "date")}>
+                      Tanggal Kedatangan
                     </TH>
-                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transactionname", "text")}>
-                      Nama Pasien
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.rscode", "text")}>
+                      Reservasi
                     </TH>
-                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transactionphone", "number")}>
-                      Nomor Telepon
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.transactionname", "text")}>
+                      Pasien
                     </TH>
-                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "payment", "text")}>
-                      Metode Pembayaran
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.transactionphone", "number")}>
+                      Telepon
                     </TH>
-                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "totalpay", "number")}>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.payment", "text")}>
+                      Metode Bayar
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.totalpay", "number")}>
                       Total Bayar
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "status.encounter", "number")}>
+                      Encounter
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "status.firstcondition", "number")}>
+                      First Condition
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "status.secondcondition", "number")}>
+                      Second Condition
                     </TH>
                   </TR>
                 </THead>
@@ -3192,11 +3204,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TR key={index} onSS={() => handleSSSubmit(data)}>
                       <TD>{data["status"].length > 0 ? "Terdaftar" : "Pending"}</TD>
                       <TD type="code">{data["transaction"].noktp}</TD>
+                      <TD>{newDate(data["transaction"].transactionupdate)}</TD>
                       <TD type="code">{data["transaction"].rscode}</TD>
                       <TD>{data["transaction"].transactionname}</TD>
                       <TD type="code">{data["transaction"].transactionphone}</TD>
                       <TD>{data["transaction"].payment}</TD>
                       <TD>{newPrice(data["transaction"].totalpay)}</TD>
+                      <TD type={data["status"].length > 0 ? "code" : "reg"}>{data["status"].length > 0 ? data["status"][0].encounter : ""}</TD>
+                      <TD type={data["status"].length > 0 ? "code" : "reg"}>{data["status"].length > 0 ? data["status"][0].firstcondition : ""}</TD>
+                      <TD type={data["status"].length > 0 ? "code" : "reg"}>{data["status"].length > 0 ? data["status"][0].secondcondition : ""}</TD>
                     </TR>
                   ))}
                 </TBody>
