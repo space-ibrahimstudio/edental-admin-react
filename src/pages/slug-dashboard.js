@@ -2798,63 +2798,31 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isDeletable isNoData={!isPractiShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "city", "number")}>
-                      City
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "name_dentist", "text")}>
+                      Nama Dokter
                     </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "province", "number")}>
-                      Province
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "nik", "number")}>
+                      NIK
                     </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "district", "number")}>
-                      District
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "sip", "number")}>
+                      Kode SIP
                     </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "village", "number")}>
-                      Village
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "rt", "number")}>
-                      RT
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "rw", "number")}>
-                      RW
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "postalCode", "number")}>
-                      Postal Code
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "address", "text")}>
-                      Address
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "birthDate", "number")}>
-                      Birthdate
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "gender", "text")}>
-                      Gender
+                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "str", "number")}>
+                      Kode STR
                     </TH>
                     <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "id", "number")}>
                       ID
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "str", "number")}>
-                      STR
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(practiciData, setPracticiData, "phone", "number")}>
-                      Phone
                     </TH>
                   </TR>
                 </THead>
                 <TBody>
                   {filteredPractiData.map((data, index) => (
                     <TR key={index} onDelete={() => handleDelete(data.idpractitioner, "delsatusehat", "satusehat")}>
-                      <TD>{data.city}</TD>
-                      <TD>{data.province}</TD>
-                      <TD>{data.district}</TD>
-                      <TD>{data.village}</TD>
-                      <TD>{data.rt}</TD>
-                      <TD>{data.rw}</TD>
-                      <TD>{data.postalCode}</TD>
-                      <TD>{data.address}</TD>
-                      <TD>{data.birthDate}</TD>
-                      <TD>{data.gender}</TD>
-                      <TD isCopy>{data.id}</TD>
-                      <TD isCopy>{data.str}</TD>
-                      <TD isCopy>{data.phone}</TD>
+                      <TD>{data.name_dentist}</TD>
+                      <TD type="code">{data.nik}</TD>
+                      <TD type="code">{data.sip}</TD>
+                      <TD type="code">{data.str}</TD>
+                      <TD type="code">{data.id}</TD>
                     </TR>
                   ))}
                 </TBody>
