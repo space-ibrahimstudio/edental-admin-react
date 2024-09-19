@@ -2762,9 +2762,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (name === "practici_id" && value !== "") {
             formData.append("secret", secret);
             formData.append("nik", value);
-            const selectedid = branchDentistData.find((item) => item.nik === value);
-            if (selectedid) {
-              setInputData((prevState) => ({ ...prevState, dentist: selectedid }));
+            const selecteddentist = branchDentistData.find((item) => item.nik === value);
+            if (selecteddentist) {
+              setInputData((prevState) => ({ ...prevState, dentist: selecteddentist.id_dentist }));
             } else {
               setInputData((prevState) => ({ ...prevState, dentist: "" }));
             }
