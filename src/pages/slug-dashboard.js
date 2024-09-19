@@ -102,6 +102,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [districtData, setDistrictData] = useState([]);
   const [villageData, setVillageData] = useState([]);
   const [locationData, setLocationData] = useState([]);
+  const [patientData, setPatientData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -678,6 +679,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
           setLocationData(data && data.data && data.data.length > 0 ? data.data : []);
           setOrgData(addtdata && addtdata.data && addtdata.data.length > 0 ? addtdata.data : []);
           break;
+        case "PATIENT":
+          data = await apiRead(formData, "satusehat", "viewpatient");
+          if (data && data.data && data.data.length > 0) {
+            setPatientData(data.data);
+            setTotalPages(data.TTLPage);
+          } else {
+            setPatientData([]);
+            setTotalPages(0);
+          }
+          break;
         default:
           setTotalPages(0);
           break;
@@ -1112,6 +1123,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: practiSearch, handleSearch: handlePractiSearch, filteredData: filteredPractiData, isDataShown: isPractiShown } = useSearch(practiciData, ["gender"]);
   const { searchTerm: orgSearch, handleSearch: handleOrgSearch, filteredData: filteredOrgData, isDataShown: isOrgShown } = useSearch(orgData, ["email"]);
   const { searchTerm: locationSearch, handleSearch: handleLocationSearch, filteredData: filteredLocationData, isDataShown: isLocationShown } = useSearch(locationData, ["cityname"]);
+  const { searchTerm: patientSearch, handleSearch: handlePatientSearch, filteredData: filteredPatientData, isDataShown: isPatientShown } = useSearch(patientData, ["dentist"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -3093,6 +3105,63 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </Fieldset>
               </SubmitForm>
             )}
+          </Fragment>
+        );
+      case "PATIENT":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={patientSearch} onChange={(e) => handlePatientSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isPatientShown} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isPatientShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "rscode", "text")}>
+                      Kode Reservasi
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "noinvoice", "number")}>
+                      Nomor Invoice
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transactionname", "text")}>
+                      Nama Pasien
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transactionphone", "number")}>
+                      Nomor Telepon
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "payment", "text")}>
+                      Metode Pembayaran
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "totalpay", "number")}>
+                      Total Bayar
+                    </TH>
+                    <TH>Submit Satu Sehat</TH>
+                    <TH>Status Satu Sehat</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredPatientData.map((data, index) => (
+                    <TR key={index}>
+                      <TD type="code">{data.rscode}</TD>
+                      <TD type="code">{data.noinvoice}</TD>
+                      <TD>{data.transactionname}</TD>
+                      <TD type="code">{data.transactionphone}</TD>
+                      <TD>{data.payment}</TD>
+                      <TD>{newPrice(data.totalpay)}</TD>
+                      <TD></TD>
+                      <TD></TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isPatientShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
           </Fragment>
         );
       default:
