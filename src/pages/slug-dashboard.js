@@ -3128,11 +3128,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
           try {
             const formData = new FormData();
             if (practiciData.length > 0 && orgData.length > 0 && locationData.length > 0) {
-              const submittedData = { secret, practitioner: practiciData[0].id, location: locationData[0].id, description: locationData[0].description, organization: orgData[0].reference.replace("Organization/", ""), idtransaction: "610", nik: params.noktp };
+              const submittedData = { secret, practitioner: practiciData[0].id, location: locationData[0].id, description: locationData[0].description, organization: orgData[0].reference.replace("Organization/", ""), idtransaction: params["transaction"].idtransaction, nik: params["transaction"].noktp };
               formData.append("data", JSON.stringify(submittedData));
-              await apiCrud(formData, "satusehat", "satusehat");
-              showNotifications("success", successmsg);
-              log("submitted data:", submittedData);
+              const response = await apiCrud(formData, "satusehat", "satusehat");
+              if (response.status === false) {
+                showNotifications("danger", response.message);
+                log("error:", response.message);
+              } else {
+                showNotifications("success", successmsg);
+                log("submitted data:", submittedData);
+                await fetchData();
+                await fetchAdditionalData();
+              }
             } else {
               showNotifications("danger", faileddmsg);
               return;
@@ -3159,11 +3166,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <Table byNumber isSSable page={currentPage} limit={limit} isNoData={!isPatientShown} isLoading={isFetching}>
                 <THead>
                   <TR>
+                    <TH>Status Satu Sehat</TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "rscode", "number")}>
+                      Nomor KTP
+                    </TH>
                     <TH isSorted onSort={() => handleSort(patientData, setPatientData, "rscode", "text")}>
                       Kode Reservasi
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "noinvoice", "number")}>
-                      Nomor Invoice
                     </TH>
                     <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transactionname", "text")}>
                       Nama Pasien
@@ -3177,19 +3185,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH isSorted onSort={() => handleSort(patientData, setPatientData, "totalpay", "number")}>
                       Total Bayar
                     </TH>
-                    <TH>Status Satu Sehat</TH>
                   </TR>
                 </THead>
                 <TBody>
                   {filteredPatientData.map((data, index) => (
-                    <TR key={index} onSS={() => handleSSSubmit(data)} isDanger={data["status"].length > 0 ? false : true}>
+                    <TR key={index} onSS={() => handleSSSubmit(data)}>
+                      <TD>{data["status"].length > 0 ? "Terdaftar" : "Pending"}</TD>
+                      <TD type="code">{data["transaction"].noktp}</TD>
                       <TD type="code">{data["transaction"].rscode}</TD>
-                      <TD type="code">{data["transaction"].noinvoice}</TD>
                       <TD>{data["transaction"].transactionname}</TD>
                       <TD type="code">{data["transaction"].transactionphone}</TD>
                       <TD>{data["transaction"].payment}</TD>
                       <TD>{newPrice(data["transaction"].totalpay)}</TD>
-                      <TD>{data["status"].length > 0 ? "Terdaftar" : "Pending"}</TD>
                     </TR>
                   ))}
                 </TBody>
