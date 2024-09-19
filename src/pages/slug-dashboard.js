@@ -1007,7 +1007,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
           break;
         case "PRACTITIONER":
-          submittedData = { secret, city: inputData.city, province: inputData.province, district: inputData.district, village: inputData.village, rt: inputData.rt, rw: inputData.rw, address: inputData.address, birthDate: inputData.birth_date, gender: inputData.gender, id: inputData.id, str: inputData.str };
+          submittedData = { secret, city: inputData.city, province: inputData.province, district: inputData.district, village: inputData.village, rt: inputData.rt, rw: inputData.rw, address: inputData.address, birthDate: inputData.birth_date, gender: inputData.gender, id: inputData.id, str: inputData.str, identist: inputData.dentist };
           break;
         case "ORGANIZATION":
           submittedData = { secret, name: inputData.name, phone: inputData.phone, email: inputData.email, address: inputData.address, cityname: inputData.city_name, postalcode: inputData.postcode, province: inputData.province, city: inputData.city, district: inputData.district, village: inputData.village };
@@ -2762,6 +2762,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (name === "practici_id" && value !== "") {
             formData.append("secret", secret);
             formData.append("nik", value);
+            const selectedid = branchDentistData.find((item) => item.nik === value);
+            if (selectedid) {
+              setInputData((prevState) => ({ ...prevState, dentist: selectedid }));
+            } else {
+              setInputData((prevState) => ({ ...prevState, dentist: "" }));
+            }
             setIsSubmitting(true);
             try {
               const practicidata = await apiRead(formData, "satusehat", "searchpractitioner");
