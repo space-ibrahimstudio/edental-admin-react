@@ -34,7 +34,7 @@ const InvoiceContent = ({ data, items }) => {
         </div>
         <div className={styles.headerRight}>
           <span className={styles.headerOutlet}>Informasi Terkait</span>
-          <span className={styles.headerOutlet}>{`Diterbitkan oleh ${toTitleCase(username)}`}</span>
+          {/* <span className={styles.headerOutlet}>{`Diterbitkan oleh ${toTitleCase(username)}`}</span> */}
           <span className={styles.headerOutlet}>{`Nomor Referensi : ${data.rscode}`}</span>
         </div>
       </section>
