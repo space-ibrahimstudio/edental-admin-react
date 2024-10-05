@@ -7,7 +7,6 @@ import styles from "./styles/invoice.module.css";
 const InvoiceContent = ({ data, items }) => {
   const { toTitleCase } = useContent();
   const { newDate, newPrice } = useFormat();
-  const { username } = useAuth();
   const { invoiceAlias } = useAlias();
 
   return (
@@ -23,7 +22,7 @@ const InvoiceContent = ({ data, items }) => {
           <span className={styles.headerOutlet}>Billed to</span>
           <span className={styles.headerName}>{`${toTitleCase(data.transactionname)}`}</span>
           <span className={styles.headerOutlet}>{`${toTitleCase(data.transactionphone)}`}</span>
-          <span className={styles.headerOutlet}>{`${newDate(data.transactioncreate)}`}</span>
+          <span className={styles.headerOutlet}>{data.transactionupdate !== "0000-00-00 00:00:00" ? `${newDate(data.transactionupdate, "id")}` : `${newDate(data.transactioncreate, "id")}`}</span>
         </div>
       </header>
       <section className={styles.header}>
