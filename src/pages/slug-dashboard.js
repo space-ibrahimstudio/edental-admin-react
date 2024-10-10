@@ -107,6 +107,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [districtData, setDistrictData] = useState([]);
   const [villageData, setVillageData] = useState([]);
   const [locationData, setLocationData] = useState([]);
+  const [patientData, setPatientData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -705,6 +706,23 @@ const DashboardSlugPage = ({ parent, slug }) => {
           setLocationData(data && data.data && data.data.length > 0 ? data.data : []);
           setOrgData(addtdata && addtdata.data && addtdata.data.length > 0 ? addtdata.data : []);
           break;
+        case "PATIENT":
+          addtFormData.append("data", JSON.stringify({ secret }));
+          data = await apiRead(formData, "satusehat", "viewpatient");
+          const practidata = await apiRead(addtFormData, "satusehat", "viewpractitioner");
+          const organidata = await apiRead(addtFormData, "satusehat", "vieworganization");
+          const locatidata = await apiRead(addtFormData, "satusehat", "viewlocation");
+          setPracticiData(practidata && practidata.data && practidata.data.length > 0 ? practidata.data : []);
+          setOrgData(organidata && organidata.data && organidata.data.length > 0 ? organidata.data : []);
+          setLocationData(locatidata && locatidata.data && locatidata.data.length > 0 ? locatidata.data : []);
+          if (data && data.data && data.data.length > 0) {
+            setPatientData(data.data);
+            setTotalPages(data.TTLPage);
+          } else {
+            setPatientData([]);
+            setTotalPages(0);
+          }
+          break;
         default:
           setTotalPages(0);
           break;
@@ -1139,6 +1157,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: practiSearch, handleSearch: handlePractiSearch, filteredData: filteredPractiData, isDataShown: isPractiShown } = useSearch(practiciData, ["gender"]);
   const { searchTerm: orgSearch, handleSearch: handleOrgSearch, filteredData: filteredOrgData, isDataShown: isOrgShown } = useSearch(orgData, ["email"]);
   const { searchTerm: locationSearch, handleSearch: handleLocationSearch, filteredData: filteredLocationData, isDataShown: isLocationShown } = useSearch(locationData, ["cityname"]);
+  const { searchTerm: patientSearch, handleSearch: handlePatientSearch, filteredData: filteredPatientData, isDataShown: isPatientShown } = useSearch(patientData, ["transaction.dentist"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -3177,6 +3196,113 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </Fieldset>
               </SubmitForm>
             )}
+          </Fragment>
+        );
+      case "PATIENT":
+        const handleSSSubmit = async (params) => {
+          const confirmmsg = "Apakah anda yakin untuk menambahkan data terpilih ke SatuSehat?";
+          const successmsg = "Selamat! Data terpilih berhasil ditambahkan ke SatuSehat.";
+          const faileddmsg = "Data Praktisioner, Organisasi, dan Lokasi tidak valid. Mohon lengkapi terlebih dahulu dan coba lagi.";
+          const errormsg = "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
+          const confirm = window.confirm(confirmmsg);
+          if (!confirm) {
+            return;
+          }
+          setIsSubmitting(true);
+          try {
+            const formData = new FormData();
+            if (practiciData.length > 0 && orgData.length > 0 && locationData.length > 0) {
+              const submittedData = { secret, practitioner: practiciData[0].id, location: locationData[0].id, description: locationData[0].description, organization: orgData[0].reference.replace("Organization/", ""), idtransaction: params["transaction"].idtransaction, nik: params["transaction"].noktp };
+              formData.append("data", JSON.stringify(submittedData));
+              const response = await apiCrud(formData, "satusehat", "satusehat");
+              if (response.status === false) {
+                showNotifications("danger", response.message);
+                log("error:", response.message);
+              } else {
+                showNotifications("success", successmsg);
+                log("submitted data:", submittedData);
+                await fetchData();
+                await fetchAdditionalData();
+              }
+            } else {
+              showNotifications("danger", faileddmsg);
+              return;
+            }
+          } catch (error) {
+            console.error(errormsg, error);
+          } finally {
+            setIsSubmitting(false);
+          }
+        };
+
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={patientSearch} onChange={(e) => handlePatientSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isPatientShown} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isSSable page={currentPage} limit={limit} isNoData={!isPatientShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH>Satu Sehat</TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.noktp", "number")}>
+                      NIK
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.transactionupdate", "date")}>
+                      Tanggal Kedatangan
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.rscode", "text")}>
+                      Reservasi
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.transactionname", "text")}>
+                      Pasien
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.transactionphone", "number")}>
+                      Telepon
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.payment", "text")}>
+                      Metode Bayar
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "transaction.totalpay", "number")}>
+                      Total Bayar
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "status.encounter", "number")}>
+                      Encounter
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "status.firstcondition", "number")}>
+                      First Condition
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(patientData, setPatientData, "status.secondcondition", "number")}>
+                      Second Condition
+                    </TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredPatientData.map((data, index) => (
+                    <TR key={index} onSS={data["status"].length > 0 ? () => {} : () => handleSSSubmit(data)}>
+                      <TD>{data["status"].length > 0 ? "Terdaftar" : "Pending"}</TD>
+                      <TD type="code">{data["transaction"].noktp}</TD>
+                      <TD>{newDate(data["transaction"].transactionupdate)}</TD>
+                      <TD type="code">{data["transaction"].rscode}</TD>
+                      <TD>{data["transaction"].transactionname}</TD>
+                      <TD type="code">{data["transaction"].transactionphone}</TD>
+                      <TD>{data["transaction"].payment}</TD>
+                      <TD>{newPrice(data["transaction"].totalpay)}</TD>
+                      <TD type={data["status"].length > 0 ? "code" : "reg"}>{data["status"].length > 0 ? data["status"][0].encounter : ""}</TD>
+                      <TD type={data["status"].length > 0 ? "code" : "reg"}>{data["status"].length > 0 ? data["status"][0].firstcondition : ""}</TD>
+                      <TD type={data["status"].length > 0 ? "code" : "reg"}>{data["status"].length > 0 ? data["status"][0].secondcondition : ""}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isPatientShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
           </Fragment>
         );
       default:
