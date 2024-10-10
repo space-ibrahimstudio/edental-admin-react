@@ -55,6 +55,11 @@ export const useOptions = () => {
     { value: "1", label: "Paid" },
     { value: "2", label: "Canceled" },
   ];
+  const reportstatopt = [
+    { value: "0", label: "Open" },
+    { value: "1", label: "Lunas" },
+    { value: "2", label: "Batal" },
+  ];
   const stockoutstatopt = [
     { value: "Barang Habis Pakai", label: "Barang Habis Pakai" },
     { value: "Barang Tidak Habis Pakai", label: "Barang Tidak Habis Pakai" },
@@ -64,7 +69,7 @@ export const useOptions = () => {
     { value: "Diagnosa Sekunder", label: "Diagnosa Sekunder" },
     { value: "Diagnosa Komplikasi", label: "Diagnosa Komplikasi" },
   ];
-  return { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt, stockoutstatopt, diagnoseopt };
+  return { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt, reportstatopt, stockoutstatopt, diagnoseopt };
 };
 
 export const useOdontogram = () => {

@@ -35,7 +35,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { isLoggedin, secret, cctr, idoutlet, level } = useAuth();
   const { apiRead, apiCrud } = useApi();
   const { showNotifications } = useNotifications();
-  const { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt } = useOptions();
+  const { limitopt, genderopt, levelopt, usrstatopt, unitopt, houropt, postatopt, pocstatopt, reservstatopt, paymentstatopt, paymenttypeopt, orderstatopt, reportstatopt } = useOptions();
   const { paymentAlias, orderAlias, poAlias, usrstatAlias, reservAlias } = useAlias();
 
   const pageid = parent && slug ? `slug-${toPathname(parent)}-${toPathname(slug)}` : "slug-dashboard";
@@ -60,6 +60,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [status, setStatus] = useState(0);
   const [custExist, setCustExist] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1)));
+  const [endDate, setEndDate] = useState(new Date());
 
   const [custData, setCustData] = useState([]);
   const [allCustData, setAllCustData] = useState([]);
@@ -68,7 +70,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [allservicedata, setAllservicedata] = useState([]);
   const [branchData, setBranchData] = useState([]);
   const [allBranchData, setAllBranchData] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState("0");
   const [selectedBranch, setSelectedBranch] = useState(idoutlet);
+  const [selectedDentist, setSelectedDentist] = useState(null);
+  const [allDentistData, setAllDentistData] = useState([]);
   const [dentistData, setDentistData] = useState([]);
   const [branchDentistData, setBranchDentistData] = useState([]);
   const [stockData, setStockData] = useState([]);
@@ -109,8 +114,32 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   const handlePageChange = (page) => setCurrentPage(page);
   const handleBranchChange = (value) => setSelectedBranch(value);
+  const handleDentistChange = (value) => setSelectedDentist(value);
   const handleImageSelect = (file) => setSelectedImage(file);
   const openDetail = (params) => navigate(`${pagepath}/${params.toLowerCase()}`);
+  const handleABranchChange = async (value) => {
+    setSelectedBranch(value);
+    const branchdata = allBranchData.find((item) => item.idoutlet === value);
+    if (branchdata) {
+      const formData = new FormData();
+      formData.append("data", JSON.stringify({ secret, kodeoutlet: branchdata.cctr }));
+      const dentistdata = await apiRead(formData, "office", "viewdentistoutlet");
+      if (dentistdata && dentistdata.data && dentistdata.data.length > 0) {
+        setAllDentistData(dentistdata.data);
+        setSelectedDentist(dentistdata.data[0].id_dentist);
+      } else {
+        setAllDentistData([]);
+        setSelectedDentist(null);
+      }
+    } else {
+      setAllDentistData([]);
+      setSelectedDentist(null);
+    }
+  };
+
+  const formatISODate = (date) => {
+    return date.toISOString().slice(0, 16);
+  };
 
   const getAvailHours = async (date) => {
     try {
@@ -516,14 +545,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "ORDER REPORT":
-          addtFormData.append("data", JSON.stringify({ secret, idoutlet: selectedBranch }));
-          addtdata = await apiRead(formData, "office", "vieworderreport");
+          addtFormData.append("data", JSON.stringify({ secret, idoutlet: selectedBranch, status: selectedStatus, stardate: formatISODate(startDate), enddate: formatISODate(endDate), dentist: selectedDentist }));
+          addtdata = await apiRead(addtFormData, "office", "vieworderreport");
           if (addtdata && addtdata.data && addtdata.data.length > 0) {
             setOrderRData(addtdata.data);
-            // setTotalPages(data.TTLPage);
           } else {
             setOrderRData([]);
-            // setTotalPages(0);
           }
           break;
         case "STOCK OUT":
@@ -808,7 +835,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "DENTIST":
           switchedData = currentData(dentistData, "id_dentist");
           log(`id ${slug} data switched:`, switchedData.id_dentist);
-          setInputData({ cctr: switchedData.id_branch, name: switchedData.name_dentist, sip: switchedData.sip, phone: switchedData.phone });
+          setInputData({ cctr: switchedData.id_branch, name: switchedData.name_dentist, sip: switchedData.sip, phone: switchedData.phone, nik: switchedData.nik });
           break;
         case "PO PUSAT":
           switchedData = currentData(centralPOData, "PO Stock.idpostock");
@@ -877,7 +904,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         requiredFields = ["name", "desc"];
         break;
       case "DENTIST":
-        requiredFields = ["cctr", "name", "sip", "phone"];
+        requiredFields = ["cctr", "name", "sip", "phone", "nik"];
         break;
       case "STOCK EXPIRE":
         requiredFields = ["stockexp.categorystock", "stockexp.subcategorystock", "stockexp.itemname", "stockexp.unit", "stockexp.qty", "stockexp.status"];
@@ -966,7 +993,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           submittedData = { secret, nama: inputData.name, arti: inputData.desc, note: inputData.note };
           break;
         case "DENTIST":
-          submittedData = { secret, idbranch: inputData.cctr, name_dentist: inputData.name, sip: inputData.sip, phone: inputData.phone };
+          submittedData = { secret, idbranch: inputData.cctr, name_dentist: inputData.name, sip: inputData.sip, phone: inputData.phone, nik: inputData.nik };
           break;
         case "STOCK EXPIRE":
           submittedData = { secret, stock: inputData.stockexp };
@@ -1107,7 +1134,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: centralPOSearch, handleSearch: handleCentralPOSearch, filteredData: filteredCentralPOData, isDataShown: isCentralPOShown } = useSearch(centralPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: userSearch, handleSearch: handleUserSearch, filteredData: filteredUserData, isDataShown: isUserShown } = useSearch(userData, ["username", "cctr", "outlet_name"]);
   const { searchTerm: diagnoseSearch, handleSearch: handleDiagnoseSearch, filteredData: filteredDiagnoseData, isDataShown: isDiagnoseShown } = useSearch(diagnoseData, ["code.diagnosiscode"]);
-  const { searchTerm: orderRSearch, handleSearch: handleOrderRSearch, filteredData: filteredOrderRData, isDataShown: isOrderRShown } = useSearch(orderRData, ["order.noktp"]);
+  const { searchTerm: orderRSearch, handleSearch: handleOrderRSearch, filteredData: filteredOrderRData, isDataShown: isOrderRShown } = useSearch(orderRData, ["order.transactionname"]);
   const { searchTerm: conditionSearch, handleSearch: handleConditionSearch, filteredData: filteredConditionData, isDataShown: isConditionShown } = useSearch(conditionData, ["singkatan", "arti", "keterangan"]);
   const { searchTerm: practiSearch, handleSearch: handlePractiSearch, filteredData: filteredPractiData, isDataShown: isPractiShown } = useSearch(practiciData, ["gender"]);
   const { searchTerm: orgSearch, handleSearch: handleOrgSearch, filteredData: filteredOrgData, isDataShown: isOrgShown } = useSearch(orgData, ["email"]);
@@ -1550,6 +1577,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH isSorted onSort={() => handleSort(dentistData, setDentistData, "phone", "number")}>
                       Nomor Telepon
                     </TH>
+                    <TH isSorted onSort={() => handleSort(dentistData, setDentistData, "nik", "number")}>
+                      NIK
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1559,6 +1589,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD>{toTitleCase(data.name_dentist.replace(`${data.id_branch} -`, ""))}</TD>
                       <TD type="code">{data.sip}</TD>
                       <TD type="number">{data.phone}</TD>
+                      <TD type="code">{data.nik}</TD>
                     </TR>
                   ))}
                 </TBody>
@@ -1567,45 +1598,55 @@ const DashboardSlugPage = ({ parent, slug }) => {
             {isDentistShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Dokter" : "Tambah Data Dokter"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cuddentist")} loading={isSubmitting} onClose={closeForm}>
+                <Input id={`${pageid}-outlet-code`} variant="select" isSearchable radius="full" labelText="Cabang" placeholder="Pilih cabang" name="cctr" value={inputData.cctr} options={allBranchData.map((branch) => ({ value: branch.cctr, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "cctr", value: selectedValue } })} errorContent={errors.cctr} isRequired />
                 <Fieldset>
-                  <Input id={`${pageid}-outlet-code`} variant="select" isSearchable radius="full" labelText="Cabang" placeholder="Pilih cabang" name="cctr" value={inputData.cctr} options={allBranchData.map((branch) => ({ value: branch.cctr, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "cctr", value: selectedValue } })} errorContent={errors.cctr} isRequired />
                   <Input id={`${pageid}-name`} radius="full" labelText="Nama Dokter" placeholder="Masukkan nama Dokter" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
                   <Input id={`${pageid}-sip`} radius="full" labelText="Nomor SIP" placeholder="Masukkan nomor SIP" type="number" name="sip" value={inputData.sip} onChange={handleInputChange} errorContent={errors.sip} isRequired />
+                </Fieldset>
+                <Fieldset>
                   <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
+                  <Input id={`${pageid}-nik`} radius="full" labelText="NIK" placeholder="327xxx" type="number" name="nik" value={inputData.nik} onChange={handleInputChange} errorContent={errors.nik} isRequired />
                 </Fieldset>
               </SubmitForm>
             )}
           </Fragment>
         );
       case "ORDER REPORT":
+        const handleStatusChange = (value) => setSelectedStatus(value);
+
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Data report Order yang telah selesai. Data ini dibuat otomatis saat proses transaksi dilakukan." />
             <DashboardToolbar>
               <DashboardTool>
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderRSearch} onChange={(e) => handleOrderRSearch(e.target.value)} startContent={<Search />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                {/* <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isOrderRShown} /> */}
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredOrderRData, "Order Report", `order_report_${getCurrentDate()}`)} isDisabled={!isOrderRShown} startContent={<Export />} />
+                <Input id={`${pageid}-filter-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleABranchChange} />
+                <Input id={`${pageid}-filter-dentist`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Dokter" value={selectedDentist} options={allDentistData.map((dentist) => ({ value: dentist.id_dentist, label: dentist.name_dentist }))} onSelect={handleDentistChange} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`${pageid}-filter-status`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Pilih Status" value={selectedStatus} options={reportstatopt} onSelect={handleStatusChange} />
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`${pageid}-filter-startdate`} radius="full" isLabeled={false} type="datetime-local" value={formatISODate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
+                <Input id={`${pageid}-filter-enddate`} radius="full" isLabeled={false} type="datetime-local" value={formatISODate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isExpandable isNoData={!isOrderRShown} isLoading={isFetching}>
+              <Table byNumber isPrintable isExpandable isNoData={!isOrderRShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.transactioncreate", "date")}>
                       Tanggal Dibuat
                     </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.transactionstatus", "number")}>
+                      Status Pembayaran
+                    </TH>
                     <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.transactionname", "text")}>
-                      Nama Customer
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.transactionphone", "number")}>
-                      Nomor Telepon
-                    </TH>
-                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.noktp", "number")}>
-                      Nomor KTP
+                      Nama Pengguna
                     </TH>
                     <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.rscode", "text")}>
                       Kode Reservasi
@@ -1613,41 +1654,58 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.noinvoice", "number")}>
                       Nomor Invoice
                     </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.transactionphone", "number")}>
+                      Nomor Telepon
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.payment", "text")}>
+                      Metode Pembayaran
+                    </TH>
                     <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.totalpay", "number")}>
-                      Total Nilai
+                      Total Pembayaran
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.voucher", "text")}>
+                      Kode Voucher
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.dentist", "text")}>
+                      Nama Dokter
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.outlet_name", "text")}>
+                      Nama Outlet
                     </TH>
                   </TR>
                 </THead>
                 <TBody>
                   {filteredOrderRData.map((data, index) => (
+                    // <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
                     <TR
                       key={index}
-                      expandContent={data["stock"].map((subdata, idx) => (
+                      onPrint={() => openFile(data.idtransaction)}
+                      expandContent={data["detail"].map((subdata, idx) => (
                         <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
-                          <Input id={`item-cat-${index}-${idx}`} radius="full" labelText="Kategori Item" value={subdata.categorystock} isReadonly />
-                          <Input id={`item-name-${index}-${idx}`} radius="full" labelText="Nama Item" value={subdata.itemname} isReadonly />
-                          <Input id={`item-sku-${index}-${idx}`} radius="full" labelText="Kode SKU" value={subdata.sku} isReadonly />
-                          <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item Terpakai" value={subdata.lastqty} isReadonly />
-                          <Input id={`item-unit-${index}-${idx}`} radius="full" labelText="Satuan/Unit" value={subdata.unit} isReadonly />
+                          <Input id={`date-${index}-${idx}`} radius="full" labelText="Tanggal Dibuat" value={newDate(subdata.transactiondetailcreate, "id")} isReadonly />
+                          <Input id={`service-${index}-${idx}`} radius="full" labelText="Layanan" value={subdata.service} isReadonly />
+                          <Input id={`service-type-${index}-${idx}`} radius="full" labelText="Jenis Layanan" value={subdata.servicetype} isReadonly />
+                          <Input id={`price-${index}-${idx}`} radius="full" labelText="Harga" value={newPrice(subdata.price)} isReadonly />
                         </Fieldset>
                       ))}>
                       <TD>{newDate(data["order"].transactioncreate, "id")}</TD>
+                      <TD>{orderAlias(data["order"].transactionstatus)}</TD>
                       <TD>{toTitleCase(data["order"].transactionname)}</TD>
+                      <TD type="code">{data["order"].rscode}</TD>
+                      <TD type="code">{data["order"].noinvoice}</TD>
                       <TD type="number" isCopy>
                         {data["order"].transactionphone}
                       </TD>
-                      <TD type="number" isCopy>
-                        {data["order"].noktp}
-                      </TD>
-                      <TD type="code">{data["order"].rscode}</TD>
-                      <TD type="code">{data["order"].noinvoice}</TD>
+                      <TD>{data["order"].payment}</TD>
                       <TD>{newPrice(data["order"].totalpay)}</TD>
+                      <TD type="code">{data["order"].voucher}</TD>
+                      <TD>{toTitleCase(data["order"].dentist)}</TD>
+                      <TD>{toTitleCase(data["order"].outlet_name)}</TD>
                     </TR>
                   ))}
                 </TBody>
               </Table>
             </DashboardBody>
-            {/* {isCustShown > 0 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />} */}
           </Fragment>
         );
       case "KAS":
@@ -3157,12 +3215,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
   }, [slug, bookedHoursData]);
 
   useEffect(() => {
+    log("formatted date:", `${startDate} - ${endDate}`);
+  }, [startDate, endDate]);
+
+  useEffect(() => {
     setInputData({ ...inputSchema });
     setErrors({ ...errorSchema });
     setSelectedData(null);
     setSelectedImage(null);
     fetchData();
-  }, [slug, currentPage, limit, status, selectedBranch, selectedCust, onPageTabId]);
+  }, [slug, currentPage, limit, status, selectedStatus, selectedBranch, selectedDentist, selectedCust, onPageTabId, startDate, endDate]);
 
   useEffect(() => {
     if (slug === "ORGANIZATION") {
@@ -3191,6 +3253,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setSelectedBranch(idoutlet);
     setSelectedCust(null);
     setOnpageData({ ...inputSchema });
+    handleABranchChange(idoutlet);
   }, [slug]);
 
   if (!isLoggedin) {

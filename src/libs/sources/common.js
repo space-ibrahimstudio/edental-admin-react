@@ -98,6 +98,7 @@ export const inputSchema = {
   dept: "",
   identifier: "",
   reference: "",
+  nik: "",
 };
 
 export const errorSchema = {
@@ -200,4 +201,5 @@ export const errorSchema = {
   dept: "",
   identifier: "",
   reference: "",
+  nik: "",
 };
