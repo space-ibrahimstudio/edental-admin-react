@@ -2242,7 +2242,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" name="image" initialFile={onpageData.image} onSelect={handleImageSelect} />
                   </Fieldset>
                   <FormFooter>
-                    <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText={selectedCust ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
+                    <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText={selectedCust ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} isDisabled={errors.name !== "" || errors.phone !== "" || errors.email !== "" || errors.nik !== "" || errors.birth !== "" || errors.gender !== "" || errors.address !== ""} />
                   </FormFooter>
                 </OnpageForm>
               );

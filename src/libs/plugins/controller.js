@@ -55,12 +55,12 @@ export function inputValidator(formData, requiredFields) {
 export function validateForm(inputSchema, errorSchema, formData, setErrors) {
   let valid = true;
   const newerrors = { ...errorSchema };
-  Object.keys(inputSchema).forEach(field => {
+  Object.keys(inputSchema).forEach((field) => {
     if (Array.isArray(formData[field])) {
       const fielderrors = [];
       formData[field].forEach((item, index) => {
         const errors = {};
-        Object.keys(item).forEach(key => {
+        Object.keys(item).forEach((key) => {
           if (!item[key].trim()) {
             errors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} is required`;
             valid = false;
@@ -78,12 +78,12 @@ export function validateForm(inputSchema, errorSchema, formData, setErrors) {
   });
   setErrors(newerrors);
   return valid;
-};
+}
 
 export function emailValidator(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(String(email).toLowerCase());
-};
+}
 
 export function getNestedValue(obj, path) {
   return path.split(".").reduce((acc, part) => acc && acc[part], obj);
