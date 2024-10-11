@@ -980,6 +980,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
       setErrors(validationErrors);
       return;
     }
+    if (Object.values(errors).some((error) => error !== "")) {
+      return;
+    }
     const action = e.nativeEvent.submitter.getAttribute("data-action");
     const confirmmsg = action === "update" ? `Apakah anda yakin untuk menyimpan perubahan pada ${toTitleCase(slug)}?` : `Apakah anda yakin untuk menambahkan data baru pada ${toTitleCase(slug)}?`;
     const successmsg = action === "update" ? `Selamat! Perubahan anda pada ${toTitleCase(slug)} berhasil disimpan.` : `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
