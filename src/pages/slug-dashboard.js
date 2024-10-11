@@ -10,7 +10,7 @@ import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { useSearch } from "../libs/plugins/handler";
-import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue, inputValidator, emailValidator } from "../libs/plugins/controller";
+import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue, inputValidator, emailValidator, errorValidator } from "../libs/plugins/controller";
 import { inputSchema, errorSchema } from "../libs/sources/common";
 import { useOptions, useAlias } from "../libs/plugins/helper";
 import Pages from "../components/frames/pages";
@@ -978,9 +978,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
     }
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      return;
-    }
-    if (Object.values(errors).some((error) => error !== "")) {
       return;
     }
     const action = e.nativeEvent.submitter.getAttribute("data-action");
@@ -2242,7 +2239,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" name="image" initialFile={onpageData.image} onSelect={handleImageSelect} />
                   </Fieldset>
                   <FormFooter>
-                    <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText={selectedCust ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
+                    <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText={selectedCust ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} isDisabled={errors.name !== "" || errors.phone !== "" || errors.email !== "" || errors.nik !== "" || errors.birth !== "" || errors.gender !== "" || errors.address !== ""} />
                   </FormFooter>
                 </OnpageForm>
               );
