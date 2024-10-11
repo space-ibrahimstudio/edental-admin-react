@@ -226,16 +226,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
         const phoneRegex = /^0\d*$/;
         if (phoneRegex.test(value)) {
           const matcheddata = allCustData.find((item) => item.userphone === value);
-          if (matcheddata) {
+          if (matcheddata && matcheddata.idauthuser !== selectedCust) {
             setCustExist(true);
-            setOnpageData((prevState) => ({ ...prevState, name: matcheddata.username, email: matcheddata.useremail }));
-            setSelectedCust(matcheddata.idauthuser);
+            setErrors((prevErrors) => ({ ...prevErrors, phone: "Customer sudah terdaftar." }));
           } else {
             setCustExist(false);
-            setOnpageData((prevState) => ({ ...prevState, name: "", email: "" }));
-            setSelectedCust("");
+            setErrors((prevErrors) => ({ ...prevErrors, phone: "" }));
           }
-          setErrors((prevErrors) => ({ ...prevErrors, phone: "" }));
         } else {
           setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone number must start with 0 and contain only numbers." }));
         }
@@ -2231,7 +2228,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   <FormHead title="Informasi Pribadi" />
                   <Fieldset>
                     <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={onpageData.name} onChange={handleInputChange} errorContent={errors.name} isRequired isReadonly={custExist} />
-                    <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={onpageData.phone} onChange={handleInputChange} infoContent={custExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""} errorContent={errors.phone} isRequired />
+                    <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={onpageData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
                     <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={onpageData.email} onChange={handleInputChange} errorContent={errors.email} isRequired isReadonly={custExist} />
                     <Input id={`${pageid}-nik`} radius="full" labelText="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={onpageData.nik} onChange={handleInputChange} errorContent={errors.nik} isRequired />
                   </Fieldset>
