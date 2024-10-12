@@ -434,22 +434,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setIsFileOpen(true);
     setIsFormFetching(true);
     try {
-      const orderdata = orderData.find((item) => item.idtransaction === id);
-      if (orderdata) {
-        setSelectedOrderData(orderdata);
-      } else {
-        setSelectedOrderData(null);
-      }
-      const formData = new FormData();
-      formData.append("data", JSON.stringify({ secret, idtransaction: id }));
-      const data = await apiRead(formData, "office", "viewdetailorder");
-      const orderdetaildata = data.data;
-      if (data && orderdetaildata && orderdetaildata.length > 0) {
-        setOrderDetailData(orderdetaildata);
-      } else {
-        setOrderDetailData(null);
-        console.error("Order details not found or empty.");
-      }
+      const orderdata = orderData.find((item) => item["order"].idtransaction === id);
+      setSelectedOrderData(orderdata ? orderdata : null);
+      // const formData = new FormData();
+      // formData.append("data", JSON.stringify({ secret, idtransaction: id }));
+      // const data = await apiRead(formData, "office", "viewdetailorder");
+      // const orderdetaildata = data.data;
+      // if (data && orderdetaildata && orderdetaildata.length > 0) {
+      //   setOrderDetailData(orderdetaildata);
+      // } else {
+      //   setOrderDetailData(null);
+      //   console.error("Order details not found or empty.");
+      // }
     } catch (error) {
       console.error("error getting order information:", error);
     } finally {
@@ -647,7 +643,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "ORDER CUSTOMER":
-          data = await apiRead(formData, "office", "vieworder");
+          data = await apiRead(formData, "office", "vieworder2");
           if (data && data.data && data.data.length > 0) {
             setOrderData(data.data);
             setTotalPages(data.TTLPage);
@@ -1148,7 +1144,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: stockExpSearch, handleSearch: handleStockExpSearch, filteredData: filteredStockExpData, isDataShown: isStockExpShown } = useSearch(stockExpData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
   const { searchTerm: inPOSearch, handleSearch: handleInPOSearch, filteredData: filteredInPOData, isDataShown: isInPOShown } = useSearch(inPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: reservSearch, handleSearch: handleReservSearch, filteredData: filteredReservData, isDataShown: isReservShown } = useSearch(reservData, ["rscode", "name", "phone", "outlet_name"]);
-  const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
+  const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["order.transactionname", "order.noinvoice", "order.rscode", "order.dentist", "order.outlet_name"]);
   const { searchTerm: centralPOSearch, handleSearch: handleCentralPOSearch, filteredData: filteredCentralPOData, isDataShown: isCentralPOShown } = useSearch(centralPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: userSearch, handleSearch: handleUserSearch, filteredData: filteredUserData, isDataShown: isUserShown } = useSearch(userData, ["username", "cctr", "outlet_name"]);
   const { searchTerm: diagnoseSearch, handleSearch: handleDiagnoseSearch, filteredData: filteredDiagnoseData, isDataShown: isDiagnoseShown } = useSearch(diagnoseData, ["code.diagnosiscode"]);
@@ -2402,6 +2398,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "datemedical", "date")}>
                           Tanggal Dibuat
                         </TH>
+                        <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "rscode", "text")}>
+                          Kode Reservasi
+                        </TH>
                         <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "ageyear", "number")}>
                           Usia Pasien
                         </TH>
@@ -2423,6 +2422,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       {medicRcdData.map((data, index) => (
                         <TR key={index} onEdit={() => navigate(`${pagepath}/${data.idmedicalrecords}`)} onDelete={() => handleRMDelete(data.idmedicalrecords)}>
                           <TD>{newDate(data.datemedical, "id")}</TD>
+                          <TD type="code">{data.rscode}</TD>
                           <TD>{`${data.ageyear} tahun, ${data.agemonth} bulan, ${data.ageday} hari`}</TD>
                           <TD>{toTitleCase(data.room)}</TD>
                           <TD>{toTitleCase(data.service)}</TD>
@@ -2609,13 +2609,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "ORDER CUSTOMER":
         const exportToPDF = () => {
           const element = printRef.current;
-          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData.transactionname)}-${selectedOrderData.rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
+          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData["order"].transactionname)}-${selectedOrderData["order"].rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
           html2pdf().from(element).set(opt).save();
         };
 
         const sendPDFLink = async (number, name) => {
           const element = printRef.current;
-          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData.transactionname)}-${selectedOrderData.rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
+          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData["order"].transactionname)}-${selectedOrderData["order"].rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
           try {
             const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
             const pdfURL = URL.createObjectURL(pdfBlob);
@@ -2645,40 +2645,43 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isClickable isPrintable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
+              <Table byNumber isExpandable isPrintable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactioncreate", "date")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactioncreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionstatus", "number")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactionupdate", "date")}>
+                      Tanggal Tiba
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactionstatus", "number")}>
                       Status Pembayaran
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionname", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactionname", "text")}>
                       Nama Pengguna
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "rscode", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.rscode", "text")}>
                       Kode Reservasi
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "noinvoice", "number")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.noinvoice", "number")}>
                       Nomor Invoice
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionphone", "number")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactionphone", "number")}>
                       Nomor Telepon
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "payment", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.payment", "text")}>
                       Metode Pembayaran
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "totalpay", "number")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.totalpay", "number")}>
                       Total Pembayaran
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "voucher", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.voucher", "text")}>
                       Kode Voucher
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "dentist", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.dentist", "text")}>
                       Nama Dokter
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "outlet_name", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.outlet_name", "text")}>
                       Nama Outlet
                     </TH>
                   </TR>
@@ -2686,20 +2689,37 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <TBody>
                   {filteredOrderData.map((data, index) => (
                     // <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
-                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)}>
-                      <TD>{newDate(data.transactioncreate, "id")}</TD>
-                      <TD>{orderAlias(data.transactionstatus)}</TD>
-                      <TD>{toTitleCase(data.transactionname)}</TD>
-                      <TD type="code">{data.rscode}</TD>
-                      <TD type="code">{data.noinvoice}</TD>
+                    <TR
+                      key={index}
+                      isComplete={data["order"].transactionstatus === "1"}
+                      isDanger={data["order"].transactionstatus === "2"}
+                      expandContent={
+                        <Fragment>
+                          {data["orderdetail"].map((subdata, idx) => (
+                            <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
+                              <Input id={`${pageid}-date-${index}-${idx}`} radius="full" labelText="Tanggal Dibuat" value={subdata.transactiondetailcreate === "0000-00-00 00:00:00" ? "" : newDate(subdata.transactiondetailcreate, "id")} isReadonly />
+                              <Input id={`${pageid}-service-${index}-${idx}`} radius="full" labelText="Layanan" value={subdata.service} isReadonly />
+                              <Input id={`${pageid}-service-type-${index}-${idx}`} radius="full" labelText="Jenis Layanan" value={subdata.servicetype} isReadonly />
+                              <Input id={`${pageid}-price-${index}-${idx}`} radius="full" labelText="Harga" value={newPrice(subdata.price)} isReadonly />
+                            </Fieldset>
+                          ))}
+                        </Fragment>
+                      }
+                      onPrint={() => openFile(data["order"].idtransaction)}>
+                      <TD>{newDate(data["order"].transactioncreate, "id")}</TD>
+                      <TD>{data["order"].transactionupdate === "0000-00-00 00:00:00" ? "" : newDate(data["order"].transactionupdate, "id")}</TD>
+                      <TD>{orderAlias(data["order"].transactionstatus)}</TD>
+                      <TD>{toTitleCase(data["order"].transactionname)}</TD>
+                      <TD type="code">{data["order"].rscode}</TD>
+                      <TD type="code">{data["order"].noinvoice}</TD>
                       <TD type="number" isCopy>
-                        {data.transactionphone}
+                        {data["order"].transactionphone}
                       </TD>
-                      <TD>{data.payment}</TD>
-                      <TD>{newPrice(data.totalpay)}</TD>
-                      <TD type="code">{data.voucher}</TD>
-                      <TD>{toTitleCase(data.dentist)}</TD>
-                      <TD>{toTitleCase(data.outlet_name)}</TD>
+                      <TD>{data["order"].payment}</TD>
+                      <TD>{newPrice(data["order"].totalpay)}</TD>
+                      <TD type="code">{data["order"].voucher}</TD>
+                      <TD>{toTitleCase(data["order"].dentist)}</TD>
+                      <TD>{toTitleCase(data["order"].outlet_name)}</TD>
                     </TR>
                   ))}
                 </TBody>
@@ -2735,9 +2755,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 ))}
               </SubmitForm>
             )}
-            {selectedOrderData && orderDetailData && isFileOpen && (
-              <FileForm fetching={isFormFetching} onNext={exportToPDF} onSend={() => sendPDFLink(selectedOrderData.transactionphone, selectedOrderData.transactionname)} onClose={closeFile}>
-                <Invoice ref={printRef} data={selectedOrderData} items={orderDetailData} />
+            {selectedOrderData && isFileOpen && (
+              <FileForm fetching={isFormFetching} onNext={exportToPDF} onSend={() => sendPDFLink(selectedOrderData["order"].transactionphone, selectedOrderData["order"].transactionname)} onClose={closeFile}>
+                <Invoice ref={printRef} data={selectedOrderData["order"]} items={selectedOrderData["orderdetail"]} />
               </FileForm>
             )}
           </Fragment>

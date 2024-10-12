@@ -13,10 +13,10 @@ export const FormHead = ({ title }) => {
   );
 };
 
-const OnpageForm = ({ children, onSubmit }) => {
+const OnpageForm = ({ loading, children, onSubmit }) => {
   return (
     <form className={styles.onpageForm} onSubmit={onSubmit}>
-      {children}
+      {loading ? null : children}
     </form>
   );
 };
