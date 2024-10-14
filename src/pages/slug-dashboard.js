@@ -2558,7 +2558,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   {filteredInvoiceData.map((data, index) => (
                     <TR key={index}>
                       <TD>{newDate(data.xenditcreate, "id")}</TD>
-                      <TD>{data.idoutlet}</TD>
+                      <TD>{data.outlet_name}</TD>
                       <TD type="code">{data.external_id}</TD>
                       <TD type="code">{data.account_number}</TD>
                       <TD type="link">{data.bank_code}</TD>
