@@ -667,6 +667,8 @@ const DashboardParamsPage = ({ parent, slug }) => {
       log("submitted data:", submittedData);
       if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "1") {
         setOdontoHistoryData(odontoHistoryData.filter((item) => item["tooth"].idconditiontooth !== ""));
+      } else if (slug === "REKAM MEDIS" && tabId === "1" && subTabId === "4") {
+        closeForm();
       }
       await fetchData();
       await fetchAdditionalData();
@@ -1245,6 +1247,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
             <DashboardHead title={`Rekam Medis #${params}`} desc="Panel untuk memperbarui profil data dan menambah histori catatan medis pasien." />
             <DashboardToolbar>
               <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} startContent={<Arrow direction="left" />} />
+              {tabId === "1" && subTabId === "4" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />}
             </DashboardToolbar>
             <TabSwitch buttons={tabbutton} />
             {tabId !== "3" && <TabGroup buttons={subTabButton(tabId)} />}
