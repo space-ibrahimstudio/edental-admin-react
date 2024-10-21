@@ -99,6 +99,8 @@ export const inputSchema = {
   identifier: "",
   reference: "",
   nik: "",
+  client_id: "",
+  secret_id: "",
 };
 
 export const errorSchema = {
@@ -202,4 +204,6 @@ export const errorSchema = {
   identifier: "",
   reference: "",
   nik: "",
+  client_id: "",
+  secret_id: "",
 };
