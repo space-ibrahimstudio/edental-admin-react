@@ -21,7 +21,7 @@ import { SubmitForm, FileForm } from "../components/input-controls/forms";
 import OnpageForm, { FormHead, FormFooter } from "../components/input-controls/onpage-forms";
 import Fieldset from "../components/input-controls/inputs";
 import TabGroup from "../components/input-controls/tab-group";
-import { Search, Plus, Export, HChevron, Check, NewTrash } from "../components/contents/icons";
+import { Search, Plus, Export, HChevron, Check, NewTrash, Filter } from "../components/contents/icons";
 import { LoadingContent } from "../components/feedbacks/screens";
 import Pagination from "../components/navigations/pagination";
 import Invoice from "../components/contents/invoice";
@@ -72,7 +72,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [allservicedata, setAllservicedata] = useState([]);
   const [branchData, setBranchData] = useState([]);
   const [allBranchData, setAllBranchData] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState("0");
+  const [selectedStatus, setSelectedStatus] = useState("3");
   const [selectedBranch, setSelectedBranch] = useState(idoutlet);
   const [selectedDentist, setSelectedDentist] = useState(null);
   const [allDentistData, setAllDentistData] = useState([]);
@@ -111,6 +111,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [patientData, setPatientData] = useState([]);
   const [invoiceData, setInvoiceData] = useState([]);
   const [credData, setCredData] = useState([]);
+  const [outletFilter, setOutletFilter] = useState("999");
+  const [dentistFilter, setDentistFilter] = useState("999");
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -118,28 +120,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   const handlePageChange = (page) => setCurrentPage(page);
   const handleBranchChange = (value) => setSelectedBranch(value);
-  const handleDentistChange = (value) => setSelectedDentist(value);
   const handleImageSelect = (file) => setSelectedImage(file);
   const openDetail = (params) => navigate(`${pagepath}/${params.toLowerCase()}`);
-  const handleABranchChange = async (value) => {
-    setSelectedBranch(value);
-    const branchdata = allBranchData.find((item) => item.idoutlet === value);
-    if (branchdata) {
-      const formData = new FormData();
-      formData.append("data", JSON.stringify({ secret, kodeoutlet: branchdata.cctr }));
-      const dentistdata = await apiRead(formData, "office", "viewdentistoutlet");
-      if (dentistdata && dentistdata.data && dentistdata.data.length > 0) {
-        setAllDentistData(dentistdata.data);
-        setSelectedDentist(dentistdata.data[0].id_dentist);
-      } else {
-        setAllDentistData([]);
-        setSelectedDentist(null);
-      }
-    } else {
-      setAllDentistData([]);
-      setSelectedDentist(null);
-    }
-  };
 
   const formatISODate = (date) => {
     return date.toISOString().slice(0, 16);
@@ -536,12 +518,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "ORDER REPORT":
-          addtFormData.append("data", JSON.stringify({ secret, idoutlet: selectedBranch, status: selectedStatus, stardate: formatISODate(startDate), enddate: formatISODate(endDate), dentist: selectedDentist }));
+          addtFormData.append("data", JSON.stringify({ secret, idoutlet: outletFilter, status: selectedStatus, stardate: formatISODate(startDate), enddate: formatISODate(endDate), dentist: dentistFilter }));
+          addtFormData.append("limit", limit);
+          addtFormData.append("hal", offset);
           addtdata = await apiRead(addtFormData, "office", "vieworderreport");
           if (addtdata && addtdata.data && addtdata.data.length > 0) {
             setOrderRData(addtdata.data);
+            setTotalPages(outletFilter === "999" || dentistFilter === "999" ? addtdata.TTLPage : null);
           } else {
             setOrderRData([]);
+            setTotalPages(0);
           }
           break;
         case "STOCK OUT":
@@ -1704,9 +1690,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "ORDER REPORT":
         const handleStatusChange = (value) => setSelectedStatus(value);
         const exportOReport = (data) => {
-          const rowMapper = (item, index) =>
-            item.detail.map((service, serviceIndex) => ({
-              No: serviceIndex === 0 ? index + 1 : "",
+          const rowMapper = (item) =>
+            item.detail.map((service) => ({
               "Transaction ID": item.order.idtransaction,
               "Created At": item.order.transactioncreate,
               "Updated At": item.order.transactionupdate,
@@ -1716,13 +1701,51 @@ const DashboardSlugPage = ({ parent, slug }) => {
               "Payment Type": item.order.payment,
               "Total Payment": item.order.totalpay,
               "Outlet Name": item.order.outlet_name,
-              "Transaction Status": item.order.transactionstatus,
+              "Transaction Status": orderAlias(item.order.transactionstatus),
+              "Lab Name": item.order.labname,
+              "Lab Price": item.order.labprice,
+              "Lab Address": item.order.labaddress,
               Service: service.service,
               "Service Type": service.servicetype,
               "Service Price": service.price,
             }));
 
           generateExcel(data, rowMapper, slug);
+        };
+
+        const branchStatic = [{ idoutlet: "999", outletcreate: "0000-00-00 00:00:00", outletupdate: "0000-00-00 00:00:00", mainregion: "-", outlet_region: "-", cctr_group: "STA000", cctr: "STA000", outlet_name: "Semua Cabang", outlet_phone: "0000000000", postcode: "0", outlet_address: "-", coordinate: "-", outlet_status: "0" }];
+        const branchMerged = [...branchStatic, ...allBranchData];
+
+        const handleFilterBranch = async (value) => {
+          setOutletFilter(value);
+          const branchdata = allBranchData.find((item) => item.idoutlet === value);
+          if (branchdata) {
+            const formData = new FormData();
+            formData.append("data", JSON.stringify({ secret, kodeoutlet: branchdata.cctr }));
+            const dentistdata = await apiRead(formData, "office", "viewdentistoutlet");
+            if (dentistdata && dentistdata.data && dentistdata.data.length > 0) {
+              setAllDentistData(dentistdata.data);
+              setDentistFilter(dentistdata.data[0].id_dentist);
+            } else if (branchdata.cctr === "STA000") {
+              setDentistFilter("999");
+            } else {
+              setAllDentistData([]);
+              setDentistFilter(null);
+            }
+          } else {
+            setAllDentistData([]);
+            setDentistFilter(null);
+          }
+        };
+
+        const handleFilterDentist = (value) => setDentistFilter(value);
+
+        const dentistStatic = [{ id_dentist: "999", name_dentist: "Semua Dokter", id_branch: "STA000", phone: "0000000000", sip: "000000", nik: "0000000000000000" }];
+        const dentistMerged = [...dentistStatic, ...allDentistData];
+
+        const handleSaveFilter = (e) => {
+          e.preventDefault();
+          closeForm();
         };
 
         return (
@@ -1733,22 +1756,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderRSearch} onChange={(e) => handleOrderRSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`${pageid}-filter-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleABranchChange} />
-                <Input id={`${pageid}-filter-dentist`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Dokter" value={selectedDentist} options={allDentistData.map((dentist) => ({ value: dentist.id_dentist, label: dentist.name_dentist }))} onSelect={handleDentistChange} />
+                {totalPages !== null && <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isOrderRShown} />}
+                <Button id={`filter-data-${pageid}`} radius="full" buttonText="Filter" onClick={openForm} startContent={<Filter />} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportOReport(orderRData)} isDisabled={!isOrderRShown} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
-            <DashboardToolbar>
-              <DashboardTool>
-                <Input id={`${pageid}-filter-status`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Pilih Status" value={selectedStatus} options={reportstatopt} onSelect={handleStatusChange} />
-              </DashboardTool>
-              <DashboardTool>
-                <Input id={`${pageid}-filter-startdate`} radius="full" isLabeled={false} type="datetime-local" value={formatISODate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
-                <Input id={`${pageid}-filter-enddate`} radius="full" isLabeled={false} type="datetime-local" value={formatISODate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
-              </DashboardTool>
-            </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isExpandable isNoData={!isOrderRShown} isLoading={isFetching}>
+              <Table byNumber isExpandable page={totalPages !== null ? currentPage : undefined} limit={totalPages !== null ? limit : undefined} isNoData={!isOrderRShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.transactioncreate", "date")}>
@@ -1784,6 +1798,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.outlet_name", "text")}>
                       Nama Outlet
                     </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.labname", "text")}>
+                      Nama Lab
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.labprice", "number")}>
+                      Harga Lab
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.labaddress", "text")}>
+                      Alamat Lab
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1812,11 +1835,28 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD type="code">{data["order"].voucher}</TD>
                       <TD>{toTitleCase(data["order"].dentist)}</TD>
                       <TD>{toTitleCase(data["order"].outlet_name)}</TD>
+                      <TD>{data["order"].labname}</TD>
+                      <TD>{data["order"].labprice}</TD>
+                      <TD>{data["order"].labaddress}</TD>
                     </TR>
                   ))}
                 </TBody>
               </Table>
             </DashboardBody>
+            {totalPages !== null && isOrderRShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle="Terapkan Filter" operation="add" onSubmit={handleSaveFilter} onClose={closeForm}>
+                <Input id={`${pageid}-filter-outlet`} labelText="Nama Cabang" variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={outletFilter} options={branchMerged.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleFilterBranch} />
+                <Fieldset>
+                  <Input id={`${pageid}-filter-dentist`} labelText="Nama Dokter" variant="select" isSearchable radius="full" placeholder="Pilih Dokter" value={dentistFilter} options={dentistMerged.map((dentist) => ({ value: dentist.id_dentist, label: dentist.name_dentist }))} onSelect={handleFilterDentist} />
+                  <Input id={`${pageid}-filter-status`} labelText="Status" variant="select" noEmptyValue radius="full" placeholder="Pilih Status" value={selectedStatus} options={reportstatopt} onSelect={handleStatusChange} />
+                </Fieldset>
+                <Fieldset>
+                  <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Tanggal Mulai" type="datetime-local" value={formatISODate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
+                  <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga" type="datetime-local" value={formatISODate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
+                </Fieldset>
+              </SubmitForm>
+            )}
           </Fragment>
         );
       case "KAS":
@@ -3590,7 +3630,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setSelectedData(null);
     setSelectedImage(null);
     fetchData();
-  }, [slug, currentPage, limit, status, selectedStatus, selectedBranch, selectedDentist, selectedCust, onPageTabId, startDate, endDate]);
+  }, [slug, currentPage, limit, status, selectedStatus, selectedBranch, outletFilter, dentistFilter, selectedDentist, selectedCust, onPageTabId, startDate, endDate]);
 
   useEffect(() => {
     if (slug === "ORGANIZATION") {
@@ -3625,7 +3665,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setSelectedBranch(idoutlet);
     setSelectedCust(null);
     setOnpageData({ ...inputSchema });
-    handleABranchChange(idoutlet);
   }, [slug]);
 
   if (!isLoggedin) {

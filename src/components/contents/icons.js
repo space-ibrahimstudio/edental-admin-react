@@ -569,3 +569,16 @@ export const SatuSehat = ({ size }) => {
     </div>
   );
 };
+
+export const Filter = ({ size, color }) => {
+  const fill = color ? color : "currentColor";
+  const iconstyle = { width: size, height: size };
+
+  return (
+    <div className={styles.isIcon} style={iconstyle}>
+      <svg width="100%" height="100%" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18.6875 0C8.3835 0 0 8.3835 0 18.6875C0 28.9915 8.3835 37.375 18.6875 37.375C28.9915 37.375 37.375 28.9915 37.375 18.6875C37.375 8.3835 28.9915 0 18.6875 0ZM23 27.3125H14.375V24.4375H23V27.3125ZM27.3125 21.5625H10.0625V18.6875H27.3125V21.5625ZM30.1875 15.8125H7.1875V12.9375H30.1875V15.8125Z" fill={fill} />
+      </svg>
+    </div>
+  );
+};

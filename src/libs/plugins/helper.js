@@ -56,6 +56,7 @@ export const useOptions = () => {
     { value: "2", label: "Canceled" },
   ];
   const reportstatopt = [
+    { value: "3", label: "Semua Status" },
     { value: "0", label: "Open" },
     { value: "1", label: "Lunas" },
     { value: "2", label: "Batal" },
