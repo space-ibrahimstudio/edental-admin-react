@@ -199,8 +199,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
       const updateSubService = () => {
         const selectedservice = allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service);
         const selectedsubservice = selectedservice["Jenis Layanan"].find((type) => type.servicetypename === value);
-        setInputData((prevState) => ({ ...prevState, id: selectedsubservice.idservicetype, price: selectedsubservice.serviceprice }));
-        log(`id servicetype set to ${selectedsubservice.idservicetype}`);
+        setInputData((prevState) => ({ ...prevState, id: selectedsubservice.idservicetype, price: inputData.service === "RESERVATION" ? selectedsubservice.serviceprice : 0 }));
+        log(`id servicetype set to ${selectedsubservice.idservicetype}, price: ${inputData.service === "RESERVATION" ? selectedsubservice.serviceprice : 0}`);
       };
       const validatePrice = () => {
         if (value < MIN_AMOUNT) {
@@ -1744,11 +1744,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
         const dentistStatic = [{ id_dentist: "999", name_dentist: "Semua Dokter", id_branch: "STA000", phone: "0000000000", sip: "000000", nik: "0000000000000000" }];
         const dentistMerged = [...dentistStatic, ...allDentistData];
 
-        const handleSaveFilter = (e) => {
-          e.preventDefault();
-          closeForm();
-        };
-
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Data report Order yang telah selesai. Data ini dibuat otomatis saat proses transaksi dilakukan." />
@@ -1846,15 +1841,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {totalPages !== null && isOrderRShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
             {isFormOpen && (
-              <SubmitForm size="sm" formTitle="Terapkan Filter" operation="add" onSubmit={handleSaveFilter} onClose={closeForm}>
+              <SubmitForm size="sm" formTitle="Terapkan Filter" operation="event" onClose={closeForm} cancelText="Tutup">
                 <Input id={`${pageid}-filter-outlet`} labelText="Nama Cabang" variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={outletFilter} options={branchMerged.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleFilterBranch} />
                 <Fieldset>
                   <Input id={`${pageid}-filter-dentist`} labelText="Nama Dokter" variant="select" isSearchable radius="full" placeholder="Pilih Dokter" value={dentistFilter} options={dentistMerged.map((dentist) => ({ value: dentist.id_dentist, label: dentist.name_dentist }))} onSelect={handleFilterDentist} />
                   <Input id={`${pageid}-filter-status`} labelText="Status" variant="select" noEmptyValue radius="full" placeholder="Pilih Status" value={selectedStatus} options={reportstatopt} onSelect={handleStatusChange} />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Tanggal Mulai" type="datetime-local" value={formatISODate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
-                  <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga" type="datetime-local" value={formatISODate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
+                  <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Filter dari:" type="datetime-local" value={formatISODate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
+                  <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga:" type="datetime-local" value={formatISODate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
                 </Fieldset>
               </SubmitForm>
             )}

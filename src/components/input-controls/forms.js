@@ -87,7 +87,7 @@ export const SubmitForm = ({ size, formTitle, formSubtitle, fetching = false, lo
           )}
           <footer className={styles.formFooter}>
             <Button id="cancel-form-submit" variant="hollow" radius="full" color="var(--color-hint)" buttonText={cancelText} onClick={handleClose} startContent={<Close />} />
-            <Button id="handle-form-submit" radius="full" type="submit" action={operation} buttonText={saveText} startContent={<Check />} isLoading={loading} loadingContent={<LoadingContent />} />
+            {operation !== "event" && <Button id="handle-form-submit" radius="full" type="submit" action={operation} buttonText={saveText} startContent={<Check />} isLoading={loading} loadingContent={<LoadingContent />} />}
           </footer>
         </form>
       </section>

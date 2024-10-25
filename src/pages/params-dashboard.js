@@ -20,7 +20,7 @@ import Table, { THead, TBody, TR, TH, TD } from "../components/contents/table";
 import TabGroup from "../components/input-controls/tab-group";
 import TabSwitch from "../components/input-controls/tab-switch";
 import { LoadingContent } from "../components/feedbacks/screens";
-import { Arrow, Plus, NewTrash, Check } from "../components/contents/icons";
+import { Arrow, Plus, NewTrash, Check, Filter } from "../components/contents/icons";
 import Pagination from "../components/navigations/pagination";
 
 const DashboardParamsPage = ({ parent, slug }) => {
@@ -739,14 +739,10 @@ const DashboardParamsPage = ({ parent, slug }) => {
           <Fragment>
             <DashboardHead title={isFetching ? "Memuat data ..." : pageTitle} desc={isFetching ? "Memuat detail ..." : isDataShown ? `Menampilkan histori stok ${newDate(formatDate(startDate), "id")} hingga ${newDate(formatDate(endDate), "id")}.` : `Histori stok ${newDate(formatDate(startDate), "id")} hingga ${newDate(formatDate(endDate), "id")} tidak ditemukan.`} />
             <DashboardToolbar>
+              <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} startContent={<Arrow direction="left" />} />
               <DashboardTool>
-                <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} startContent={<Arrow direction="left" />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
                 <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isDataShown} />
-              </DashboardTool>
-              <DashboardTool>
-                <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Filter dari:" type="datetime-local" value={formatDate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
-                <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga:" type="datetime-local" value={formatDate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
+                <Button id={`filter-data-${pageid}`} radius="full" buttonText="Filter" onClick={openForm} startContent={<Filter />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -784,6 +780,15 @@ const DashboardParamsPage = ({ parent, slug }) => {
               </Table>
             </DashboardBody>
             {isDataShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle="Terapkan Filter" operation="event" onClose={closeForm} cancelText="Tutup">
+                {level === "admin" && <Input id={`${pageid}-outlet`} labelText="Nama Cabang" variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+                <Fieldset>
+                  <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Filter dari:" type="datetime-local" value={formatDate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
+                  <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga:" type="datetime-local" value={formatDate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
+                </Fieldset>
+              </SubmitForm>
+            )}
           </Fragment>
         );
       case "REKAM MEDIS":
