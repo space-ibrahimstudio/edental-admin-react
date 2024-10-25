@@ -1692,11 +1692,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
         const exportOReport = (data) => {
           const rowMapper = (item) =>
             item.detail.map((service) => ({
+              "Transaction Detail ID": service.idtransactiondetail,
               "Transaction ID": item.order.idtransaction,
               "Created At": item.order.transactioncreate,
               "Updated At": item.order.transactionupdate,
               "User ID": item.order.idauthuser,
-              "Branch ID": item.order.idbranch,
+              CCTR: item.order.cctr,
               Dentist: item.order.dentist,
               "Payment Type": item.order.payment,
               "Total Payment": item.order.totalpay,
