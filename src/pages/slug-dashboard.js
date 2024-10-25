@@ -1726,12 +1726,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
             if (dentistdata && dentistdata.data && dentistdata.data.length > 0) {
               setAllDentistData(dentistdata.data);
               setDentistFilter(dentistdata.data[0].id_dentist);
-            } else if (branchdata.cctr === "STA000") {
-              setDentistFilter("999");
             } else {
               setAllDentistData([]);
               setDentistFilter(null);
             }
+          } else if (value === "999") {
+            setDentistFilter("999");
           } else {
             setAllDentistData([]);
             setDentistFilter(null);
