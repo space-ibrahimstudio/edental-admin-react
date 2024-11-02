@@ -50,6 +50,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isFormFetching, setIsFormFetching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [selectedMode, setSelectedMode] = useState("add");
   const [searchTerm, setSearchTerm] = useState("");
@@ -1714,6 +1715,27 @@ const DashboardSlugPage = ({ parent, slug }) => {
           generateExcel(data, rowMapper, slug);
         };
 
+        const handleExportOReport = async () => {
+          if (totalPages !== null) {
+            const formData = new FormData();
+            formData.append("data", JSON.stringify({ secret, idoutlet: outletFilter, status: selectedStatus, stardate: formatISODate(startDate), enddate: formatISODate(endDate), dentist: dentistFilter }));
+            formData.append("limit", "10000");
+            formData.append("hal", "0");
+            setIsExporting(true);
+            try {
+              const response = await apiRead(formData, "office", "vieworderreport");
+              exportOReport(response && response.data && response.data.length > 0 ? response.data : []);
+            } catch (error) {
+              showNotifications("danger", "Terjadi kesalahan saat mencoba mengunduh data ke excel. Mohon periksa koneksi internet anda dan coba lagi.");
+              console.error("Terjadi kesalahan saat mencoba mengunduh data ke excel. Mohon periksa koneksi internet anda dan coba lagi.", error);
+            } finally {
+              setIsExporting(false);
+            }
+          } else {
+            exportOReport(orderRData);
+          }
+        };
+
         const branchStatic = [{ idoutlet: "999", outletcreate: "0000-00-00 00:00:00", outletupdate: "0000-00-00 00:00:00", mainregion: "-", outlet_region: "-", cctr_group: "STA000", cctr: "STA000", outlet_name: "Semua Cabang", outlet_phone: "0000000000", postcode: "0", outlet_address: "-", coordinate: "-", outlet_status: "0" }];
         const branchMerged = [...branchStatic, ...allBranchData];
 
@@ -1754,7 +1776,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               <DashboardTool>
                 {totalPages !== null && <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isOrderRShown} />}
                 <Button id={`filter-data-${pageid}`} radius="full" buttonText="Filter" onClick={openForm} startContent={<Filter />} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportOReport(orderRData)} isDisabled={!isOrderRShown} startContent={<Export />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={handleExportOReport} isDisabled={!isOrderRShown} startContent={<Export />} isLoading={isExporting} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
