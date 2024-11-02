@@ -1691,26 +1691,26 @@ const DashboardSlugPage = ({ parent, slug }) => {
         const handleStatusChange = (value) => setSelectedStatus(value);
         const exportOReport = (data) => {
           const rowMapper = (item) =>
-            item.detail.map((service) => ({
-              "Transaction Detail ID": service.idtransactiondetail,
-              "Transaction ID": item.order.idtransaction,
-              "Created At": item.order.transactioncreate,
-              "Updated At": item.order.transactionupdate,
-              "User ID": item.order.idauthuser,
-              CCTR: item.order.cctr,
-              Dentist: item.order.dentist,
-              "Payment Type": item.order.payment,
-              "Total Payment": item.order.totalpay,
-              "Outlet Name": item.order.outlet_name,
-              "Transaction Status": orderAlias(item.order.transactionstatus),
-              "Lab Name": item.order.labname,
-              "Lab Price": item.order.labprice,
-              "Lab Address": item.order.labaddress,
-              Service: service.service,
-              "Service Type": service.servicetype,
-              "Service Price": service.price,
-            }));
-
+            item.detail.map((service) => {
+              const [date, time] = item.order.transactionupdate.split(" ");
+              return {
+                date_transaction: date,
+                time_transaction: time,
+                idtransaction: item.order.idtransaction,
+                nominal: item.order.totalpay,
+                payment_method: item.order.payment,
+                noinvoice: item.order.noinvoice,
+                branch: item.order.cctr,
+                labprice: item.order.labprice,
+                labname: item.order.labname,
+                service: service.service,
+                transactionname: item.order.transactionname,
+                servicetype: service.servicetype,
+                dentist: item.order.dentist,
+                rscode: item.order.rscode,
+                transactionstatus: item.order.transactionstatus,
+              };
+            });
           generateExcel(data, rowMapper, slug);
         };
 
