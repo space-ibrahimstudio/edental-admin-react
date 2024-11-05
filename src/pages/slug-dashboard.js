@@ -10,7 +10,7 @@ import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { useSearch } from "../libs/plugins/handler";
-import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue, inputValidator, emailValidator, errorValidator } from "../libs/plugins/controller";
+import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue, inputValidator, emailValidator, generateExcel } from "../libs/plugins/controller";
 import { inputSchema, errorSchema } from "../libs/sources/common";
 import { useOptions, useAlias } from "../libs/plugins/helper";
 import Pages from "../components/frames/pages";
@@ -21,7 +21,7 @@ import { SubmitForm, FileForm } from "../components/input-controls/forms";
 import OnpageForm, { FormHead, FormFooter } from "../components/input-controls/onpage-forms";
 import Fieldset from "../components/input-controls/inputs";
 import TabGroup from "../components/input-controls/tab-group";
-import { Search, Plus, Export, HChevron, Check, NewTrash } from "../components/contents/icons";
+import { Search, Plus, Export, HChevron, Check, NewTrash, Filter } from "../components/contents/icons";
 import { LoadingContent } from "../components/feedbacks/screens";
 import Pagination from "../components/navigations/pagination";
 import Invoice from "../components/contents/invoice";
@@ -50,6 +50,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isFormFetching, setIsFormFetching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [selectedMode, setSelectedMode] = useState("add");
   const [selectedImage, setSelectedImage] = useState(null);
@@ -108,6 +109,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [villageData, setVillageData] = useState([]);
   const [locationData, setLocationData] = useState([]);
   const [patientData, setPatientData] = useState([]);
+  const [invoiceData, setInvoiceData] = useState([]);
+  const [credData, setCredData] = useState([]);
+  const [outletFilter, setOutletFilter] = useState("999");
+  const [dentistFilter, setDentistFilter] = useState("999");
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -214,8 +219,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
       const updateSubService = () => {
         const selectedservice = allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service);
         const selectedsubservice = selectedservice["Jenis Layanan"].find((type) => type.servicetypename === value);
-        setInputData((prevState) => ({ ...prevState, id: selectedsubservice.idservicetype, price: value === "RESERVATION" ? 100000 : 0 }));
-        log(`id servicetype set to ${selectedsubservice.idservicetype}`);
+        setInputData((prevState) => ({ ...prevState, id: selectedsubservice.idservicetype, price: inputData.service === "RESERVATION" ? selectedsubservice.serviceprice : 0 }));
+        log(`id servicetype set to ${selectedsubservice.idservicetype}, price: ${inputData.service === "RESERVATION" ? selectedsubservice.serviceprice : 0}`);
       };
       const validatePrice = () => {
         if (value < MIN_AMOUNT) {
@@ -543,12 +548,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "ORDER REPORT":
-          addtFormData.append("data", JSON.stringify({ secret, idoutlet: selectedBranch, status: selectedStatus, stardate: formatISODate(startDate), enddate: formatISODate(endDate), dentist: selectedDentist }));
+          addtFormData.append("data", JSON.stringify({ secret, idoutlet: outletFilter, status: selectedStatus, stardate: formatISODate(startDate), enddate: formatISODate(endDate), dentist: dentistFilter }));
+          addtFormData.append("limit", limit);
+          addtFormData.append("hal", offset);
           addtdata = await apiRead(addtFormData, "office", "vieworderreport");
           if (addtdata && addtdata.data && addtdata.data.length > 0) {
             setOrderRData(addtdata.data);
+            setTotalPages(outletFilter === "999" || dentistFilter === "999" ? addtdata.TTLPage : null);
           } else {
             setOrderRData([]);
+            setTotalPages(0);
           }
           break;
         case "STOCK OUT":
@@ -636,6 +645,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
             }
           }
           break;
+        case "XENDIT":
+          data = await apiRead(formData, "office", "viewxendit");
+          if (data && data.data && data.data.length > 0) {
+            setInvoiceData(data.data);
+            setTotalPages(data.TTLPage);
+          } else {
+            setInvoiceData([]);
+            setTotalPages(0);
+          }
+          break;
         case "RESERVATION":
           data = await apiRead(formData, "office", "viewreservation");
           if (data && data.data && data.data.length > 0) {
@@ -647,7 +666,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "ORDER CUSTOMER":
-          data = await apiRead(formData, "office", "vieworder");
+          data = await apiRead(formData, "office", "vieworder2");
           if (data && data.data && data.data.length > 0) {
             setOrderData(data.data);
             setTotalPages(data.TTLPage);
@@ -702,6 +721,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
           addtdata = await apiRead(addtFormData, "satusehat", "vieworganization");
           setLocationData(data && data.data && data.data.length > 0 ? data.data : []);
           setOrgData(addtdata && addtdata.data && addtdata.data.length > 0 ? addtdata.data : []);
+          break;
+        case "CREDENTIAL":
+          addtFormData.append("data", JSON.stringify({ secret, idoutlet: selectedBranch }));
+          data = await apiRead(addtFormData, "satusehat", "viewcredential");
+          if (data && data.data && data.data.length > 0) {
+            setCredData(data.data);
+          } else {
+            setCredData([]);
+          }
           break;
         case "PATIENT":
           addtFormData.append("data", JSON.stringify({ secret }));
@@ -881,6 +909,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
             }
           }
           break;
+        case "CREDENTIAL":
+          switchedData = currentData(credData, "idcredential");
+          log(`id ${slug} data switched:`, switchedData.idcredential);
+          setInputData({ id: switchedData.idcredential, outlet: switchedData.idoutlet, client_id: switchedData.clientid, secret_id: switchedData.secretid });
+          log(`id: ${switchedData.idcredential}, outlet: ${switchedData.idoutlet}, client_id: ${switchedData.clientid}, secret_id: ${switchedData.secretid}`);
+          break;
         case "LOCATION":
           switchedData = currentData(orgData, "id");
           log(`id ${slug} data switched:`, switchedData.id);
@@ -950,7 +984,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         if (selectedMode === "update") {
           requiredFields = [];
         } else {
-          if (inputData.sub_service === "RESERVATION") {
+          if (inputData.service === "RESERVATION") {
             requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time", "price", "bank_code"];
           } else {
             requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time"];
@@ -965,6 +999,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
         break;
       case "ORGANIZATION":
         requiredFields = ["name", "phone", "email", "address", "city_name", "postcode", "province", "city", "district", "village"];
+        break;
+      case "CREDENTIAL":
+        requiredFields = ["outlet", "client_id", "secret_id"];
         break;
       default:
         requiredFields = [];
@@ -1054,6 +1091,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "ORGANIZATION":
           submittedData = { secret, name: inputData.name, phone: inputData.phone, email: inputData.email, address: inputData.address, cityname: inputData.city_name, postalcode: inputData.postcode, province: inputData.province, city: inputData.city, district: inputData.district, village: inputData.village };
           break;
+        case "CREDENTIAL":
+          submittedData = { secret, idoutlet: inputData.outlet, clientid: inputData.client_id, secretid: inputData.secret_id };
+          break;
         default:
           break;
       }
@@ -1111,6 +1151,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
           case "LOCATION":
             submittedData = { secret };
             break;
+          case "CREDENTIAL":
+            submittedData = { secret, idoutlet: "", clientid: "", secretid: "" };
+            break;
           default:
             break;
         }
@@ -1145,7 +1188,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: stockExpSearch, handleSearch: handleStockExpSearch, filteredData: filteredStockExpData, isDataShown: isStockExpShown } = useSearch(stockExpData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
   const { searchTerm: inPOSearch, handleSearch: handleInPOSearch, filteredData: filteredInPOData, isDataShown: isInPOShown } = useSearch(inPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: reservSearch, handleSearch: handleReservSearch, filteredData: filteredReservData, isDataShown: isReservShown } = useSearch(reservData, ["rscode", "name", "phone", "outlet_name"]);
-  const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["transactionname", "noinvoice", "rscode", "dentist", "outlet_name"]);
+  const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["order.transactionname", "order.noinvoice", "order.rscode", "order.dentist", "order.outlet_name"]);
   const { searchTerm: centralPOSearch, handleSearch: handleCentralPOSearch, filteredData: filteredCentralPOData, isDataShown: isCentralPOShown } = useSearch(centralPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: userSearch, handleSearch: handleUserSearch, filteredData: filteredUserData, isDataShown: isUserShown } = useSearch(userData, ["username", "cctr", "outlet_name"]);
   const { searchTerm: diagnoseSearch, handleSearch: handleDiagnoseSearch, filteredData: filteredDiagnoseData, isDataShown: isDiagnoseShown } = useSearch(diagnoseData, ["code.diagnosiscode"]);
@@ -1155,6 +1198,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: orgSearch, handleSearch: handleOrgSearch, filteredData: filteredOrgData, isDataShown: isOrgShown } = useSearch(orgData, ["email"]);
   const { searchTerm: locationSearch, handleSearch: handleLocationSearch, filteredData: filteredLocationData, isDataShown: isLocationShown } = useSearch(locationData, ["cityname"]);
   const { searchTerm: patientSearch, handleSearch: handlePatientSearch, filteredData: filteredPatientData, isDataShown: isPatientShown } = useSearch(patientData, ["transaction.dentist"]);
+  const { searchTerm: xenditSearch, handleSearch: handleXenditSearch, filteredData: filteredXenditData, isDataShown: isXenditShown } = useSearch(invoiceData, ["external_id", "account_number", "bank_code", "expected_amount", "expiration_date"]);
+  const { searchTerm: credSearch, handleSearch: handleCredSearch, filteredData: filteredCredData, isDataShown: isCredShown } = useSearch(credData, ["outlet_name", "clientid", "secretid"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -1629,6 +1674,81 @@ const DashboardSlugPage = ({ parent, slug }) => {
         );
       case "ORDER REPORT":
         const handleStatusChange = (value) => setSelectedStatus(value);
+        const exportOReport = (data) => {
+          const rowMapper = (item) =>
+            item.detail.map((service) => {
+              const [date, time] = item.order.transactionupdate.split(" ");
+              return {
+                date_transaction: date,
+                time_transaction: time,
+                idtransaction: item.order.idtransaction,
+                nominal: item.order.totalpay,
+                payment_method: item.order.payment,
+                noinvoice: item.order.noinvoice,
+                branch: item.order.cctr,
+                labprice: item.order.labprice,
+                labname: item.order.labname,
+                service: service.service,
+                transactionname: item.order.transactionname,
+                servicetype: service.servicetype,
+                dentist: item.order.dentist,
+                rscode: item.order.rscode,
+                transactionstatus: item.order.transactionstatus,
+              };
+            });
+          generateExcel(data, rowMapper, slug);
+        };
+
+        const handleExportOReport = async () => {
+          if (totalPages !== null) {
+            const formData = new FormData();
+            formData.append("data", JSON.stringify({ secret, idoutlet: outletFilter, status: selectedStatus, stardate: formatISODate(startDate), enddate: formatISODate(endDate), dentist: dentistFilter }));
+            formData.append("limit", "10000");
+            formData.append("hal", "0");
+            setIsExporting(true);
+            try {
+              const response = await apiRead(formData, "office", "vieworderreport");
+              exportOReport(response && response.data && response.data.length > 0 ? response.data : []);
+            } catch (error) {
+              showNotifications("danger", "Terjadi kesalahan saat mencoba mengunduh data ke excel. Mohon periksa koneksi internet anda dan coba lagi.");
+              console.error("Terjadi kesalahan saat mencoba mengunduh data ke excel. Mohon periksa koneksi internet anda dan coba lagi.", error);
+            } finally {
+              setIsExporting(false);
+            }
+          } else {
+            exportOReport(orderRData);
+          }
+        };
+
+        const branchStatic = [{ idoutlet: "999", outletcreate: "0000-00-00 00:00:00", outletupdate: "0000-00-00 00:00:00", mainregion: "-", outlet_region: "-", cctr_group: "STA000", cctr: "STA000", outlet_name: "Semua Cabang", outlet_phone: "0000000000", postcode: "0", outlet_address: "-", coordinate: "-", outlet_status: "0" }];
+        const branchMerged = [...branchStatic, ...allBranchData];
+
+        const handleFilterBranch = async (value) => {
+          setOutletFilter(value);
+          const branchdata = allBranchData.find((item) => item.idoutlet === value);
+          if (branchdata) {
+            const formData = new FormData();
+            formData.append("data", JSON.stringify({ secret, kodeoutlet: branchdata.cctr }));
+            const dentistdata = await apiRead(formData, "office", "viewdentistoutlet");
+            if (dentistdata && dentistdata.data && dentistdata.data.length > 0) {
+              setAllDentistData(dentistdata.data);
+              setDentistFilter(dentistdata.data[0].id_dentist);
+            } else {
+              setAllDentistData([]);
+              setDentistFilter(null);
+            }
+          } else if (value === "999") {
+            setDentistFilter("999");
+          } else {
+            setAllDentistData([]);
+            setDentistFilter(null);
+          }
+        };
+
+        const handleFilterDentist = (value) => setDentistFilter(value);
+
+        const dentistStatic = [{ id_dentist: "999", name_dentist: "Semua Dokter", id_branch: "STA000", phone: "0000000000", sip: "000000", nik: "0000000000000000" }];
+        const dentistMerged = [...dentistStatic, ...allDentistData];
 
         return (
           <Fragment>
@@ -1638,21 +1758,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderRSearch} onChange={(e) => handleOrderRSearch(e.target.value)} startContent={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`${pageid}-filter-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleABranchChange} />
-                <Input id={`${pageid}-filter-dentist`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Dokter" value={selectedDentist} options={allDentistData.map((dentist) => ({ value: dentist.id_dentist, label: dentist.name_dentist }))} onSelect={handleDentistChange} />
-              </DashboardTool>
-            </DashboardToolbar>
-            <DashboardToolbar>
-              <DashboardTool>
-                <Input id={`${pageid}-filter-status`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Pilih Status" value={selectedStatus} options={reportstatopt} onSelect={handleStatusChange} />
-              </DashboardTool>
-              <DashboardTool>
-                <Input id={`${pageid}-filter-startdate`} radius="full" isLabeled={false} type="datetime-local" value={formatISODate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
-                <Input id={`${pageid}-filter-enddate`} radius="full" isLabeled={false} type="datetime-local" value={formatISODate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
+                {totalPages !== null && <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isOrderRShown} />}
+                <Button id={`filter-data-${pageid}`} radius="full" buttonText="Filter" onClick={openForm} startContent={<Filter />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={handleExportOReport} isDisabled={!isOrderRShown} startContent={<Export />} isLoading={isExporting} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isPrintable isExpandable isNoData={!isOrderRShown} isLoading={isFetching}>
+              <Table byNumber isExpandable page={totalPages !== null ? currentPage : undefined} limit={totalPages !== null ? limit : undefined} isNoData={!isOrderRShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.transactioncreate", "date")}>
@@ -1688,6 +1800,15 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.outlet_name", "text")}>
                       Nama Outlet
                     </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.labname", "text")}>
+                      Nama Lab
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.labprice", "number")}>
+                      Harga Lab
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderRData, setOrderRData, "order.labaddress", "text")}>
+                      Alamat Lab
+                    </TH>
                   </TR>
                 </THead>
                 <TBody>
@@ -1695,7 +1816,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     // <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
                     <TR
                       key={index}
-                      onPrint={() => openFile(data.idtransaction)}
                       expandContent={data["detail"].map((subdata, idx) => (
                         <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
                           <Input id={`date-${index}-${idx}`} radius="full" labelText="Tanggal Dibuat" value={newDate(subdata.transactiondetailcreate, "id")} isReadonly />
@@ -1717,11 +1837,28 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <TD type="code">{data["order"].voucher}</TD>
                       <TD>{toTitleCase(data["order"].dentist)}</TD>
                       <TD>{toTitleCase(data["order"].outlet_name)}</TD>
+                      <TD>{data["order"].labname}</TD>
+                      <TD>{data["order"].labprice}</TD>
+                      <TD>{data["order"].labaddress}</TD>
                     </TR>
                   ))}
                 </TBody>
               </Table>
             </DashboardBody>
+            {totalPages !== null && isOrderRShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle="Terapkan Filter" operation="event" onClose={closeForm} cancelText="Tutup">
+                <Input id={`${pageid}-filter-outlet`} labelText="Nama Cabang" variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={outletFilter} options={branchMerged.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleFilterBranch} />
+                <Fieldset>
+                  <Input id={`${pageid}-filter-dentist`} labelText="Nama Dokter" variant="select" isSearchable radius="full" placeholder="Pilih Dokter" value={dentistFilter} options={dentistMerged.map((dentist) => ({ value: dentist.id_dentist, label: dentist.name_dentist }))} onSelect={handleFilterDentist} />
+                  <Input id={`${pageid}-filter-status`} labelText="Status" variant="select" noEmptyValue radius="full" placeholder="Pilih Status" value={selectedStatus} options={reportstatopt} onSelect={handleStatusChange} />
+                </Fieldset>
+                <Fieldset>
+                  <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Filter dari:" type="datetime-local" value={formatISODate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
+                  <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga:" type="datetime-local" value={formatISODate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
+                </Fieldset>
+              </SubmitForm>
+            )}
           </Fragment>
         );
       case "KAS":
@@ -2399,6 +2536,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "datemedical", "date")}>
                           Tanggal Dibuat
                         </TH>
+                        <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "rscode", "text")}>
+                          Kode Reservasi
+                        </TH>
                         <TH isSorted onSort={() => handleSort(medicRcdData, setMedicRcdData, "ageyear", "number")}>
                           Usia Pasien
                         </TH>
@@ -2420,6 +2560,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       {medicRcdData.map((data, index) => (
                         <TR key={index} onEdit={() => navigate(`${pagepath}/${data.idmedicalrecords}`)} onDelete={() => handleRMDelete(data.idmedicalrecords)}>
                           <TD>{newDate(data.datemedical, "id")}</TD>
+                          <TD type="code">{data.rscode}</TD>
                           <TD>{`${data.ageyear} tahun, ${data.agemonth} bulan, ${data.ageday} hari`}</TD>
                           <TD>{toTitleCase(data.room)}</TD>
                           <TD>{toTitleCase(data.service)}</TD>
@@ -2473,6 +2614,65 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardToolbar>
             <TabGroup buttons={onPageTabButton} />
             <DashboardBody>{renderSection()}</DashboardBody>
+          </Fragment>
+        );
+      case "XENDIT":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Daftar Customer yang memiliki riwayat Reservasi. Data ini dibuat otomatis saat proses reservasi dilakukan." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={xenditSearch} onChange={(e) => handleXenditSearch(e.target.value)} startContent={<Search />} />
+                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+              </DashboardTool>
+              <DashboardTool>
+                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isXenditShown} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredXenditData, "Daftar Invoice", `daftar_invoice_${getCurrentDate()}`)} isDisabled={!isXenditShown} startContent={<Export />} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isXenditShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSort(invoiceData, setInvoiceData, "xenditcreate", "date")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(invoiceData, setInvoiceData, "idoutlet", "number")}>
+                      Nama Cabang
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(invoiceData, setInvoiceData, "external_id", "text")}>
+                      Kode
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(invoiceData, setInvoiceData, "account_number", "number")}>
+                      Nomor VA
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(invoiceData, setInvoiceData, "bank_code", "text")}>
+                      Bank
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(invoiceData, setInvoiceData, "expected_amount", "number")}>
+                      Total Bayar
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(invoiceData, setInvoiceData, "expiration_date", "date")}>
+                      Tanggal Expire
+                    </TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredXenditData.map((data, index) => (
+                    <TR key={index}>
+                      <TD>{data.xenditcreate && newDate(data.xenditcreate, "id")}</TD>
+                      <TD>{data.outlet_name && data.outlet_name}</TD>
+                      <TD type="code">{data.external_id && data.external_id}</TD>
+                      <TD type="code">{data.account_number && data.account_number}</TD>
+                      <TD type="link">{data.bank_code && data.bank_code}</TD>
+                      <TD>{newPrice(data.expected_amount && data.expected_amount)}</TD>
+                      <TD>{newDate(data.expiration_date && data.expiration_date, "id")}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isXenditShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
           </Fragment>
         );
       case "RESERVATION":
@@ -2591,10 +2791,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       <Input id={`${pageid}-time`} variant="select" isSearchable radius="full" labelText="Jam Reservasi" placeholder={inputData.date ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"} name="time" value={inputData.time} options={availHoursData.map((hour) => ({ value: hour, label: hour }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "time", value: selectedValue } })} errorContent={errors.time} isRequired isDisabled={!inputData.date} />
                     </Fieldset>
                     <Input id={`${pageid}-note`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan/sumber informasi ..." name="note" rows={4} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
-                    {inputData.service === "RESERVATION" && inputData.sub_service === "RESERVATION" && (
+                    {inputData.service === "RESERVATION" && (
                       <Fieldset>
-                        <Input id={`${pageid}-price`} radius="full" labelText="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleInputChange} errorContent={errors.price} isRequired={inputData.sub_service === "RESERVATION"} />
-                        <Input id={`${pageid}-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder="Pilih metode pembayaran" name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isRequired={inputData.sub_service === "RESERVATION"} />
+                        <Input id={`${pageid}-price`} radius="full" labelText="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleInputChange} errorContent={errors.price} isRequired={inputData.service === "RESERVATION"} />
+                        <Input id={`${pageid}-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder="Pilih metode pembayaran" name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isRequired={inputData.service === "RESERVATION"} />
                       </Fieldset>
                     )}
                   </Fragment>
@@ -2642,40 +2842,43 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isClickable isPrintable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
+              <Table byNumber isExpandable isPrintable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
                 <THead>
                   <TR>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactioncreate", "date")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactioncreate", "date")}>
                       Tanggal Dibuat
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionstatus", "number")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactionupdate", "date")}>
+                      Tanggal Tiba
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactionstatus", "number")}>
                       Status Pembayaran
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionname", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactionname", "text")}>
                       Nama Pengguna
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "rscode", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.rscode", "text")}>
                       Kode Reservasi
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "noinvoice", "number")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.noinvoice", "number")}>
                       Nomor Invoice
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "transactionphone", "number")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactionphone", "number")}>
                       Nomor Telepon
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "payment", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.payment", "text")}>
                       Metode Pembayaran
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "totalpay", "number")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.totalpay", "number")}>
                       Total Pembayaran
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "voucher", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.voucher", "text")}>
                       Kode Voucher
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "dentist", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.dentist", "text")}>
                       Nama Dokter
                     </TH>
-                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "outlet_name", "text")}>
+                    <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.outlet_name", "text")}>
                       Nama Outlet
                     </TH>
                   </TR>
@@ -2683,20 +2886,37 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <TBody>
                   {filteredOrderData.map((data, index) => (
                     // <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
-                    <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)}>
-                      <TD>{newDate(data.transactioncreate, "id")}</TD>
-                      <TD>{orderAlias(data.transactionstatus)}</TD>
-                      <TD>{toTitleCase(data.transactionname)}</TD>
-                      <TD type="code">{data.rscode}</TD>
-                      <TD type="code">{data.noinvoice}</TD>
+                    <TR
+                      key={index}
+                      isComplete={data.transactionstatus === "1"}
+                      isDanger={data.transactionstatus === "2"}
+                      onPrint={() => openFile(data.idtransaction)}
+                      expandContent={
+                        <Fragment>
+                          {data.orderdetail &&
+                            data.orderdetail.map((subdata, idx) => (
+                              <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
+                                <Input id={`${pageid}-service-${index}-${idx}`} radius="full" labelText="Layanan" value={subdata.service} isReadonly />
+                                <Input id={`${pageid}-service-type-${index}-${idx}`} radius="full" labelText="Jenis Layanan" value={subdata.servicetype} isReadonly />
+                                <Input id={`${pageid}-price-${index}-${idx}`} radius="full" labelText="Harga" value={newPrice(subdata.price)} isReadonly />
+                              </Fieldset>
+                            ))}
+                        </Fragment>
+                      }>
+                      <TD>{data.order && newDate(data.order.transactioncreate, "id")}</TD>
+                      <TD>{data.order && data.order.transactionupdate === "0000-00-00 00:00:00" ? "" : newDate(data.order && data.order.transactionupdate, "id")}</TD>
+                      <TD>{data.order && orderAlias(data.order.transactionstatus)}</TD>
+                      <TD>{data.order && toTitleCase(data.order.transactionname)}</TD>
+                      <TD type="code">{data.order && data.order.rscode}</TD>
+                      <TD type="code">{data.order && data.order.noinvoice}</TD>
                       <TD type="number" isCopy>
-                        {data.transactionphone}
+                        {data.order && data.order.transactionphone}
                       </TD>
-                      <TD>{data.payment}</TD>
-                      <TD>{newPrice(data.totalpay)}</TD>
-                      <TD type="code">{data.voucher}</TD>
-                      <TD>{toTitleCase(data.dentist)}</TD>
-                      <TD>{toTitleCase(data.outlet_name)}</TD>
+                      <TD>{data.order && data.order.payment}</TD>
+                      <TD>{data.order && newPrice(data.order.totalpay)}</TD>
+                      <TD type="code">{data.order && data.order.voucher}</TD>
+                      <TD>{data.order && toTitleCase(data.order.dentist)}</TD>
+                      <TD>{data.order && toTitleCase(data.order.outlet_name)}</TD>
                     </TR>
                   ))}
                 </TBody>
@@ -3195,6 +3415,55 @@ const DashboardSlugPage = ({ parent, slug }) => {
             )}
           </Fragment>
         );
+      case "CREDENTIAL":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={credSearch} onChange={(e) => handleCredSearch(e.target.value)} startContent={<Search />} />
+              </DashboardTool>
+              <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber isEditable isDeletable isNoData={!isCredShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSort(credData, setCredData, "credentialcreate", "date")}>
+                      Tanggal Dibuat
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(credData, setCredData, "outlet_name", "text")}>
+                      Nama Outlet
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(credData, setCredData, "clientid", "text")}>
+                      Client ID
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(credData, setCredData, "secretid", "text")}>
+                      Secret ID
+                    </TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredCredData.map((data, index) => (
+                    <TR key={index} onEdit={() => openEdit(data.idcredential)} onDelete={() => handleDelete(data.idcredential, "cudcredential", "satusehat")}>
+                      <TD>{newDate(data.credentialcreate, "ID")}</TD>
+                      <TD>{data.outlet_name}</TD>
+                      <TD type="code">{data.clientid}</TD>
+                      <TD type="code">{data.secretid}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isFormOpen && (
+              <SubmitForm size="sm" formTitle={selectedMode === "update" ? "Perbarui Data Kredensial" : "Tambah Data Kredensial"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudcredential", "satusehat")} loading={isSubmitting} onClose={closeForm}>
+                <Input id={`${pageid}-outlet`} variant="select" isSearchable radius="full" labelText="Cabang" placeholder="Pilih cabang" name="outlet" value={inputData.outlet} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "outlet", value: selectedValue } })} errorContent={errors.outlet} isRequired />
+                <Input id={`${pageid}-client-id`} radius="full" labelText="Client ID" placeholder="Masukkan client ID" type="text" name="client_id" value={inputData.client_id} onChange={handleInputChange} errorContent={errors.client_id} isRequired />
+                <Input id={`${pageid}-secret-id`} radius="full" labelText="Secret ID" placeholder="Masukkan secret ID" type="text" name="secret_id" value={inputData.secret_id} onChange={handleInputChange} errorContent={errors.secret_id} isRequired />
+              </SubmitForm>
+            )}
+          </Fragment>
+        );
       case "PATIENT":
         const handleSSSubmit = async (params) => {
           const confirmmsg = "Apakah anda yakin untuk menambahkan data terpilih ke SatuSehat?";
@@ -3244,7 +3513,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isSSable page={currentPage} limit={limit} isNoData={!isPatientShown} isLoading={isFetching}>
+              <Table byNumber isExpandable isSSable page={currentPage} limit={limit} isNoData={!isPatientShown} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH>Satu Sehat</TH>
@@ -3282,7 +3551,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </THead>
                 <TBody>
                   {filteredPatientData.map((data, index) => (
-                    <TR key={index} onSS={data["status"].length > 0 ? () => {} : () => handleSSSubmit(data)}>
+                    <TR
+                      key={index}
+                      onSS={data["status"].length > 0 ? () => {} : () => handleSSSubmit(data)}
+                      expandContent={
+                        <Fragment>
+                          {data["detail"].map((subdata, idx) => (
+                            <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
+                              <Input id={`${pageid}-date-${index}-${idx}`} radius="full" labelText="Tanggal Dibuat" value={subdata.transactiondetailcreate === "0000-00-00 00:00:00" ? "" : newDate(subdata.transactiondetailcreate, "id")} isReadonly />
+                              <Input id={`${pageid}-service-${index}-${idx}`} radius="full" labelText="Layanan" value={subdata.service} isReadonly />
+                              <Input id={`${pageid}-service-type-${index}-${idx}`} radius="full" labelText="Jenis Layanan" value={subdata.servicetype} isReadonly />
+                              <Input id={`${pageid}-price-${index}-${idx}`} radius="full" labelText="Harga" value={newPrice(subdata.price)} isReadonly />
+                            </Fieldset>
+                          ))}
+                        </Fragment>
+                      }>
                       <TD>{data["status"].length > 0 ? "Terdaftar" : "Pending"}</TD>
                       <TD type="code">{data["transaction"].noktp}</TD>
                       <TD>{newDate(data["transaction"].transactionupdate)}</TD>

@@ -1,13 +1,11 @@
 import React, { Fragment, forwardRef } from "react";
 import { useContent, useFormat } from "@ibrahimstudio/react";
-import { useAuth } from "../../libs/securities/auth";
 import { useAlias } from "../../libs/plugins/helper";
 import styles from "./styles/invoice.module.css";
 
 const InvoiceContent = ({ data, items }) => {
   const { toTitleCase } = useContent();
   const { newDate, newPrice } = useFormat();
-  const { username } = useAuth();
   const { invoiceAlias } = useAlias();
 
   return (

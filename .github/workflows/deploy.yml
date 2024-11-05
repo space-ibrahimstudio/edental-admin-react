@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: 1. Get latest code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: 2. Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@master
