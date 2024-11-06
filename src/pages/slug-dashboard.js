@@ -439,22 +439,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setIsFileOpen(true);
     setIsFormFetching(true);
     try {
-      const orderdata = orderData.find((item) => item.idtransaction === id);
-      if (orderdata) {
-        setSelectedOrderData(orderdata);
-      } else {
-        setSelectedOrderData(null);
-      }
-      const formData = new FormData();
-      formData.append("data", JSON.stringify({ secret, idtransaction: id }));
-      const data = await apiRead(formData, "office", "viewdetailorder");
-      const orderdetaildata = data.data;
-      if (data && orderdetaildata && orderdetaildata.length > 0) {
-        setOrderDetailData(orderdetaildata);
-      } else {
-        setOrderDetailData(null);
-        console.error("Order details not found or empty.");
-      }
+      const orderdata = orderData.find((item) => item["order"].idtransaction === id);
+      setSelectedOrderData(orderdata ? orderdata : null);
     } catch (error) {
       console.error("error getting order information:", error);
     } finally {
@@ -2806,13 +2792,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
       case "ORDER CUSTOMER":
         const exportToPDF = () => {
           const element = printRef.current;
-          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData.transactionname)}-${selectedOrderData.rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
+          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData["order"].transactionname)}-${selectedOrderData["order"].rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
           html2pdf().from(element).set(opt).save();
         };
 
         const sendPDFLink = async (number, name) => {
           const element = printRef.current;
-          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData.transactionname)}-${selectedOrderData.rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
+          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData["order"].transactionname)}-${selectedOrderData["order"].rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
           try {
             const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
             const pdfURL = URL.createObjectURL(pdfBlob);
@@ -2888,9 +2874,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     // <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
                     <TR
                       key={index}
-                      isComplete={data.transactionstatus === "1"}
-                      isDanger={data.transactionstatus === "2"}
-                      onPrint={() => openFile(data.idtransaction)}
+                      isComplete={data.order && data.order.transactionstatus === "1"}
+                      isDanger={data.order && data.order.transactionstatus === "2"}
+                      onPrint={() => openFile(data.order.idtransaction)}
                       expandContent={
                         <Fragment>
                           {data.orderdetail &&
@@ -2952,9 +2938,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 ))}
               </SubmitForm>
             )}
-            {selectedOrderData && orderDetailData && isFileOpen && (
-              <FileForm fetching={isFormFetching} onNext={exportToPDF} onSend={() => sendPDFLink(selectedOrderData.transactionphone, selectedOrderData.transactionname)} onClose={closeFile}>
-                <Invoice ref={printRef} data={selectedOrderData} items={orderDetailData} />
+            {selectedOrderData && isFileOpen && (
+              <FileForm fetching={isFormFetching} onNext={exportToPDF} onSend={() => sendPDFLink(selectedOrderData["order"].transactionphone, selectedOrderData["order"].transactionname)} onClose={closeFile}>
+                <Invoice ref={printRef} data={selectedOrderData["order"]} items={selectedOrderData["orderdetail"]} />
               </FileForm>
             )}
           </Fragment>
