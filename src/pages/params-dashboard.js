@@ -51,6 +51,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [selectedBranch, setSelectedBranch] = useState(idoutlet);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const [tabId, setTabId] = useState("1");
   const [subTabId, setSubTabId] = useState("1");
@@ -369,8 +370,11 @@ const DashboardParamsPage = ({ parent, slug }) => {
                     const oddata = await apiRead(odFormData, "office", "viewdetailorder");
                     if (oddata && oddata.data && oddata.data.length > 0) {
                       const selectedoddata = oddata.data;
+                      const totalPrice = selectedoddata.reduce((total, item) => total + Number(item.price), 0);
+                      setTotalPrice(totalPrice);
                       setInputData({ name: selecteddata.transactionname, phone: selecteddata.transactionphone, id: selecteddata.idtransaction, dentist: selecteddata.dentist, typepayment: selecteddata.payment === "CASH" ? "cash" : "cashless", bank_code: selecteddata.payment === "CASH" ? "CASH" : selecteddata.payment, status: selecteddata.transactionstatus, order: selectedoddata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
                     } else {
+                      setTotalPrice(0);
                       setInputData({ name: selecteddata.transactionname, phone: selecteddata.transactionphone, id: selecteddata.idtransaction, dentist: selecteddata.dentist, typepayment: selecteddata.payment === "CASH" ? "cash" : "cashless", bank_code: selecteddata.payment === "CASH" ? "CASH" : selecteddata.payment, status: selecteddata.transactionstatus, order: [{ service: "", servicetype: "", price: "" }] });
                     }
                     setSelectedMode("update");
@@ -1137,20 +1141,20 @@ const DashboardParamsPage = ({ parent, slug }) => {
                       {historyOrderData.length > 0 ? (
                         <OnpageForm loading={isFetching} onSubmit={(e) => handleSubmit(e, "cudorder")}>
                           <Fieldset>
-                            <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                            <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
-                            <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
+                            <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired isDisabled={inputData.status === "0" ? false : true} />
+                            <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired isDisabled={inputData.status === "0" ? false : true} />
+                            <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired isDisabled={inputData.status === "0" ? false : true} />
                           </Fieldset>
                           <Fieldset>
-                            <Input id={`${pageid}-type-payments`} variant="select" noEmptyValue radius="full" labelText="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errorContent={errors.typepayment} isRequired />
+                            <Input id={`${pageid}-type-payments`} variant="select" noEmptyValue radius="full" labelText="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errorContent={errors.typepayment} isRequired isDisabled={inputData.status === "0" ? false : true} />
                             {inputData.typepayment && (
                               <Fragment>
                                 {inputData.typepayment === "cashless" ? (
-                                  <Input id={`${pageid}-method-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"} name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isDisabled={!inputData.typepayment} isRequired />
+                                  <Input id={`${pageid}-method-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"} name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isDisabled={!inputData.typepayment || inputData.status === "0" ? false : true} isRequired />
                                 ) : (
                                   <Fragment>
-                                    {inputData.typepayment === "insurance" && <Input id={`${pageid}-insurance`} radius="full" labelText="Nama Asuransi" placeholder="Masukkan nama asuransi" type="text" name="bank_code" value={inputData.bank_code} onChange={handleInputChange} errorContent={errors.bank_code} isRequired />}
-                                    <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />
+                                    {inputData.typepayment === "insurance" && <Input id={`${pageid}-insurance`} radius="full" labelText="Nama Asuransi" placeholder="Masukkan nama asuransi" type="text" name="bank_code" value={inputData.bank_code} onChange={handleInputChange} errorContent={errors.bank_code} isRequired isDisabled={inputData.status === "0" ? false : true} />}
+                                    <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment || inputData.status === "0" ? false : true} />
                                   </Fragment>
                                 )}
                               </Fragment>
@@ -1165,17 +1169,18 @@ const DashboardParamsPage = ({ parent, slug }) => {
                                 markers={`${index + 1}.`}
                                 endContent={
                                   <Fragment>
-                                    <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.order.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("order", index)} isDisabled={inputData.order.length <= 1} />
-                                    {index + 1 === inputData.order.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("order")} />}
+                                    <Button id={`${pageid}-delete-row-${index}`} subVariant="icon" isTooltip tooltipText="Hapus" size="sm" color={inputData.order.length <= 1 ? "var(--color-red-30)" : "var(--color-red)"} bgColor="var(--color-red-10)" iconContent={<NewTrash />} onClick={() => handleRmvRow("order", index)} isDisabled={inputData.order.length <= 1 ? true : false || inputData.status === "0" ? false : true} />
+                                    {index + 1 === inputData.order.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("order")} isDisabled={inputData.status === "0" ? false : true} />}
                                   </Fragment>
                                 }>
-                                <Input id={`${pageid}-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih Layanan" name="service" value={subservice.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })} errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
-                                <Input id={`${pageid}-type-name-${index}`} variant="select" isSearchable radius="full" labelText="Jenis Layanan" placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="servicetype" value={subservice.servicetype} options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })} errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""} isRequired isDisabled={!inputData.order[index].service} isReadonly={inputData.order[index].service === "RESERVATION"} />
-                                <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
+                                <Input id={`${pageid}-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih Layanan" name="service" value={subservice.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })} errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} isDisabled={inputData.status === "0" ? false : true} />
+                                <Input id={`${pageid}-type-name-${index}`} variant="select" isSearchable radius="full" labelText="Jenis Layanan" placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="servicetype" value={subservice.servicetype} options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })} errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""} isRequired isDisabled={!inputData.order[index].service || inputData.status === "0" ? false : true} isReadonly={inputData.order[index].service === "RESERVATION"} />
+                                <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} isDisabled={inputData.status === "0" ? false : true} />
                               </Fieldset>
                             ))}
+                          <Input id={`${pageid}-total-price`} radius="full" labelText="Total Harga" type="number" name="ttlprice" value={totalPrice} isReadonly />
                           <FormFooter>
-                            <Button id={`add-new-data-${pageid}`} type="submit" action={selectedMode} radius="full" buttonText={historyOrderData.length > 0 ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} />
+                            <Button id={`add-new-data-${pageid}`} type="submit" action={selectedMode} radius="full" buttonText={historyOrderData.length > 0 ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} isDisabled={inputData.status === "0" ? false : true} />
                           </FormFooter>
                         </OnpageForm>
                       ) : (
@@ -1307,6 +1312,16 @@ const DashboardParamsPage = ({ parent, slug }) => {
     log("selected mode:", selectedMode);
     log("selected data:", selectedData);
   }, [selectedMode, selectedData]);
+
+  useEffect(() => {
+    if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "3" && inputData.order) {
+      if (inputData.order.length > 0) {
+        const data = inputData.order;
+        const totalPrice = data.reduce((total, item) => total + Number(item.price), 0);
+        setTotalPrice(totalPrice);
+      }
+    }
+  }, [slug, tabId, subTabId, inputData.order]);
 
   if (!isLoggedin) {
     return <Navigate to="/login" />;
