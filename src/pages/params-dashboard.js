@@ -323,8 +323,16 @@ const DashboardParamsPage = ({ parent, slug }) => {
             case "2":
               switch (subTabId) {
                 case "1":
-                  formData.append("data", JSON.stringify({ secret, idmedics: params }));
-                  data = await apiRead(formData, "office", "viewtoothuser");
+                  let idauthuser;
+                  const odhFormData = new FormData();
+                  odhFormData.append("data", JSON.stringify({ secret, idmedics: params }));
+                  const odh = await apiRead(odhFormData, "office", "viewhistoryorder");
+                  if (odh && odh.data && odh.data.length > 0) {
+                    const odhdata = odh.data[0];
+                    idauthuser = odhdata.idauthuser;
+                  }
+                  formData.append("data", JSON.stringify({ secret, iduser: idauthuser }));
+                  data = await apiRead(formData, "office", "viewtoothuser2");
                   if (data && data.data && data.data.length > 0) {
                     const conditiondata = data.data[0]["condition"][0];
                     const historydata = data.data[0]["detail"];
@@ -975,7 +983,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                         const submittedData = { secret, idmedics: params, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoHistoryData.filter((allitem) => allitem["tooth"].idconditiontooth === "").map((item) => ({ nomergigi: item["tooth"].tooth, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan })) })) };
                         formData.append("data", JSON.stringify(submittedData));
                         formData.append("iddelete", iddetail);
-                        await apiCrud(formData, "office", "addtooth");
+                        await apiCrud(formData, "office", "addtooth2");
                         setOdontoHistoryData((prevResults) => prevResults.filter((_, idx) => idx !== index));
                         await fetchData();
                       }
@@ -1049,7 +1057,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
 
                   return (
                     <Fragment>
-                      <OdontoForm onSubmit={(e) => handleSubmit(e, "addtooth")} submitting={isSubmitting} deleting={isDeleting}>
+                      <OdontoForm onSubmit={(e) => handleSubmit(e, "addtooth2")} submitting={isSubmitting} deleting={isDeleting}>
                         <OdontoHistory onDeleteAll={() => {}}>
                           {odontoHistoryData.map((item, index) => (
                             <HistoryTr key={index} no={item["tooth"].tooth} label={item["detailgigi"]} isEditable={item["tooth"].idconditiontooth !== ""} onEdit={() => openToothForm(item["tooth"])} onDelete={() => handleDeleteHistory(item["tooth"].tooth, item["tooth"].idconditiontooth, index)} />
@@ -1312,11 +1320,6 @@ const DashboardParamsPage = ({ parent, slug }) => {
   useEffect(() => {
     log("new history array:", odontoHistoryData);
   }, [odontoHistoryData]);
-
-  useEffect(() => {
-    log("selected mode:", selectedMode);
-    log("selected data:", selectedData);
-  }, [selectedMode, selectedData]);
 
   useEffect(() => {
     if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "3" && inputData.order) {

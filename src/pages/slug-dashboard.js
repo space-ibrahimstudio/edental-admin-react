@@ -63,6 +63,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [status, setStatus] = useState(0);
   const [custExist, setCustExist] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResult, setSearchResult] = useState([]);
   const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1)));
   const [endDate, setEndDate] = useState(new Date());
 
@@ -414,6 +416,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
       setSortOrder("desc");
     }
     setData(newData);
+  };
+
+  const handleSearch = async (e) => {
+    setSearchTerm(e.target.value);
   };
 
   const openForm = () => {
@@ -817,6 +823,54 @@ const DashboardSlugPage = ({ parent, slug }) => {
     }
   };
 
+  const fetchSearchData = async () => {
+    const errormsg = "Terjadi kesalahan saat memuat hasil pencarian. Mohon periksa koneksi internet anda dan coba lagi.";
+    const formData = new FormData();
+    setIsFetching(true);
+    try {
+      if (searchTerm === "") {
+        return;
+      }
+      let formdata;
+      if (slug === "PO MASUK") {
+        formdata = { secret, search: searchTerm, status: status.toString() };
+      } else {
+        formdata = { secret, search: searchTerm, idoutlet: selectedBranch };
+      }
+      formData.append("data", JSON.stringify(formdata));
+      let endpoint;
+      switch (slug) {
+        case "RESERVATION":
+          endpoint = "searchreservation";
+          break;
+        case "ORDER CUSTOMER":
+          endpoint = "searchorder";
+          break;
+        case "XENDIT":
+          endpoint = "searchxendit";
+          break;
+        case "STOCK":
+          endpoint = "searchstockall";
+          break;
+        case "PO MASUK":
+          endpoint = "searchpostock";
+          break;
+        case "DATA CUSTOMER":
+          endpoint = "searchcustomerall";
+          break;
+        default:
+          break;
+      }
+      const result = await apiRead(formData, "office", endpoint);
+      setSearchResult(result && result.data && result.data.length > 0 ? result.data : []);
+    } catch (error) {
+      showNotifications("danger", errormsg);
+      console.error(errormsg, error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
   const postatus = [
     { label: "Open", onClick: () => handleStatusChange(0), active: status === 0 },
     { label: "Sent", onClick: () => handleStatusChange(2), active: status === 2 },
@@ -1175,8 +1229,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: stockOutSearch, handleSearch: handleStockOutSearch, filteredData: filteredStockOutData, isDataShown: isStockOutShown } = useSearch(stockOutData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
   const { searchTerm: stockExpSearch, handleSearch: handleStockExpSearch, filteredData: filteredStockExpData, isDataShown: isStockExpShown } = useSearch(stockExpData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
   const { searchTerm: inPOSearch, handleSearch: handleInPOSearch, filteredData: filteredInPOData, isDataShown: isInPOShown } = useSearch(inPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
-  const { searchTerm: reservSearch, handleSearch: handleReservSearch, filteredData: filteredReservData, isDataShown: isReservShown } = useSearch(reservData, ["rscode", "name", "phone", "outlet_name"]);
-  const { searchTerm: orderSearch, handleSearch: handleOrderSearch, filteredData: filteredOrderData, isDataShown: isOrderShown } = useSearch(orderData, ["order.transactionname", "order.noinvoice", "order.rscode", "order.dentist", "order.outlet_name"]);
   const { searchTerm: centralPOSearch, handleSearch: handleCentralPOSearch, filteredData: filteredCentralPOData, isDataShown: isCentralPOShown } = useSearch(centralPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: userSearch, handleSearch: handleUserSearch, filteredData: filteredUserData, isDataShown: isUserShown } = useSearch(userData, ["username", "cctr", "outlet_name"]);
   const { searchTerm: diagnoseSearch, handleSearch: handleDiagnoseSearch, filteredData: filteredDiagnoseData, isDataShown: isDiagnoseShown } = useSearch(diagnoseData, ["code.diagnosiscode"]);
@@ -2669,17 +2721,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data Reservasi customer. Klik Tambah Baru untuk membuat data reservasi baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={reservSearch} onChange={(e) => handleReservSearch(e.target.value)} leadingicon={<Search />} />
+                <div style={{ display: "flex", flexDirection: "row", gap: "var(--pixel-5)" }}>
+                  <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" name="inspect-data" value={searchTerm} onChange={handleSearch} />
+                  <Button subVariant="icon" radius="full" iconContent={<Search />} onClick={fetchSearchData} />
+                </div>
                 {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isReservShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={searchTerm !== ""} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)} isDisabled={!isReservShown} startContent={<Export />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(searchTerm === "" ? reservData : searchResult, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)} isDisabled={searchTerm === "" ? (reservData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isEditable page={currentPage} limit={limit} isNoData={!isReservShown} isLoading={isFetching}>
+              <Table byNumber isEditable page={searchResult.length > 0 ? undefined : currentPage} limit={searchResult.length > 0 ? undefined : limit} isNoData={searchTerm === "" ? (reservData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(reservData, setReservData, "status_dp", "number")}>
@@ -2730,7 +2785,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {filteredReservData.map((data, index) => (
+                  {(searchTerm !== "" ? searchResult : reservData).map((data, index) => (
                     <TR key={index} onEdit={data.status_reservation === "0" ? () => openEdit(data.idreservation) : () => showNotifications("danger", "Reservasi dengan status yang telah selesai, reschedule atau dibatalkan tidak dapat diperbarui.")} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
                       <TD>{paymentAlias(data.status_dp)}</TD>
                       <TD>{data.reservationdate}</TD>
@@ -2754,7 +2809,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isReservShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
+            {searchTerm === "" && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm size={selectedMode === "update" ? "sm" : "lg"} formTitle={selectedMode === "update" ? "Ubah Status Reservasi" : "Tambah Data Reservasi"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudreservation")} loading={isSubmitting} onClose={closeForm}>
                 {selectedMode === "update" ? (
@@ -2821,16 +2876,19 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data order customer ini dibuat otomatis saat proses reservasi dilakukan. Klik baris data untuk melihat masing-masing detail layanan & produk terpakai." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={orderSearch} onChange={(e) => handleOrderSearch(e.target.value)} leadingicon={<Search />} />
+                <div style={{ display: "flex", flexDirection: "row", gap: "var(--pixel-5)" }}>
+                  <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" name="inspect-data" value={searchTerm} onChange={handleSearch} />
+                  <Button subVariant="icon" radius="full" iconContent={<Search />} onClick={fetchSearchData} />
+                </div>
                 {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isOrderShown} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)} isDisabled={!isOrderShown} startContent={<Export />} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={searchTerm !== ""} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(searchTerm === "" ? reservData : searchResult, "Daftar Order", `daftar_order_${getCurrentDate()}`)} isDisabled={searchTerm === "" ? (reservData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isExpandable isPrintable page={currentPage} limit={limit} isNoData={!isOrderShown} isLoading={isFetching}>
+              <Table byNumber isExpandable isPrintable page={searchResult.length > 0 ? undefined : currentPage} limit={searchResult.length > 0 ? undefined : limit} isNoData={searchTerm === "" ? (orderData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(orderData, setOrderData, "order.transactioncreate", "date")}>
@@ -2872,7 +2930,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {filteredOrderData.map((data, index) => (
+                  {(searchTerm !== "" ? searchResult : orderData).map((data, index) => (
                     // <TR key={index} isComplete={data.transactionstatus === "1"} isDanger={data.transactionstatus === "2"} onEdit={data.transactionstatus === "0" ? () => openEdit(data.idtransaction) : () => showNotifications("danger", "Transaksi dengan status yang telah selesai atau dibatalkan tidak dapat diperbarui.")} onClick={() => openDetail(data.idtransaction)} onPrint={() => openFile(data.idtransaction)} onContact={() => contactWhatsApp(data.transactionphone)}>
                     <TR
                       key={index}
@@ -2910,7 +2968,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isOrderShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
+            {searchTerm === "" && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Order" : "Tambah Data Order"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudorder")} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
