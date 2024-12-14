@@ -1,13 +1,13 @@
-name: Edental Office (siedental) v1.0.0
+name: Edental Office (sie-dental) v1.0.0
 
 on:
   push:
     branches:
-      - siedental
+      - master
 
 jobs:
   web-deploy:
-    name: Deploy on siedental
+    name: Deploy on master
     runs-on: ubuntu-latest
 
     strategy:
@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: 1. Get latest code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: 2. Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@master
@@ -38,7 +38,7 @@ jobs:
       - name: 7. Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
-          server: ${{ secrets.FTP_HOST_SIEDENTAL }}
-          username: ${{ secrets.FTP_USERNAME_SIEDENTAL }}
-          password: ${{ secrets.FTP_PASSWORD_SIEDENTAL }}
+          server: ${{ secrets.FTP_HOST_SIE_DENTAL }}
+          username: ${{ secrets.FTP_USERNAME_SIE_DENTAL }}
+          password: ${{ secrets.FTP_PASSWORD_SIE_DENTAL }}
           local-dir: build/
