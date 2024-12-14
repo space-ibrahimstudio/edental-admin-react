@@ -2,7 +2,10 @@ import React, { Fragment, useState, useEffect, useRef, useCallback } from "react
 import { Navigate, useNavigate } from "react-router-dom";
 import { useContent, useFormat, useDevmode } from "@ibrahimstudio/react";
 import { Input } from "@ibrahimstudio/input";
+import { Select } from "@ibrahimstudio/select";
+import { Textarea } from "@ibrahimstudio/textarea";
 import { Button } from "@ibrahimstudio/button";
+import { Pagination } from "@ibrahimstudio/pagination";
 import html2pdf from "html2pdf.js";
 import moment from "moment-timezone";
 import * as XLSX from "xlsx";
@@ -23,7 +26,6 @@ import Fieldset from "../components/input-controls/inputs";
 import TabGroup from "../components/input-controls/tab-group";
 import { Search, Plus, Export, HChevron, Check, NewTrash, Filter } from "../components/contents/icons";
 import { LoadingContent } from "../components/feedbacks/screens";
-import Pagination from "../components/navigations/pagination";
 import Invoice from "../components/contents/invoice";
 
 const DashboardSlugPage = ({ parent, slug }) => {
@@ -1195,11 +1197,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Customer yang memiliki riwayat Reservasi. Data ini dibuat otomatis saat proses reservasi dilakukan." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={custSearch} onChange={(e) => handleCustSearch(e.target.value)} startContent={<Search />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={custSearch} onChange={(e) => handleCustSearch(e.target.value)} leadingicon={<Search />} />
+                {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isCustShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isCustShown} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)} isDisabled={!isCustShown} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -1239,7 +1241,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isCustShown > 0 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isCustShown > 0 && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
           </Fragment>
         );
       case "MANAJEMEN USER":
@@ -1248,10 +1250,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={userSearch} onChange={(e) => handleUserSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={userSearch} onChange={(e) => handleUserSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isUserShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isUserShown} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -1293,17 +1295,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isUserShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isUserShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm size="sm" formTitle={selectedMode === "update" ? "Ubah Data Pengguna" : "Tambah Data Pengguna"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cuduser")} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
-                  <Input id={`${pageid}-username`} radius="full" labelText="Username" placeholder="cabang.jakarta@edental.id" type="text" name="username" value={inputData.username} onChange={handleInputChange} errorContent={errors.username} isRequired />
-                  <Input id={`${pageid}-password`} radius="full" labelText="Password" placeholder="Masukkan password" type="password" name="password" value={inputData.password} onChange={handleInputChange} errorContent={errors.password} isRequired />
+                  <Input id={`${pageid}-username`} radius="full" label="Username" placeholder="cabang.jakarta@edental.id" type="text" name="username" value={inputData.username} onChange={handleInputChange} errormsg={errors.username} required />
+                  <Input id={`${pageid}-password`} radius="full" label="Password" placeholder="Masukkan password" type="password" name="password" value={inputData.password} onChange={handleInputChange} errormsg={errors.password} required />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-level`} variant="select" noEmptyValue radius="full" labelText="Level/Akses" placeholder="Pilih level/akses" name="level" value={inputData.level} options={levelopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "level", value: selectedValue } })} errorContent={errors.level} isRequired />
-                  <Input id={`${pageid}-status`} variant="select" noEmptyValue radius="full" labelText="Status Pengguna" placeholder="Pilih status" name="status" value={inputData.status} options={usrstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isRequired />
-                  <Input id={`${pageid}-outlet`} variant="select" isSearchable radius="full" labelText="Cabang" placeholder="Pilih cabang" name="outlet" value={inputData.outlet} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "outlet", value: selectedValue } })} errorContent={errors.outlet} isRequired />
+                  <Select id={`${pageid}-level`} noemptyval radius="full" label="Level/Akses" placeholder="Pilih level/akses" name="level" value={inputData.level} options={levelopt} onChange={(selectedValue) => handleInputChange({ target: { name: "level", value: selectedValue } })} errormsg={errors.level} required />
+                  <Select id={`${pageid}-status`} noemptyval radius="full" label="Status Pengguna" placeholder="Pilih status" name="status" value={inputData.status} options={usrstatopt} onChange={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errormsg={errors.status} required />
+                  <Select id={`${pageid}-outlet`} searchable radius="full" label="Cabang" placeholder="Pilih cabang" name="outlet" value={inputData.outlet} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={(selectedValue) => handleInputChange({ target: { name: "outlet", value: selectedValue } })} errormsg={errors.outlet} required />
                 </Fieldset>
               </SubmitForm>
             )}
@@ -1315,10 +1317,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar layanan yang tersedia saat ini. Klik opsi ikon pada kolom Action untuk melihat detail, memperbarui, atau menghapus data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={serviceSearch} onChange={(e) => handleServiceSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={serviceSearch} onChange={(e) => handleServiceSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isServiceShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isServiceShown} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -1351,9 +1353,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Fragment>
                           {data["Jenis Layanan"].map((subdata, idx) => (
                             <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
-                              <Input id={`${pageid}-name-${index}-${idx}`} radius="full" labelText="Jenis Layanan" value={subdata.servicetypename} isReadonly />
-                              <Input id={`${pageid}-price-${index}-${idx}`} radius="full" labelText="Harga" value={newPrice(subdata.serviceprice)} isReadonly />
-                              <Input id={`${pageid}-status-${index}-${idx}`} radius="full" labelText="Status" value={subdata.servicetypestatus} isReadonly />
+                              <Input id={`${pageid}-name-${index}-${idx}`} radius="full" label="Jenis Layanan" value={subdata.servicetypename} readonly />
+                              <Input id={`${pageid}-price-${index}-${idx}`} radius="full" label="Harga" value={newPrice(subdata.serviceprice)} readonly />
+                              <Input id={`${pageid}-status-${index}-${idx}`} radius="full" label="Status" value={subdata.servicetypestatus} readonly />
                             </Fieldset>
                           ))}
                         </Fragment>
@@ -1370,10 +1372,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isServiceShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isServiceShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Layanan" : "Tambah Data Layanan"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudservice")} loading={isSubmitting} onClose={closeForm}>
-                <Input id={`${pageid}-name`} radius="full" labelText="Nama Layanan" placeholder="Masukkan nama layanan" type="text" name="service" value={inputData.service} onChange={handleInputChange} errorContent={errors.service} isRequired />
+                <Input id={`${pageid}-name`} radius="full" label="Nama Layanan" placeholder="Masukkan nama layanan" type="text" name="service" value={inputData.service} onChange={handleInputChange} errormsg={errors.service} required />
                 {inputData.layanan.map((subservice, index) => (
                   <Fieldset
                     key={index}
@@ -1385,8 +1387,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         {index + 1 === inputData.layanan.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("layanan")} />}
                       </Fragment>
                     }>
-                    <Input id={`${pageid}-type-name-${index}`} radius="full" labelText="Jenis Layanan" placeholder="e.g. Scaling gigi" type="text" name="servicetype" value={subservice.servicetype} onChange={(e) => handleRowChange("layanan", index, e)} errorContent={errors[`layanan.${index}.servicetype`] ? errors[`layanan.${index}.servicetype`] : ""} isRequired />
-                    <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("layanan", index, e)} errorContent={errors[`layanan.${index}.price`] ? errors[`layanan.${index}.price`] : ""} isRequired />
+                    <Input id={`${pageid}-type-name-${index}`} radius="full" label="Jenis Layanan" placeholder="e.g. Scaling gigi" type="text" name="servicetype" value={subservice.servicetype} onChange={(e) => handleRowChange("layanan", index, e)} errormsg={errors[`layanan.${index}.servicetype`] ? errors[`layanan.${index}.servicetype`] : ""} required />
+                    <Input id={`${pageid}-type-price-${index}`} radius="full" label="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("layanan", index, e)} errormsg={errors[`layanan.${index}.price`] ? errors[`layanan.${index}.price`] : ""} required />
                   </Fieldset>
                 ))}
               </SubmitForm>
@@ -1399,10 +1401,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Cabang Edental. Klik opsi ikon pada kolom Action untuk memperbarui, atau menghapus data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={branchSearch} onChange={(e) => handleBranchSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={branchSearch} onChange={(e) => handleBranchSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isBranchShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isBranchShown} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredBranchData, "Daftar Cabang", `daftar_cabang_${getCurrentDate()}`)} isDisabled={!isBranchShown} startContent={<Export />} />
               </DashboardTool>
@@ -1461,23 +1463,23 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isBranchShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isBranchShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Cabang" : "Tambah Data Cabang"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudoutlet")} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
-                  <Input id={`${pageid}-name`} radius="full" labelText="Nama Outlet" placeholder="Edental Jakarta Pusat" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                  <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Kontak Cabang" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
-                  <Input id={`${pageid}-mainregion`} radius="full" labelText="Main Region" placeholder="Jawa" type="text" name="main_region" value={inputData.main_region} onChange={handleInputChange} errorContent={errors.main_region} isRequired />
+                  <Input id={`${pageid}-name`} radius="full" label="Nama Outlet" placeholder="Edental Jakarta Pusat" type="text" name="name" value={inputData.name} onChange={handleInputChange} errormsg={errors.name} required />
+                  <Input id={`${pageid}-phone`} radius="full" label="Nomor Kontak Cabang" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errormsg={errors.phone} required />
+                  <Input id={`${pageid}-mainregion`} radius="full" label="Main Region" placeholder="Jawa" type="text" name="main_region" value={inputData.main_region} onChange={handleInputChange} errormsg={errors.main_region} required />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-region`} radius="full" labelText="Region" placeholder="DKI Jakarta" type="text" name="region" value={inputData.region} onChange={handleInputChange} errorContent={errors.region} isRequired />
-                  <Input id={`${pageid}-address`} radius="full" labelText="Alamat Cabang" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
-                  <Input id={`${pageid}-postcode`} radius="full" labelText="Kode Pos" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleInputChange} errorContent={errors.postcode} isRequired />
+                  <Input id={`${pageid}-region`} radius="full" label="Region" placeholder="DKI Jakarta" type="text" name="region" value={inputData.region} onChange={handleInputChange} errormsg={errors.region} required />
+                  <Input id={`${pageid}-address`} radius="full" label="Alamat Cabang" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errormsg={errors.address} required />
+                  <Input id={`${pageid}-postcode`} radius="full" label="Kode Pos" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleInputChange} errormsg={errors.postcode} required />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-coords`} radius="full" labelText="Titik Koordinat" placeholder="Masukkan titik koordinat" type="text" name="coordinate" value={inputData.coordinate} onChange={handleInputChange} errorContent={errors.coordinate} isRequired />
-                  <Input id={`${pageid}-cctrgroup`} radius="full" labelText="CCTR Group" placeholder="Masukkan CCTR group" type="text" name="cctr_group" value={inputData.cctr_group} onChange={handleInputChange} errorContent={errors.cctr_group} isRequired />
-                  <Input id={`${pageid}-cctr`} radius="full" labelText="CCTR" placeholder="Masukkan CCTR" type="text" name="cctr" value={inputData.cctr} onChange={handleInputChange} errorContent={errors.cctr} isRequired />
+                  <Input id={`${pageid}-coords`} radius="full" label="Titik Koordinat" placeholder="Masukkan titik koordinat" type="text" name="coordinate" value={inputData.coordinate} onChange={handleInputChange} errormsg={errors.coordinate} required />
+                  <Input id={`${pageid}-cctrgroup`} radius="full" label="CCTR Group" placeholder="Masukkan CCTR group" type="text" name="cctr_group" value={inputData.cctr_group} onChange={handleInputChange} errormsg={errors.cctr_group} required />
+                  <Input id={`${pageid}-cctr`} radius="full" label="CCTR" placeholder="Masukkan CCTR" type="text" name="cctr" value={inputData.cctr} onChange={handleInputChange} errormsg={errors.cctr} required />
                 </Fieldset>
               </SubmitForm>
             )}
@@ -1489,7 +1491,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar data Diagnosa. Klik opsi ikon pada kolom Action untuk melihat detail data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={diagnoseSearch} onChange={(e) => handleDiagnoseSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={diagnoseSearch} onChange={(e) => handleDiagnoseSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
             </DashboardToolbar>
@@ -1514,8 +1516,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       key={index}
                       expandContent={data["detail"].map((subdata, idx) => (
                         <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
-                          <Input id={`${pageid}-detail-${index}-${idx}`} radius="full" labelText="Detail Diagnosa" value={subdata.diagnosisdetail} isReadonly />
-                          <Input id={`${pageid}-status-${index}-${idx}`} radius="full" labelText="Status Detail Diagnosa" value={subdata.diagnosisdetailstatus} isReadonly />
+                          <Input id={`${pageid}-detail-${index}-${idx}`} radius="full" label="Detail Diagnosa" value={subdata.diagnosisdetail} readonly />
+                          <Input id={`${pageid}-status-${index}-${idx}`} radius="full" label="Status Detail Diagnosa" value={subdata.diagnosisdetailstatus} readonly />
                         </Fieldset>
                       ))}>
                       <TD>{newDate(data["code"].diagnosiscodecreate, "id")}</TD>
@@ -1528,7 +1530,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isFormOpen && (
               <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Diagnosa" : "Tambah Data Diagnosa"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "adddiagnosis")} loading={isSubmitting} onClose={closeForm}>
-                <Input id={`${pageid}-diagnose-code`} radius="full" labelText="Kode Diagnosa" placeholder="Masukkan kode diagnosa" type="text" name="diagnosecode" value={inputData.diagnosecode} onChange={handleInputChange} errorContent={errors.diagnosecode} isRequired />
+                <Input id={`${pageid}-diagnose-code`} radius="full" label="Kode Diagnosa" placeholder="Masukkan kode diagnosa" type="text" name="diagnosecode" value={inputData.diagnosecode} onChange={handleInputChange} errormsg={errors.diagnosecode} required />
                 {inputData.diagdetail.map((detail, index) => (
                   <Fieldset
                     key={index}
@@ -1540,7 +1542,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         {index + 1 === inputData.diagdetail.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("diagdetail")} />}
                       </Fragment>
                     }>
-                    <Input id={`${pageid}-diagnose-detail-${index}`} radius="full" labelText="Detail Diagnosa" placeholder="Masukkan detail diagnosa" type="text" name="diagnosisdetail" value={detail.diagnosisdetail} onChange={(e) => handleRowChange("diagdetail", index, e)} errorContent={errors[`diagdetail.${index}.diagnosisdetail`] ? errors[`diagdetail.${index}.diagnosisdetail`] : ""} isRequired />
+                    <Input id={`${pageid}-diagnose-detail-${index}`} radius="full" label="Detail Diagnosa" placeholder="Masukkan detail diagnosa" type="text" name="diagnosisdetail" value={detail.diagnosisdetail} onChange={(e) => handleRowChange("diagdetail", index, e)} errormsg={errors[`diagdetail.${index}.diagnosisdetail`] ? errors[`diagdetail.${index}.diagnosisdetail`] : ""} required />
                   </Fieldset>
                 ))}
               </SubmitForm>
@@ -1553,7 +1555,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data master kondisi gigi. Klik Tambah Baru untuk membuat data baru, atau klik ikon di kolom Action untuk memperbarui/menghapus data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={conditionSearch} onChange={(e) => handleConditionSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={conditionSearch} onChange={(e) => handleConditionSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
             </DashboardToolbar>
@@ -1586,10 +1588,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             {isFormOpen && (
               <SubmitForm size="sm" formTitle={selectedMode === "update" ? "Ubah Data Kondisi" : "Tambah Data Kondisi"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudtooth")} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
-                  <Input id={`${pageid}-singkatan`} radius="full" labelText="Nama Kondisi" placeholder="sou" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                  <Input id={`${pageid}-arti`} radius="full" labelText="Arti Kondisi" placeholder="Gigi sehat, normal, tanpa kelainan" type="text" name="desc" value={inputData.desc} onChange={handleInputChange} errorContent={errors.desc} isRequired />
+                  <Input id={`${pageid}-singkatan`} radius="full" label="Nama Kondisi" placeholder="sou" type="text" name="name" value={inputData.name} onChange={handleInputChange} errormsg={errors.name} required />
+                  <Input id={`${pageid}-arti`} radius="full" label="Arti Kondisi" placeholder="Gigi sehat, normal, tanpa kelainan" type="text" name="desc" value={inputData.desc} onChange={handleInputChange} errormsg={errors.desc} required />
                 </Fieldset>
-                <Input id={`${pageid}-note`} variant="textarea" labelText="Keterangan" placeholder="Masukkan keterangan ..." name="note" rows={4} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
+                <Textarea id={`${pageid}-note`} radius="full" label="Keterangan" placeholder="Masukkan keterangan ..." name="note" rows={4} value={inputData.note} onChange={handleInputChange} errormsg={errors.note} />
               </SubmitForm>
             )}
           </Fragment>
@@ -1600,10 +1602,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Dokter yang bertugas di Edental." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={dentistSearch} onChange={(e) => handleDentistSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={dentistSearch} onChange={(e) => handleDentistSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isDentistShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isDentistShown} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredDentistData, "Daftar Dokter", `daftar_dokter_${getCurrentDate()}`)} isDisabled={!isDentistShown} startContent={<Export />} />
               </DashboardTool>
@@ -1642,17 +1644,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isDentistShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isDentistShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm size="md" formTitle={selectedMode === "update" ? "Perbarui Data Dokter" : "Tambah Data Dokter"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cuddentist")} loading={isSubmitting} onClose={closeForm}>
-                <Input id={`${pageid}-outlet-code`} variant="select" isSearchable radius="full" labelText="Cabang" placeholder="Pilih cabang" name="cctr" value={inputData.cctr} options={allBranchData.map((branch) => ({ value: branch.cctr, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "cctr", value: selectedValue } })} errorContent={errors.cctr} isRequired />
+                <Select id={`${pageid}-outlet-code`} searchable radius="full" label="Cabang" placeholder="Pilih cabang" name="cctr" value={inputData.cctr} options={allBranchData.map((branch) => ({ value: branch.cctr, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={(selectedValue) => handleInputChange({ target: { name: "cctr", value: selectedValue } })} errormsg={errors.cctr} required />
                 <Fieldset>
-                  <Input id={`${pageid}-name`} radius="full" labelText="Nama Dokter" placeholder="Masukkan nama Dokter" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                  <Input id={`${pageid}-sip`} radius="full" labelText="Nomor SIP" placeholder="Masukkan nomor SIP" type="number" name="sip" value={inputData.sip} onChange={handleInputChange} errorContent={errors.sip} isRequired />
+                  <Input id={`${pageid}-name`} radius="full" label="Nama Dokter" placeholder="Masukkan nama Dokter" type="text" name="name" value={inputData.name} onChange={handleInputChange} errormsg={errors.name} required />
+                  <Input id={`${pageid}-sip`} radius="full" label="Nomor SIP" placeholder="Masukkan nomor SIP" type="number" name="sip" value={inputData.sip} onChange={handleInputChange} errormsg={errors.sip} required />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
-                  <Input id={`${pageid}-nik`} radius="full" labelText="NIK" placeholder="327xxx" type="number" name="nik" value={inputData.nik} onChange={handleInputChange} errorContent={errors.nik} isRequired />
+                  <Input id={`${pageid}-phone`} radius="full" label="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errormsg={errors.phone} required />
+                  <Input id={`${pageid}-nik`} radius="full" label="NIK" placeholder="327xxx" type="number" name="nik" value={inputData.nik} onChange={handleInputChange} errormsg={errors.nik} required />
                 </Fieldset>
               </SubmitForm>
             )}
@@ -1741,10 +1743,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data report Order yang telah selesai. Data ini dibuat otomatis saat proses transaksi dilakukan." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderRSearch} onChange={(e) => handleOrderRSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={orderRSearch} onChange={(e) => handleOrderRSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                {totalPages !== null && <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isOrderRShown} />}
+                {totalPages !== null && <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isOrderRShown} />}
                 <Button id={`filter-data-${pageid}`} radius="full" buttonText="Filter" onClick={openForm} startContent={<Filter />} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={handleExportOReport} isDisabled={!isOrderRShown} startContent={<Export />} isLoading={isExporting} />
               </DashboardTool>
@@ -1804,10 +1806,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       key={index}
                       expandContent={data["detail"].map((subdata, idx) => (
                         <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
-                          <Input id={`date-${index}-${idx}`} radius="full" labelText="Tanggal Dibuat" value={newDate(subdata.transactiondetailcreate, "id")} isReadonly />
-                          <Input id={`service-${index}-${idx}`} radius="full" labelText="Layanan" value={subdata.service} isReadonly />
-                          <Input id={`service-type-${index}-${idx}`} radius="full" labelText="Jenis Layanan" value={subdata.servicetype} isReadonly />
-                          <Input id={`price-${index}-${idx}`} radius="full" labelText="Harga" value={newPrice(subdata.price)} isReadonly />
+                          <Input id={`date-${index}-${idx}`} radius="full" label="Tanggal Dibuat" value={newDate(subdata.transactiondetailcreate, "id")} readonly />
+                          <Input id={`service-${index}-${idx}`} radius="full" label="Layanan" value={subdata.service} readonly />
+                          <Input id={`service-type-${index}-${idx}`} radius="full" label="Jenis Layanan" value={subdata.servicetype} readonly />
+                          <Input id={`price-${index}-${idx}`} radius="full" label="Harga" value={newPrice(subdata.price)} readonly />
                         </Fieldset>
                       ))}>
                       <TD>{newDate(data["order"].transactioncreate, "id")}</TD>
@@ -1831,17 +1833,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {totalPages !== null && isOrderRShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {totalPages !== null && isOrderRShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm size="sm" formTitle="Terapkan Filter" operation="event" onClose={closeForm} cancelText="Tutup">
-                <Input id={`${pageid}-filter-outlet`} labelText="Nama Cabang" variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={outletFilter} options={branchMerged.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleFilterBranch} />
+                <Select id={`${pageid}-filter-outlet`} label="Nama Cabang" searchable radius="full" placeholder="Pilih Cabang" value={outletFilter} options={branchMerged.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleFilterBranch} />
                 <Fieldset>
-                  <Input id={`${pageid}-filter-dentist`} labelText="Nama Dokter" variant="select" isSearchable radius="full" placeholder="Pilih Dokter" value={dentistFilter} options={dentistMerged.map((dentist) => ({ value: dentist.id_dentist, label: dentist.name_dentist }))} onSelect={handleFilterDentist} />
-                  <Input id={`${pageid}-filter-status`} labelText="Status" variant="select" noEmptyValue radius="full" placeholder="Pilih Status" value={selectedStatus} options={reportstatopt} onSelect={handleStatusChange} />
+                  <Select id={`${pageid}-filter-dentist`} label="Nama Dokter" searchable radius="full" placeholder="Pilih Dokter" value={dentistFilter} options={dentistMerged.map((dentist) => ({ value: dentist.id_dentist, label: dentist.name_dentist }))} onChange={handleFilterDentist} />
+                  <Select id={`${pageid}-filter-status`} label="Status" noemptyval radius="full" placeholder="Pilih Status" value={selectedStatus} options={reportstatopt} onChange={handleStatusChange} />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-filter-startdate`} radius="full" labelText="Filter dari:" type="datetime-local" value={formatISODate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
-                  <Input id={`${pageid}-filter-enddate`} radius="full" labelText="Hingga:" type="datetime-local" value={formatISODate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
+                  <Input id={`${pageid}-filter-startdate`} radius="full" label="Filter dari:" type="datetime-local" value={formatISODate(startDate)} onChange={(e) => setStartDate(new Date(e.target.value))} />
+                  <Input id={`${pageid}-filter-enddate`} radius="full" label="Hingga:" type="datetime-local" value={formatISODate(endDate)} onChange={(e) => setEndDate(new Date(e.target.value))} />
                 </Fieldset>
               </SubmitForm>
             )}
@@ -1853,10 +1855,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" leadingicon={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -1870,11 +1872,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data Stok Keluar berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockOutSearch} onChange={(e) => handleStockOutSearch(e.target.value)} startContent={<Search />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={stockOutSearch} onChange={(e) => handleStockOutSearch(e.target.value)} leadingicon={<Search />} />
+                {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isStockOutShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isStockOutShown} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockOutData, "Daftar Stok Keluar", `daftar_stok_keluar_${getCurrentDate()}`)} isDisabled={!isStockOutShown} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -1924,7 +1926,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isStockOutShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isStockOutShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
           </Fragment>
         );
       case "STOCK EXPIRE":
@@ -1933,11 +1935,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data Stok Expire berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockExpSearch} onChange={(e) => handleStockExpSearch(e.target.value)} startContent={<Search />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={stockExpSearch} onChange={(e) => handleStockExpSearch(e.target.value)} leadingicon={<Search />} />
+                {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isStockExpShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isStockExpShown} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockExpData, "Daftar Stok Expire", `daftar_stok_expire_${getCurrentDate()}`)} isDisabled={!isStockExpShown} startContent={<Export />} />
               </DashboardTool>
@@ -1988,7 +1990,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isStockExpShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isStockExpShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm formTitle="Tambah Data Stok Expire" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addstockexpire")} loading={isSubmitting} onClose={closeForm}>
                 {inputData.stockexp.map((alkes, index) => (
@@ -2002,12 +2004,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         {index + 1 === inputData.stockexp.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("stockexp")} />}
                       </Fragment>
                     }>
-                    <Input id={`${pageid}-categorystock-${index}`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder="Pilih kategori" name="categorystock" value={alkes.categorystock} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "categorystock", value: selectedValue } })} errorContent={errors[`stockexp.${index}.categorystock`] ? errors[`stockexp.${index}.categorystock`] : ""} isRequired />
-                    <Input id={`${pageid}-subcategorystock-${index}`} variant="select" isSearchable radius="full" labelText="Sub Kategori" placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"} name="subcategorystock" value={alkes.subcategorystock} options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []} onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "subcategorystock", value: selectedValue } })} errorContent={errors[`stockexp.${index}.subcategorystock`] ? errors[`stockexp.${index}.subcategorystock`] : ""} isRequired isDisabled={!alkes.categorystock} />
-                    <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={alkes.itemname} options={(alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))) || []} onSelect={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`stockexp.${index}.itemname`] ? errors[`stockexp.${index}.itemname`] : ""} isRequired isDisabled={!alkes.subcategorystock} />
-                    <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="AL2" type="text" name="sku" value={alkes.sku} onChange={(e) => handleRowChange("stockexp", index, e)} errorContent={errors[`stockexp.${index}.sku`] ? errors[`stockexp.${index}.sku`] : ""} isRequired isDisabled={!alkes.itemname} />
-                    <Input id={`${pageid}-item-unit-${index}`} radius="full" labelText="Unit Item" placeholder="PCS" type="text" name="unit" value={alkes.unit} onChange={(e) => handleRowChange("stockexp", index, e)} errorContent={errors[`stockexp.${index}.unit`] ? errors[`stockexp.${index}.unit`] : ""} isRequired isDisabled={!alkes.itemname} />
-                    <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="qty" value={alkes.qty} onChange={(e) => handleRowChange("stockexp", index, e)} errorContent={errors[`stockexp.${index}.qty`] ? errors[`stockexp.${index}.qty`] : ""} isRequired isDisabled={!alkes.itemname} />
+                    <Select id={`${pageid}-categorystock-${index}`} searchable radius="full" label="Kategori" placeholder="Pilih kategori" name="categorystock" value={alkes.categorystock} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onChange={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "categorystock", value: selectedValue } })} errormsg={errors[`stockexp.${index}.categorystock`] ? errors[`stockexp.${index}.categorystock`] : ""} required />
+                    <Select id={`${pageid}-subcategorystock-${index}`} searchable radius="full" label="Sub Kategori" placeholder={alkes.categorystock ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"} name="subcategorystock" value={alkes.subcategorystock} options={(alkes.categorystock && categoryStockData.find((cat) => cat["category_stok"].categorystockname === alkes.categorystock)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []} onChange={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "subcategorystock", value: selectedValue } })} errormsg={errors[`stockexp.${index}.subcategorystock`] ? errors[`stockexp.${index}.subcategorystock`] : ""} required disabled={!alkes.categorystock} />
+                    <Select id={`${pageid}-item-name-${index}`} searchable radius="full" label="Nama Item" placeholder="Pilih Item" name="itemname" value={alkes.itemname} options={(alkes.subcategorystock && allStockData.filter((sub) => sub.subcategorystock === alkes.subcategorystock).map((item) => ({ value: item.itemname, label: item.itemname }))) || []} onChange={(selectedValue) => handleRowChange("stockexp", index, { target: { name: "itemname", value: selectedValue } })} errormsg={errors[`stockexp.${index}.itemname`] ? errors[`stockexp.${index}.itemname`] : ""} required disabled={!alkes.subcategorystock} />
+                    <Input id={`${pageid}-item-sku-${index}`} radius="full" label="SKU Item" placeholder="AL2" type="text" name="sku" value={alkes.sku} onChange={(e) => handleRowChange("stockexp", index, e)} errormsg={errors[`stockexp.${index}.sku`] ? errors[`stockexp.${index}.sku`] : ""} required disabled={!alkes.itemname} />
+                    <Input id={`${pageid}-item-unit-${index}`} radius="full" label="Unit Item" placeholder="PCS" type="text" name="unit" value={alkes.unit} onChange={(e) => handleRowChange("stockexp", index, e)} errormsg={errors[`stockexp.${index}.unit`] ? errors[`stockexp.${index}.unit`] : ""} required disabled={!alkes.itemname} />
+                    <Input id={`${pageid}-item-qty-${index}`} radius="full" label="Jumlah Item" placeholder="50" type="number" name="qty" value={alkes.qty} onChange={(e) => handleRowChange("stockexp", index, e)} errormsg={errors[`stockexp.${index}.qty`] ? errors[`stockexp.${index}.qty`] : ""} required disabled={!alkes.itemname} />
                   </Fieldset>
                 ))}
               </SubmitForm>
@@ -2020,11 +2022,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data Stok berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={stockSearch} onChange={(e) => handleStockSearch(e.target.value)} startContent={<Search />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={stockSearch} onChange={(e) => handleStockSearch(e.target.value)} leadingicon={<Search />} />
+                {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isStockShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isStockShown} />
                 {level === "admin" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />}
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={!isStockShown} startContent={<Export />} />
               </DashboardTool>
@@ -2095,18 +2097,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isStockShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isStockShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Stok" : "Tambah Data Stok"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudstock")} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
-                  <Input id={`${pageid}-category`} variant="select" isSearchable radius="full" labelText="Kategori" placeholder="Pilih kategori" name="category" value={inputData.category} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "category", value: selectedValue } })} errorContent={errors.category} isRequired />
-                  <Input id={`${pageid}-subcategory`} variant="select" isSearchable radius="full" labelText="Sub Kategori" placeholder={inputData.category ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"} name="sub_category" value={inputData.sub_category} options={(inputData.category && categoryStockData.find((cat) => cat["category_stok"].categorystockname === inputData.category)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_category", value: selectedValue } })} errorContent={errors.sub_category} isRequired isDisabled={!inputData.category} />
-                  <Input id={`${pageid}-name`} radius="full" labelText="Nama Item" placeholder="STERILISATOR" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
+                  <Select id={`${pageid}-category`} searchable radius="full" label="Kategori" placeholder="Pilih kategori" name="category" value={inputData.category} options={categoryStockData.map((cat) => ({ value: cat["category_stok"].categorystockname, label: cat["category_stok"].categorystockname }))} onChange={(selectedValue) => handleInputChange({ target: { name: "category", value: selectedValue } })} errormsg={errors.category} required />
+                  <Select id={`${pageid}-subcategory`} searchable radius="full" label="Sub Kategori" placeholder={inputData.category ? "Pilih sub kategori" : "Mohon pilih kategori dahulu"} name="sub_category" value={inputData.sub_category} options={(inputData.category && categoryStockData.find((cat) => cat["category_stok"].categorystockname === inputData.category)?.["subcategory_stok"].map((sub) => ({ value: sub.subcategorystock, label: sub.subcategorystock }))) || []} onChange={(selectedValue) => handleInputChange({ target: { name: "sub_category", value: selectedValue } })} errormsg={errors.sub_category} required disabled={!inputData.category} />
+                  <Input id={`${pageid}-name`} radius="full" label="Nama Item" placeholder="STERILISATOR" type="text" name="name" value={inputData.name} onChange={handleInputChange} errormsg={errors.name} required />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-unit`} variant="select" radius="full" labelText="Unit/satuan" placeholder="Pilih satuan/unit" name="unit" value={inputData.unit} options={unitopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "unit", value: selectedValue } })} errorContent={errors.unit} isRequired />
-                  <Input id={`${pageid}-qty`} radius="full" labelText="Jumlah" placeholder="40" type="number" name="count" value={inputData.count} onChange={handleInputChange} errorContent={errors.count} isRequired />
-                  <Input id={`${pageid}-price`} radius="full" labelText="Harga Item Satuan" placeholder="100000" type="number" name="value" value={inputData.value} onChange={handleInputChange} errorContent={errors.value} isRequired />
+                  <Select id={`${pageid}-unit`} radius="full" label="Unit/satuan" placeholder="Pilih satuan/unit" name="unit" value={inputData.unit} options={unitopt} onChange={(selectedValue) => handleInputChange({ target: { name: "unit", value: selectedValue } })} errormsg={errors.unit} required />
+                  <Input id={`${pageid}-qty`} radius="full" label="Jumlah" placeholder="40" type="number" name="count" value={inputData.count} onChange={handleInputChange} errormsg={errors.count} required />
+                  <Input id={`${pageid}-price`} radius="full" label="Harga Item Satuan" placeholder="100000" type="number" name="value" value={inputData.value} onChange={handleInputChange} errormsg={errors.value} required />
                 </Fieldset>
               </SubmitForm>
             )}
@@ -2118,10 +2120,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar permintaan PO ke Pusat. Klik Tambah untuk membuat permintaan PO baru, atau review status permintaan PO terkini." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={centralPOSearch} onChange={(e) => handleCentralPOSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={centralPOSearch} onChange={(e) => handleCentralPOSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isCentralPOShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isCentralPOShown} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -2152,10 +2154,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Fragment>
                           {data["Detail PO"].map((subdata, idx) => (
                             <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
-                              <Input id={`item-name-${index}-${idx}`} radius="full" labelText="Nama Item" value={subdata.itemname} isReadonly />
-                              <Input id={`item-sku-${index}-${idx}`} radius="full" labelText="Kode SKU" value={subdata.sku} isReadonly />
-                              <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item" value={subdata.qty} isReadonly />
-                              <Input id={`item-note-${index}-${idx}`} variant="textarea" labelText="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." isReadonly />
+                              <Input id={`item-name-${index}-${idx}`} radius="full" label="Nama Item" value={subdata.itemname} readonly />
+                              <Input id={`item-sku-${index}-${idx}`} radius="full" label="Kode SKU" value={subdata.sku} readonly />
+                              <Input id={`item-qty-${index}-${idx}`} radius="full" label="Jumlah Item" value={subdata.qty} readonly />
+                              <Textarea id={`item-note-${index}-${idx}`} radius="full" label="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." readonly />
                             </Fieldset>
                           ))}
                         </Fragment>
@@ -2170,13 +2172,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isCentralPOShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isCentralPOShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <Fragment>
                 {selectedMode === "update" ? (
                   <SubmitForm size="sm" formTitle="Ubah Status PO Pusat" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "updatepostock")} loading={isSubmitting} onClose={closeForm}>
                     <Fieldset>
-                      <Input id={`${pageid}-po-status`} variant="select" noEmptyValue radius="full" labelText="Status PO" placeholder="Set status" name="status" value={inputData.status} options={pocstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
+                      <Select id={`${pageid}-po-status`} noemptyval radius="full" label="Status PO" placeholder="Set status" name="status" value={inputData.status} options={pocstatopt} onChange={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
                     </Fieldset>
                   </SubmitForm>
                 ) : (
@@ -2192,10 +2194,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                             {index + 1 === inputData.postock.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("postock")} />}
                           </Fragment>
                         }>
-                        <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={po.itemname} options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))} onSelect={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""} isRequired />
-                        <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
-                        <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
-                        <Input id={`${pageid}-item-note-${index}`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
+                        <Select id={`${pageid}-item-name-${index}`} searchable radius="full" label="Nama Item" placeholder="Pilih Item" name="itemname" value={po.itemname} options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))} onChange={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })} errormsg={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""} required />
+                        <Input id={`${pageid}-item-sku-${index}`} radius="full" label="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleRowChange("postock", index, e)} errormsg={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} required />
+                        <Input id={`${pageid}-item-qty-${index}`} radius="full" label="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleRowChange("postock", index, e)} errormsg={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} required />
+                        <Textarea id={`${pageid}-item-note-${index}`} radius="full" label="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleRowChange("postock", index, e)} errormsg={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
                       </Fieldset>
                     ))}
                   </SubmitForm>
@@ -2224,10 +2226,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar permintaan PO item dari semua cabang. Filter status PO melalui tombol tab, atau klik ikon pada kolom Action untuk memperbarui status PO." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={inPOSearch} onChange={(e) => handleInPOSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={inPOSearch} onChange={(e) => handleInPOSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isInPOShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isInPOShown} />
               </DashboardTool>
             </DashboardToolbar>
             <TabGroup buttons={postatus} />
@@ -2260,10 +2262,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Fragment>
                           {data["Detail PO"].map((subdata, idx) => (
                             <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
-                              <Input id={`item-name-${index}-${idx}`} radius="full" labelText="Nama Item" value={subdata.itemname} isReadonly />
-                              <Input id={`item-sku-${index}-${idx}`} radius="full" labelText="Kode SKU" value={subdata.sku} isReadonly />
-                              <Input id={`item-qty-${index}-${idx}`} radius="full" labelText="Jumlah Item" value={subdata.qty} isReadonly />
-                              <Input id={`item-note-${index}-${idx}`} variant="textarea" labelText="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." isReadonly />
+                              <Input id={`item-name-${index}-${idx}`} radius="full" label="Nama Item" value={subdata.itemname} readonly />
+                              <Input id={`item-sku-${index}-${idx}`} radius="full" label="Kode SKU" value={subdata.sku} readonly />
+                              <Input id={`item-qty-${index}-${idx}`} radius="full" label="Jumlah Item" value={subdata.qty} readonly />
+                              <Textarea id={`item-note-${index}-${idx}`} radius="full" label="Keterangan" rows={4} value={subdata.note} fallbackValue="Tidak ada keterangan." readonly />
                             </Fieldset>
                           ))}
                         </Fragment>
@@ -2281,16 +2283,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isInPOShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isInPOShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm formTitle="Ubah Status PO" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "editstockpo")} loading={isSubmitting} onClose={closeForm}>
-                <Input id={`${pageid}-po-status`} variant="select" noEmptyValue radius="full" labelText="Status PO" placeholder="Set status" name="status" value={inputData.status} options={postatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
+                <Select id={`${pageid}-po-status`} noemptyval radius="full" label="Status PO" placeholder="Set status" name="status" value={inputData.status} options={postatopt} onChange={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
                 {inputData.postock.map((po, index) => (
                   <Fieldset key={index} type="row" markers={`${index + 1}.`}>
-                    <Input id={`${pageid}-item-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Item" placeholder="Pilih Item" name="itemname" value={po.itemname} options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))} onSelect={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })} errorContent={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""} isRequired />
-                    <Input id={`${pageid}-item-sku-${index}`} radius="full" labelText="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} isRequired />
-                    <Input id={`${pageid}-item-qty-${index}`} radius="full" labelText="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} isRequired />
-                    <Input id={`${pageid}-item-note-${index}`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleRowChange("postock", index, e)} errorContent={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
+                    <Select id={`${pageid}-item-name-${index}`} searchable radius="full" label="Nama Item" placeholder="Pilih Item" name="itemname" value={po.itemname} options={allStockData.map((item) => ({ value: item.itemname, label: item.itemname }))} onChange={(selectedValue) => handleRowChange("postock", index, { target: { name: "itemname", value: selectedValue } })} errormsg={errors[`postock.${index}.itemname`] ? errors[`postock.${index}.itemname`] : ""} required />
+                    <Input id={`${pageid}-item-sku-${index}`} radius="full" label="SKU Item" placeholder="Masukkan SKU item" type="text" name="sku" value={po.sku} onChange={(e) => handleRowChange("postock", index, e)} errormsg={errors[`postock.${index}.sku`] ? errors[`postock.${index}.sku`] : ""} required />
+                    <Input id={`${pageid}-item-qty-${index}`} radius="full" label="Jumlah Item" placeholder="50" type="number" name="stockin" value={po.stockin} onChange={(e) => handleRowChange("postock", index, e)} errormsg={errors[`postock.${index}.stockin`] ? errors[`postock.${index}.stockin`] : ""} required />
+                    <Textarea id={`${pageid}-item-note-${index}`} radius="full" label="Catatan" placeholder="Masukkan catatan" name="note" rows={4} value={po.note} onChange={(e) => handleRowChange("postock", index, e)} errormsg={errors[`postock.${index}.note`] ? errors[`postock.${index}.note`] : ""} />
                   </Fieldset>
                 ))}
               </SubmitForm>
@@ -2303,10 +2305,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" leadingicon={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -2350,16 +2352,16 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <OnpageForm onSubmit={(e) => handleSubmit(e, "edituser")}>
                   <FormHead title="Informasi Pribadi" />
                   <Fieldset>
-                    <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={onpageData.name} onChange={handleInputChange} errorContent={errors.name} isRequired isReadonly={custExist} />
-                    <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={onpageData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
-                    <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={onpageData.email} onChange={handleInputChange} errorContent={errors.email} isRequired isReadonly={custExist} />
-                    <Input id={`${pageid}-nik`} radius="full" labelText="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={onpageData.nik} onChange={handleInputChange} errorContent={errors.nik} isRequired />
+                    <Input id={`${pageid}-name`} radius="full" label="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={onpageData.name} onChange={handleInputChange} errormsg={errors.name} required readonly={custExist} />
+                    <Input id={`${pageid}-phone`} radius="full" label="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={onpageData.phone} onChange={handleInputChange} errormsg={errors.phone} required />
+                    <Input id={`${pageid}-email`} radius="full" label="Email" placeholder="customer@gmail.com" type="email" name="email" value={onpageData.email} onChange={handleInputChange} errormsg={errors.email} required readonly={custExist} />
+                    <Input id={`${pageid}-nik`} radius="full" label="Nomor KTP" placeholder="3271xxx" type="number" name="nik" value={onpageData.nik} onChange={handleInputChange} errormsg={errors.nik} required />
                   </Fieldset>
                   <Fieldset>
-                    <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth" max={getCurrentDate()} value={onpageData.birth} onChange={handleInputChange} errorContent={errors.birth} isRequired />
-                    <Input id={`${pageid}-gender`} variant="select" radius="full" labelText="Jenis Kelamin" placeholder="Pilih jenis kelamin" name="gender" value={onpageData.gender} options={genderopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "gender", value: selectedValue } })} errorContent={errors.gender} isRequired />
-                    <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={onpageData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
-                    <Input id={`${pageid}-scanid`} variant="upload" accept="image/*" isPreview={false} radius="full" labelText="Scan KTP" name="image" initialFile={onpageData.image} onSelect={handleImageSelect} />
+                    <Input id={`${pageid}-birth`} radius="full" label="Tanggal Lahir" type="date" name="birth" max={getCurrentDate()} value={onpageData.birth} onChange={handleInputChange} errormsg={errors.birth} required />
+                    <Select id={`${pageid}-gender`} radius="full" label="Jenis Kelamin" placeholder="Pilih jenis kelamin" name="gender" value={onpageData.gender} options={genderopt} onChange={(selectedValue) => handleInputChange({ target: { name: "gender", value: selectedValue } })} errormsg={errors.gender} required />
+                    <Input id={`${pageid}-address`} radius="full" label="Alamat" placeholder="123 Main Street" type="text" name="address" value={onpageData.address} onChange={handleInputChange} errormsg={errors.address} required />
+                    <Input id={`${pageid}-scanid`} type="file" accept="image/*" radius="full" label="Scan KTP" name="image" initial={onpageData.image} onChange={handleImageSelect} />
                   </Fieldset>
                   <FormFooter>
                     <Button id={`add-new-data-${pageid}`} type="submit" action="onpage" radius="full" buttonText={selectedCust ? "Simpan Perubahan" : "Simpan Baru"} isLoading={isSubmitting} startContent={<Check />} loadingContent={<LoadingContent />} isDisabled={errors.name !== "" || errors.phone !== "" || errors.email !== "" || errors.nik !== "" || errors.birth !== "" || errors.gender !== "" || errors.address !== ""} />
@@ -2559,12 +2561,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   {isFormOpen && (
                     <SubmitForm size="md" formTitle="Tambah Data Rekam Medis" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addmedics")} loading={isSubmitting} onClose={closeForm}>
                       <Fieldset>
-                        <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth" max={getCurrentDate()} value={inputData.birth} onChange={handleInputChange} errorContent={errors.birth} isRequired />
-                        <Input id={`${pageid}-ageyear`} radius="full" labelText="Umur (tahun)" placeholder="24" fallbackValue="24" type="number" name="ageyear" value={inputData.ageyear} isReadonly />
+                        <Input id={`${pageid}-birth`} radius="full" label="Tanggal Lahir" type="date" name="birth" max={getCurrentDate()} value={inputData.birth} onChange={handleInputChange} errormsg={errors.birth} required />
+                        <Input id={`${pageid}-ageyear`} radius="full" label="Umur (tahun)" placeholder="24" fallbackValue="24" type="number" name="ageyear" value={inputData.ageyear} readonly />
                       </Fieldset>
                       <Fieldset>
-                        <Input id={`${pageid}-agemonth`} radius="full" labelText="Umur (bulan)" placeholder="5" fallbackValue="5" type="number" name="agemonth" value={inputData.agemonth} isReadonly />
-                        <Input id={`${pageid}-ageday`} radius="full" labelText="Umur (hari)" placeholder="10" fallbackValue="10" type="number" name="ageday" value={inputData.ageday} isReadonly />
+                        <Input id={`${pageid}-agemonth`} radius="full" label="Umur (bulan)" placeholder="5" fallbackValue="5" type="number" name="agemonth" value={inputData.agemonth} readonly />
+                        <Input id={`${pageid}-ageday`} radius="full" label="Umur (hari)" placeholder="10" fallbackValue="10" type="number" name="ageday" value={inputData.ageday} readonly />
                       </Fieldset>
                     </SubmitForm>
                   )}
@@ -2594,7 +2596,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Panel untuk memperbarui profil data dan menambah histori catatan medis pasien." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`cust-select-${pageid}`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Customer" name="id" options={mergedCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onSelect={handleCustChange} />
+                <Select id={`cust-select-${pageid}`} labeled={false} searchable radius="full" placeholder="Pilih Customer" name="id" options={mergedCustData.map((cust) => ({ value: cust.idauthuser, label: toTitleCase(cust.username) }))} onChange={handleCustChange} />
               </DashboardTool>
               {onPageTabId === "4" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={selectedCust ? openRMForm : handleAddError} startContent={<Plus />} />}
             </DashboardToolbar>
@@ -2608,11 +2610,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Customer yang memiliki riwayat Reservasi. Data ini dibuat otomatis saat proses reservasi dilakukan." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={xenditSearch} onChange={(e) => handleXenditSearch(e.target.value)} startContent={<Search />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={xenditSearch} onChange={(e) => handleXenditSearch(e.target.value)} leadingicon={<Search />} />
+                {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isXenditShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isXenditShown} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredXenditData, "Daftar Invoice", `daftar_invoice_${getCurrentDate()}`)} isDisabled={!isXenditShown} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -2658,7 +2660,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isXenditShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isXenditShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
           </Fragment>
         );
       case "RESERVATION":
@@ -2667,11 +2669,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data Reservasi customer. Klik Tambah Baru untuk membuat data reservasi baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={reservSearch} onChange={(e) => handleReservSearch(e.target.value)} startContent={<Search />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={reservSearch} onChange={(e) => handleReservSearch(e.target.value)} leadingicon={<Search />} />
+                {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isReservShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isReservShown} />
                 <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredReservData, "Daftar Reservasi", `daftar_reservasi_${getCurrentDate()}`)} isDisabled={!isReservShown} startContent={<Export />} />
               </DashboardTool>
@@ -2752,35 +2754,35 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isReservShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isReservShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm size={selectedMode === "update" ? "sm" : "lg"} formTitle={selectedMode === "update" ? "Ubah Status Reservasi" : "Tambah Data Reservasi"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudreservation")} loading={isSubmitting} onClose={closeForm}>
                 {selectedMode === "update" ? (
                   <Fieldset>
-                    <Input id={`${pageid}-reserv-status`} variant="select" noEmptyValue radius="full" labelText="Status Reservasi" placeholder="Set status" name="status" value={inputData.status} options={reservstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
-                    {inputData.statuspayment !== "1" && <Input id={`${pageid}-dp-status`} variant="select" noEmptyValue radius="full" labelText="Status DP" placeholder="Set status" name="statuspayment" value={inputData.statuspayment} options={paymentstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "statuspayment", value: selectedValue } })} />}
+                    <Select id={`${pageid}-reserv-status`} noemptyval radius="full" label="Status Reservasi" placeholder="Set status" name="status" value={inputData.status} options={reservstatopt} onChange={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
+                    {inputData.statuspayment !== "1" && <Select id={`${pageid}-dp-status`} noemptyval radius="full" label="Status DP" placeholder="Set status" name="statuspayment" value={inputData.statuspayment} options={paymentstatopt} onChange={(selectedValue) => handleInputChange({ target: { name: "statuspayment", value: selectedValue } })} />}
                   </Fieldset>
                 ) : (
                   <Fragment>
                     <Fieldset>
-                      <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} infoContent={custExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""} errorContent={errors.phone} isRequired />
-                      <Input id={`${pageid}-name`} radius="full" labelText="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired isReadonly={custExist} />
-                      <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired isReadonly={custExist} />
+                      <Input id={`${pageid}-phone`} radius="full" label="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} additmsg={custExist ? "Customer sudah terdaftar. Nama dan Email otomatis terisi." : ""} errormsg={errors.phone} required />
+                      <Input id={`${pageid}-name`} radius="full" label="Nama Pelanggan" placeholder="e.g. John Doe" type="text" name="name" value={inputData.name} onChange={handleInputChange} errormsg={errors.name} required readonly={custExist} />
+                      <Input id={`${pageid}-email`} radius="full" label="Email" placeholder="customer@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errormsg={errors.email} required readonly={custExist} />
                     </Fieldset>
                     <Fieldset>
-                      <Input id={`${pageid}-service`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih layanan" name="service" value={inputData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "service", value: selectedValue } })} errorContent={errors.service} isRequired />
-                      <Input id={`${pageid}-subservice`} variant="select" isSearchable radius="full" labelText="Jenis Layanan" placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="sub_service" value={inputData.sub_service} options={(inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onSelect={(selectedValue) => handleInputChange({ target: { name: "sub_service", value: selectedValue } })} errorContent={errors.sub_service} isRequired isDisabled={!inputData.service} />
-                      <Input id={`${pageid}-voucher`} radius="full" labelText="Kode Voucher" placeholder="e.g 598RE3" type="text" name="vouchercode" value={inputData.vouchercode} onChange={handleInputChange} errorContent={errors.vouchercode} />
+                      <Select id={`${pageid}-service`} searchable radius="full" label="Nama Layanan" placeholder="Pilih layanan" name="service" value={inputData.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onChange={(selectedValue) => handleInputChange({ target: { name: "service", value: selectedValue } })} errormsg={errors.service} required />
+                      <Select id={`${pageid}-subservice`} searchable radius="full" label="Jenis Layanan" placeholder={inputData.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="sub_service" value={inputData.sub_service} options={(inputData.service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onChange={(selectedValue) => handleInputChange({ target: { name: "sub_service", value: selectedValue } })} errormsg={errors.sub_service} required disabled={!inputData.service} />
+                      <Input id={`${pageid}-voucher`} radius="full" label="Kode Voucher" placeholder="e.g 598RE3" type="text" name="vouchercode" value={inputData.vouchercode} onChange={handleInputChange} errormsg={errors.vouchercode} />
                     </Fieldset>
                     <Fieldset>
-                      <Input id={`${pageid}-date`} radius="full" labelText="Tanggal Reservasi" placeholder="Atur tanggal" type="date" name="date" min={getCurrentDate()} value={inputData.date} onChange={handleInputChange} errorContent={errors.date} isRequired />
-                      <Input id={`${pageid}-time`} variant="select" isSearchable radius="full" labelText="Jam Reservasi" placeholder={inputData.date ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"} name="time" value={inputData.time} options={availHoursData.map((hour) => ({ value: hour, label: hour }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "time", value: selectedValue } })} errorContent={errors.time} isRequired isDisabled={!inputData.date} />
+                      <Input id={`${pageid}-date`} radius="full" label="Tanggal Reservasi" placeholder="Atur tanggal" type="date" name="date" min={getCurrentDate()} value={inputData.date} onChange={handleInputChange} errormsg={errors.date} required />
+                      <Select id={`${pageid}-time`} searchable radius="full" label="Jam Reservasi" placeholder={inputData.date ? "Pilih jadwal tersedia" : "Mohon pilih tanggal dahulu"} name="time" value={inputData.time} options={availHoursData.map((hour) => ({ value: hour, label: hour }))} onChange={(selectedValue) => handleInputChange({ target: { name: "time", value: selectedValue } })} errormsg={errors.time} required disabled={!inputData.date} />
                     </Fieldset>
-                    <Input id={`${pageid}-note`} variant="textarea" labelText="Catatan" placeholder="Masukkan catatan/sumber informasi ..." name="note" rows={4} value={inputData.note} onChange={handleInputChange} errorContent={errors.note} />
+                    <Textarea name="note" radius="full" label="Catatan" placeholder="Masukkan catatan/sumber informasi" value={inputData.note} onChange={handleInputChange} errormsg={errors.note} rows={4} />
                     {inputData.service === "RESERVATION" && (
                       <Fieldset>
-                        <Input id={`${pageid}-price`} radius="full" labelText="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleInputChange} errorContent={errors.price} isRequired={inputData.service === "RESERVATION"} />
-                        <Input id={`${pageid}-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder="Pilih metode pembayaran" name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isRequired={inputData.service === "RESERVATION"} />
+                        <Input id={`${pageid}-price`} radius="full" label="Biaya Layanan" placeholder="Masukkan biaya layanan" type="number" name="price" value={inputData.price} onChange={handleInputChange} errormsg={errors.price} required={inputData.service === "RESERVATION"} />
+                        <Select id={`${pageid}-payments`} searchable radius="full" label="Metode Pembayaran" placeholder="Pilih metode pembayaran" name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onChange={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errormsg={errors.bank_code} required={inputData.service === "RESERVATION"} />
                       </Fieldset>
                     )}
                   </Fragment>
@@ -2819,11 +2821,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data order customer ini dibuat otomatis saat proses reservasi dilakukan. Klik baris data untuk melihat masing-masing detail layanan & produk terpakai." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orderSearch} onChange={(e) => handleOrderSearch(e.target.value)} startContent={<Search />} />
-                {level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={orderSearch} onChange={(e) => handleOrderSearch(e.target.value)} leadingicon={<Search />} />
+                {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isOrderShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isOrderShown} />
                 <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredOrderData, "Daftar Order", `daftar_order_${getCurrentDate()}`)} isDisabled={!isOrderShown} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
@@ -2882,9 +2884,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                           {data.orderdetail &&
                             data.orderdetail.map((subdata, idx) => (
                               <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
-                                <Input id={`${pageid}-service-${index}-${idx}`} radius="full" labelText="Layanan" value={subdata.service} isReadonly />
-                                <Input id={`${pageid}-service-type-${index}-${idx}`} radius="full" labelText="Jenis Layanan" value={subdata.servicetype} isReadonly />
-                                <Input id={`${pageid}-price-${index}-${idx}`} radius="full" labelText="Harga" value={newPrice(subdata.price)} isReadonly />
+                                <Input id={`${pageid}-service-${index}-${idx}`} radius="full" label="Layanan" value={subdata.service} readonly />
+                                <Input id={`${pageid}-service-type-${index}-${idx}`} radius="full" label="Jenis Layanan" value={subdata.servicetype} readonly />
+                                <Input id={`${pageid}-price-${index}-${idx}`} radius="full" label="Harga" value={newPrice(subdata.price)} readonly />
                               </Fieldset>
                             ))}
                         </Fragment>
@@ -2908,17 +2910,13 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isOrderShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isOrderShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Order" : "Tambah Data Order"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudorder")} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
-                  <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errorContent={errors.dentist} isRequired />
-                  <Input id={`${pageid}-type-payments`} variant="select" noEmptyValue radius="full" labelText="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errorContent={errors.typepayment} isRequired />
-                  {inputData.typepayment && (
-                    <Fragment>
-                      {inputData.typepayment === "cashless" ? <Input id={`${pageid}-method-payments`} variant="select" isSearchable radius="full" labelText="Metode Pembayaran" placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"} name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errorContent={errors.bank_code} isDisabled={!inputData.typepayment} /> : <Input id={`${pageid}-status-payments`} variant="select" noEmptyValue radius="full" labelText="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onSelect={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errorContent={errors.status} isDisabled={!inputData.typepayment} />}
-                    </Fragment>
-                  )}
+                  <Select id={`${pageid}-dentist`} searchable radius="full" label="Dokter" placeholder="Pilih Dokter" name="dentist" value={inputData.dentist} options={branchDentistData.map((dentist) => ({ value: dentist.name_dentist, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onChange={(selectedValue) => handleInputChange({ target: { name: "dentist", value: selectedValue } })} errormsg={errors.dentist} required />
+                  <Select id={`${pageid}-type-payments`} noemptyval radius="full" label="Tipe Pembayaran" placeholder="Pilih tipe pembayaran" name="typepayment" value={inputData.typepayment} options={paymenttypeopt} onChange={(selectedValue) => handleInputChange({ target: { name: "typepayment", value: selectedValue } })} errormsg={errors.typepayment} required />
+                  {inputData.typepayment && <Fragment>{inputData.typepayment === "cashless" ? <Select id={`${pageid}-method-payments`} searchable radius="full" label="Metode Pembayaran" placeholder={inputData.typepayment ? "Pilih metode pembayaran" : "Mohon pilih tipe dahulu"} name="bank_code" value={inputData.bank_code} options={fvaListData.map((va) => ({ value: va.code, label: va.name }))} onChange={(selectedValue) => handleInputChange({ target: { name: "bank_code", value: selectedValue } })} errormsg={errors.bank_code} disabled={!inputData.typepayment} /> : <Select id={`${pageid}-status-payments`} noemptyval radius="full" label="Status Pembayaran" placeholder={inputData.typepayment ? "Set status pembayaran" : "Mohon pilih tipe dahulu"} name="status" value={inputData.status} options={orderstatopt} onChange={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} errormsg={errors.status} disabled={!inputData.typepayment} />}</Fragment>}
                 </Fieldset>
                 {inputData.order.map((subservice, index) => (
                   <Fieldset
@@ -2931,9 +2929,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         {index + 1 === inputData.order.length && <Button id={`${pageid}-add-row`} subVariant="icon" isTooltip tooltipText="Tambah" size="sm" color="var(--color-primary)" bgColor="var(--color-primary-10)" iconContent={<Plus />} onClick={() => handleAddRow("order")} />}
                       </Fragment>
                     }>
-                    <Input id={`${pageid}-name-${index}`} variant="select" isSearchable radius="full" labelText="Nama Layanan" placeholder="Pilih Layanan" name="service" value={subservice.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })} errorContent={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
-                    <Input id={`${pageid}-type-name-${index}`} variant="select" isSearchable radius="full" labelText="Jenis Layanan" placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="servicetype" value={subservice.servicetype} options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onSelect={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })} errorContent={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""} isRequired isDisabled={!inputData.order[index].service} isReadonly={inputData.order[index].service === "RESERVATION"} />
-                    <Input id={`${pageid}-type-price-${index}`} radius="full" labelText="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errorContent={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} isRequired isReadonly={inputData.order[index].service === "RESERVATION"} />
+                    <Select id={`${pageid}-name-${index}`} searchable radius="full" label="Nama Layanan" placeholder="Pilih Layanan" name="service" value={subservice.service} options={allservicedata.map((service) => ({ value: service["Nama Layanan"].servicename, label: service["Nama Layanan"].servicename }))} onChange={(selectedValue) => handleRowChange("order", index, { target: { name: "service", value: selectedValue } })} errormsg={errors[`order.${index}.service`] ? errors[`order.${index}.service`] : ""} required readonly={inputData.order[index].service === "RESERVATION"} />
+                    <Select id={`${pageid}-type-name-${index}`} searchable radius="full" label="Jenis Layanan" placeholder={subservice.service ? "Pilih jenis layanan" : "Mohon pilih layanan dahulu"} name="servicetype" value={subservice.servicetype} options={(inputData.order[index].service && allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.order[index].service)?.["Jenis Layanan"].map((type) => ({ value: type.servicetypename, label: type.servicetypename }))) || []} onChange={(selectedValue) => handleRowChange("order", index, { target: { name: "servicetype", value: selectedValue } })} errormsg={errors[`order.${index}.servicetype`] ? errors[`order.${index}.servicetype`] : ""} required disabled={!inputData.order[index].service} readonly={inputData.order[index].service === "RESERVATION"} />
+                    <Input id={`${pageid}-type-price-${index}`} radius="full" label="Atur Harga" placeholder="Masukkan harga" type="number" name="price" value={subservice.price} onChange={(e) => handleRowChange("order", index, e)} errormsg={errors[`order.${index}.price`] ? errors[`order.${index}.price`] : ""} required readonly={inputData.order[index].service === "RESERVATION"} />
                   </Fieldset>
                 ))}
               </SubmitForm>
@@ -3015,7 +3013,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           <Fragment>
             <DashboardHead title={`Jadwal Reservasi ${currentDate.toLocaleString("default", { month: "long" })} ${currentDate.getFullYear()}`} desc="Data visual jadwal reservasi, klik kolom tanggal untuk melihat daftar jadwal reservasi harian." />
             <DashboardToolbar>
-              <DashboardTool>{level === "admin" && <Input id={`${pageid}-outlet`} isLabeled={false} variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}</DashboardTool>
+              <DashboardTool>{level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}</DashboardTool>
               <DashboardTool>
                 <Button id={`${pageid}-today`} radius="full" buttonText="Hari Ini" onClick={handleToday} />
                 <Button id={`${pageid}-prev-month`} radius="full" variant="line" color="var(--color-primary)" buttonText="Prev Month" onClick={handlePrevMonth} startContent={<HChevron direction="left" />} />
@@ -3064,7 +3062,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={practiSearch} onChange={(e) => handlePractiSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={practiSearch} onChange={(e) => handlePractiSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
             </DashboardToolbar>
@@ -3136,23 +3134,23 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isFormOpen && (
               <SubmitForm size="sm" formTitle="Tambah Data Praktisioner" operation="add" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "addpractitioner", "satusehat")} loading={isSubmitting} onClose={closeForm}>
-                <Input id={`${pageid}-dentist`} variant="select" isSearchable radius="full" labelText="Dokter" placeholder="Pilih Dokter" name="practici_id" value={inputData.practici_id} options={branchDentistData.map((dentist) => ({ value: dentist.nik, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onSelect={(selectedValue) => handlePInputChange({ target: { name: "practici_id", value: selectedValue } })} errorContent={errors.practici_id} isRequired />
+                <Select id={`${pageid}-dentist`} searchable radius="full" label="Dokter" placeholder="Pilih Dokter" name="practici_id" value={inputData.practici_id} options={branchDentistData.map((dentist) => ({ value: dentist.nik, label: dentist.name_dentist.replace(`${dentist.id_branch} -`, "") }))} onChange={(selectedValue) => handlePInputChange({ target: { name: "practici_id", value: selectedValue } })} errormsg={errors.practici_id} required />
                 <Fieldset>
-                  <Input id={`${pageid}-city`} radius="full" labelText="City ID" placeholder="e.g 30" type="text" name="city" value={inputData.city} onChange={handlePInputChange} errorContent={errors.city} isRequired />
-                  <Input id={`${pageid}-province`} radius="full" labelText="Province ID" placeholder="e.g 200" type="text" name="province" value={inputData.province} onChange={handlePInputChange} errorContent={errors.province} isRequired />
+                  <Input id={`${pageid}-city`} radius="full" label="City ID" placeholder="e.g 30" type="text" name="city" value={inputData.city} onChange={handlePInputChange} errormsg={errors.city} required />
+                  <Input id={`${pageid}-province`} radius="full" label="Province ID" placeholder="e.g 200" type="text" name="province" value={inputData.province} onChange={handlePInputChange} errormsg={errors.province} required />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-district`} radius="full" labelText="District ID" placeholder="e.g 50" type="text" name="district" value={inputData.district} onChange={handlePInputChange} errorContent={errors.district} isRequired />
-                  <Input id={`${pageid}-village`} radius="full" labelText="Village ID" placeholder="e.g 100" type="text" name="village" value={inputData.village} onChange={handlePInputChange} errorContent={errors.village} isRequired />
+                  <Input id={`${pageid}-district`} radius="full" label="District ID" placeholder="e.g 50" type="text" name="district" value={inputData.district} onChange={handlePInputChange} errormsg={errors.district} required />
+                  <Input id={`${pageid}-village`} radius="full" label="Village ID" placeholder="e.g 100" type="text" name="village" value={inputData.village} onChange={handlePInputChange} errormsg={errors.village} required />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-rt`} radius="full" labelText="RT" placeholder="004" type="text" name="rt" value={inputData.rt} onChange={handlePInputChange} errorContent={errors.rt} isRequired />
-                  <Input id={`${pageid}-rw`} radius="full" labelText="RW" placeholder="006" type="text" name="rw" value={inputData.rw} onChange={handlePInputChange} errorContent={errors.rw} isRequired />
+                  <Input id={`${pageid}-rt`} radius="full" label="RT" placeholder="004" type="text" name="rt" value={inputData.rt} onChange={handlePInputChange} errormsg={errors.rt} required />
+                  <Input id={`${pageid}-rw`} radius="full" label="RW" placeholder="006" type="text" name="rw" value={inputData.rw} onChange={handlePInputChange} errormsg={errors.rw} required />
                 </Fieldset>
-                <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handlePInputChange} errorContent={errors.address} isRequired />
+                <Input id={`${pageid}-address`} radius="full" label="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handlePInputChange} errormsg={errors.address} required />
                 <Fieldset>
-                  <Input id={`${pageid}-birth`} radius="full" labelText="Tanggal Lahir" type="date" name="birth_date" value={inputData.birth_date} onChange={handlePInputChange} errorContent={errors.birth_date} isRequired />
-                  <Input id={`${pageid}-gender`} radius="full" labelText="Jenis Kelamin" placeholder="Perempuan" type="text" name="gender" value={inputData.gender} onChange={handlePInputChange} errorContent={errors.gender} isRequired />
+                  <Input id={`${pageid}-birth`} radius="full" label="Tanggal Lahir" type="date" name="birth_date" value={inputData.birth_date} onChange={handlePInputChange} errormsg={errors.birth_date} required />
+                  <Input id={`${pageid}-gender`} radius="full" label="Jenis Kelamin" placeholder="Perempuan" type="text" name="gender" value={inputData.gender} onChange={handlePInputChange} errormsg={errors.gender} required />
                 </Fieldset>
               </SubmitForm>
             )}
@@ -3206,7 +3204,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={orgSearch} onChange={(e) => handleOrgSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={orgSearch} onChange={(e) => handleOrgSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
             </DashboardToolbar>
@@ -3254,26 +3252,26 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isFormOpen && (
               <SubmitForm size="sm" formTitle="Tambah Data Organisasi" operation="add" fetching={isFormFetching} onSubmit={handleCreateOrg} loading={isSubmitting} onClose={closeForm}>
-                {level === "admin" && <Input id={`${pageid}-outlet`} labelText="Cabang" variant="select" isSearchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={handleBranchChange} />}
+                {level === "admin" && <Select id={`${pageid}-outlet`} label="Cabang" searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
                 <Fieldset>
-                  <Input id={`${pageid}-orgname`} radius="full" labelText="Nama Organisasi" placeholder="Cabang Jakarta" type="text" name="name" value={inputData.name} onChange={handleInputChange} errorContent={errors.name} isRequired />
-                  <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
+                  <Input id={`${pageid}-orgname`} radius="full" label="Nama Organisasi" placeholder="Cabang Jakarta" type="text" name="name" value={inputData.name} onChange={handleInputChange} errormsg={errors.name} required />
+                  <Input id={`${pageid}-phone`} radius="full" label="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errormsg={errors.phone} required />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="outlet@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
-                  <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
+                  <Input id={`${pageid}-email`} radius="full" label="Email" placeholder="outlet@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errormsg={errors.email} required />
+                  <Input id={`${pageid}-address`} radius="full" label="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errormsg={errors.address} required />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-cityname`} radius="full" labelText="Nama Kota" placeholder="Jakarta" type="text" name="city_name" value={inputData.city_name} onChange={handleInputChange} errorContent={errors.city_name} isRequired />
-                  <Input id={`${pageid}-postcode`} radius="full" labelText="Kode POS" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleInputChange} errorContent={errors.postcode} isRequired />
+                  <Input id={`${pageid}-cityname`} radius="full" label="Nama Kota" placeholder="Jakarta" type="text" name="city_name" value={inputData.city_name} onChange={handleInputChange} errormsg={errors.city_name} required />
+                  <Input id={`${pageid}-postcode`} radius="full" label="Kode POS" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleInputChange} errormsg={errors.postcode} required />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-province`} variant="select" isSearchable radius="full" labelText="Province ID" placeholder="Pilih Provinsi" name="province" value={inputData.province} options={provinceData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "province", value: selectedValue } })} errorContent={errors.province} isRequired />
-                  <Input id={`${pageid}-city`} variant="select" isSearchable radius="full" labelText="City ID" placeholder="Pilih Kota" name="city" value={inputData.city} options={cityData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "city", value: selectedValue } })} errorContent={errors.city} isRequired isDisabled={!inputData.province} />
+                  <Select id={`${pageid}-province`} searchable radius="full" label="Province ID" placeholder="Pilih Provinsi" name="province" value={inputData.province} options={provinceData.map((item) => ({ value: item.id, label: item.name }))} onChange={(selectedValue) => handleInputChange({ target: { name: "province", value: selectedValue } })} errormsg={errors.province} required />
+                  <Select id={`${pageid}-city`} searchable radius="full" label="City ID" placeholder="Pilih Kota" name="city" value={inputData.city} options={cityData.map((item) => ({ value: item.id, label: item.name }))} onChange={(selectedValue) => handleInputChange({ target: { name: "city", value: selectedValue } })} errormsg={errors.city} required disabled={!inputData.province} />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-district`} variant="select" isSearchable radius="full" labelText="District ID" placeholder="Pilih Kecamatan" name="district" value={inputData.district} options={districtData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "district", value: selectedValue } })} errorContent={errors.district} isRequired isDisabled={!inputData.city} />
-                  <Input id={`${pageid}-village`} variant="select" isSearchable radius="full" labelText="Village ID" placeholder="Pilih Kelurahan" name="village" value={inputData.village} options={villageData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "village", value: selectedValue } })} errorContent={errors.village} isRequired isDisabled={!inputData.district} />
+                  <Select id={`${pageid}-district`} searchable radius="full" label="District ID" placeholder="Pilih Kecamatan" name="district" value={inputData.district} options={districtData.map((item) => ({ value: item.id, label: item.name }))} onChange={(selectedValue) => handleInputChange({ target: { name: "district", value: selectedValue } })} errormsg={errors.district} required disabled={!inputData.city} />
+                  <Select id={`${pageid}-village`} searchable radius="full" label="Village ID" placeholder="Pilih Kelurahan" name="village" value={inputData.village} options={villageData.map((item) => ({ value: item.id, label: item.name }))} onChange={(selectedValue) => handleInputChange({ target: { name: "village", value: selectedValue } })} errormsg={errors.village} required disabled={!inputData.district} />
                 </Fieldset>
               </SubmitForm>
             )}
@@ -3328,7 +3326,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={locationSearch} onChange={(e) => handleLocationSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={locationSearch} onChange={(e) => handleLocationSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={() => openEdit(orgData[0].id)} startContent={<Plus />} isDisabled={orgData.length < 0} />
             </DashboardToolbar>
@@ -3377,25 +3375,25 @@ const DashboardSlugPage = ({ parent, slug }) => {
             {isFormOpen && (
               <SubmitForm size="sm" formTitle="Tambah Data Lokasi" operation="add" fetching={isFormFetching} onSubmit={handleCreateLoc} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
-                  <Input id={`${pageid}-phone`} radius="full" labelText="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errorContent={errors.phone} isRequired />
-                  <Input id={`${pageid}-email`} radius="full" labelText="Email" placeholder="outlet@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errorContent={errors.email} isRequired />
+                  <Input id={`${pageid}-phone`} radius="full" label="Nomor Telepon" placeholder="0882xxx" type="tel" name="phone" value={inputData.phone} onChange={handleInputChange} errormsg={errors.phone} required />
+                  <Input id={`${pageid}-email`} radius="full" label="Email" placeholder="outlet@gmail.com" type="email" name="email" value={inputData.email} onChange={handleInputChange} errormsg={errors.email} required />
                 </Fieldset>
-                <Input id={`${pageid}-address`} radius="full" labelText="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errorContent={errors.address} isRequired />
+                <Input id={`${pageid}-address`} radius="full" label="Alamat" placeholder="123 Main Street" type="text" name="address" value={inputData.address} onChange={handleInputChange} errormsg={errors.address} required />
                 <Fieldset>
-                  <Input id={`${pageid}-cityname`} radius="full" labelText="Nama Kota" placeholder="Jakarta" type="text" name="city_name" value={inputData.city_name} onChange={handleInputChange} errorContent={errors.city_name} isRequired />
-                  <Input id={`${pageid}-postcode`} radius="full" labelText="Kode POS" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleInputChange} errorContent={errors.postcode} isRequired />
+                  <Input id={`${pageid}-cityname`} radius="full" label="Nama Kota" placeholder="Jakarta" type="text" name="city_name" value={inputData.city_name} onChange={handleInputChange} errormsg={errors.city_name} required />
+                  <Input id={`${pageid}-postcode`} radius="full" label="Kode POS" placeholder="40282" type="number" name="postcode" value={inputData.postcode} onChange={handleInputChange} errormsg={errors.postcode} required />
                 </Fieldset>
                 {/* <Fieldset>
-                  <Input id={`${pageid}-province`} variant="select" isSearchable radius="full" labelText="Province ID" placeholder="Pilih Provinsi" name="province" value={inputData.province} options={provinceData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "province", value: selectedValue } })} errorContent={errors.province} isRequired />
-                  <Input id={`${pageid}-city`} variant="select" isSearchable radius="full" labelText="City ID" placeholder="Pilih Kota" name="city" value={inputData.city} options={cityData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "city", value: selectedValue } })} errorContent={errors.city} isRequired isDisabled={!inputData.province} />
+                  <Select id={`${pageid}-province`}  searchable radius="full" label="Province ID" placeholder="Pilih Provinsi" name="province" value={inputData.province} options={provinceData.map((item) => ({ value: item.id, label: item.name }))} onChange={(selectedValue) => handleInputChange({ target: { name: "province", value: selectedValue } })} errormsg={errors.province} required />
+                  <Select id={`${pageid}-city`}  searchable radius="full" label="City ID" placeholder="Pilih Kota" name="city" value={inputData.city} options={cityData.map((item) => ({ value: item.id, label: item.name }))} onChange={(selectedValue) => handleInputChange({ target: { name: "city", value: selectedValue } })} errormsg={errors.city} required disabled={!inputData.province} />
                 </Fieldset>
                 <Fieldset>
-                  <Input id={`${pageid}-district`} variant="select" isSearchable radius="full" labelText="District ID" placeholder="Pilih Kecamatan" name="district" value={inputData.district} options={districtData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "district", value: selectedValue } })} errorContent={errors.district} isRequired isDisabled={!inputData.city} />
-                  <Input id={`${pageid}-village`} variant="select" isSearchable radius="full" labelText="Village ID" placeholder="Pilih Kelurahan" name="village" value={inputData.village} options={villageData.map((item) => ({ value: item.id, label: item.name }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "village", value: selectedValue } })} errorContent={errors.village} isRequired isDisabled={!inputData.district} />
+                  <Select id={`${pageid}-district`}  searchable radius="full" label="District ID" placeholder="Pilih Kecamatan" name="district" value={inputData.district} options={districtData.map((item) => ({ value: item.id, label: item.name }))} onChange={(selectedValue) => handleInputChange({ target: { name: "district", value: selectedValue } })} errormsg={errors.district} required disabled={!inputData.city} />
+                  <Select id={`${pageid}-village`}  searchable radius="full" label="Village ID" placeholder="Pilih Kelurahan" name="village" value={inputData.village} options={villageData.map((item) => ({ value: item.id, label: item.name }))} onChange={(selectedValue) => handleInputChange({ target: { name: "village", value: selectedValue } })} errormsg={errors.village} required disabled={!inputData.district} />
                 </Fieldset> */}
                 <Fieldset>
-                  <Input id={`${pageid}-rt`} radius="full" labelText="RT" placeholder="005" type="number" name="rt" value={inputData.rt} onChange={handleInputChange} errorContent={errors.rt} isRequired />
-                  <Input id={`${pageid}-rw`} radius="full" labelText="RW" placeholder="006" type="number" name="rw" value={inputData.rw} onChange={handleInputChange} errorContent={errors.rw} isRequired />
+                  <Input id={`${pageid}-rt`} radius="full" label="RT" placeholder="005" type="number" name="rt" value={inputData.rt} onChange={handleInputChange} errormsg={errors.rt} required />
+                  <Input id={`${pageid}-rw`} radius="full" label="RW" placeholder="006" type="number" name="rw" value={inputData.rw} onChange={handleInputChange} errormsg={errors.rw} required />
                 </Fieldset>
               </SubmitForm>
             )}
@@ -3407,7 +3405,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={credSearch} onChange={(e) => handleCredSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={credSearch} onChange={(e) => handleCredSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />
             </DashboardToolbar>
@@ -3443,9 +3441,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
             </DashboardBody>
             {isFormOpen && (
               <SubmitForm size="sm" formTitle={selectedMode === "update" ? "Perbarui Data Kredensial" : "Tambah Data Kredensial"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudcredential", "satusehat")} loading={isSubmitting} onClose={closeForm}>
-                <Input id={`${pageid}-outlet`} variant="select" isSearchable radius="full" labelText="Cabang" placeholder="Pilih cabang" name="outlet" value={inputData.outlet} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onSelect={(selectedValue) => handleInputChange({ target: { name: "outlet", value: selectedValue } })} errorContent={errors.outlet} isRequired />
-                <Input id={`${pageid}-client-id`} radius="full" labelText="Client ID" placeholder="Masukkan client ID" type="text" name="client_id" value={inputData.client_id} onChange={handleInputChange} errorContent={errors.client_id} isRequired />
-                <Input id={`${pageid}-secret-id`} radius="full" labelText="Secret ID" placeholder="Masukkan secret ID" type="text" name="secret_id" value={inputData.secret_id} onChange={handleInputChange} errorContent={errors.secret_id} isRequired />
+                <Select id={`${pageid}-outlet`} searchable radius="full" label="Cabang" placeholder="Pilih cabang" name="outlet" value={inputData.outlet} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={(selectedValue) => handleInputChange({ target: { name: "outlet", value: selectedValue } })} errormsg={errors.outlet} required />
+                <Input id={`${pageid}-client-id`} radius="full" label="Client ID" placeholder="Masukkan client ID" type="text" name="client_id" value={inputData.client_id} onChange={handleInputChange} errormsg={errors.client_id} required />
+                <Input id={`${pageid}-secret-id`} radius="full" label="Secret ID" placeholder="Masukkan secret ID" type="text" name="secret_id" value={inputData.secret_id} onChange={handleInputChange} errormsg={errors.secret_id} required />
               </SubmitForm>
             )}
           </Fragment>
@@ -3492,10 +3490,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" isLabeled={false} placeholder="Cari data ..." type="text" value={patientSearch} onChange={(e) => handlePatientSearch(e.target.value)} startContent={<Search />} />
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={patientSearch} onChange={(e) => handlePatientSearch(e.target.value)} leadingicon={<Search />} />
               </DashboardTool>
               <DashboardTool>
-                <Input id={`limit-data-${pageid}`} isLabeled={false} variant="select" noEmptyValue radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onSelect={handleLimitChange} isReadonly={!isPatientShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isPatientShown} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
@@ -3544,10 +3542,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
                         <Fragment>
                           {data["detail"].map((subdata, idx) => (
                             <Fieldset key={idx} type="row" markers={`${idx + 1}.`}>
-                              <Input id={`${pageid}-date-${index}-${idx}`} radius="full" labelText="Tanggal Dibuat" value={subdata.transactiondetailcreate === "0000-00-00 00:00:00" ? "" : newDate(subdata.transactiondetailcreate, "id")} isReadonly />
-                              <Input id={`${pageid}-service-${index}-${idx}`} radius="full" labelText="Layanan" value={subdata.service} isReadonly />
-                              <Input id={`${pageid}-service-type-${index}-${idx}`} radius="full" labelText="Jenis Layanan" value={subdata.servicetype} isReadonly />
-                              <Input id={`${pageid}-price-${index}-${idx}`} radius="full" labelText="Harga" value={newPrice(subdata.price)} isReadonly />
+                              <Input id={`${pageid}-date-${index}-${idx}`} radius="full" label="Tanggal Dibuat" value={subdata.transactiondetailcreate === "0000-00-00 00:00:00" ? "" : newDate(subdata.transactiondetailcreate, "id")} readonly />
+                              <Input id={`${pageid}-service-${index}-${idx}`} radius="full" label="Layanan" value={subdata.service} readonly />
+                              <Input id={`${pageid}-service-type-${index}-${idx}`} radius="full" label="Jenis Layanan" value={subdata.servicetype} readonly />
+                              <Input id={`${pageid}-price-${index}-${idx}`} radius="full" label="Harga" value={newPrice(subdata.price)} readonly />
                             </Fieldset>
                           ))}
                         </Fragment>
@@ -3568,7 +3566,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 </TBody>
               </Table>
             </DashboardBody>
-            {isPatientShown && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />}
+            {isPatientShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
           </Fragment>
         );
       default:

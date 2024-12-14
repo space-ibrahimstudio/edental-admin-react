@@ -21,7 +21,7 @@ export const OdontoCondition = ({ children }) => {
     <aside className={styles.odontoCondition}>
       <OdontoHead text="Kondisi" />
       <section className={styles.conditionSearch}>
-        <Input id="search-data" radius="full" isLabeled={false} placeholder="Cari kondisi ..." type="text" startContent={<Search />} />
+        <Input id="search-data" radius="full" labeled={false} placeholder="Cari kondisi ..." type="text" leadingicon={<Search />} />
       </section>
       <section className={styles.conditionUl}>{children}</section>
     </aside>

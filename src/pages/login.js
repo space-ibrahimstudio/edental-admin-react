@@ -53,8 +53,8 @@ const LoginPage = () => {
             <p className={styles.formDesc}>Masukkan Username dan Password untuk mengakses Dashboard.</p>
           </header>
           <div className={styles.formHead}>
-            <Input id="login-username" isLabeled={false} placeholder="e.g. edental_admin" type="text" name="username" value={inputData.username} onChange={handleChange} errorContent={errors.username} isRequired />
-            <Input id="login-password" isLabeled={false} placeholder="Masukkan kata sandi" type="password" name="password" value={inputData.password} onChange={handleChange} errorContent={errors.password} isRequired />
+            <Input id="login-username" labeled={false} placeholder="e.g. edental_admin" type="text" name="username" value={inputData.username} onChange={handleChange} errormsg={errors.username} required />
+            <Input id="login-password" labeled={false} placeholder="Masukkan kata sandi" type="password" name="password" value={inputData.password} onChange={handleChange} errormsg={errors.password} required />
           </div>
           <footer className={styles.formFoot}>
             <Button id="submit-login" isFullwidth type="submit" buttonText="Masuk ke Dashboard" startContent={<Login />} loadingContent={<LoadingContent />} isLoading={isLoading} />
