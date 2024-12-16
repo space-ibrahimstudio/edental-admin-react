@@ -1221,14 +1221,11 @@ const DashboardSlugPage = ({ parent, slug }) => {
     }
   };
 
-  const { searchTerm: custSearch, handleSearch: handleCustSearch, filteredData: filteredCustData, isDataShown: isCustShown } = useSearch(custData, ["username", "userphone"]);
   const { searchTerm: serviceSearch, handleSearch: handleServiceSearch, filteredData: filteredservicedata, isDataShown: isServiceShown } = useSearch(servicedata, ["Nama Layanan.servicename"]);
   const { searchTerm: branchSearch, handleSearch: handleBranchSearch, filteredData: filteredBranchData, isDataShown: isBranchShown } = useSearch(branchData, ["outlet_name", "mainregion", "outlet_region", "cctr_group", "cctr"]);
   const { searchTerm: dentistSearch, handleSearch: handleDentistSearch, filteredData: filteredDentistData, isDataShown: isDentistShown } = useSearch(dentistData, ["name_dentist", "id_branch"]);
-  const { searchTerm: stockSearch, handleSearch: handleStockSearch, filteredData: filteredStockData, isDataShown: isStockShown } = useSearch(stockData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
   const { searchTerm: stockOutSearch, handleSearch: handleStockOutSearch, filteredData: filteredStockOutData, isDataShown: isStockOutShown } = useSearch(stockOutData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
   const { searchTerm: stockExpSearch, handleSearch: handleStockExpSearch, filteredData: filteredStockExpData, isDataShown: isStockExpShown } = useSearch(stockExpData, ["categorystock", "subcategorystock", "sku", "itemname", "outletname"]);
-  const { searchTerm: inPOSearch, handleSearch: handleInPOSearch, filteredData: filteredInPOData, isDataShown: isInPOShown } = useSearch(inPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: centralPOSearch, handleSearch: handleCentralPOSearch, filteredData: filteredCentralPOData, isDataShown: isCentralPOShown } = useSearch(centralPOData, ["PO Stock.outletname", "PO Stock.postockcode"]);
   const { searchTerm: userSearch, handleSearch: handleUserSearch, filteredData: filteredUserData, isDataShown: isUserShown } = useSearch(userData, ["username", "cctr", "outlet_name"]);
   const { searchTerm: diagnoseSearch, handleSearch: handleDiagnoseSearch, filteredData: filteredDiagnoseData, isDataShown: isDiagnoseShown } = useSearch(diagnoseData, ["code.diagnosiscode"]);
@@ -1238,7 +1235,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: orgSearch, handleSearch: handleOrgSearch, filteredData: filteredOrgData, isDataShown: isOrgShown } = useSearch(orgData, ["email"]);
   const { searchTerm: locationSearch, handleSearch: handleLocationSearch, filteredData: filteredLocationData, isDataShown: isLocationShown } = useSearch(locationData, ["cityname"]);
   const { searchTerm: patientSearch, handleSearch: handlePatientSearch, filteredData: filteredPatientData, isDataShown: isPatientShown } = useSearch(patientData, ["transaction.dentist"]);
-  const { searchTerm: xenditSearch, handleSearch: handleXenditSearch, filteredData: filteredXenditData, isDataShown: isXenditShown } = useSearch(invoiceData, ["external_id", "account_number", "bank_code", "expected_amount", "expiration_date"]);
   const { searchTerm: credSearch, handleSearch: handleCredSearch, filteredData: filteredCredData, isDataShown: isCredShown } = useSearch(credData, ["outlet_name", "clientid", "secretid"]);
 
   const renderContent = () => {
@@ -1249,16 +1245,19 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Customer yang memiliki riwayat Reservasi. Data ini dibuat otomatis saat proses reservasi dilakukan." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={custSearch} onChange={(e) => handleCustSearch(e.target.value)} leadingicon={<Search />} />
+                <div style={{ display: "flex", flexDirection: "row", gap: "var(--pixel-5)" }}>
+                  <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" name="inspect-data" value={searchTerm} onChange={handleSearch} />
+                  <Button subVariant="icon" radius="full" iconContent={<Search />} onClick={fetchSearchData} />
+                </div>
                 {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isCustShown} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredCustData, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)} isDisabled={!isCustShown} startContent={<Export />} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={searchTerm !== ""} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(searchTerm === "" ? custData : searchResult, "Daftar Customer", `daftar_customer_${getCurrentDate()}`)} isDisabled={searchTerm === "" ? (custData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber page={currentPage} limit={limit} isNoData={!isCustShown} isLoading={isFetching}>
+              <Table byNumber page={searchResult.length > 0 ? undefined : currentPage} limit={searchResult.length > 0 ? undefined : limit} isNoData={searchTerm === "" ? (custData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(custData, setCustData, "usercreate", "date")}>
@@ -1279,21 +1278,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {filteredCustData.map((data, index) => (
+                  {(searchTerm !== "" ? searchResult : custData).map((data, index) => (
                     <TR key={index}>
-                      <TD>{newDate(data.usercreate, "id")}</TD>
-                      <TD>{toTitleCase(data.username)}</TD>
-                      <TD>{data.useremail}</TD>
+                      <TD>{data.usercreate && newDate(data.usercreate, "id")}</TD>
+                      <TD>{data.username && toTitleCase(data.username)}</TD>
+                      <TD>{data.useremail && data.useremail}</TD>
                       <TD type="number" isCopy>
-                        {data.userphone}
+                        {data.userphone && data.userphone}
                       </TD>
-                      <TD>{toTitleCase(data.address)}</TD>
+                      <TD>{data.address && toTitleCase(data.address)}</TD>
                     </TR>
                   ))}
                 </TBody>
               </Table>
             </DashboardBody>
-            {isCustShown > 0 && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
+            {searchTerm === "" && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
           </Fragment>
         );
       case "MANAJEMEN USER":
@@ -2074,17 +2073,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Data Stok berdasarkan kategori. Klik baris data untuk melihat masing-masing detail histori stok." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={stockSearch} onChange={(e) => handleStockSearch(e.target.value)} leadingicon={<Search />} />
+                <div style={{ display: "flex", flexDirection: "row", gap: "var(--pixel-5)" }}>
+                  <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" name="inspect-data" value={searchTerm} onChange={handleSearch} />
+                  <Button subVariant="icon" radius="full" iconContent={<Search />} onClick={fetchSearchData} />
+                </div>
                 {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isStockShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={searchTerm !== ""} />
                 {level === "admin" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />}
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredStockData, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={!isStockShown} startContent={<Export />} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(searchTerm === "" ? stockData : searchResult, "Daftar Stok", `daftar_stok_${getCurrentDate()}`)} isDisabled={searchTerm === "" ? (stockData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber isClickable page={currentPage} limit={limit} isNoData={!isStockShown} isLoading={isFetching}>
+              <Table byNumber isClickable page={searchResult.length > 0 ? undefined : currentPage} limit={searchResult.length > 0 ? undefined : limit} isNoData={searchTerm === "" ? (stockData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(stockData, setStockData, "stockcreate", "date")}>
@@ -2126,30 +2128,30 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {filteredStockData.map((data, index) => (
+                  {(searchTerm !== "" ? searchResult : stockData).map((data, index) => (
                     <TR key={index} onClick={() => openDetail(data.itemname)}>
-                      <TD>{newDate(data.stockcreate, "id")}</TD>
-                      <TD>{toTitleCase(data.categorystock)}</TD>
-                      <TD>{toTitleCase(data.subcategorystock)}</TD>
-                      <TD type="code">{data.sku}</TD>
-                      <TD>{toTitleCase(data.itemname)}</TD>
-                      <TD type="number">{data.lastqty}</TD>
-                      <TD>{data.unit}</TD>
+                      <TD>{data.stockcreate && newDate(data.stockcreate, "id")}</TD>
+                      <TD>{data.categorystock && toTitleCase(data.categorystock)}</TD>
+                      <TD>{data.subcategorystock && toTitleCase(data.subcategorystock)}</TD>
+                      <TD type="code">{data.sku && data.sku}</TD>
+                      <TD>{data.itemname && toTitleCase(data.itemname)}</TD>
+                      <TD type="number">{data.lastqty && data.lastqty}</TD>
+                      <TD>{data.unit && data.unit}</TD>
                       <Fragment>
                         {level === "admin" && (
                           <Fragment>
-                            <TD>{newPrice(data.value)}</TD>
-                            <TD>{newPrice(data.totalvalue)}</TD>
+                            <TD>{data.value && newPrice(data.value)}</TD>
+                            <TD>{data.totalvalue && newPrice(data.totalvalue)}</TD>
                           </Fragment>
                         )}
                       </Fragment>
-                      <TD>{toTitleCase(data.outletname)}</TD>
+                      <TD>{data.outletname && toTitleCase(data.outletname)}</TD>
                     </TR>
                   ))}
                 </TBody>
               </Table>
             </DashboardBody>
-            {isStockShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
+            {searchTerm === "" && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm formTitle={selectedMode === "update" ? "Perbarui Data Stok" : "Tambah Data Stok"} operation={selectedMode} fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "cudstock")} loading={isSubmitting} onClose={closeForm}>
                 <Fieldset>
@@ -2278,15 +2280,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar permintaan PO item dari semua cabang. Filter status PO melalui tombol tab, atau klik ikon pada kolom Action untuk memperbarui status PO." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={inPOSearch} onChange={(e) => handleInPOSearch(e.target.value)} leadingicon={<Search />} />
+                <div style={{ display: "flex", flexDirection: "row", gap: "var(--pixel-5)" }}>
+                  <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" name="inspect-data" value={searchTerm} onChange={handleSearch} />
+                  <Button subVariant="icon" radius="full" iconContent={<Search />} onClick={fetchSearchData} />
+                </div>
               </DashboardTool>
               <DashboardTool>
-                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isInPOShown} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={searchTerm !== ""} />
               </DashboardTool>
             </DashboardToolbar>
             <TabGroup buttons={postatus} />
             <DashboardBody>
-              <Table byNumber isExpandable isXlsxble isEditable isDeletable page={currentPage} limit={limit} isNoData={!isInPOShown} isLoading={isFetching}>
+              <Table byNumber isExpandable isXlsxble isEditable isDeletable page={searchResult.length > 0 ? undefined : currentPage} limit={searchResult.length > 0 ? undefined : limit} isNoData={searchTerm === "" ? (inPOData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(inPOData, setInPOData, "PO Stock.postockcreate", "date")}>
@@ -2307,7 +2312,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {filteredInPOData.map((data, index) => (
+                  {(searchTerm !== "" ? searchResult : inPOData).map((data, index) => (
                     <TR
                       key={index}
                       expandContent={
@@ -2325,17 +2330,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
                       onEdit={() => openEdit(data["PO Stock"].idpostock)}
                       onDelete={() => {}}
                       onXlsx={() => exportPOReport(data)}>
-                      <TD>{newDate(data["PO Stock"].postockcreate, "id")}</TD>
-                      <TD type="code">{data["PO Stock"].postockcode}</TD>
-                      <TD>{toTitleCase(data["PO Stock"].username)}</TD>
-                      <TD>{toTitleCase(data["PO Stock"].outletname)}</TD>
-                      <TD>{poAlias(data["PO Stock"].statusstock)}</TD>
+                      <TD>{data["PO Stock"].postockcreate && newDate(data["PO Stock"].postockcreate, "id")}</TD>
+                      <TD type="code">{data["PO Stock"].postockcode && data["PO Stock"].postockcode}</TD>
+                      <TD>{data["PO Stock"].username && toTitleCase(data["PO Stock"].username)}</TD>
+                      <TD>{data["PO Stock"].outletname && toTitleCase(data["PO Stock"].outletname)}</TD>
+                      <TD>{data["PO Stock"].statusstock && poAlias(data["PO Stock"].statusstock)}</TD>
                     </TR>
                   ))}
                 </TBody>
               </Table>
             </DashboardBody>
-            {isInPOShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
+            {searchTerm === "" && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
             {isFormOpen && (
               <SubmitForm formTitle="Ubah Status PO" operation="update" fetching={isFormFetching} onSubmit={(e) => handleSubmit(e, "editstockpo")} loading={isSubmitting} onClose={closeForm}>
                 <Select id={`${pageid}-po-status`} noemptyval radius="full" label="Status PO" placeholder="Set status" name="status" value={inputData.status} options={postatopt} onChange={(selectedValue) => handleInputChange({ target: { name: "status", value: selectedValue } })} />
@@ -2598,7 +2603,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     </THead>
                     <TBody>
                       {medicRcdData.map((data, index) => (
-                        <TR key={index} onEdit={() => navigate(`${pagepath}/${data.idmedicalrecords}`)} onDelete={() => handleRMDelete(data.idmedicalrecords)}>
+                        <TR key={index} onEdit={() => navigate(`${pagepath}/${data.idmedicalrecords}-${data.idauthuser}`)} onDelete={() => handleRMDelete(data.idmedicalrecords)}>
                           <TD>{newDate(data.datemedical, "id")}</TD>
                           <TD type="code">{data.rscode}</TD>
                           <TD>{`${data.ageyear} tahun, ${data.agemonth} bulan, ${data.ageday} hari`}</TD>
@@ -2662,16 +2667,19 @@ const DashboardSlugPage = ({ parent, slug }) => {
             <DashboardHead title={pagetitle} desc="Daftar Customer yang memiliki riwayat Reservasi. Data ini dibuat otomatis saat proses reservasi dilakukan." />
             <DashboardToolbar>
               <DashboardTool>
-                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={xenditSearch} onChange={(e) => handleXenditSearch(e.target.value)} leadingicon={<Search />} />
+                <div style={{ display: "flex", flexDirection: "row", gap: "var(--pixel-5)" }}>
+                  <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" name="inspect-data" value={searchTerm} onChange={handleSearch} />
+                  <Button subVariant="icon" radius="full" iconContent={<Search />} onClick={fetchSearchData} />
+                </div>
                 {level === "admin" && <Select id={`${pageid}-outlet`} labeled={false} searchable radius="full" placeholder="Pilih Cabang" value={selectedBranch} options={allBranchData.map((branch) => ({ value: branch.idoutlet, label: branch.outlet_name.replace("E DENTAL - DOKTER GIGI", "CABANG") }))} onChange={handleBranchChange} />}
               </DashboardTool>
               <DashboardTool>
-                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isXenditShown} />
-                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(filteredXenditData, "Daftar Invoice", `daftar_invoice_${getCurrentDate()}`)} isDisabled={!isXenditShown} startContent={<Export />} />
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={searchTerm !== ""} />
+                <Button id={`export-data-${pageid}`} radius="full" bgColor="var(--color-green)" buttonText="Export" onClick={() => exportToExcel(searchTerm === "" ? invoiceData : searchResult, "Daftar Invoice", `daftar_invoice_${getCurrentDate()}`)} isDisabled={searchTerm === "" ? (invoiceData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} startContent={<Export />} />
               </DashboardTool>
             </DashboardToolbar>
             <DashboardBody>
-              <Table byNumber page={currentPage} limit={limit} isNoData={!isXenditShown} isLoading={isFetching}>
+              <Table byNumber page={searchResult.length > 0 ? undefined : currentPage} limit={searchResult.length > 0 ? undefined : limit} isNoData={searchTerm === "" ? (invoiceData.length > 0 ? false : true) : searchResult.length > 0 ? false : true} isLoading={isFetching}>
                 <THead>
                   <TR>
                     <TH isSorted onSort={() => handleSort(invoiceData, setInvoiceData, "xenditcreate", "date")}>
@@ -2698,21 +2706,21 @@ const DashboardSlugPage = ({ parent, slug }) => {
                   </TR>
                 </THead>
                 <TBody>
-                  {filteredXenditData.map((data, index) => (
+                  {(searchTerm !== "" ? searchResult : invoiceData).map((data, index) => (
                     <TR key={index}>
                       <TD>{data.xenditcreate && newDate(data.xenditcreate, "id")}</TD>
                       <TD>{data.outlet_name && data.outlet_name}</TD>
                       <TD type="code">{data.external_id && data.external_id}</TD>
                       <TD type="code">{data.account_number && data.account_number}</TD>
                       <TD type="link">{data.bank_code && data.bank_code}</TD>
-                      <TD>{newPrice(data.expected_amount && data.expected_amount)}</TD>
-                      <TD>{newDate(data.expiration_date && data.expiration_date, "id")}</TD>
+                      <TD>{data.expected_amount && newPrice(data.expected_amount)}</TD>
+                      <TD>{data.expiration_date && newDate(data.expiration_date, "id")}</TD>
                     </TR>
                   ))}
                 </TBody>
               </Table>
             </DashboardBody>
-            {isXenditShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
+            {searchTerm === "" && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
           </Fragment>
         );
       case "RESERVATION":
@@ -2787,23 +2795,23 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 <TBody>
                   {(searchTerm !== "" ? searchResult : reservData).map((data, index) => (
                     <TR key={index} onEdit={data.status_reservation === "0" ? () => openEdit(data.idreservation) : () => showNotifications("danger", "Reservasi dengan status yang telah selesai, reschedule atau dibatalkan tidak dapat diperbarui.")} isComplete={data.status_reservation === "1"} isWarning={data.status_reservation === "2"} isDanger={data.status_reservation === "3"}>
-                      <TD>{paymentAlias(data.status_dp)}</TD>
-                      <TD>{data.reservationdate}</TD>
-                      <TD>{data.reservationtime}</TD>
-                      <TD type="code">{data.rscode}</TD>
-                      <TD>{toTitleCase(data.name)}</TD>
+                      <TD>{data.status_dp && paymentAlias(data.status_dp)}</TD>
+                      <TD>{data.reservationdate && data.reservationdate}</TD>
+                      <TD>{data.reservationtime && data.reservationtime}</TD>
+                      <TD type="code">{data.rscode && data.rscode}</TD>
+                      <TD>{data.name && toTitleCase(data.name)}</TD>
                       <TD type="number" isCopy>
-                        {data.phone}
+                        {data.phone && data.phone}
                       </TD>
-                      <TD>{data.email}</TD>
-                      <TD>{reservAlias(data.status_reservation)}</TD>
-                      <TD>{toTitleCase(data.service)}</TD>
-                      <TD>{toTitleCase(data.typeservice)}</TD>
-                      <TD>{newPrice(data.price_reservation)}</TD>
-                      <TD type="code">{data.voucher}</TD>
-                      <TD>{toTitleCase(data.outlet_name)}</TD>
-                      <TD>{data.note}</TD>
-                      <TD>{newDate(data.datetimecreate, "id")}</TD>
+                      <TD>{data.email && data.email}</TD>
+                      <TD>{data.status_reservation && reservAlias(data.status_reservation)}</TD>
+                      <TD>{data.service && toTitleCase(data.service)}</TD>
+                      <TD>{data.typeservice && toTitleCase(data.typeservice)}</TD>
+                      <TD>{data.price_reservation && newPrice(data.price_reservation)}</TD>
+                      <TD type="code">{data.voucher && data.voucher}</TD>
+                      <TD>{data.outlet_name && toTitleCase(data.outlet_name)}</TD>
+                      <TD>{data.note && data.note}</TD>
+                      <TD>{data.datetimecreate && newDate(data.datetimecreate, "id")}</TD>
                     </TR>
                   ))}
                 </TBody>
@@ -3701,6 +3709,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setSelectedBranch(idoutlet);
     setSelectedCust(null);
     setOnpageData({ ...inputSchema });
+    setSearchTerm("");
+    setSearchResult([]);
     handleABranchChange(idoutlet);
   }, [slug]);
 

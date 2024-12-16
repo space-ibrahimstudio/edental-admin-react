@@ -83,6 +83,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const [selectedCondition, setSelectedCondition] = useState(null);
   const [conditionData, setConditionData] = useState([]);
   const [userConditionData, setUserConditionData] = useState(null);
+  const [medicRecordId, medicUserId] = params.split("-");
   const [odontoHistoryData, setOdontoHistoryData] = useState([]);
   const [selectedToothNo, setSelectedToothNo] = useState(null);
 
@@ -257,11 +258,11 @@ const DashboardParamsPage = ({ parent, slug }) => {
           }
           break;
         case "REKAM MEDIS":
-          setPageTitle(`Rekam Medis #${params}`);
+          setPageTitle(`Rekam Medis #${medicRecordId}`);
           let selecteddata;
           switch (tabId) {
             case "1":
-              formData.append("data", JSON.stringify({ secret, iduser: params }));
+              formData.append("data", JSON.stringify({ secret, iduser: medicRecordId }));
               switch (subTabId) {
                 case "1":
                   data = await apiRead(formData, "office", "viewanamnesa");
@@ -323,15 +324,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
             case "2":
               switch (subTabId) {
                 case "1":
-                  let idauthuser;
-                  const odhFormData = new FormData();
-                  odhFormData.append("data", JSON.stringify({ secret, idmedics: params }));
-                  const odh = await apiRead(odhFormData, "office", "viewhistoryorder");
-                  if (odh && odh.data && odh.data.length > 0) {
-                    const odhdata = odh.data[0];
-                    idauthuser = odhdata.idauthuser;
-                  }
-                  formData.append("data", JSON.stringify({ secret, iduser: idauthuser }));
+                  formData.append("data", JSON.stringify({ secret, iduser: medicUserId }));
                   data = await apiRead(formData, "office", "viewtoothuser2");
                   if (data && data.data && data.data.length > 0) {
                     const conditiondata = data.data[0]["condition"][0];
@@ -353,7 +346,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                   }
                   break;
                 case "2":
-                  formData.append("data", JSON.stringify({ secret, iduser: params }));
+                  formData.append("data", JSON.stringify({ secret, iduser: medicRecordId }));
                   data = await apiRead(formData, "office", "viewdiagnosisuser");
                   if (data && data.data && data.data.length > 0) {
                     selecteddata = data.data[0];
@@ -370,7 +363,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                   break;
                 case "3":
                   const odFormData = new FormData();
-                  addtFormData.append("data", JSON.stringify({ secret, idmedics: params }));
+                  addtFormData.append("data", JSON.stringify({ secret, idmedics: medicRecordId }));
                   data = await apiRead(addtFormData, "office", "viewhistoryorder");
                   if (data && data.data && data.data.length > 0) {
                     selecteddata = data.data[0];
@@ -399,7 +392,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                   }
                   break;
                 case "4":
-                  formData.append("data", JSON.stringify({ secret, iduser: params }));
+                  formData.append("data", JSON.stringify({ secret, iduser: medicRecordId }));
                   data = await apiRead(formData, "office", "viewstockoutdetail");
                   if (data && data.data && data.data.length > 0) {
                     selecteddata = data.data;
@@ -413,7 +406,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
                   }
                   break;
                 case "5":
-                  addtFormData.append("data", JSON.stringify({ secret, idmedics: params }));
+                  addtFormData.append("data", JSON.stringify({ secret, idmedics: medicRecordId }));
                   data = await apiRead(addtFormData, "office", "viewlab");
                   if (data && data.data && data.data.length > 0) {
                     selecteddata = data.data[0];
@@ -433,7 +426,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
               }
               break;
             case "3":
-              formData.append("data", JSON.stringify({ secret, iduser: params }));
+              formData.append("data", JSON.stringify({ secret, iduser: medicRecordId }));
               data = await apiRead(formData, "office", "viewrecipe");
               if (data && data.data && data.data.length > 0) {
                 selecteddata = data.data[0];
@@ -1267,7 +1260,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
 
         return (
           <Fragment>
-            <DashboardHead title={`Rekam Medis #${params}`} desc="Panel untuk memperbarui profil data dan menambah histori catatan medis pasien." />
+            <DashboardHead title={`Rekam Medis #${medicRecordId}`} desc="Panel untuk memperbarui profil data dan menambah histori catatan medis pasien." />
             <DashboardToolbar>
               <Button id={`${pageid}-back-previous-page`} buttonText="Kembali" radius="full" onClick={goBack} startContent={<Arrow direction="left" />} />
               {tabId === "1" && subTabId === "4" && <Button id={`add-new-data-${pageid}`} radius="full" buttonText="Tambah" onClick={openForm} startContent={<Plus />} />}
