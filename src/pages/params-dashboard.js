@@ -108,11 +108,8 @@ const DashboardParamsPage = ({ parent, slug }) => {
 
   const handleAddRow = (field) => {
     let newitems = {};
-    if (field === "alkesitem") {
-      newitems = { idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" };
-    } else if (field === "order") {
-      newitems = { service: "", servicetype: "", price: "" };
-    }
+    if (field === "alkesitem") newitems = { idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" };
+    else if (field === "order") newitems = { service: "", servicetype: "", price: "" };
     const updatedvalues = [...inputData[field], newitems];
     const updatederrors = errors[field] ? [...errors[field], newitems] : [{}];
     setInputData({ ...inputData, [field]: updatedvalues });
@@ -143,15 +140,10 @@ const DashboardParamsPage = ({ parent, slug }) => {
     setInputData((prevState) => ({ ...prevState, [name]: value }));
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     if (name === "typepayment") {
-      if (value === "cash") {
-        setInputData((prevState) => ({ ...prevState, bank_code: "CASH" }));
-      } else if (value === "indodana") {
-        setInputData((prevState) => ({ ...prevState, bank_code: "INDODANA" }));
-      } else if (value === "rata") {
-        setInputData((prevState) => ({ ...prevState, bank_code: "RATA" }));
-      } else {
-        setInputData((prevState) => ({ ...prevState, bank_code: "", status: "0" }));
-      }
+      if (value === "cash") setInputData((prevState) => ({ ...prevState, bank_code: "CASH" }));
+      else if (value === "indodana") setInputData((prevState) => ({ ...prevState, bank_code: "INDODANA" }));
+      else if (value === "rata") setInputData((prevState) => ({ ...prevState, bank_code: "RATA" }));
+      else setInputData((prevState) => ({ ...prevState, bank_code: "", status: "0" }));
     }
   };
 
@@ -165,9 +157,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
       const serviceData = allservicedata.find((service) => service["Nama Layanan"].servicename === selectedService);
       if (serviceData) {
         const selectedType = serviceData["Jenis Layanan"].find((type) => type.servicetypename === value);
-        if (selectedType) {
-          updatedvalues[index].price = selectedType.serviceprice || "";
-        }
+        if (selectedType) updatedvalues[index].price = selectedType.serviceprice || "";
       }
     }
     if (field === "alkesitem" && name === "itemname") {
@@ -178,11 +168,8 @@ const DashboardParamsPage = ({ parent, slug }) => {
         updatedvalues[index].unit = selectedItem.unit || "";
       }
     }
-    if (!updatederrors[index]) {
-      updatederrors[index] = {};
-    } else {
-      updatederrors[index] = { ...updatederrors[index], [name]: "" };
-    }
+    if (!updatederrors[index]) updatederrors[index] = {};
+    else updatederrors[index] = { ...updatederrors[index], [name]: "" };
     setInputData({ ...inputData, [field]: updatedvalues });
     setErrors({ ...errors, [field]: updatederrors });
   };
@@ -192,15 +179,10 @@ const DashboardParamsPage = ({ parent, slug }) => {
     const compare = (a, b) => {
       const valueA = getNestedValue(a, params);
       const valueB = getNestedValue(b, params);
-      if (type === "date") {
-        return new Date(valueA) - new Date(valueB);
-      } else if (type === "number") {
-        return valueA - valueB;
-      } else if (type === "text") {
-        return valueA.localeCompare(valueB);
-      } else {
-        return 0;
-      }
+      if (type === "date") return new Date(valueA) - new Date(valueB);
+      else if (type === "number") return valueA - valueB;
+      else if (type === "text") return valueA.localeCompare(valueB);
+      else return 0;
     };
     if (!sortOrder || sortOrder === "desc") {
       newData.sort(compare);
@@ -251,11 +233,8 @@ const DashboardParamsPage = ({ parent, slug }) => {
           }
           addtFormData.append("data", JSON.stringify({ secret }));
           addtdata = await apiRead(addtFormData, "office", "viewoutletall");
-          if (addtdata && addtdata.data && addtdata.data.length > 0) {
-            setAllBranchData(addtdata.data);
-          } else {
-            setAllBranchData([]);
-          }
+          if (addtdata && addtdata.data && addtdata.data.length > 0) setAllBranchData(addtdata.data);
+          else setAllBranchData([]);
           break;
         case "REKAM MEDIS":
           setPageTitle(`Rekam Medis #${medicRecordId}`);
@@ -311,11 +290,8 @@ const DashboardParamsPage = ({ parent, slug }) => {
                   break;
                 case "4":
                   data = await apiRead(formData, "office", "viewphoto");
-                  if (data && data.data && data.data.length > 0) {
-                    setPhotoMedic(data.data);
-                  } else {
-                    setPhotoMedic([]);
-                  }
+                  if (data && data.data && data.data.length > 0) setPhotoMedic(data.data);
+                  else setPhotoMedic([]);
                   break;
                 default:
                   break;
@@ -339,11 +315,8 @@ const DashboardParamsPage = ({ parent, slug }) => {
                   }
                   addtFormData.append("data", JSON.stringify({ secret }));
                   addtdata = await apiRead(addtFormData, "office", "viewtooth");
-                  if (addtdata && addtdata.data && addtdata.data.length > 0) {
-                    setConditionData(addtdata.data);
-                  } else {
-                    setConditionData([]);
-                  }
+                  if (addtdata && addtdata.data && addtdata.data.length > 0) setConditionData(addtdata.data);
+                  else setConditionData([]);
                   break;
                 case "2":
                   formData.append("data", JSON.stringify({ secret, iduser: medicRecordId }));
@@ -465,59 +438,35 @@ const DashboardParamsPage = ({ parent, slug }) => {
     setIsOptimizing(true);
     try {
       const servicedata = await apiRead(formData, "office", "searchservice");
-      if (servicedata && servicedata.data && servicedata.data.length > 0) {
-        setAllservicedata(servicedata.data);
-      } else {
-        setAllservicedata([]);
-      }
+      if (servicedata && servicedata.data && servicedata.data.length > 0) setAllservicedata(servicedata.data);
+      else setAllservicedata([]);
       const catstockdata = await apiRead(formData, "office", "searchcategorystock");
-      if (catstockdata && catstockdata.data && catstockdata.data.length > 0) {
-        setCategoryStockData(catstockdata.data);
-      } else {
-        setCategoryStockData([]);
-      }
+      if (catstockdata && catstockdata.data && catstockdata.data.length > 0) setCategoryStockData(catstockdata.data);
+      else setCategoryStockData([]);
       const fvadata = await apiRead(formData, "office", "viewlistva");
       const allfvadata = fvadata.data;
       const staticdata = [{ code: "INVOICE", country: "ID", currency: "IDR", is_activated: true, name: "Invoice Xendit" }];
       const mergedvadata = [...staticdata, ...allfvadata];
       const filteredfvadata = mergedvadata.filter((va) => va.is_activated === true);
-      if (filteredfvadata && filteredfvadata.length > 0) {
-        setFvaListData(filteredfvadata);
-      } else {
-        setFvaListData([]);
-      }
+      if (filteredfvadata && filteredfvadata.length > 0) setFvaListData(filteredfvadata);
+      else setFvaListData([]);
       addtFormData.append("data", JSON.stringify({ secret, kodeoutlet: cctr }));
       const dentistdata = await apiRead(addtFormData, "office", "viewdentistoutlet");
-      if (dentistdata && dentistdata.data && dentistdata.data.length > 0) {
-        setBranchDentistData(dentistdata.data);
-      } else {
-        setBranchDentistData([]);
-      }
+      if (dentistdata && dentistdata.data && dentistdata.data.length > 0) setBranchDentistData(dentistdata.data);
+      else setBranchDentistData([]);
       const branchdata = await apiRead(formData, "office", "viewoutletall");
-      if (branchdata && branchdata.data && branchdata.data.length > 0) {
-        setAllBranchData(branchdata.data);
-      } else {
-        setAllBranchData([]);
-      }
+      if (branchdata && branchdata.data && branchdata.data.length > 0) setAllBranchData(branchdata.data);
+      else setAllBranchData([]);
       const stockdata = await apiRead(formData, "office", "searchstock");
-      if (stockdata && stockdata.data && stockdata.data.length > 0) {
-        setAllStockData(stockdata.data);
-      } else {
-        setAllStockData([]);
-      }
+      if (stockdata && stockdata.data && stockdata.data.length > 0) setAllStockData(stockdata.data);
+      else setAllStockData([]);
       addtFormData.append("data", JSON.stringify({ secret, idmedics: params }));
       const rscodedata = await apiRead(addtFormData, "office", "searchrscode");
-      if (rscodedata && rscodedata.data && rscodedata.data.length > 0) {
-        setRscodeData(rscodedata.data);
-      } else {
-        setRscodeData([]);
-      }
+      if (rscodedata && rscodedata.data && rscodedata.data.length > 0) setRscodeData(rscodedata.data);
+      else setRscodeData([]);
       const diagdata = await apiRead(formData, "office", "viewdiagnosis");
-      if (diagdata && diagdata.data && diagdata.data.length > 0) {
-        setAllDiagnoseData(diagdata.data);
-      } else {
-        setAllDiagnoseData([]);
-      }
+      if (diagdata && diagdata.data && diagdata.data.length > 0) setAllDiagnoseData(diagdata.data);
+      else setAllDiagnoseData([]);
     } catch (error) {
       showNotifications("danger", errormsg);
       console.error(errormsg, error);
@@ -560,14 +509,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
                 break;
               case "3":
                 if (selectedMode === "update") {
-                  if (inputData.typepayment === "cashless" || inputData.typepayment === "insurance") {
-                    requiredFields = ["name", "phone", "dentist", "bank_code", "order.service", "order.servicetype", "order.price"];
-                  } else {
-                    requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
-                  }
-                } else {
-                  requiredFields = ["rscode"];
-                }
+                  if (inputData.typepayment === "cashless" || inputData.typepayment === "insurance") requiredFields = ["name", "phone", "dentist", "bank_code", "order.service", "order.servicetype", "order.price"];
+                  else requiredFields = ["name", "phone", "dentist", "order.service", "order.servicetype", "order.price"];
+                } else requiredFields = ["rscode"];
                 break;
               case "4":
                 requiredFields = ["alkesitem.categorystock", "alkesitem.subcategorystock", "alkesitem.itemname", "alkesitem.unit", "alkesitem.qty", "alkesitem.status"];
@@ -592,11 +536,8 @@ const DashboardParamsPage = ({ parent, slug }) => {
     }
     const validationErrors = inputValidator(inputData, requiredFields);
     if (Object.keys(validationErrors).length > 0) {
-      if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "1") {
-        showNotifications("danger", "Mohon isi semua nilai DMF dan DeF sebelum menyimpan.");
-      } else {
-        setErrors(validationErrors);
-      }
+      if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "1") showNotifications("danger", "Mohon isi semua nilai DMF dan DeF sebelum menyimpan.");
+      else setErrors(validationErrors);
       return;
     }
     const action = e.nativeEvent.submitter.getAttribute("data-action");
@@ -604,9 +545,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
     const successmsg = action === "update" ? `Selamat! Perubahan anda pada ${toTitleCase(slug)} berhasil disimpan.` : `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
     const errormsg = action === "update" ? "Terjadi kesalahan saat menyimpan perubahan. Mohon periksa koneksi internet anda dan coba lagi." : "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
     const confirm = window.confirm(confirmmsg);
-    if (!confirm) {
-      return;
-    }
+    if (!confirm) return;
     setIsSubmitting(true);
     try {
       let submittedData;
@@ -640,11 +579,8 @@ const DashboardParamsPage = ({ parent, slug }) => {
                   submittedData = { secret, type: inputData.diagnose, code: inputData.diagnosecode, detail: inputData.diagnosedetail, idmedics: params, note: inputData.note };
                   break;
                 case "3":
-                  if (selectedMode === "update") {
-                    submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
-                  } else {
-                    submittedData = { secret, idmedics: params, idreservation: inputData.rscode };
-                  }
+                  if (selectedMode === "update") submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
+                  else submittedData = { secret, idmedics: params, idreservation: inputData.rscode };
                   break;
                 case "4":
                   submittedData = { secret, idmedics: params, stock: inputData.alkesitem };
@@ -669,17 +605,12 @@ const DashboardParamsPage = ({ parent, slug }) => {
       const formData = new FormData();
       formData.append("data", JSON.stringify(submittedData));
       formData.append("fileimg", selectedImage);
-      if (action === "update") {
-        formData.append("idedit", selectedData);
-      }
+      if (action === "update") formData.append("idedit", selectedData);
       await apiCrud(formData, "office", endpoint);
       showNotifications("success", successmsg);
       log("submitted data:", submittedData);
-      if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "1") {
-        setOdontoHistoryData(odontoHistoryData.filter((item) => item["tooth"].idconditiontooth !== ""));
-      } else if (slug === "REKAM MEDIS" && tabId === "1" && subTabId === "4") {
-        closeForm();
-      }
+      if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "1") setOdontoHistoryData(odontoHistoryData.filter((item) => item["tooth"].idconditiontooth !== ""));
+      else if (slug === "REKAM MEDIS" && tabId === "1" && subTabId === "4") closeForm();
       await fetchData();
       await fetchAdditionalData();
     } catch (error) {
@@ -1280,9 +1211,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
   }, [slug, params, startDate, endDate, currentPage, limit, selectedBranch, tabId, subTabId]);
 
   useEffect(() => {
-    if (slug === "STOCK") {
-      setIsDataShown(filterData().length > 0);
-    }
+    if (slug === "STOCK") setIsDataShown(filterData().length > 0);
   }, [slug, stockHistoryData, startDate, endDate]);
 
   useEffect(() => {
@@ -1297,9 +1226,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
   }, [slug, tabId, subTabId, inputData, userConditionData]);
 
   useEffect(() => {
-    if (slug === "REKAM MEDIS") {
-      fetchAdditionalData();
-    }
+    if (slug === "REKAM MEDIS") fetchAdditionalData();
   }, [slug, params]);
 
   useEffect(() => {
@@ -1327,10 +1254,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
     }
   }, [slug, tabId, subTabId, inputData.order]);
 
-  if (!isLoggedin) {
-    return <Navigate to="/login" />;
-  }
-
+  if (!isLoggedin) return <Navigate to="/login" />;
   return (
     <Pages title={`${pageTitle} - Dashboard`} loading={isOptimizing}>
       <DashboardContainer>{renderContent()}</DashboardContainer>

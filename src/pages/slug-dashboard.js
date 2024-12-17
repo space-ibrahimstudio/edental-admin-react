@@ -93,7 +93,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [orderData, setOrderData] = useState([]);
   const [fvaListData, setFvaListData] = useState([]);
   const [selectedOrderData, setSelectedOrderData] = useState(null);
-  const [orderDetailData, setOrderDetailData] = useState(null);
   const [eventsData, setEventsData] = useState([]);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [onPageTabId, setOnpageTabId] = useState("1");
@@ -124,7 +123,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
 
   const handlePageChange = (page) => setCurrentPage(page);
   const handleBranchChange = (value) => setSelectedBranch(value);
-  const handleDentistChange = (value) => setSelectedDentist(value);
   const handleImageSelect = (file) => setSelectedImage(file);
   const openDetail = (params) => navigate(`${pagepath}/${params.toLowerCase()}`);
   const handleABranchChange = async (value) => {
@@ -157,11 +155,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
       formData.append("tgl", date);
       formData.append("idoutlet", idoutlet);
       const data = await apiRead(formData, "main", "searchtime");
-      if (data && data.data && data.data.length > 0) {
-        setBookedHoursData(data.data.map((hours) => hours.reservationtime));
-      } else {
-        setBookedHoursData([]);
-      }
+      if (data && data.data && data.data.length > 0) setBookedHoursData(data.data.map((hours) => hours.reservationtime));
+      else setBookedHoursData([]);
     } catch (error) {
       console.error("Terjadi kesalahan saat memuat jadwal reservasi. Mohon periksa koneksi internet anda dan coba lagi.", error);
     }
@@ -195,9 +190,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const servicename = (item["Nama Layanan"] && item["Nama Layanan"].servicename).toLowerCase();
           return servicename === newvalue;
         });
-        if (serviceexists) {
-          setErrors((prevErrors) => ({ ...prevErrors, service: "Layanan dengan nama yang sama sudah ada." }));
-        }
+        if (serviceexists) setErrors((prevErrors) => ({ ...prevErrors, service: "Layanan dengan nama yang sama sudah ada." }));
       };
       const validatePhone = () => {
         const phoneRegex = /^0\d*$/;
@@ -216,9 +209,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         }
       };
       const validateEmail = () => {
-        if (!emailValidator(value)) {
-          setErrors((prevErrors) => ({ ...prevErrors, email: "Format email salah" }));
-        }
+        if (!emailValidator(value)) setErrors((prevErrors) => ({ ...prevErrors, email: "Format email salah" }));
       };
       const updateSubService = () => {
         const selectedservice = allservicedata.find((s) => s["Nama Layanan"].servicename === inputData.service);
@@ -227,9 +218,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
         log(`id servicetype set to ${selectedsubservice.idservicetype}, price: ${inputData.service === "RESERVATION" ? selectedsubservice.serviceprice : 0}`);
       };
       const validatePrice = () => {
-        if (value < MIN_AMOUNT) {
-          setErrors((prevErrors) => ({ ...prevErrors, price: `The minimum amount is ${MIN_AMOUNT.toLocaleString("id-ID", { style: "currency", currency: "IDR" })}` }));
-        }
+        if (value < MIN_AMOUNT) setErrors((prevErrors) => ({ ...prevErrors, price: `The minimum amount is ${MIN_AMOUNT.toLocaleString("id-ID", { style: "currency", currency: "IDR" })}` }));
       };
       const validateMedicalRecords = () => {
         const phoneRegex = /^0\d*$/;
@@ -285,32 +274,19 @@ const DashboardSlugPage = ({ parent, slug }) => {
           setIsSubmitting(false);
         }
       };
-      if (slug === "LAYANAN" && name === "service") {
-        validateServiceName();
-      } else if (slug === "RESERVATION") {
-        if (name === "phone") {
-          validatePhone();
-        } else if (name === "email") {
-          validateEmail();
-        } else if (name === "sub_service") {
-          updateSubService();
-        } else if (name === "date") {
-          getAvailHours(value);
-        } else if (name === "price") {
-          validatePrice();
-        }
-      } else if (slug === "ORDER CUSTOMER" && name === "typepayment") {
-        setInputData((prevState) => ({ ...prevState, [value === "cash" ? "bank_code" : "status"]: value === "cash" ? "CASH" : "0" }));
-      } else if (slug === "REKAM MEDIS" && onPageTabId === "1" && name === "phone") {
-        validateMedicalRecords();
-      } else if (slug === "ORGANIZATION" || slug === "LOCATION") {
-        if (name === "province" && value !== "") {
-          getCityID(value);
-        } else if (name === "city" && value !== "") {
-          getDistrictID(value);
-        } else if (name === "district" && value !== "") {
-          getVillageID(value);
-        }
+      if (slug === "LAYANAN" && name === "service") validateServiceName();
+      else if (slug === "RESERVATION") {
+        if (name === "phone") validatePhone();
+        else if (name === "email") validateEmail();
+        else if (name === "sub_service") updateSubService();
+        else if (name === "date") getAvailHours(value);
+        else if (name === "price") validatePrice();
+      } else if (slug === "ORDER CUSTOMER" && name === "typepayment") setInputData((prevState) => ({ ...prevState, [value === "cash" ? "bank_code" : "status"]: value === "cash" ? "CASH" : "0" }));
+      else if (slug === "REKAM MEDIS" && onPageTabId === "1" && name === "phone") validateMedicalRecords();
+      else if (slug === "ORGANIZATION" || slug === "LOCATION") {
+        if (name === "province" && value !== "") getCityID(value);
+        else if (name === "city" && value !== "") getDistrictID(value);
+        else if (name === "district" && value !== "") getVillageID(value);
       }
     },
     [setInputData, setOnpageData, setErrors, setCustExist, slug, onPageTabId, inputData, allservicedata, allCustData, MIN_AMOUNT]
@@ -326,9 +302,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
       const serviceData = allservicedata.find((service) => service["Nama Layanan"].servicename === selectedService);
       if (serviceData) {
         const selectedType = serviceData["Jenis Layanan"].find((type) => type.servicetypename === value);
-        if (selectedType) {
-          updatedvalues[index].price = selectedType.serviceprice || "";
-        }
+        if (selectedType) updatedvalues[index].price = selectedType.serviceprice || "";
       }
     }
     if (field === "postock" && name === "itemname") {
@@ -354,30 +328,20 @@ const DashboardSlugPage = ({ parent, slug }) => {
         updatedvalues[index].unit = selectedItem.unit || "";
       }
     }
-    if (!updatederrors[index]) {
-      updatederrors[index] = {};
-    } else {
-      updatederrors[index] = { ...updatederrors[index], [name]: "" };
-    }
+    if (!updatederrors[index]) updatederrors[index] = {};
+    else updatederrors[index] = { ...updatederrors[index], [name]: "" };
     setInputData({ ...inputData, [field]: updatedvalues });
     setErrors({ ...errors, [field]: updatederrors });
   };
 
   const handleAddRow = (field) => {
     let newitems = {};
-    if (field === "layanan") {
-      newitems = { servicetype: "", price: "" };
-    } else if (field === "order") {
-      newitems = { service: "", servicetype: "", price: "" };
-    } else if (field === "postock") {
-      newitems = { idstock: "", itemname: "", sku: "", stockin: "", note: "" };
-    } else if (field === "diagdetail") {
-      newitems = { diagnosisdetail: "" };
-    } else if (field === "stockexp") {
-      newitems = { idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "expire" };
-    } else if (field === "alkesitem") {
-      newitems = { idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" };
-    }
+    if (field === "layanan") newitems = { servicetype: "", price: "" };
+    else if (field === "order") newitems = { service: "", servicetype: "", price: "" };
+    else if (field === "postock") newitems = { idstock: "", itemname: "", sku: "", stockin: "", note: "" };
+    else if (field === "diagdetail") newitems = { diagnosisdetail: "" };
+    else if (field === "stockexp") newitems = { idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "expire" };
+    else if (field === "alkesitem") newitems = { idstock: "", categorystock: "", subcategorystock: "", sku: "", itemname: "", unit: "", qty: "", status: "" };
     const updatedvalues = [...inputData[field], newitems];
     const updatederrors = errors[field] ? [...errors[field], newitems] : [{}];
     setInputData({ ...inputData, [field]: updatedvalues });
@@ -398,15 +362,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
     const compare = (a, b) => {
       const valueA = getNestedValue(a, params);
       const valueB = getNestedValue(b, params);
-      if (type === "date") {
-        return new Date(valueA) - new Date(valueB);
-      } else if (type === "number") {
-        return valueA - valueB;
-      } else if (type === "text") {
-        return valueA.localeCompare(valueB);
-      } else {
-        return 0;
-      }
+      if (type === "date") return new Date(valueA) - new Date(valueB);
+      else if (type === "number") return valueA - valueB;
+      else if (type === "text") return valueA.localeCompare(valueB);
+      else return 0;
     };
     if (!sortOrder || sortOrder === "desc") {
       newData.sort(compare);
@@ -418,9 +377,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setData(newData);
   };
 
-  const handleSearch = async (e) => {
-    setSearchTerm(e.target.value);
-  };
+  const handleSearch = async (e) => setSearchTerm(e.target.value);
 
   const openForm = () => {
     setSelectedMode("add");
@@ -459,7 +416,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const closeFile = () => {
     setIsFileOpen(false);
     setSelectedOrderData(null);
-    setOrderDetailData(null);
   };
 
   const fetchData = async () => {
@@ -516,20 +472,14 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "DIAGNOSA":
           addtFormData.append("data", JSON.stringify({ secret }));
           data = await apiRead(addtFormData, "office", "viewdiagnosis");
-          if (data && data.data && data.data.length > 0) {
-            setDiagnoseData(data.data);
-          } else {
-            setDiagnoseData([]);
-          }
+          if (data && data.data && data.data.length > 0) setDiagnoseData(data.data);
+          else setDiagnoseData([]);
           break;
         case "KONDISI GIGI":
           addtFormData.append("data", JSON.stringify({ secret }));
           data = await apiRead(addtFormData, "office", "viewtooth");
-          if (data && data.data && data.data.length > 0) {
-            setConditionData(data.data);
-          } else {
-            setConditionData([]);
-          }
+          if (data && data.data && data.data.length > 0) setConditionData(data.data);
+          else setConditionData([]);
           break;
         case "DENTIST":
           data = await apiRead(formData, "office", "viewdentist");
@@ -612,27 +562,18 @@ const DashboardSlugPage = ({ parent, slug }) => {
             switch (onPageTabId) {
               case "2":
                 data = await apiRead(addtFormData, "office", "viewhistoryresev");
-                if (data && data.data && data.data.length > 0) {
-                  setHistoryReservData(data.data);
-                } else {
-                  setHistoryReservData([]);
-                }
+                if (data && data.data && data.data.length > 0) setHistoryReservData(data.data);
+                else setHistoryReservData([]);
                 break;
               case "3":
                 data = await apiRead(addtFormData, "office", "viewhistoryorder2");
-                if (data && data.data && data.data.length > 0) {
-                  setHistoryOrderData(data.data);
-                } else {
-                  setHistoryOrderData([]);
-                }
+                if (data && data.data && data.data.length > 0) setHistoryOrderData(data.data);
+                else setHistoryOrderData([]);
                 break;
               case "4":
                 data = await apiRead(addtFormData, "office", "viewmedics");
-                if (data && data.data && data.data.length > 0) {
-                  setMedicRcdData(data.data);
-                } else {
-                  setMedicRcdData([]);
-                }
+                if (data && data.data && data.data.length > 0) setMedicRcdData(data.data);
+                else setMedicRcdData([]);
                 break;
               default:
                 break;
@@ -679,35 +620,25 @@ const DashboardSlugPage = ({ parent, slug }) => {
               const time = event.reservationtime;
               const status = event.status_reservation;
               const label = `${event.reservationtime} | ${event.rscode} - ${toTitleCase(event.name)}`;
-              if (!acc[date]) {
-                acc[date] = [];
-              }
+              if (!acc[date]) acc[date] = [];
               acc[date].push({ ...event, label, time, status });
               acc[date].sort((a, b) => a.time.localeCompare(b.time));
               return acc;
             }, {});
             setEventsData(mutatedevents);
-          } else {
-            setEventsData([]);
-          }
+          } else setEventsData([]);
           break;
         case "PRACTITIONER":
           addtFormData.append("data", JSON.stringify({ secret }));
           data = await apiRead(addtFormData, "satusehat", "viewpractitioner");
-          if (data && data.data && data.data.length > 0) {
-            setPracticiData(data.data);
-          } else {
-            setPracticiData([]);
-          }
+          if (data && data.data && data.data.length > 0) setPracticiData(data.data);
+          else setPracticiData([]);
           break;
         case "ORGANIZATION":
           addtFormData.append("data", JSON.stringify({ secret }));
           data = await apiRead(addtFormData, "satusehat", "vieworganization");
-          if (data && data.data && data.data.length > 0) {
-            setOrgData(data.data);
-          } else {
-            setOrgData([]);
-          }
+          if (data && data.data && data.data.length > 0) setOrgData(data.data);
+          else setOrgData([]);
           break;
         case "LOCATION":
           addtFormData.append("data", JSON.stringify({ secret }));
@@ -719,11 +650,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
         case "CREDENTIAL":
           addtFormData.append("data", JSON.stringify({ secret, idoutlet: selectedBranch }));
           data = await apiRead(addtFormData, "satusehat", "viewcredential");
-          if (data && data.data && data.data.length > 0) {
-            setCredData(data.data);
-          } else {
-            setCredData([]);
-          }
+          if (data && data.data && data.data.length > 0) setCredData(data.data);
+          else setCredData([]);
           break;
         case "PATIENT":
           addtFormData.append("data", JSON.stringify({ secret }));
@@ -762,59 +690,35 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setIsOptimizing(true);
     try {
       const servicedata = await apiRead(formData, "office", "searchservice");
-      if (servicedata && servicedata.data && servicedata.data.length > 0) {
-        setAllservicedata(servicedata.data);
-      } else {
-        setAllservicedata([]);
-      }
+      if (servicedata && servicedata.data && servicedata.data.length > 0) setAllservicedata(servicedata.data);
+      else setAllservicedata([]);
       const catstockdata = await apiRead(formData, "office", "searchcategorystock");
-      if (catstockdata && catstockdata.data && catstockdata.data.length > 0) {
-        setCategoryStockData(catstockdata.data);
-      } else {
-        setCategoryStockData([]);
-      }
+      if (catstockdata && catstockdata.data && catstockdata.data.length > 0) setCategoryStockData(catstockdata.data);
+      else setCategoryStockData([]);
       const fvadata = await apiRead(formData, "office", "viewlistva");
       const allfvadata = fvadata.data;
       const staticdata = [{ code: "INVOICE", country: "ID", currency: "IDR", is_activated: true, name: "Invoice Xendit" }];
       const mergedvadata = [...staticdata, ...allfvadata];
       const filteredfvadata = mergedvadata.filter((va) => va.is_activated === true);
-      if (filteredfvadata && filteredfvadata.length > 0) {
-        setFvaListData(filteredfvadata);
-      } else {
-        setFvaListData([]);
-      }
+      if (filteredfvadata && filteredfvadata.length > 0) setFvaListData(filteredfvadata);
+      else setFvaListData([]);
       addtFormData.append("data", JSON.stringify({ secret, idoutlet: selectedBranch }));
       const allcustdata = await apiRead(addtFormData, "office", "searchcustomer");
-      if (allcustdata && allcustdata.data && allcustdata.data.length > 0) {
-        setAllCustData(allcustdata.data);
-      } else {
-        setAllCustData([]);
-      }
+      if (allcustdata && allcustdata.data && allcustdata.data.length > 0) setAllCustData(allcustdata.data);
+      else setAllCustData([]);
       addtFormData.append("data", JSON.stringify({ secret, kodeoutlet: cctr }));
       const dentistdata = await apiRead(addtFormData, "office", "viewdentistoutlet");
-      if (dentistdata && dentistdata.data && dentistdata.data.length > 0) {
-        setBranchDentistData(dentistdata.data);
-      } else {
-        setBranchDentistData([]);
-      }
+      if (dentistdata && dentistdata.data && dentistdata.data.length > 0) setBranchDentistData(dentistdata.data);
+      else setBranchDentistData([]);
       const branchdata = await apiRead(formData, "office", "viewoutletall");
-      if (branchdata && branchdata.data && branchdata.data.length > 0) {
-        setAllBranchData(branchdata.data);
-      } else {
-        setAllBranchData([]);
-      }
+      if (branchdata && branchdata.data && branchdata.data.length > 0) setAllBranchData(branchdata.data);
+      else setAllBranchData([]);
       const stockdata = await apiRead(formData, "office", "searchstock");
-      if (stockdata && stockdata.data && stockdata.data.length > 0) {
-        setAllStockData(stockdata.data);
-      } else {
-        setAllStockData([]);
-      }
+      if (stockdata && stockdata.data && stockdata.data.length > 0) setAllStockData(stockdata.data);
+      else setAllStockData([]);
       const provincedata = await apiRead(formData, "satusehat", "viewprovincie");
-      if (provincedata && provincedata.data && provincedata.data.length > 0) {
-        setProvinceData(provincedata.data);
-      } else {
-        setProvinceData([]);
-      }
+      if (provincedata && provincedata.data && provincedata.data.length > 0) setProvinceData(provincedata.data);
+      else setProvinceData([]);
     } catch (error) {
       showNotifications("danger", errormsg);
       console.error(errormsg, error);
@@ -828,15 +732,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
     const formData = new FormData();
     setIsFetching(true);
     try {
-      if (searchTerm === "") {
-        return;
-      }
+      if (searchTerm === "") return;
       let formdata;
-      if (slug === "PO MASUK") {
-        formdata = { secret, search: searchTerm, status: status.toString() };
-      } else {
-        formdata = { secret, search: searchTerm, idoutlet: selectedBranch };
-      }
+      if (slug === "PO MASUK") formdata = { secret, search: searchTerm, status: status.toString() };
+      else formdata = { secret, search: searchTerm, idoutlet: selectedBranch };
       formData.append("data", JSON.stringify(formdata));
       let endpoint;
       switch (slug) {
@@ -881,11 +780,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const switchData = async (params) => {
     setSelectedData(params);
     const currentData = (arraydata, identifier) => {
-      if (typeof identifier === "string") {
-        return arraydata.find((item) => getNestedValue(item, identifier) === params);
-      } else {
-        return arraydata.find((item) => item[identifier] === params);
-      }
+      if (typeof identifier === "string") return arraydata.find((item) => getNestedValue(item, identifier) === params);
+      else return arraydata.find((item) => item[identifier] === params);
     };
     const errormsg = `Terjadi kesalahan saat memuat data. Mohon periksa koneksi internet anda dan coba lagi.`;
     const formData = new FormData();
@@ -944,11 +840,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
           data = await apiRead(formData, "office", "viewdetailorder");
           const orderdetaildata = data.data;
           if (data && orderdetaildata && orderdetaildata.length > 0) {
-            if (switchedData.payment === "CASH") {
-              setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
-            } else {
-              setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
-            }
+            if (switchedData.payment === "CASH") setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cash", bank_code: "CASH", status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
+            else setInputData({ name: switchedData.transactionname, phone: switchedData.transactionphone, id: switchedData.idtransaction, dentist: switchedData.dentist, typepayment: "cashless", bank_code: switchedData.payment, status: switchedData.transactionstatus, order: orderdetaildata.map((order) => ({ service: order.service, servicetype: order.servicetype, price: order.price })) });
           }
           break;
         case "CREDENTIAL":
@@ -1004,11 +897,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
         requiredFields = ["category", "sub_category", "name", "unit", "count", "value"];
         break;
       case "PO PUSAT":
-        if (selectedMode === "update") {
-          requiredFields = [];
-        } else {
-          requiredFields = ["postock.itemname", "postock.sku", "postock.stockin"];
-        }
+        if (selectedMode === "update") requiredFields = [];
+        else requiredFields = ["postock.itemname", "postock.sku", "postock.stockin"];
         break;
       case "REKAM MEDIS":
         switch (onPageTabId) {
@@ -1023,14 +913,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
         }
         break;
       case "RESERVATION":
-        if (selectedMode === "update") {
-          requiredFields = [];
-        } else {
-          if (inputData.service === "RESERVATION") {
-            requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time", "price", "bank_code"];
-          } else {
-            requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time"];
-          }
+        if (selectedMode === "update") requiredFields = [];
+        else {
+          if (inputData.service === "RESERVATION") requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time", "price", "bank_code"];
+          else requiredFields = ["name", "phone", "email", "service", "sub_service", "date", "time"];
         }
         break;
       case "ORDER CUSTOMER":
@@ -1050,11 +936,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
         break;
     }
     let validationErrors;
-    if (slug === "REKAM MEDIS" && onPageTabId === "1") {
-      validationErrors = inputValidator(onpageData, requiredFields);
-    } else {
-      validationErrors = inputValidator(inputData, requiredFields);
-    }
+    if (slug === "REKAM MEDIS" && onPageTabId === "1") validationErrors = inputValidator(onpageData, requiredFields);
+    else validationErrors = inputValidator(inputData, requiredFields);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -1064,9 +947,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     const successmsg = action === "update" ? `Selamat! Perubahan anda pada ${toTitleCase(slug)} berhasil disimpan.` : `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
     const errormsg = action === "update" ? "Terjadi kesalahan saat menyimpan perubahan. Mohon periksa koneksi internet anda dan coba lagi." : "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
     const confirm = window.confirm(confirmmsg);
-    if (!confirm) {
-      return;
-    }
+    if (!confirm) return;
     setIsSubmitting(true);
     try {
       let submittedData;
@@ -1096,11 +977,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
           submittedData = { secret, categorystock: inputData.category, subcategorystock: inputData.sub_category, itemname: inputData.name, unit: inputData.unit, stockin: inputData.count, value: inputData.value };
           break;
         case "PO PUSAT":
-          if (selectedMode === "update") {
-            submittedData = { secret, idpostock: selectedData, status: inputData.status };
-          } else {
-            submittedData = { secret, postock: inputData.postock };
-          }
+          if (selectedMode === "update") submittedData = { secret, idpostock: selectedData, status: inputData.status };
+          else submittedData = { secret, postock: inputData.postock };
           break;
         case "PO MASUK":
           submittedData = { secret, idpostock: inputData.id, status: inputData.status, stock: inputData.postock.map((item) => ({ idpostockdetail: item.idstock, qty: item.stockin, note: item.note })) };
@@ -1118,11 +996,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
           break;
         case "RESERVATION":
-          if (selectedMode === "update") {
-            submittedData = { secret, status_reservation: inputData.status, status_dp: inputData.statuspayment };
-          } else {
-            submittedData = { secret, idservicetype: inputData.id, name: inputData.name, phone: inputData.phone, email: inputData.email, voucher: inputData.vouchercode, service: inputData.service, typeservice: inputData.sub_service, reservationdate: inputData.date, reservationtime: inputData.time, price: inputData.price, bank_code: inputData.bank_code, note: inputData.note, idoutlet: selectedBranch };
-          }
+          if (selectedMode === "update") submittedData = { secret, status_reservation: inputData.status, status_dp: inputData.statuspayment };
+          else submittedData = { secret, idservicetype: inputData.id, name: inputData.name, phone: inputData.phone, email: inputData.email, voucher: inputData.vouchercode, service: inputData.service, typeservice: inputData.sub_service, reservationdate: inputData.date, reservationtime: inputData.time, price: inputData.price, bank_code: inputData.bank_code, note: inputData.note, idoutlet: selectedBranch };
           break;
         case "ORDER CUSTOMER":
           submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
@@ -1142,17 +1017,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
       const formData = new FormData();
       formData.append("data", JSON.stringify(submittedData));
       formData.append("fileimg", selectedImage);
-      if (action === "update") {
-        formData.append("idedit", selectedData);
-      }
+      if (action === "update") formData.append("idedit", selectedData);
       await apiCrud(formData, scope, endpoint);
       showNotifications("success", successmsg);
       log("submitted data:", submittedData);
-      if (action === "add") {
-        closeForm();
-      } else {
-        closeEdit();
-      }
+      if (action === "add") closeForm();
+      else closeEdit();
       await fetchData();
       await fetchAdditionalData();
     } catch (error) {
@@ -1201,15 +1071,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
         }
         const formData = new FormData();
         formData.append("data", JSON.stringify(submittedData));
-        if (slug === "PRACTITIONER") {
-          formData.append("idpractitioner", params);
-        } else if (slug === "ORGANIZATION") {
-          formData.append("idorganization", params);
-        } else if (slug === "LOCATION") {
-          formData.append("idlocation", params);
-        } else {
-          formData.append("iddelete", params);
-        }
+        if (slug === "PRACTITIONER") formData.append("idpractitioner", params);
+        else if (slug === "ORGANIZATION") formData.append("idorganization", params);
+        else if (slug === "LOCATION") formData.append("idlocation", params);
+        else formData.append("iddelete", params);
         await apiCrud(formData, scope, endpoint);
         showNotifications("success", successmsg);
         await fetchData();
@@ -3651,23 +3516,17 @@ const DashboardSlugPage = ({ parent, slug }) => {
             const months = today.diff(birthDate, "months") % 12;
             const days = today.diff(birthDate, "days") % 30 || 0;
             setInputData({ ...inputData, ageyear: Math.floor(years), agemonth: months, ageday: days });
-          } else {
-            console.warn("Invalid birth date format. Please use YYYY-MM-DD.");
-          }
+          } else console.warn("Invalid birth date format. Please use YYYY-MM-DD.");
         } catch (error) {
           console.error("Error calculating age:", error);
         }
-      } else {
-        setInputData({ ...inputData, ageyear: "", agemonth: "", ageday: "" });
-      }
+      } else setInputData({ ...inputData, ageyear: "", agemonth: "", ageday: "" });
     };
     calculateAge();
   }, [inputData.birth]);
 
   useEffect(() => {
-    if (slug === "RESERVATION") {
-      setAvailHoursData(houropt.filter((hour) => !bookedHoursData.includes(hour)));
-    }
+    if (slug === "RESERVATION") setAvailHoursData(houropt.filter((hour) => !bookedHoursData.includes(hour)));
   }, [slug, bookedHoursData]);
 
   useEffect(() => {
@@ -3686,14 +3545,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
     if (slug === "ORGANIZATION") {
       if (selectedBranch) {
         const selecteddata = allBranchData.find((item) => item.idoutlet === selectedBranch);
-        if (selecteddata) {
-          setInputData({ ...inputData, name: selecteddata.outlet_name, phone: selecteddata.outlet_phone, address: selecteddata.outlet_address, postcode: selecteddata.postcode });
-        } else {
-          setInputData({ ...inputData, name: "", phone: "", address: "", postcode: "" });
-        }
-      } else {
-        setInputData({ ...inputData, name: "", phone: "", address: "", postcode: "" });
-      }
+        if (selecteddata) setInputData({ ...inputData, name: selecteddata.outlet_name, phone: selecteddata.outlet_phone, address: selecteddata.outlet_address, postcode: selecteddata.postcode });
+        else setInputData({ ...inputData, name: "", phone: "", address: "", postcode: "" });
+      } else setInputData({ ...inputData, name: "", phone: "", address: "", postcode: "" });
     }
   }, [selectedBranch]);
 
@@ -3714,10 +3568,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
     handleABranchChange(idoutlet);
   }, [slug]);
 
-  if (!isLoggedin) {
-    return <Navigate to="/login" />;
-  }
-
+  if (!isLoggedin) return <Navigate to="/login" />;
   return (
     <Pages title={`${pagetitle} - Dashboard`} loading={isOptimizing}>
       <DashboardContainer>{renderContent()}</DashboardContainer>
