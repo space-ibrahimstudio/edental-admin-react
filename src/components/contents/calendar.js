@@ -58,7 +58,7 @@ export const EventModal = ({ events, onClose }) => {
         <div ref={ref} className={`${styles.eventModal} ${isClosing ? styles.close : ""}`}>
           <div className={styles.modalContent}>
             {events.map((event, index) => (
-              <Fragment key={index}>
+              <div className={styles.modalContentWrap} key={index}>
                 <header className={styles.modalNav}>
                   <Badge color={badgecolor(event.status_reservation)} />
                   <header className={styles.modalHead}>
@@ -80,7 +80,7 @@ export const EventModal = ({ events, onClose }) => {
                     <p className={styles.itemText}>{event.note}</p>
                   </div>
                 </div>
-              </Fragment>
+              </div>
             ))}
           </div>
           <Button radius="full" variant="hollow" subVariant="icon" color="var(--color-secondary-50)" iconContent={<Close size="var(--pixel-25)" />} onClick={handleClose} />

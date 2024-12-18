@@ -47,11 +47,8 @@ const DashboardOverviewPage = () => {
       try {
         formData.append("data", JSON.stringify({ secret, idoutlet, date: formattedDateTime }));
         const summarydata = await apiRead(formData, "office", "viewdashboard");
-        if (summarydata && summarydata.data) {
-          setSummaryData(summarydata.data);
-        } else {
-          setSummaryData(null);
-        }
+        if (summarydata && summarydata.data) setSummaryData(summarydata.data);
+        else setSummaryData(null);
       } catch (error) {
         console.log("error:", error);
       } finally {
@@ -63,10 +60,7 @@ const DashboardOverviewPage = () => {
     }
   }, []);
 
-  if (!isLoggedin) {
-    return <Navigate to="/login" />;
-  }
-
+  if (!isLoggedin) return <Navigate to="/login" />;
   return (
     <Pages title="Overview | Dashboard">
       <DashboardContainer>

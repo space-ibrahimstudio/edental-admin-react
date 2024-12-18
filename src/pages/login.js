@@ -39,10 +39,7 @@ const LoginPage = () => {
     }
   };
 
-  if (isLoggedin) {
-    return <Navigate to="/" />;
-  }
-
+  if (isLoggedin) return <Navigate to="/" />;
   return (
     <Pages title="Login" access="public" topmargin="unset" bottommargin="unset" justify="center" bgImage="/img/img-02.jpg">
       <section className={styles.loginSection}>
