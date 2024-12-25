@@ -400,8 +400,9 @@ const DashboardSlugPage = ({ parent, slug }) => {
     setIsFileOpen(true);
     setIsFormFetching(true);
     try {
-      const orderdata = orderData.find((item) => item["order"].idtransaction === id);
-      setSelectedOrderData(orderdata ? orderdata : null);
+      const orderdata = searchTerm !== "" ? searchResult : orderData;
+      const selecteddata = orderdata.find((item) => item["order"].idtransaction === id);
+      setSelectedOrderData(selecteddata ? selecteddata : null);
     } catch (error) {
       console.error("error getting order information:", error);
     } finally {
@@ -2878,7 +2879,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 ))}
               </SubmitForm>
             )}
-            {isFileOpen && (
+            {selectedOrderData && isFileOpen && (
               <FileForm fetching={isFormFetching} onNext={exportToPDF} onSend={sendPDFLink} sending={isSending} onClose={closeFile}>
                 <Invoice ref={printRef} data={selectedOrderData["order"]} items={selectedOrderData["orderdetail"]} />
               </FileForm>
