@@ -53,6 +53,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [isFormFetching, setIsFormFetching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [selectedMode, setSelectedMode] = useState("add");
   const [selectedImage, setSelectedImage] = useState(null);
@@ -121,6 +122,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
 
+  const handleSearch = async (e) => setSearchTerm(e.target.value);
   const handlePageChange = (page) => setCurrentPage(page);
   const handleBranchChange = (value) => setSelectedBranch(value);
   const handleImageSelect = (file) => setSelectedImage(file);
@@ -204,9 +206,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setInputData((prevState) => ({ ...prevState, name: "", email: "" }));
           }
           setErrors((prevErrors) => ({ ...prevErrors, phone: "" }));
-        } else {
-          setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone number must start with 0 and contain only numbers." }));
-        }
+        } else setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone number must start with 0 and contain only numbers." }));
       };
       const validateEmail = () => {
         if (!emailValidator(value)) setErrors((prevErrors) => ({ ...prevErrors, email: "Format email salah" }));
@@ -231,9 +231,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setCustExist(false);
             setErrors((prevErrors) => ({ ...prevErrors, phone: "" }));
           }
-        } else {
-          setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone number must start with 0 and contain only numbers." }));
-        }
+        } else setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone number must start with 0 and contain only numbers." }));
       };
       const getCityID = async (provid) => {
         const formData = new FormData();
@@ -376,8 +374,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
     }
     setData(newData);
   };
-
-  const handleSearch = async (e) => setSearchTerm(e.target.value);
 
   const openForm = () => {
     setSelectedMode("add");
@@ -1619,9 +1615,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
             } finally {
               setIsExporting(false);
             }
-          } else {
-            exportOReport(orderRData);
-          }
+          } else exportOReport(orderRData);
         };
 
         const branchStatic = [{ idoutlet: "999", outletcreate: "0000-00-00 00:00:00", outletupdate: "0000-00-00 00:00:00", mainregion: "-", outlet_region: "-", cctr_group: "STA000", cctr: "STA000", outlet_name: "Semua Cabang", outlet_phone: "0000000000", postcode: "0", outlet_address: "-", coordinate: "-", outlet_status: "0" }];
@@ -1641,9 +1635,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
               setAllDentistData([]);
               setDentistFilter(null);
             }
-          } else if (value === "999") {
-            setDentistFilter("999");
-          } else {
+          } else if (value === "999") setDentistFilter("999");
+          else {
             setAllDentistData([]);
             setDentistFilter(null);
           }
@@ -2252,9 +2245,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           if (custFind) {
             setOnpageData({ ...onpageData, name: matchedData.username, address: matchedData.address, email: matchedData.useremail, phone: matchedData.userphone, gender: matchedData.gender, nik: matchedData.noktp, image: matchedData.imgktp, birth: matchedData.birthday });
             log("selected cust ID:", matchedData.idauthuser);
-          } else {
-            setOnpageData({ ...onpageData, name: "", address: "", email: "", phone: "", gender: "", nik: "", image: null, birth: "" });
-          }
+          } else setOnpageData({ ...onpageData, name: "", address: "", email: "", phone: "", gender: "", nik: "", image: null, birth: "" });
         };
 
         const handleAddError = () => showNotifications("danger", "Mohon pilih Customer terlebih dahulu sebelum menambahkan data.");
@@ -2422,9 +2413,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 const successmsg = `Selamat! Data terpilih dari ${toTitleCase(slug)} berhasil dihapus.`;
                 const errormsg = "Terjadi kesalahan saat menghapus data. Mohon periksa koneksi internet anda dan coba lagi.";
                 const confirm = window.confirm(confirmmsg);
-                if (!confirm) {
-                  return;
-                }
+                if (!confirm) return;
                 try {
                   const formData = new FormData();
                   formData.append("data", JSON.stringify({ secret, idmedics: params }));
@@ -2506,11 +2495,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
           setSelectedMode("add");
           setIsFormOpen(true);
           const selecteduser = allCustData.find((data) => data.idauthuser === selectedCust);
-          if (selecteduser) {
-            setInputData({ ...inputData, birth: selecteduser.birthday });
-          } else {
-            setInputData({ ...inputData });
-          }
+          if (selecteduser) setInputData({ ...inputData, birth: selecteduser.birthday });
+          else setInputData({ ...inputData });
         };
 
         return (
@@ -2726,23 +2712,48 @@ const DashboardSlugPage = ({ parent, slug }) => {
           html2pdf().from(element).set(opt).save();
         };
 
-        const sendPDFLink = async (number, name) => {
+        const sendPDFLink = async () => {
           const element = printRef.current;
-          const opt = { margin: 0.2, filename: `invoice-${toPathname(selectedOrderData["order"].transactionname)}-${selectedOrderData["order"].rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
+          const data = selectedOrderData["order"];
+          const opt = { margin: 0.2, filename: `invoice-${toPathname(data.transactionname)}-${data.rscode}.pdf`, image: { type: "jpeg", quality: 0.99 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "letter", orientation: "portrait" } };
+          const formData = new FormData();
+          const upFormData = new FormData();
+          setIsSending(true);
           try {
             const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
-            const pdfURL = URL.createObjectURL(pdfBlob);
-            contactWhatsApp(number, name, pdfURL);
-            setTimeout(() => URL.revokeObjectURL(pdfURL), 30 * 60 * 1000);
+            const pdfFile = new File([pdfBlob], opt.filename, { type: "application/pdf" });
+            formData.append("data", JSON.stringify({ secret, idtransaction: data.idtransaction }));
+            formData.append("fileimg", pdfFile);
+            const response = await apiCrud(formData, "office", "invoice");
+            if (!response.error) {
+              upFormData.append("data", JSON.stringify({ secret, idtransaction: data.idtransaction, invoice: response.data }));
+              const upresponse = await apiCrud(upFormData, "office", "updateinvoice");
+              if (!upresponse.error) sendInvoice(data.idtransaction);
+              else showNotifications("danger", "Gagal mengupdate Invoice PDF. Mohon periksa koneksi internet lalu coba lagi.");
+            } else showNotifications("danger", "Gagal mengupload Invoice PDF. Mohon periksa koneksi internet lalu coba lagi.");
           } catch (error) {
             console.error("Failed to generate and copy PDF link:", error);
+          } finally {
+            setIsSending(false);
           }
         };
 
-        const contactWhatsApp = (number, name, invLink) => {
-          const wanumber = getNormalPhoneNumber(number);
-          window.open(`https://wa.me/${wanumber}?text=Halo%20${name}!%0ATerima%20kasih%20sudah%20melakukan%20transaksi%20di%20Edental.%20Klik%20link%20dibawah%20untuk%20mengunduh%20Invoice%20transaksimu%20%3A%0A%0A${invLink}%0A%0A*Link%20diatas%20berlaku%20selama%2030%20menit.%20Hubungi%20kami%20jika%20link%20tidak%20dapat%20diakses.%20Terima%20kasih!`, "_blank");
+        const sendInvoice = async (idtransaction) => {
+          const formData = new FormData();
+          formData.append("data", JSON.stringify({ secret, idtransaction }));
+          try {
+            const response = await apiCrud(formData, "office", "sendinvoice");
+            if (!response.error) showNotifications("success", "Invoice berhasil dikirim melalui WhatsApp!");
+            else showNotifications("danger", "Gagal mengirim Invoice PDF. Mohon periksa koneksi internet lalu coba lagi.");
+          } catch (error) {
+            console.error("Failed to send PDF:", error);
+          }
         };
+
+        // const contactWhatsApp = (number, name, invLink) => {
+        //   const wanumber = getNormalPhoneNumber(number);
+        //   window.open(`https://wa.me/${wanumber}?text=Halo%20${name}!%0ATerima%20kasih%20sudah%20melakukan%20transaksi%20di%20Edental.%20Klik%20link%20dibawah%20untuk%20mengunduh%20Invoice%20transaksimu%20%3A%0A%0A${invLink}%0A%0A*Link%20diatas%20berlaku%20selama%2030%20menit.%20Hubungi%20kami%20jika%20link%20tidak%20dapat%20diakses.%20Terima%20kasih!`, "_blank");
+        // };
 
         return (
           <Fragment>
@@ -2867,8 +2878,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                 ))}
               </SubmitForm>
             )}
-            {selectedOrderData && isFileOpen && (
-              <FileForm fetching={isFormFetching} onNext={exportToPDF} onSend={() => sendPDFLink(selectedOrderData["order"].transactionphone, selectedOrderData["order"].transactionname)} onClose={closeFile}>
+            {isFileOpen && (
+              <FileForm fetching={isFormFetching} onNext={exportToPDF} onSend={sendPDFLink} sending={isSending} onClose={closeFile}>
                 <Invoice ref={printRef} data={selectedOrderData["order"]} items={selectedOrderData["orderdetail"]} />
               </FileForm>
             )}
@@ -2977,9 +2988,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
               if (practicidata && practicidata.data) {
                 const aliasedpractic = practicidata.data;
                 setInputData((prevState) => ({ ...prevState, city: aliasedpractic.entry[0].resource.address[0].extension[0].extension[1].valueCode, province: aliasedpractic.entry[0].resource.address[0].extension[0].extension[0].valueCode, district: aliasedpractic.entry[0].resource.address[0].extension[0].extension[2].valueCode, village: aliasedpractic.entry[0].resource.address[0].extension[0].extension[3].valueCode, rt: aliasedpractic.entry[0].resource.address[0].extension[0].extension[4].valueCode, rw: aliasedpractic.entry[0].resource.address[0].extension[0].extension[5].valueCode, address: aliasedpractic.entry[0].resource.address[0].line[0], birth_date: aliasedpractic.entry[0].resource.birthDate, gender: aliasedpractic.entry[0].resource.gender, id: aliasedpractic.entry[0].resource.id, str: aliasedpractic.entry[0].resource.qualification[0].identifier[0].value }));
-              } else {
-                setInputData((prevState) => ({ ...prevState, city: "", province: "", district: "", village: "", rt: "", rw: "", address: "", birth_date: "", gender: "", id: "", str: "" }));
-              }
+              } else setInputData((prevState) => ({ ...prevState, city: "", province: "", district: "", village: "", rt: "", rw: "", address: "", birth_date: "", gender: "", id: "", str: "" }));
             } catch (error) {
               console.error("error:", error);
             } finally {
@@ -3100,9 +3109,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const successmsg = `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
           const errormsg = "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
           const confirm = window.confirm(confirmmsg);
-          if (!confirm) {
-            return;
-          }
+          if (!confirm) return;
           setIsSubmitting(true);
           try {
             const submittedData = { secret, name: inputData.name, phone: inputData.phone, email: inputData.email, address: inputData.address, cityname: inputData.city_name, postalcode: inputData.postcode, province: inputData.province, city: inputData.city, district: inputData.district, village: inputData.village };
@@ -3221,9 +3228,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const successmsg = `Selamat! Data baru berhasil ditambahkan pada ${toTitleCase(slug)}.`;
           const errormsg = "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
           const confirm = window.confirm(confirmmsg);
-          if (!confirm) {
-            return;
-          }
+          if (!confirm) return;
           setIsSubmitting(true);
           try {
             const selectedorg = orgData[0];
@@ -3386,9 +3391,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
           const faileddmsg = "Data Praktisioner, Organisasi, dan Lokasi tidak valid. Mohon lengkapi terlebih dahulu dan coba lagi.";
           const errormsg = "Terjadi kesalahan saat menambahkan data. Mohon periksa koneksi internet anda dan coba lagi.";
           const confirm = window.confirm(confirmmsg);
-          if (!confirm) {
-            return;
-          }
+          if (!confirm) return;
           setIsSubmitting(true);
           try {
             const formData = new FormData();
@@ -3504,6 +3507,10 @@ const DashboardSlugPage = ({ parent, slug }) => {
         return <DashboardHead title={`Halaman Dashboard ${pagetitle} akan segera hadir.`} />;
     }
   };
+
+  useEffect(() => {
+    log("selected order data:", selectedOrderData);
+  }, [isFileOpen]);
 
   useEffect(() => {
     const calculateAge = () => {

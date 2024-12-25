@@ -97,7 +97,7 @@ export const SubmitForm = ({ size, formTitle, formSubtitle, fetching = false, lo
   return createPortal(modalElement, modalRoot);
 };
 
-export const FileForm = ({ onNext, fetching = false, loading, children, onClose }) => {
+export const FileForm = ({ onNext, onSend, fetching = false, exporting = false, sending = false, children, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const handleClose = () => setIsClosing(true);
 
@@ -128,7 +128,10 @@ export const FileForm = ({ onNext, fetching = false, loading, children, onClose 
     <main className={styles.formScroll}>
       <nav className={`${styles.sectionNav} ${isClosing ? styles.close : ""}`}>
         <Button id="file-back-close" radius="full" buttonText="Kembali" onClick={handleClose} />
-        <Button id="file-next-action" radius="full" buttonText="CetaK PDF" onClick={onNext} isLoading={loading} />
+        <div style={{ display: "flex", flexDirection: "row", gap: "var(--pixel-10)" }}>
+          <Button id="file-next-action" radius="full" buttonText="Cetak PDF" onClick={onNext} isLoading={exporting} />
+          <Button id="file-send-action" radius="full" bgColor="var(--color-green)" buttonText="Kirim PDF" onClick={onSend} isLoading={sending} />
+        </div>
       </nav>
       <section className={`${styles.formScreen} ${isClosing ? styles.close : ""}`}>
         <section className={`${styles.sectionBody} ${fetching ? styles.fetch : ""}`}>{fetching ? <LoadingContent color="var(--color-primary)" /> : children}</section>
