@@ -38,7 +38,7 @@ jobs:
       - name: 7. Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
-          server: ${{ secrets.FTP_HOST_SIE_DENTAL }}
-          username: ${{ secrets.FTP_USERNAME_SIE_DENTAL }}
-          password: ${{ secrets.FTP_PASSWORD_SIE_DENTAL }}
+          server: ${{ secrets.FTP_HOST_SIEDENTAL }}
+          username: ${{ secrets.FTP_USERNAME_SIEDENTAL }}
+          password: ${{ secrets.FTP_PASSWORD_SIEDENTAL }}
           local-dir: build/
