@@ -573,7 +573,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
             case "2":
               switch (subTabId) {
                 case "1":
-                  submittedData = { secret, idmedics: params, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoHistoryData.map((item) => ({ nomergigi: item["tooth"].tooth, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan })) })) };
+                  submittedData = { secret, idmedics: params, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoHistoryData.filter((allitem) => allitem["tooth"].idconditiontooth === "").map((item) => ({ nomergigi: item["tooth"].tooth, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan })) })) };
                   break;
                 case "2":
                   submittedData = { secret, type: inputData.diagnose, code: inputData.diagnosecode, detail: inputData.diagnosedetail, idmedics: params, note: inputData.note };
