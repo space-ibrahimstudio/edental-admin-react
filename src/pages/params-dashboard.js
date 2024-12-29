@@ -85,7 +85,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const [userConditionData, setUserConditionData] = useState(null);
   const [medicRecordId, medicUserId] = params.split("-");
   const [odontoHistoryData, setOdontoHistoryData] = useState([]);
+  const [odontoAllData, setOdontoAllData] = useState([]);
   const [selectedToothNo, setSelectedToothNo] = useState(null);
+  const [toothStates, setToothStates] = useState({});
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [errors, setErrors] = useState({ ...errorSchema });
@@ -104,6 +106,23 @@ const DashboardParamsPage = ({ parent, slug }) => {
   const restoreInputState = () => {
     setInputData({ ...inputSchema });
     setErrors({ ...errorSchema });
+  };
+
+  const mergeToothData = (existingStates, newTeethState) => {
+    const updatedStates = [...existingStates];
+    Object.entries(newTeethState).forEach(([toothNumber, details]) => {
+      Object.keys(details).forEach((detailKey) => {
+        const [description, singkatan] = detailKey.split("_");
+        const condition = conditionData.find((item) => item.singkatan === singkatan);
+        const arti = condition ? condition.arti : "";
+        const keterangan = condition ? condition.keterangan : "";
+        const existingTooth = updatedStates.find((entry) => entry.tooth.tooth === toothNumber && entry.tooth.description === description);
+        if (existingTooth) {
+          if (!existingTooth.detailgigi.some((detail) => detail.singkatan === singkatan)) existingTooth.detailgigi.push({ idconditiondetail: "", conddetailcreate: "", idconditiontooth: existingTooth.tooth.idconditiontooth, singkatan: singkatan, arti: arti, keterangan: keterangan });
+        } else updatedStates.push({ tooth: { idconditiontooth: "", idcondition: selectedMode === "update" ? userConditionData.idcondition : "", tooth: toothNumber, description: description }, detailgigi: [{ idconditiondetail: "", conddetailcreate: "", idconditiontooth: "", singkatan: singkatan, arti: arti, keterangan: keterangan }] });
+      });
+    });
+    return updatedStates;
   };
 
   const handleAddRow = (field) => {
@@ -308,6 +327,20 @@ const DashboardParamsPage = ({ parent, slug }) => {
                     setUserConditionData(conditiondata);
                     setInputData({ ...inputData, dmf_d: conditiondata.D, dmf_m: conditiondata.M, dmf_f: conditiondata.F, def_d: conditiondata.De, def_e: conditiondata.E, def_f: conditiondata.eF });
                     setOdontoHistoryData(historydata);
+                    const initialStates = {};
+                    const toothdata = data.data;
+                    toothdata.forEach((item) => {
+                      item.detail.forEach(({ tooth, detailgigi }) => {
+                        const toothNumber = tooth.tooth;
+                        const side = tooth.description;
+                        if (!initialStates[toothNumber]) initialStates[toothNumber] = {};
+                        detailgigi.forEach((detail) => {
+                          const key = `${side}_${detail.singkatan}`;
+                          initialStates[toothNumber][key] = true;
+                        });
+                      });
+                    });
+                    setToothStates(initialStates);
                   } else {
                     setUserConditionData(null);
                     setInputData({ ...inputData, dmf_d: "", dmf_m: "", dmf_f: "", def_d: "", def_e: "", def_f: "" });
@@ -573,7 +606,7 @@ const DashboardParamsPage = ({ parent, slug }) => {
             case "2":
               switch (subTabId) {
                 case "1":
-                  submittedData = { secret, idmedics: params, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoHistoryData.filter((allitem) => allitem["tooth"].idconditiontooth === "").map((item) => ({ nomergigi: item["tooth"].tooth, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan })) })) };
+                  submittedData = { secret, idmedics: params, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoAllData.filter((allitem) => allitem["tooth"].idconditiontooth === "").map((item) => ({ nomergigi: item["tooth"].tooth, desc: item["tooth"].description, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan })) })) };
                   break;
                 case "2":
                   submittedData = { secret, type: inputData.diagnose, code: inputData.diagnosecode, detail: inputData.diagnosedetail, idmedics: params, note: inputData.note };
@@ -863,31 +896,15 @@ const DashboardParamsPage = ({ parent, slug }) => {
             case "2":
               switch (subTabId) {
                 case "1":
-                  const handleToothClick = (toothNumber) => {
-                    if (selectedCondition) {
-                      setOdontoHistoryData((prevResults) => {
-                        const existingTooth = prevResults.find((tooth) => tooth["tooth"].tooth === toothNumber);
-                        if (existingTooth) {
-                          if (selectedMode === "update") {
-                            showNotifications("danger", `Tidak dapat menambahkan data kondisi baru pada riwayat dengan nomor gigi yang sudah ada. Mohon hapus riwayat gigi no.${toothNumber} terlebih dahulu.`);
-                            return prevResults;
-                          } else {
-                            const updatedResults = prevResults.map((tooth) => {
-                              if (tooth["tooth"].tooth === toothNumber) {
-                                return { ...tooth, detailgigi: [...tooth.detailgigi, { singkatan: selectedCondition.singkatan, arti: selectedCondition.arti, keterangan: selectedCondition.keterangan }] };
-                              } else {
-                                return tooth;
-                              }
-                            });
-                            return updatedResults;
-                          }
-                        } else {
-                          return [...prevResults, { tooth: { idconditiontooth: "", tooth: toothNumber }, detailgigi: [{ singkatan: selectedCondition.singkatan, arti: selectedCondition.arti, keterangan: selectedCondition.keterangan }] }];
-                        }
-                      });
-                    } else {
-                      showNotifications("danger", "Mohon pilih salah satu data kondisi terlebih dahulu.");
-                    }
+                  const deleteToothState = (toothNumber, symbol = null) => {
+                    setToothStates((prevState) => {
+                      const updatedStates = { ...prevState };
+                      if (symbol) {
+                        if (updatedStates[toothNumber] && updatedStates[toothNumber][symbol]) delete updatedStates[toothNumber][symbol];
+                        if (Object.keys(updatedStates[toothNumber]).length === 0) delete updatedStates[toothNumber];
+                      } else delete updatedStates[toothNumber];
+                      return updatedStates;
+                    });
                   };
 
                   const handleDeleteHistory = async (label, iddetail, index) => {
@@ -895,22 +912,20 @@ const DashboardParamsPage = ({ parent, slug }) => {
                     const successmsg = `Selamat! Data riwayat Odontogram no.${label} berhasil dihapus.`;
                     const errormsg = "Terjadi kesalahan saat menghapus data. Mohon periksa koneksi internet anda dan coba lagi.";
                     const confirm = window.confirm(confirmmsg);
-                    if (!confirm) {
-                      return;
-                    }
+                    if (!confirm) return;
                     setIsDeleting(true);
                     try {
-                      if (iddetail === "") {
-                        setOdontoHistoryData((prevResults) => prevResults.filter((_, idx) => idx !== index));
-                      } else {
+                      if (iddetail === "") setOdontoAllData((prevResults) => prevResults.filter((_, idx) => idx !== index));
+                      else {
                         const formData = new FormData();
-                        const submittedData = { secret, idmedics: params, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoHistoryData.filter((allitem) => allitem["tooth"].idconditiontooth === "").map((item) => ({ nomergigi: item["tooth"].tooth, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan })) })) };
+                        const submittedData = { secret, idmedics: params, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoAllData.filter((allitem) => allitem["tooth"].idconditiontooth === "").map((item) => ({ nomergigi: item["tooth"].tooth, desc: item["tooth"].description, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan })) })) };
                         formData.append("data", JSON.stringify(submittedData));
                         formData.append("iddelete", iddetail);
-                        await apiCrud(formData, "office", "addtooth2");
+                        await apiCrud(formData, "office", "addtooth3");
                         setOdontoHistoryData((prevResults) => prevResults.filter((_, idx) => idx !== index));
                         await fetchData();
                       }
+                      deleteToothState(label);
                       showNotifications("success", successmsg);
                     } catch (error) {
                       showNotifications("danger", errormsg);
@@ -981,9 +996,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
 
                   return (
                     <Fragment>
-                      <OdontoForm onSubmit={(e) => handleSubmit(e, "addtooth2")} submitting={isSubmitting} deleting={isDeleting}>
+                      <OdontoForm onSubmit={(e) => handleSubmit(e, "addtooth3")} submitting={isSubmitting} deleting={isDeleting}>
                         <OdontoHistory onDeleteAll={() => {}}>
-                          {odontoHistoryData.map((item, index) => (
+                          {odontoAllData.map((item, index) => (
                             <HistoryTr key={index} no={item["tooth"].tooth} label={item["detailgigi"]} isEditable={item["tooth"].idconditiontooth !== ""} onEdit={() => openToothForm(item["tooth"])} onDelete={() => handleDeleteHistory(item["tooth"].tooth, item["tooth"].idconditiontooth, index)} />
                           ))}
                         </OdontoHistory>
@@ -991,13 +1006,13 @@ const DashboardParamsPage = ({ parent, slug }) => {
                           <GramSet type="top">
                             <GramRows>
                               {topleft.map((item, index) => (
-                                <GramBlock key={index} topLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                <GramBlock key={index} topLabel={item.no} type={item.type} state={toothStates[item.no] || {}} setState={(updatedState) => setToothStates((prev) => ({ ...prev, [item.no]: updatedState }))} selectedSymbol={selectedCondition} />
                               ))}
                             </GramRows>
                             <GramMarker alt="top" src="/svg/down-marker.svg" />
                             <GramRows>
                               {topright.map((item, index) => (
-                                <GramBlock key={index} topLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                <GramBlock key={index} topLabel={item.no} type={item.type} state={toothStates[item.no] || {}} setState={(updatedState) => setToothStates((prev) => ({ ...prev, [item.no]: updatedState }))} selectedSymbol={selectedCondition} />
                               ))}
                             </GramRows>
                           </GramSet>
@@ -1005,12 +1020,12 @@ const DashboardParamsPage = ({ parent, slug }) => {
                             <GramSet type="center-child">
                               <GramRows>
                                 {centertopleft.map((item, index) => (
-                                  <GramBlock key={index} topLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                  <GramBlock key={index} topLabel={item.no} type={item.type} state={toothStates[item.no] || {}} setState={(updatedState) => setToothStates((prev) => ({ ...prev, [item.no]: updatedState }))} selectedSymbol={selectedCondition} />
                                 ))}
                               </GramRows>
                               <GramRows>
                                 {centertopright.map((item, index) => (
-                                  <GramBlock key={index} topLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                  <GramBlock key={index} topLabel={item.no} type={item.type} state={toothStates[item.no] || {}} setState={(updatedState) => setToothStates((prev) => ({ ...prev, [item.no]: updatedState }))} selectedSymbol={selectedCondition} />
                                 ))}
                               </GramRows>
                             </GramSet>
@@ -1019,12 +1034,12 @@ const DashboardParamsPage = ({ parent, slug }) => {
                             <GramSet type="center-child">
                               <GramRows>
                                 {centerbotleft.map((item, index) => (
-                                  <GramBlock key={index} botLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                  <GramBlock key={index} botLabel={item.no} type={item.type} state={toothStates[item.no] || {}} setState={(updatedState) => setToothStates((prev) => ({ ...prev, [item.no]: updatedState }))} selectedSymbol={selectedCondition} />
                                 ))}
                               </GramRows>
                               <GramRows>
                                 {centerbotright.map((item, index) => (
-                                  <GramBlock key={index} botLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                  <GramBlock key={index} botLabel={item.no} type={item.type} state={toothStates[item.no] || {}} setState={(updatedState) => setToothStates((prev) => ({ ...prev, [item.no]: updatedState }))} selectedSymbol={selectedCondition} />
                                 ))}
                               </GramRows>
                             </GramSet>
@@ -1032,13 +1047,13 @@ const DashboardParamsPage = ({ parent, slug }) => {
                           <GramSet type="bot">
                             <GramRows>
                               {botleft.map((item, index) => (
-                                <GramBlock key={index} botLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                <GramBlock key={index} botLabel={item.no} type={item.type} state={toothStates[item.no] || {}} setState={(updatedState) => setToothStates((prev) => ({ ...prev, [item.no]: updatedState }))} selectedSymbol={selectedCondition} />
                               ))}
                             </GramRows>
                             <GramMarker alt="bot" src="/svg/up-marker.svg" />
                             <GramRows>
                               {botright.map((item, index) => (
-                                <GramBlock key={index} botLabel={item.no} type={item.type} onClick={() => handleToothClick(item.no)} />
+                                <GramBlock key={index} botLabel={item.no} type={item.type} state={toothStates[item.no] || {}} setState={(updatedState) => setToothStates((prev) => ({ ...prev, [item.no]: updatedState }))} selectedSymbol={selectedCondition} />
                               ))}
                             </GramRows>
                           </GramSet>
@@ -1207,6 +1222,17 @@ const DashboardParamsPage = ({ parent, slug }) => {
   };
 
   useEffect(() => {
+    log("current mode:", selectedMode);
+  }, [selectedMode]);
+
+  useEffect(() => {
+    const mergedData = mergeToothData(odontoHistoryData, toothStates);
+    setOdontoAllData(mergedData);
+    log("teeth state:", toothStates);
+    log("merged odonto:", mergedData);
+  }, [toothStates]);
+
+  useEffect(() => {
     fetchData();
   }, [slug, params, startDate, endDate, currentPage, limit, selectedBranch, tabId, subTabId]);
 
@@ -1236,10 +1262,6 @@ const DashboardParamsPage = ({ parent, slug }) => {
       setEndDate(new Date());
     }
   }, [slug]);
-
-  useEffect(() => {
-    log("new history array:", odontoHistoryData);
-  }, [odontoHistoryData]);
 
   useEffect(() => {
     if (slug === "REKAM MEDIS" && tabId === "2" && subTabId === "3" && inputData.order) {

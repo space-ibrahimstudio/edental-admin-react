@@ -1,7 +1,6 @@
 .isIcon {
   width: var(--pixel-20);
   height: var(--pixel-20);
-  overflow: hidden;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;

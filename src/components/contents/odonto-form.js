@@ -2,7 +2,7 @@ import React from "react";
 import { Input } from "@ibrahimstudio/input";
 import { Button } from "@ibrahimstudio/button";
 import { LoadingContent } from "../feedbacks/screens";
-import { Search, NewTrash, NewEdit } from "./icons";
+import { Search, NewTrash, NewEdit, Odonto } from "./icons";
 import styles from "./styles/odonto-form.module.css";
 
 export const ConditionLi = ({ label, name, isActive = false, onClick = () => {} }) => {
@@ -41,12 +41,23 @@ const ScoreRows = ({ children }) => {
   return <div className={styles.scoreRow}>{children}</div>;
 };
 
-export const GramBlock = ({ topLabel, botLabel, type = "front", onClick = () => {} }) => {
+export const GramBlock = ({ type, topLabel, botLabel, state, setState, selectedSymbol }) => {
+  const handleSideClick = (side) => {
+    let key;
+    if (!selectedSymbol) return;
+    if (selectedSymbol.singkatan === "amf" || selectedSymbol.singkatan === "cof" || selectedSymbol.singkatan === "fis" || selectedSymbol.singkatan === "car") key = `${side}_${selectedSymbol.singkatan}`;
+    else key = `whole_${selectedSymbol.singkatan}`;
+    setState({
+      ...state,
+      [key]: !state[key],
+    });
+  };
+
   return (
     <section className={styles.gramBlock}>
       {topLabel && <span className={styles.blockLabel}>{topLabel}</span>}
-      <div className={styles.blockArea} onClick={onClick}>
-        <img className={styles.blockImgIcon} alt={topLabel ? topLabel : botLabel} src={type === "inner" ? "/svg/inner-block.svg" : "/svg/front-block.svg"} />
+      <div className={styles.blockArea}>
+        <Odonto size="var(--pixel-30)" type={type} top={() => handleSideClick("top")} right={() => handleSideClick("right")} bottom={() => handleSideClick("bottom")} left={() => handleSideClick("left")} center={() => handleSideClick("center")} {...state} />
       </div>
       {botLabel && <span className={styles.blockLabel}>{botLabel}</span>}
     </section>
@@ -74,24 +85,26 @@ export const OdontoGram = ({ submitting, inputData, setInputData, dmfT, defT, ac
   return (
     <section className={styles.odontoGram}>
       <OdontoHead text="Odontogram" />
-      <article className={styles.gramField}>
-        {children}
-        <section className={styles.gramScore}>
-          <ScoreRows>
-            <ScoreInput label="D" name="dmf_d" value={inputData.dmf_d} onChange={handleInputChange} />
-            <ScoreInput label="M" name="dmf_m" value={inputData.dmf_m} onChange={handleInputChange} />
-            <ScoreInput label="F" name="dmf_f" value={inputData.dmf_f} onChange={handleInputChange} />
-            <ScoreInput label="DMF-T" value={dmfT} isReadonly />
-          </ScoreRows>
-          <ScoreRows>
-            <ScoreInput label="D" name="def_d" value={inputData.def_d} onChange={handleInputChange} />
-            <ScoreInput label="e" name="def_e" value={inputData.def_e} onChange={handleInputChange} />
-            <ScoreInput label="F" name="def_f" value={inputData.def_f} onChange={handleInputChange} />
-            <ScoreInput label="DeF-T" value={defT} isReadonly />
-          </ScoreRows>
-        </section>
-        <Button id="handle-form-submit" radius="full" action={action} type="submit" buttonText="Simpan" isLoading={submitting} loadingContent={<LoadingContent />} />
-      </article>
+      <section className={styles.gramWrap}>
+        <article className={styles.gramField}>
+          {children}
+          <section className={styles.gramScore}>
+            <ScoreRows>
+              <ScoreInput label="D" name="dmf_d" value={inputData.dmf_d} onChange={handleInputChange} />
+              <ScoreInput label="M" name="dmf_m" value={inputData.dmf_m} onChange={handleInputChange} />
+              <ScoreInput label="F" name="dmf_f" value={inputData.dmf_f} onChange={handleInputChange} />
+              <ScoreInput label="DMF-T" value={dmfT} isReadonly />
+            </ScoreRows>
+            <ScoreRows>
+              <ScoreInput label="D" name="def_d" value={inputData.def_d} onChange={handleInputChange} />
+              <ScoreInput label="e" name="def_e" value={inputData.def_e} onChange={handleInputChange} />
+              <ScoreInput label="F" name="def_f" value={inputData.def_f} onChange={handleInputChange} />
+              <ScoreInput label="DeF-T" value={defT} isReadonly />
+            </ScoreRows>
+          </section>
+          <Button id="handle-form-submit" radius="full" action={action} type="submit" buttonText="Simpan" isLoading={submitting} loadingContent={<LoadingContent />} />
+        </article>
+      </section>
     </section>
   );
 };
