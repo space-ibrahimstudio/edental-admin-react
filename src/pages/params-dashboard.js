@@ -112,14 +112,14 @@ const DashboardParamsPage = ({ parent, slug }) => {
     const updatedStates = [...existingStates];
     Object.entries(newTeethState).forEach(([toothNumber, details]) => {
       Object.keys(details).forEach((detailKey) => {
-        const [description, singkatan] = detailKey.split("_");
+        const [position, singkatan] = detailKey.split("_");
         const condition = conditionData.find((item) => item.singkatan === singkatan);
         const arti = condition ? condition.arti : "";
         const keterangan = condition ? condition.keterangan : "";
-        const existingTooth = updatedStates.find((entry) => entry.tooth.tooth === toothNumber && entry.tooth.description === description);
+        const existingTooth = updatedStates.find((entry) => entry.tooth.tooth === toothNumber);
         if (existingTooth) {
-          if (!existingTooth.detailgigi.some((detail) => detail.singkatan === singkatan)) existingTooth.detailgigi.push({ idconditiondetail: "", conddetailcreate: "", idconditiontooth: existingTooth.tooth.idconditiontooth, singkatan: singkatan, arti: arti, keterangan: keterangan });
-        } else updatedStates.push({ tooth: { idconditiontooth: "", idcondition: selectedMode === "update" ? userConditionData.idcondition : "", tooth: toothNumber, description: description }, detailgigi: [{ idconditiondetail: "", conddetailcreate: "", idconditiontooth: "", singkatan: singkatan, arti: arti, keterangan: keterangan }] });
+          if (!existingTooth.detailgigi.some((detail) => detail.singkatan === singkatan)) existingTooth.detailgigi.push({ idconditiondetail: "", conddetailcreate: "", idconditiontooth: existingTooth.tooth.idconditiontooth, singkatan, arti, potition: position, keterangan });
+        } else updatedStates.push({ tooth: { idconditiontooth: "", idcondition: selectedMode === "update" ? userConditionData.idcondition : "", tooth: toothNumber, description: "" }, detailgigi: [{ idconditiondetail: "", conddetailcreate: "", idconditiontooth: "", singkatan, arti, potition: position, keterangan }] });
       });
     });
     return updatedStates;
@@ -332,10 +332,9 @@ const DashboardParamsPage = ({ parent, slug }) => {
                     toothdata.forEach((item) => {
                       item.detail.forEach(({ tooth, detailgigi }) => {
                         const toothNumber = tooth.tooth;
-                        const side = tooth.description;
                         if (!initialStates[toothNumber]) initialStates[toothNumber] = {};
                         detailgigi.forEach((detail) => {
-                          const key = `${side}_${detail.singkatan}`;
+                          const key = `${detail.potition}_${detail.singkatan}`;
                           initialStates[toothNumber][key] = true;
                         });
                       });
@@ -588,16 +587,16 @@ const DashboardParamsPage = ({ parent, slug }) => {
             case "1":
               switch (subTabId) {
                 case "1":
-                  submittedData = { secret, idmedics: params, histori_illness: inputData.histori_illness, main_complaint: inputData.main_complaint, additional_complaint: inputData.additional_complaint, current_illness: inputData.current_illness, gravida: inputData.gravida, alergi_gatal: inputData.alergi_gatal, alergi_debu: inputData.alergi_debu, alergi_obat: inputData.alergi_obat, alergi_makanan: inputData.alergi_makanan, alergi_lainnya: inputData.alergi_lainnya };
+                  submittedData = { secret, idmedics: medicRecordId, histori_illness: inputData.histori_illness, main_complaint: inputData.main_complaint, additional_complaint: inputData.additional_complaint, current_illness: inputData.current_illness, gravida: inputData.gravida, alergi_gatal: inputData.alergi_gatal, alergi_debu: inputData.alergi_debu, alergi_obat: inputData.alergi_obat, alergi_makanan: inputData.alergi_makanan, alergi_lainnya: inputData.alergi_lainnya };
                   break;
                 case "2":
-                  submittedData = { secret, idmedics: params, occlusi: inputData.occlusi, palatinus: inputData.palatinus, mandibularis: inputData.mandibularis, palatum: inputData.palatum, diastema: inputData.diastema, anomali: inputData.anomali, other: inputData.other_odontogram };
+                  submittedData = { secret, idmedics: medicRecordId, occlusi: inputData.occlusi, palatinus: inputData.palatinus, mandibularis: inputData.mandibularis, palatum: inputData.palatum, diastema: inputData.diastema, anomali: inputData.anomali, other: inputData.other_odontogram };
                   break;
                 case "3":
-                  submittedData = { secret, idmedics: params, desciption: inputData.desc, pulse: inputData.nadi, tension: inputData.tensi, temperature: inputData.suhu, weight: inputData.berat_badan, height: inputData.tinggi_badan, breath: inputData.pernapasan, eye: inputData.mata, mouth: inputData.mulut_gigi, skin: inputData.kulit };
+                  submittedData = { secret, idmedics: medicRecordId, desciption: inputData.desc, pulse: inputData.nadi, tension: inputData.tensi, temperature: inputData.suhu, weight: inputData.berat_badan, height: inputData.tinggi_badan, breath: inputData.pernapasan, eye: inputData.mata, mouth: inputData.mulut_gigi, skin: inputData.kulit };
                   break;
                 case "4":
-                  submittedData = { secret, idmedics: params };
+                  submittedData = { secret, idmedics: medicRecordId };
                   break;
                 default:
                   break;
@@ -606,27 +605,27 @@ const DashboardParamsPage = ({ parent, slug }) => {
             case "2":
               switch (subTabId) {
                 case "1":
-                  submittedData = { secret, idmedics: params, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoAllData.filter((allitem) => allitem["tooth"].idconditiontooth === "").map((item) => ({ nomergigi: item["tooth"].tooth, desc: item["tooth"].description, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan })) })) };
+                  submittedData = { secret, idmedics: medicRecordId, D: inputData.dmf_d, M: inputData.dmf_m, F: inputData.dmf_f, dmfskor: dmfT, De: inputData.def_d, E: inputData.def_e, eF: inputData.def_f, defskor: defT, gigi: odontoAllData.filter((allitem) => allitem["tooth"].idconditiontooth === "").map((item) => ({ nomergigi: item["tooth"].tooth, kondisi: item["detailgigi"].map((subitem) => ({ singkatan: subitem.singkatan, arti: subitem.arti, keterangan: subitem.keterangan, desc: subitem.potition })) })) };
                   break;
                 case "2":
-                  submittedData = { secret, type: inputData.diagnose, code: inputData.diagnosecode, detail: inputData.diagnosedetail, idmedics: params, note: inputData.note };
+                  submittedData = { secret, type: inputData.diagnose, code: inputData.diagnosecode, detail: inputData.diagnosedetail, idmedics: medicRecordId, note: inputData.note };
                   break;
                 case "3":
                   if (selectedMode === "update") submittedData = { secret, name: inputData.name, phone: inputData.phone, bank_code: inputData.bank_code, dentist: inputData.dentist, transactionstatus: inputData.status, layanan: inputData.order };
-                  else submittedData = { secret, idmedics: params, idreservation: inputData.rscode };
+                  else submittedData = { secret, idmedics: medicRecordId, idreservation: inputData.rscode };
                   break;
                 case "4":
-                  submittedData = { secret, idmedics: params, stock: inputData.alkesitem };
+                  submittedData = { secret, idmedics: medicRecordId, stock: inputData.alkesitem };
                   break;
                 case "5":
-                  submittedData = { secret, idmedics: params, name: inputData.name, price: inputData.price, address: inputData.address };
+                  submittedData = { secret, idmedics: medicRecordId, name: inputData.name, price: inputData.price, address: inputData.address };
                   break;
                 default:
                   break;
               }
               break;
             case "3":
-              submittedData = { secret, idmedics: params, recipe: inputData.recipe };
+              submittedData = { secret, idmedics: medicRecordId, recipe: inputData.recipe };
               break;
             default:
               break;

@@ -597,7 +597,7 @@ export const Odonto = ({ size, type = "inner", whole_sou = false, whole_cfr = fa
                 {center_amf && <rect id="center_amf" x="8.4" y="8.40002" width="13.2" height="13.2" fill="black" />}
                 {center_cof && <path id="center_cof" fillRule="evenodd" clipRule="evenodd" d="M21.6 8.40002V21.6H8.4V8.40002H21.6ZM8.55 8.55002V21.45H9V8.55002H8.55ZM9.45 8.55002V21.45H9.9V8.55002H9.45ZM10.35 21.45H10.8V8.55002H10.35V21.45ZM11.25 8.55002V21.45H11.7V8.55002H11.25ZM12.15 8.55002V21.45H12.6V8.55002H12.15ZM13.05 8.55002V21.45H13.5V8.55002H13.05ZM13.95 8.55002V21.45H14.4V8.55002H13.95ZM14.85 8.55002V21.45H15.3V8.55002H14.85ZM15.75 8.55002V21.45H16.2V8.55002H15.75ZM16.65 8.55002V21.45H17.1V8.55002H16.65ZM17.55 8.55002V21.45H18V8.55002H17.55ZM18.45 8.55002V21.45H18.9V8.55002H18.45ZM19.35 8.55002V21.45H19.8V8.55002H19.35ZM20.25 8.55002V21.45H20.7V8.55002H20.25ZM21.15 8.55002V21.45H21.45V8.55002H21.15Z" fill="black" />}
                 {center_fis && <path id="center_fis" fillRule="evenodd" clipRule="evenodd" d="M21.6 8.40002V21.6H8.4V8.40002H21.6ZM8.55 8.55002V21.45H9V8.55002H8.55ZM9.45 8.55002V21.45H9.9V8.55002H9.45ZM10.35 21.45H10.8V8.55002H10.35V21.45ZM11.25 8.55002V21.45H11.7V8.55002H11.25ZM12.15 8.55002V21.45H12.6V8.55002H12.15ZM13.05 8.55002V21.45H13.5V8.55002H13.05ZM13.95 8.55002V21.45H14.4V8.55002H13.95ZM14.85 8.55002V21.45H15.3V8.55002H14.85ZM15.75 8.55002V21.45H16.2V8.55002H15.75ZM16.65 8.55002V21.45H17.1V8.55002H16.65ZM17.55 8.55002V21.45H18V8.55002H17.55ZM18.45 8.55002V21.45H18.9V8.55002H18.45ZM19.35 8.55002V21.45H19.8V8.55002H19.35ZM20.25 8.55002V21.45H20.7V8.55002H20.25ZM21.15 8.55002V21.45H21.45V8.55002H21.15Z" fill="#900000" />}
-                {center_car && <path id="center_car" fill-rule="evenodd" clip-rule="evenodd" d="M8.4 8.40002H21.6V21.6H8.4V8.40002ZM9 9.00002H21V21H9V9.00002Z" fill="black" />}
+                {center_car && <path id="center_car" fillRule="evenodd" clipRule="evenodd" d="M8.4 8.40002H21.6V21.6H8.4V8.40002ZM9 9.00002H21V21H9V9.00002Z" fill="black" />}
               </g>
               <g id="left" onClick={left}>
                 <path id="left_base" d="M7.2 8.0566V21.9434L1.21152 27.9319V2.06812L7.2 8.0566Z" fill="white" />
@@ -620,7 +620,7 @@ export const Odonto = ({ size, type = "inner", whole_sou = false, whole_cfr = fa
                     fill="#900000"
                   />
                 )}
-                {left_car && <path id="left_car" fill-rule="evenodd" clip-rule="evenodd" d="M7.20048 21.9437L1.212 27.9323V2.06848L7.20048 8.05697V21.9437ZM1.812 3.51701L6.60048 8.3055V21.6952L1.812 26.4837V3.51701Z" fill="black" />}
+                {left_car && <path id="left_car" fillRule="evenodd" clipRule="evenodd" d="M7.20048 21.9437L1.212 27.9323V2.06848L7.20048 8.05697V21.9437ZM1.812 3.51701L6.60048 8.3055V21.6952L1.812 26.4837V3.51701Z" fill="black" />}
               </g>
               <g id="bottom" onClick={bottom}>
                 <path id="bottom_base" d="M8.05675 22.8H21.9434L27.9319 28.7885H2.06824L8.05675 22.8Z" fill="white" />
@@ -643,7 +643,7 @@ export const Odonto = ({ size, type = "inner", whole_sou = false, whole_cfr = fa
                     fill="#900000"
                   />
                 )}
-                {bottom_car && <path id="bottom_car" fill-rule="evenodd" clip-rule="evenodd" d="M21.9437 22.8H8.05701L2.0685 28.7885H27.9322L21.9437 22.8ZM8.30553 23.4L3.51703 28.1885H26.4836L21.6951 23.4H8.30553Z" fill="black" />}
+                {bottom_car && <path id="bottom_car" fillRule="evenodd" clipRule="evenodd" d="M21.9437 22.8H8.05701L2.0685 28.7885H27.9322L21.9437 22.8ZM8.30553 23.4L3.51703 28.1885H26.4836L21.6951 23.4H8.30553Z" fill="black" />}
               </g>
               <g id="right" onClick={right}>
                 <path id="right_base" d="M22.8 21.9433V8.05674L28.7885 2.06824V27.9318L22.8 21.9433Z" fill="white" />
@@ -666,7 +666,7 @@ export const Odonto = ({ size, type = "inner", whole_sou = false, whole_cfr = fa
                     fill="#900000"
                   />
                 )}
-                {right_car && <path id="right_car" fill-rule="evenodd" clip-rule="evenodd" d="M22.8 8.05699L28.7885 2.06848V27.932L22.8 21.9435V8.05699ZM28.1885 26.4835L23.4 21.695V8.30552L28.1885 3.51701V26.4835Z" fill="black" />}
+                {right_car && <path id="right_car" fillRule="evenodd" clipRule="evenodd" d="M22.8 8.05699L28.7885 2.06848V27.932L22.8 21.9435V8.05699ZM28.1885 26.4835L23.4 21.695V8.30552L28.1885 3.51701V26.4835Z" fill="black" />}
               </g>
               <g id="top" onClick={top}>
                 <path id="top_base" d="M8.05673 7.20003L2.06824 1.21155H27.9319L21.9434 7.20003H8.05673Z" fill="white" />
@@ -689,7 +689,7 @@ export const Odonto = ({ size, type = "inner", whole_sou = false, whole_cfr = fa
                     fill="#900000"
                   />
                 )}
-                {top_car && <path id="top_car" fill-rule="evenodd" clip-rule="evenodd" d="M8.05699 7.20052H21.9436L27.9322 1.21204H2.0685L8.05699 7.20052ZM3.51703 1.81204L8.30552 6.60052H21.6951L26.4836 1.81204H3.51703Z" fill="black" />}
+                {top_car && <path id="top_car" fillRule="evenodd" clipRule="evenodd" d="M8.05699 7.20052H21.9436L27.9322 1.21204H2.0685L8.05699 7.20052ZM3.51703 1.81204L8.30552 6.60052H21.6951L26.4836 1.81204H3.51703Z" fill="black" />}
               </g>
               <path id="frame" fillRule="evenodd" clipRule="evenodd" d="M0 30V0H30V30H0ZM2.06824 1.21152L8.05673 7.2H21.9434L27.9319 1.21152H2.06824ZM22.8 8.05675V21.9433L28.7885 27.9318V2.06824L22.8 8.05675ZM21.9434 22.8H8.05675L2.06824 28.7885H27.9319L21.9434 22.8ZM7.2 21.9434V8.05662L1.21152 2.06813V27.9319L7.2 21.9434ZM21.6 8.4H8.4V21.6H21.6V8.4Z" fill="#045E83" fillOpacity={whole_sou ? "0.75" : "0.5"} />
             </g>
@@ -717,7 +717,7 @@ export const Odonto = ({ size, type = "inner", whole_sou = false, whole_cfr = fa
                     fill="#900000"
                   />
                 )}
-                {left_car && <path id="left_car" fill-rule="evenodd" clip-rule="evenodd" d="M8.9003 15.0001L1.20001 27.8339V2.16626L8.9003 15.0001ZM1.80001 4.33245L8.20058 15.0001L1.80001 25.6677V4.33245Z" fill="black" />}
+                {left_car && <path id="left_car" fillRule="evenodd" clipRule="evenodd" d="M8.9003 15.0001L1.20001 27.8339V2.16626L8.9003 15.0001ZM1.80001 4.33245L8.20058 15.0001L1.80001 25.6677V4.33245Z" fill="black" />}
               </g>
               <g id="bottom" onClick={bottom}>
                 <path id="bottom_base" d="M2.01974 28.8H27.9803L20.0603 15.6H9.93974L2.01974 28.8Z" fill="white" />
@@ -740,7 +740,7 @@ export const Odonto = ({ size, type = "inner", whole_sou = false, whole_cfr = fa
                     fill="#900000"
                   />
                 )}
-                {bottom_car && <path id="bottom_car" fill-rule="evenodd" clip-rule="evenodd" d="M27.9803 28.8H2.01974L9.93974 15.6H20.0603L27.9803 28.8ZM19.7206 16.2L26.9206 28.2H3.07946L10.2795 16.2H19.7206Z" fill="black" />}
+                {bottom_car && <path id="bottom_car" fillRule="evenodd" clipRule="evenodd" d="M27.9803 28.8H2.01974L9.93974 15.6H20.0603L27.9803 28.8ZM19.7206 16.2L26.9206 28.2H3.07946L10.2795 16.2H19.7206Z" fill="black" />}
               </g>
               <g id="right" onClick={right}>
                 <path id="right_base" d="M21.0997 15.0001L28.8 27.8339V2.16626L21.0997 15.0001Z" fill="white" />
@@ -763,7 +763,7 @@ export const Odonto = ({ size, type = "inner", whole_sou = false, whole_cfr = fa
                     fill="#900000"
                   />
                 )}
-                {right_car && <path id="right_car" fill-rule="evenodd" clip-rule="evenodd" d="M28.8 27.8339V2.16626L21.0997 15.0001L28.8 27.8339ZM28.2 4.33245L21.7994 15.0001L28.2 25.6677V4.33245Z" fill="black" />}
+                {right_car && <path id="right_car" fillRule="evenodd" clipRule="evenodd" d="M28.8 27.8339V2.16626L21.0997 15.0001L28.8 27.8339ZM28.2 4.33245L21.7994 15.0001L28.2 25.6677V4.33245Z" fill="black" />}
               </g>
               <g id="top" onClick={top}>
                 <path id="top_base" d="M27.9803 1.19995L20.0603 14.4H9.93972L2.01971 1.19995H27.9803Z" fill="white" />
@@ -786,7 +786,7 @@ export const Odonto = ({ size, type = "inner", whole_sou = false, whole_cfr = fa
                     fill="#900000"
                   />
                 )}
-                {top_car && <path id="top_car" fill-rule="evenodd" clip-rule="evenodd" d="M2.01971 1.19995H27.9803L20.0603 14.4H9.93972L2.01971 1.19995ZM19.7206 13.8L26.9206 1.79995H3.07943L10.2794 13.8H19.7206Z" fill="black" />}
+                {top_car && <path id="top_car" fillRule="evenodd" clipRule="evenodd" d="M2.01971 1.19995H27.9803L20.0603 14.4H9.93972L2.01971 1.19995ZM19.7206 13.8L26.9206 1.79995H3.07943L10.2794 13.8H19.7206Z" fill="black" />}
               </g>
               <path id="frame" fillRule="evenodd" clipRule="evenodd" d="M0 0V30H30V0H0ZM27.9803 28.8H2.01971L9.93971 15.6H20.0603L27.9803 28.8ZM20.0603 14.4L27.9803 1.2H2.01971L9.93972 14.4H20.0603ZM1.2 27.8338L8.90029 15L1.2 2.16619V27.8338ZM28.8 27.8338L21.0997 15L28.8 2.16619V27.8338Z" fill="#045E83" fillOpacity={whole_sou ? "0.75" : "0.5"} />
             </g>
@@ -794,10 +794,10 @@ export const Odonto = ({ size, type = "inner", whole_sou = false, whole_cfr = fa
           {whole_cfr && <path id="whole_cfr" d="M16.4702 26.1959L20.1527 3.75H21.3473L17.6648 26.1959H16.4702ZM5.85 19.4775L6.04728 18.2719H22.7941L22.5968 19.4775H5.85ZM8.57902 26.1959L12.2616 3.75H13.4562L9.77365 26.1959H8.57902ZM7.13231 11.674L7.34055 10.4684H24.0873L23.8791 11.674H7.13231Z" fill="black" />}
           {whole_rrx && <path id="whole_rrx" d="M23.963 1.55433L22.8166 1.19995L14.9789 26.5559L7.14648 1.2167L6 1.57108L14.4166 28.8L15.0086 28.6169L15.5465 28.7832L23.963 1.55433Z" fill="black" />}
           {whole_mis && <path id="whole_mis" d="M8.66267 3.05771L9.75 2.55005L14.925 13.6341L20.1 2.55005L21.1873 3.05771L15.5872 15.0523L21.1724 27.0149L20.085 27.5226L14.925 16.4706L9.76497 27.5226L8.67765 27.0149L14.2628 15.0523L8.66267 3.05771Z" fill="black" />}
-          {whole_fmc && <path id="whole_fmc" fill-rule="evenodd" clip-rule="evenodd" d="M0 0H30V30H0V0ZM1.2 1.2H28.8V28.8H1.2V1.2Z" fill="black" />}
-          {whole_meb && <path id="whole_fmc" fill-rule="evenodd" clip-rule="evenodd" d="M0 0H30V30H0V0ZM1.2 1.2H28.8V28.8H1.2V1.2Z" fill="black" />}
-          {whole_poc && <path id="whole_poc" fill-rule="evenodd" clip-rule="evenodd" d="M30 0H0V30H30V0ZM1.95 1.2H1.2V28.8H1.95V1.2ZM2.4 1.2V28.8H3.3V1.2H2.4ZM3.75 1.2V28.8H4.65V1.2H3.75ZM5.1 1.2V28.8H6V1.2H5.1ZM6.45 1.2V28.8H7.35V1.2H6.45ZM7.8 1.2V28.8H8.7V1.2H7.8ZM9.15 1.2V28.8H10.05V1.2H9.15ZM10.5 1.2V28.8H11.4V1.2H10.5ZM11.85 1.2V28.8H12.75V1.2H11.85ZM13.2 1.2V28.8H14.1V1.2H13.2ZM14.55 1.2V28.8H15.45V1.2H14.55ZM15.9 1.2V28.8H16.8V1.2H15.9ZM17.25 1.2V28.8H18.15V1.2H17.25ZM18.6 1.2V28.8H19.5V1.2H18.6ZM19.95 1.2V28.8H20.85V1.2H19.95ZM21.3 1.2V28.8H22.2V1.2H21.3ZM22.65 1.2V28.8H23.55V1.2H22.65ZM24 1.2V28.8H24.9V1.2H24ZM25.35 1.2V28.8H26.25V1.2H25.35ZM26.7 1.2V28.8H27.6V1.2H26.7ZM28.05 1.2V28.8H28.8V1.2H28.05Z" fill="black" />}
-          {whole_pob && <path id="whole_poc" fill-rule="evenodd" clip-rule="evenodd" d="M30 0H0V30H30V0ZM1.95 1.2H1.2V28.8H1.95V1.2ZM2.4 1.2V28.8H3.3V1.2H2.4ZM3.75 1.2V28.8H4.65V1.2H3.75ZM5.1 1.2V28.8H6V1.2H5.1ZM6.45 1.2V28.8H7.35V1.2H6.45ZM7.8 1.2V28.8H8.7V1.2H7.8ZM9.15 1.2V28.8H10.05V1.2H9.15ZM10.5 1.2V28.8H11.4V1.2H10.5ZM11.85 1.2V28.8H12.75V1.2H11.85ZM13.2 1.2V28.8H14.1V1.2H13.2ZM14.55 1.2V28.8H15.45V1.2H14.55ZM15.9 1.2V28.8H16.8V1.2H15.9ZM17.25 1.2V28.8H18.15V1.2H17.25ZM18.6 1.2V28.8H19.5V1.2H18.6ZM19.95 1.2V28.8H20.85V1.2H19.95ZM21.3 1.2V28.8H22.2V1.2H21.3ZM22.65 1.2V28.8H23.55V1.2H22.65ZM24 1.2V28.8H24.9V1.2H24ZM25.35 1.2V28.8H26.25V1.2H25.35ZM26.7 1.2V28.8H27.6V1.2H26.7ZM28.05 1.2V28.8H28.8V1.2H28.05Z" fill="black" />}
+          {whole_fmc && <path id="whole_fmc" fillRule="evenodd" clipRule="evenodd" d="M0 0H30V30H0V0ZM1.2 1.2H28.8V28.8H1.2V1.2Z" fill="black" />}
+          {whole_meb && <path id="whole_fmc" fillRule="evenodd" clipRule="evenodd" d="M0 0H30V30H0V0ZM1.2 1.2H28.8V28.8H1.2V1.2Z" fill="black" />}
+          {whole_poc && <path id="whole_poc" fillRule="evenodd" clipRule="evenodd" d="M30 0H0V30H30V0ZM1.95 1.2H1.2V28.8H1.95V1.2ZM2.4 1.2V28.8H3.3V1.2H2.4ZM3.75 1.2V28.8H4.65V1.2H3.75ZM5.1 1.2V28.8H6V1.2H5.1ZM6.45 1.2V28.8H7.35V1.2H6.45ZM7.8 1.2V28.8H8.7V1.2H7.8ZM9.15 1.2V28.8H10.05V1.2H9.15ZM10.5 1.2V28.8H11.4V1.2H10.5ZM11.85 1.2V28.8H12.75V1.2H11.85ZM13.2 1.2V28.8H14.1V1.2H13.2ZM14.55 1.2V28.8H15.45V1.2H14.55ZM15.9 1.2V28.8H16.8V1.2H15.9ZM17.25 1.2V28.8H18.15V1.2H17.25ZM18.6 1.2V28.8H19.5V1.2H18.6ZM19.95 1.2V28.8H20.85V1.2H19.95ZM21.3 1.2V28.8H22.2V1.2H21.3ZM22.65 1.2V28.8H23.55V1.2H22.65ZM24 1.2V28.8H24.9V1.2H24ZM25.35 1.2V28.8H26.25V1.2H25.35ZM26.7 1.2V28.8H27.6V1.2H26.7ZM28.05 1.2V28.8H28.8V1.2H28.05Z" fill="black" />}
+          {whole_pob && <path id="whole_poc" fillRule="evenodd" clipRule="evenodd" d="M30 0H0V30H30V0ZM1.95 1.2H1.2V28.8H1.95V1.2ZM2.4 1.2V28.8H3.3V1.2H2.4ZM3.75 1.2V28.8H4.65V1.2H3.75ZM5.1 1.2V28.8H6V1.2H5.1ZM6.45 1.2V28.8H7.35V1.2H6.45ZM7.8 1.2V28.8H8.7V1.2H7.8ZM9.15 1.2V28.8H10.05V1.2H9.15ZM10.5 1.2V28.8H11.4V1.2H10.5ZM11.85 1.2V28.8H12.75V1.2H11.85ZM13.2 1.2V28.8H14.1V1.2H13.2ZM14.55 1.2V28.8H15.45V1.2H14.55ZM15.9 1.2V28.8H16.8V1.2H15.9ZM17.25 1.2V28.8H18.15V1.2H17.25ZM18.6 1.2V28.8H19.5V1.2H18.6ZM19.95 1.2V28.8H20.85V1.2H19.95ZM21.3 1.2V28.8H22.2V1.2H21.3ZM22.65 1.2V28.8H23.55V1.2H22.65ZM24 1.2V28.8H24.9V1.2H24ZM25.35 1.2V28.8H26.25V1.2H25.35ZM26.7 1.2V28.8H27.6V1.2H26.7ZM28.05 1.2V28.8H28.8V1.2H28.05Z" fill="black" />}
         </g>
       </svg>
       <svg width="100%" height="50%" style={{ position: "absolute", top: "var(--pixel-min-15)", left: "0" }} viewBox="0 0 30 15" fill="none" xmlns="http://www.w3.org/2000/svg">
