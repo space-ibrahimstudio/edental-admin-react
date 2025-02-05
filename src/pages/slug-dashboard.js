@@ -3575,8 +3575,8 @@ const DashboardSlugPage = ({ parent, slug }) => {
                     <TR key={index}>
                       <TD>{newDate(data.transactioncreate, "id")}</TD>
                       <TD type="code">{data.idtransaction}</TD>
-                      <TD>{data.totalpay}</TD>
-                      <TD>{newPrice(data.payment)}</TD>
+                      <TD>{newPrice(data.totalpay)}</TD>
+                      <TD>{data.payment}</TD>
                       <TD type="code">{data.noinvoice}</TD>
                       <TD>{data.transaction_name}</TD>
                       <TD>{data.lab_price}</TD>
