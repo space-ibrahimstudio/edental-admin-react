@@ -55,7 +55,7 @@ const DashboardOverviewPage = () => {
         setLoading(false);
       }
     };
-    if (isLoggedin) {
+    if (isLoggedin && level !== "dentist") {
       fetchData();
     }
   }, []);
