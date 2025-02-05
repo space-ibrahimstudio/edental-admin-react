@@ -13,7 +13,7 @@ import { useAuth } from "../libs/securities/auth";
 import { useApi } from "../libs/apis/office";
 import { useNotifications } from "../components/feedbacks/context/notifications-context";
 import { useSearch } from "../libs/plugins/handler";
-import { getCurrentDate, getNormalPhoneNumber, exportToExcel, getNestedValue, inputValidator, emailValidator, generateExcel } from "../libs/plugins/controller";
+import { getCurrentDate, exportToExcel, getNestedValue, inputValidator, emailValidator, generateExcel } from "../libs/plugins/controller";
 import { inputSchema, errorSchema } from "../libs/sources/common";
 import { useOptions, useAlias } from "../libs/plugins/helper";
 import Pages from "../components/frames/pages";
@@ -117,6 +117,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const [credData, setCredData] = useState([]);
   const [outletFilter, setOutletFilter] = useState("999");
   const [dentistFilter, setDentistFilter] = useState("999");
+  const [dentistReportData, setDentistReportData] = useState([]);
 
   const [inputData, setInputData] = useState({ ...inputSchema });
   const [onpageData, setOnpageData] = useState({ ...inputSchema });
@@ -667,6 +668,12 @@ const DashboardSlugPage = ({ parent, slug }) => {
             setTotalPages(0);
           }
           break;
+        case "DENTISTREPORT":
+          addtFormData.append("data", JSON.stringify({ secret, limit, hal: offset }));
+          data = await apiRead(addtFormData, "dentist", "orderdentist");
+          setDentistReportData(data && data.data && data.data.length > 0 ? data.data : []);
+          setTotalPages(data && data.data && data.data.length > 0 ? data.TTLPage : 0);
+          break;
         default:
           setTotalPages(0);
           break;
@@ -1098,6 +1105,7 @@ const DashboardSlugPage = ({ parent, slug }) => {
   const { searchTerm: locationSearch, handleSearch: handleLocationSearch, filteredData: filteredLocationData, isDataShown: isLocationShown } = useSearch(locationData, ["cityname"]);
   const { searchTerm: patientSearch, handleSearch: handlePatientSearch, filteredData: filteredPatientData, isDataShown: isPatientShown } = useSearch(patientData, ["transaction.dentist"]);
   const { searchTerm: credSearch, handleSearch: handleCredSearch, filteredData: filteredCredData, isDataShown: isCredShown } = useSearch(credData, ["outlet_name", "clientid", "secretid"]);
+  const { searchTerm: dReportSearch, handleSearch: handleDReportSearch, filteredData: filteredDReportData, isDataShown: isDReportShown } = useSearch(dentistReportData, ["rscode"]);
 
   const renderContent = () => {
     switch (slug) {
@@ -2751,11 +2759,6 @@ const DashboardSlugPage = ({ parent, slug }) => {
           }
         };
 
-        // const contactWhatsApp = (number, name, invLink) => {
-        //   const wanumber = getNormalPhoneNumber(number);
-        //   window.open(`https://wa.me/${wanumber}?text=Halo%20${name}!%0ATerima%20kasih%20sudah%20melakukan%20transaksi%20di%20Edental.%20Klik%20link%20dibawah%20untuk%20mengunduh%20Invoice%20transaksimu%20%3A%0A%0A${invLink}%0A%0A*Link%20diatas%20berlaku%20selama%2030%20menit.%20Hubungi%20kami%20jika%20link%20tidak%20dapat%20diakses.%20Terima%20kasih!`, "_blank");
-        // };
-
         return (
           <Fragment>
             <DashboardHead title={pagetitle} desc="Data order customer ini dibuat otomatis saat proses reservasi dilakukan. Klik baris data untuk melihat masing-masing detail layanan & produk terpakai." />
@@ -3502,6 +3505,95 @@ const DashboardSlugPage = ({ parent, slug }) => {
               </Table>
             </DashboardBody>
             {isPatientShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
+          </Fragment>
+        );
+      case "DENTISTREPORT":
+        return (
+          <Fragment>
+            <DashboardHead title={pagetitle} desc="Data pengguna aplikasi. Klik Tambah Baru untuk membuat data pengguna baru, atau klik ikon di kolom Action untuk memperbarui data." />
+            <DashboardToolbar>
+              <DashboardTool>
+                <Input id={`search-data-${pageid}`} radius="full" labeled={false} placeholder="Cari data ..." type="text" value={dReportSearch} onChange={(e) => handleDReportSearch(e.target.value)} leadingicon={<Search />} />
+              </DashboardTool>
+              <DashboardTool>
+                <Select id={`limit-data-${pageid}`} labeled={false} noemptyval radius="full" placeholder="Baris per Halaman" value={limit} options={limitopt} onChange={handleLimitChange} readonly={!isDReportShown} />
+              </DashboardTool>
+            </DashboardToolbar>
+            <DashboardBody>
+              <Table byNumber page={currentPage} limit={limit} isNoData={!isDReportShown} isLoading={isFetching}>
+                <THead>
+                  <TR>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "transactioncreate", "date")}>
+                      Transaksi Dibuat
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "idtransaction", "number")}>
+                      id
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "totalpay", "number")}>
+                      Nominal
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "payment", "text")}>
+                      Payment Method
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "noinvoice", "number")}>
+                      Nomor Invoice
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "transaction_name", "text")}>
+                      Transaction Name
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "lab_price", "number")}>
+                      Lab Price
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "lab_name", "text")}>
+                      Lab Name
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "service", "text")}>
+                      Service
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "transactionname", "text")}>
+                      Nama Pasien
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "service_type", "text")}>
+                      Service Type
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "dentist", "text")}>
+                      Dentist
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "rscode", "number")}>
+                      RSCode
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "status", "number")}>
+                      Status
+                    </TH>
+                    <TH isSorted onSort={() => handleSort(dentistReportData, setDentistReportData, "transactionphone", "number")}>
+                      Nomor Telepon
+                    </TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {filteredDReportData.map((data, index) => (
+                    <TR key={index}>
+                      <TD>{newDate(data.transactioncreate, "id")}</TD>
+                      <TD type="code">{data.idtransaction}</TD>
+                      <TD>{data.totalpay}</TD>
+                      <TD>{newPrice(data.payment)}</TD>
+                      <TD type="code">{data.noinvoice}</TD>
+                      <TD>{data.transaction_name}</TD>
+                      <TD>{data.lab_price}</TD>
+                      <TD>{data.lab_name}</TD>
+                      <TD>{data.service}</TD>
+                      <TD>{data.transactionname}</TD>
+                      <TD>{data.service_type}</TD>
+                      <TD>{data.dentist}</TD>
+                      <TD type="code">{data.rscode}</TD>
+                      <TD>{data.status}</TD>
+                      <TD type="code">{data.transactionphone}</TD>
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </DashboardBody>
+            {isDReportShown && <Pagination radius="full" nospacing currentPage={currentPage} ttlPages={totalPages} onChange={handlePageChange} />}
           </Fragment>
         );
       default:

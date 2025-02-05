@@ -33,7 +33,7 @@ export const DashboardContainer = ({ children }) => {
 };
 
 const DashboardOverviewPage = () => {
-  const { isLoggedin, secret, idoutlet } = useAuth();
+  const { isLoggedin, secret, idoutlet, level } = useAuth();
   const { apiRead } = useApi();
   const { setLoading } = useLoading();
   const [summaryData, setSummaryData] = useState(null);
@@ -61,6 +61,7 @@ const DashboardOverviewPage = () => {
   }, []);
 
   if (!isLoggedin) return <Navigate to="/login" />;
+  if (level === "dentist") return <Navigate to="/order/dentistreport" />;
   return (
     <Pages title="Overview | Dashboard">
       <DashboardContainer>
